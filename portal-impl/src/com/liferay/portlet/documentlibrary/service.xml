@@ -101,6 +101,12 @@
 			<finder-column name="path" />
 			<finder-column name="version" />
 		</finder>
+
+		<!-- Rules -->
+
+		<rule name="delete_DLContent_data_" definition="as on delete to DLContent do also select case when exists (select 1 from pg_catalog.pg_largeobject where (loid = old.data_)) then lo_unlink (old.data_) end from DLContent where DLContent.data_ = old.data_;" />
+		<rule name="update_DLContent_data_" definition="as on update to DLContent where old.data_ is distinct from new.data_ and old.data_ is not null do also select case when exists (select 1 from pg_catalog.pg_largeobject where (loid = old.data_)) then lo_unlink (old.data_) end from DLContent where DLContent.data_ = old.data_;" />
+
 	</entity>
 	<entity name="DLFileEntry" human-name="document library file entry" uuid="true" local-service="true" remote-service="true" trash-enabled="true">
 
@@ -244,6 +250,10 @@
 		<!-- PK fields -->
 
 		<column name="fileEntryMetadataId" type="long" primary="true" />
+
+		<!-- Audit fields -->
+
+		<column name="companyId" type="long" />
 
 		<!-- Other fields -->
 
@@ -681,6 +691,7 @@
 
 		<!-- Audit fields -->
 
+		<column name="companyId" type="long" />
 		<column name="modifiedTime" type="long" />
 
 		<!-- Other fields -->
@@ -708,6 +719,7 @@
 		<exception>DirectoryName</exception>
 		<exception>DuplicateDirectory</exception>
 		<exception>DuplicateFile</exception>
+		<exception>DuplicateFileEntry</exception>
 		<exception>DuplicateFileEntryType</exception>
 		<exception>DuplicateFolderName</exception>
 		<exception>DuplicateRepositoryName</exception>

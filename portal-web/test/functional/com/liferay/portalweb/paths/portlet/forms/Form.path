@@ -10,7 +10,17 @@
 <tbody>
 <tr>
 	<td>SAVE_BUTTON</td>
-	<td>//div[@class='button-holder ddl-form-builder-buttons']/button[contains(.,'Save')]</td>
+	<td>//div[@class='button-holder ddl-form-builder-buttons']//button[contains(.,'Save')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SAVE_BUTTON_DROPDOWN</td>
+	<td>//div[@class='button-holder ddl-form-builder-buttons']//button[contains(@id,'submitToggle')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SAVE_BUTTON_DROPDOWN_SAVE_AND_PUBLISH_LIVE_PAGE</td>
+	<td>//div[@class='button-holder ddl-form-builder-buttons']//ul[@class='dropdown-menu']//a[@class='ddl-button publish save']</td>
 	<td></td>
 </tr>
 <tr>
@@ -77,8 +87,13 @@
 </tr>
 <!--ADD_FIELD-->
 <tr>
-	<td>ADD_FIELD</td>
-	<td>//div[@class='col col-md-${key_columnSize}']//label[@class='form-builder-field-list-add-button-label' and contains(text(),'+ ADD FIELD')]/../../div</td>
+	<td>ADD_ADDITIONAL_FIELD</td>
+	<td>//div[contains(@class,'col col-md-${key_columnSize}')]//div[contains(@data-fieldname,'${key_previousFieldName}')]/../following-sibling::div//label[@class='form-builder-field-list-add-button-label']/label</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ADD_FIRST_FIELD</td>
+	<td>//div[contains(@class,'col col-md-${key_columnSize}')]//div[contains(@class,'add-button-icon')]</td>
 	<td></td>
 </tr>
 <tr>
