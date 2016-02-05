@@ -21,6 +21,7 @@ import com.google.ical.values.DateValueImpl;
 
 import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.calendar.recurrence.Recurrence;
+import com.liferay.calendar.service.CalendarBookingLocalServiceUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
@@ -28,8 +29,10 @@ import com.liferay.portal.kernel.util.TimeZoneUtil;
 
 import java.text.ParseException;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.TimeZone;
 
@@ -41,7 +44,19 @@ public class CalendarBookingIterator implements Iterator<CalendarBooking> {
 	public CalendarBookingIterator(CalendarBooking calendarBooking)
 		throws ParseException {
 
-		_calendarBooking = calendarBooking;
+		List<CalendarBooking> calendarBookings = new ArrayList<>();
+
+		try {
+			calendarBookings =
+				CalendarBookingLocalServiceUtil.
+					getRelatedRecurringCalendarBookings(
+						calendarBooking.getCalendarBookingId());
+		}
+		catch (Exception e) {
+			calendarBookings.add(calendarBooking);
+		}
+
+		_calendarBookings = calendarBookings;
 
 		_recurrenceIterator =
 			RecurrenceIteratorFactory.createRecurrenceIterator(
@@ -152,7 +167,7 @@ public class CalendarBookingIterator implements Iterator<CalendarBooking> {
 	private static final Log _log = LogFactoryUtil.getLog(
 		CalendarBookingIterator.class);
 
-	private final CalendarBooking _calendarBooking;
+	private final List<CalendarBooking> _calendarBookings;
 	private DateValue _currentDateValue;
 	private int _instanceIndex;
 	private final RecurrenceIterator _recurrenceIterator;
