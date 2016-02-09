@@ -80,6 +80,7 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 
 	public CalendarBooking addCalendarBooking(long userId, long calendarId,
 		long[] childCalendarIds, long parentCalendarBookingId,
+		long recurringCalendarBookingId,
 		Map<Locale, java.lang.String> titleMap,
 		Map<Locale, java.lang.String> descriptionMap,
 		java.lang.String location, long startTime, long endTime,
@@ -106,9 +107,15 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 	* @throws PortalException
 	*/
 	@Indexable(type = IndexableType.DELETE)
-	@SystemEvent(action = SystemEventConstants.ACTION_SKIP, type = SystemEventConstants.TYPE_DELETE)
+	@java.lang.Deprecated
 	public CalendarBooking deleteCalendarBooking(
 		CalendarBooking calendarBooking) throws PortalException;
+
+	@Indexable(type = IndexableType.DELETE)
+	@SystemEvent(action = SystemEventConstants.ACTION_SKIP, type = SystemEventConstants.TYPE_DELETE)
+	public CalendarBooking deleteCalendarBooking(
+		CalendarBooking calendarBooking, boolean allRecurringInstances)
+		throws PortalException;
 
 	/**
 	* Deletes the calendar booking with the primary key from the database. Also notifies the appropriate model listeners.
@@ -355,6 +362,10 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<CalendarBooking> getRelatedRecurringCalendarBookings(
+		long calendarBookingId) throws PortalException;
 
 	public CalendarBooking moveCalendarBookingToTrash(long userId,
 		CalendarBooking calendarBooking) throws PortalException;
