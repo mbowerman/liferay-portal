@@ -117,8 +117,8 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 			getUserId(), calendarId, childCalendarIds, parentCalendarBookingId,
 			CalendarBookingConstants.RECURRING_CALENDAR_BOOKING_ID_DEFAULT,
 			titleMap, descriptionMap, location, startTime, endTime, allDay,
-			recurrence, firstReminder, firstReminderType, secondReminder,
-			secondReminderType, serviceContext);
+			recurrence, recurrence, firstReminder, firstReminderType,
+			secondReminder, secondReminderType, serviceContext);
 	}
 
 	@Override

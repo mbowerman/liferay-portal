@@ -53,7 +53,8 @@ public class CalendarBookingLocalServiceWrapper
 		java.util.Map<java.util.Locale, java.lang.String> titleMap,
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.lang.String location, long startTime, long endTime,
-		boolean allDay, java.lang.String recurrence, long firstReminder,
+		boolean allDay, java.lang.String recurrence,
+		java.lang.String masterRecurrence, long firstReminder,
 		java.lang.String firstReminderType, long secondReminder,
 		java.lang.String secondReminderType,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -61,9 +62,9 @@ public class CalendarBookingLocalServiceWrapper
 		return _calendarBookingLocalService.addCalendarBooking(userId,
 			calendarId, childCalendarIds, parentCalendarBookingId,
 			recurringCalendarBookingId, titleMap, descriptionMap, location,
-			startTime, endTime, allDay, recurrence, firstReminder,
-			firstReminderType, secondReminder, secondReminderType,
-			serviceContext);
+			startTime, endTime, allDay, recurrence, masterRecurrence,
+			firstReminder, firstReminderType, secondReminder,
+			secondReminderType, serviceContext);
 	}
 
 	@Override
