@@ -55,6 +55,7 @@ public class CalendarBookingSoap implements Serializable {
 		soapModel.setEndTime(model.getEndTime());
 		soapModel.setAllDay(model.getAllDay());
 		soapModel.setRecurrence(model.getRecurrence());
+		soapModel.setMasterRecurrence(model.getMasterRecurrence());
 		soapModel.setFirstReminder(model.getFirstReminder());
 		soapModel.setFirstReminderType(model.getFirstReminderType());
 		soapModel.setSecondReminder(model.getSecondReminder());
@@ -290,6 +291,14 @@ public class CalendarBookingSoap implements Serializable {
 		_recurrence = recurrence;
 	}
 
+	public String getMasterRecurrence() {
+		return _masterRecurrence;
+	}
+
+	public void setMasterRecurrence(String masterRecurrence) {
+		_masterRecurrence = masterRecurrence;
+	}
+
 	public long getFirstReminder() {
 		return _firstReminder;
 	}
@@ -383,6 +392,7 @@ public class CalendarBookingSoap implements Serializable {
 	private long _endTime;
 	private boolean _allDay;
 	private String _recurrence;
+	private String _masterRecurrence;
 	private long _firstReminder;
 	private String _firstReminderType;
 	private long _secondReminder;

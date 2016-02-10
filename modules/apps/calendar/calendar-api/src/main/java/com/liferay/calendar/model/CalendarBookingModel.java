@@ -585,6 +585,21 @@ public interface CalendarBookingModel extends BaseModel<CalendarBooking>,
 	public void setRecurrence(String recurrence);
 
 	/**
+	 * Returns the master recurrence of this calendar booking.
+	 *
+	 * @return the master recurrence of this calendar booking
+	 */
+	@AutoEscape
+	public String getMasterRecurrence();
+
+	/**
+	 * Sets the master recurrence of this calendar booking.
+	 *
+	 * @param masterRecurrence the master recurrence of this calendar booking
+	 */
+	public void setMasterRecurrence(String masterRecurrence);
+
+	/**
 	 * Returns the first reminder of this calendar booking.
 	 *
 	 * @return the first reminder of this calendar booking
