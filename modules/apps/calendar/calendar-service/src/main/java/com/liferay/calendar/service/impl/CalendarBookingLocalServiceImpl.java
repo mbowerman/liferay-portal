@@ -94,9 +94,9 @@ public class CalendarBookingLocalServiceImpl
 			long parentCalendarBookingId, long recurringCalendarBookingId,
 			Map<Locale, String> titleMap, Map<Locale, String> descriptionMap,
 			String location, long startTime, long endTime, boolean allDay,
-			String recurrence, long firstReminder, String firstReminderType,
-			long secondReminder, String secondReminderType,
-			ServiceContext serviceContext)
+			String recurrence, String masterRecurrence, long firstReminder,
+			String firstReminderType, long secondReminder,
+			String secondReminderType, ServiceContext serviceContext)
 		throws PortalException {
 
 		// Calendar booking
@@ -180,6 +180,7 @@ public class CalendarBookingLocalServiceImpl
 		calendarBooking.setEndTime(endTimeJCalendar.getTimeInMillis());
 		calendarBooking.setAllDay(allDay);
 		calendarBooking.setRecurrence(recurrence);
+		calendarBooking.setRecurrence(masterRecurrence);
 		calendarBooking.setFirstReminder(firstReminder);
 		calendarBooking.setFirstReminderType(firstReminderType);
 		calendarBooking.setSecondReminder(secondReminder);
@@ -372,7 +373,8 @@ public class CalendarBookingLocalServiceImpl
 		CalendarBooking calendarBooking =
 			calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
 
-		calendarBookingLocalService.deleteCalendarBooking(calendarBooking);
+		calendarBookingLocalService.deleteCalendarBooking(
+			calendarBooking, true);
 
 		return calendarBooking;
 	}
@@ -404,6 +406,8 @@ public class CalendarBookingLocalServiceImpl
 			startTime);
 
 		Recurrence recurrenceObj = calendarBooking.getRecurrenceObj();
+		Recurrence masterRecurrenceObj =
+			calendarBooking.getMasterRecurrenceObj();
 
 		if (allFollowing) {
 			List<CalendarBooking> recurringCalendarBookings =
@@ -429,9 +433,14 @@ public class CalendarBookingLocalServiceImpl
 				recurrenceObj.setCount(0);
 			}
 
+			if (masterRecurrenceObj.getCount() > 0) {
+				masterRecurrenceObj.setCount(0);
+			}
+
 			startTimeJCalendar.add(java.util.Calendar.DATE, -1);
 
 			recurrenceObj.setUntilJCalendar(startTimeJCalendar);
+			masterRecurrenceObj.setUntilJCalendar(startTimeJCalendar);
 		}
 		else {
 			CalendarBooking calendarBookingInstance =
@@ -445,11 +454,15 @@ public class CalendarBookingLocalServiceImpl
 			}
 
 			recurrenceObj.addExceptionDate(startTimeJCalendar);
+			masterRecurrenceObj.addExceptionDate(startTimeJCalendar);
 		}
 
 		String recurrence = RecurrenceSerializer.serialize(recurrenceObj);
+		String masterRecurrence =
+			RecurrenceSerializer.serialize(masterRecurrenceObj);
 
-		updateChildCalendarBookings(calendarBooking, now, recurrence);
+		updateChildCalendarBookings(
+			calendarBooking, now, recurrence, masterRecurrence);
 	}
 
 	@Override
@@ -1022,6 +1035,8 @@ public class CalendarBookingLocalServiceImpl
 
 		String oldRecurrence = calendarBooking.getRecurrence();
 
+		String masterRecurrence = calendarBooking.getMasterRecurrence();
+
 		deleteCalendarBookingInstance(
 			calendarBooking, instanceIndex, allFollowing);
 
@@ -1058,8 +1073,9 @@ public class CalendarBookingLocalServiceImpl
 			CalendarBookingConstants.PARENT_CALENDAR_BOOKING_ID_DEFAULT,
 			calendarBooking.getRecurringCalendarBookingId(),
 			updatedTitleMap, updatedDescriptionMap, location, startTime,
-			endTime, allDay, recurrence, firstReminder, firstReminderType,
-			secondReminder, secondReminderType, serviceContext);
+			endTime, allDay, recurrence, masterRecurrence, firstReminder,
+			firstReminderType, secondReminder, secondReminderType,
+			serviceContext);
 	}
 
 	@Override
@@ -1285,6 +1301,7 @@ public class CalendarBookingLocalServiceImpl
 				calendarBooking.getLocation(), calendarBooking.getStartTime(),
 				calendarBooking.getEndTime(), calendarBooking.getAllDay(),
 				calendarBooking.getRecurrence(),
+				calendarBooking.getMasterRecurrence(),
 				calendarBooking.getFirstReminder(),
 				calendarBooking.getFirstReminderType(),
 				calendarBooking.getSecondReminder(),
@@ -1365,7 +1382,8 @@ public class CalendarBookingLocalServiceImpl
 	}
 
 	protected void updateChildCalendarBookings(
-		CalendarBooking calendarBooking, Date modifiedDate, String recurrence) {
+		CalendarBooking calendarBooking, Date modifiedDate, String recurrence,
+		String masterRecurrence) {
 
 		List<CalendarBooking> childCalendarBookings = new ArrayList<>();
 
@@ -1380,6 +1398,7 @@ public class CalendarBookingLocalServiceImpl
 		for (CalendarBooking childCalendarBooking : childCalendarBookings) {
 			childCalendarBooking.setModifiedDate(modifiedDate);
 			childCalendarBooking.setRecurrence(recurrence);
+			childCalendarBooking.setMasterRecurrence(masterRecurrence);
 
 			calendarBookingPersistence.update(childCalendarBooking);
 		}

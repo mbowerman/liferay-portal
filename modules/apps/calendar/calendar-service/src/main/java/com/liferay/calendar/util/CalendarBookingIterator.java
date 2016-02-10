@@ -58,9 +58,11 @@ public class CalendarBookingIterator implements Iterator<CalendarBooking> {
 
 		_calendarBookings = calendarBookings;
 
+		_calendarBooking = calendarBooking;
+
 		_recurrenceIterator =
 			RecurrenceIteratorFactory.createRecurrenceIterator(
-				calendarBooking.getRecurrence(),
+				calendarBooking.getMasterRecurrence(),
 				_toDateValue(calendarBooking.getStartTime()),
 				calendarBooking.getTimeZone());
 	}
@@ -168,6 +170,7 @@ public class CalendarBookingIterator implements Iterator<CalendarBooking> {
 		CalendarBookingIterator.class);
 
 	private final List<CalendarBooking> _calendarBookings;
+	private CalendarBooking _calendarBooking;
 	private DateValue _currentDateValue;
 	private int _instanceIndex;
 	private final RecurrenceIterator _recurrenceIterator;
