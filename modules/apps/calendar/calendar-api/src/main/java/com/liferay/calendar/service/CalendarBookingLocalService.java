@@ -16,6 +16,8 @@ package com.liferay.calendar.service;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.google.ical.values.DateValue;
+
 import com.liferay.calendar.model.CalendarBooking;
 
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
@@ -133,7 +135,15 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 		int instanceIndex, boolean allFollowing) throws PortalException;
 
 	public void deleteCalendarBookingInstance(CalendarBooking calendarBooking,
+		int instanceIndex, boolean allFollowing, boolean updateMasterRecurrence)
+		throws PortalException;
+
+	public void deleteCalendarBookingInstance(CalendarBooking calendarBooking,
 		long startTime, boolean allFollowing) throws PortalException;
+
+	public void deleteCalendarBookingInstance(CalendarBooking calendarBooking,
+		long startTime, boolean allFollowing, boolean updateMasterRecurrence)
+		throws PortalException;
 
 	public void deleteCalendarBookingInstance(long calendarBookingId,
 		long startTime, boolean allFollowing) throws PortalException;
@@ -267,6 +277,10 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 		int instanceIndex) throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public CalendarBooking getCalendarBookingWithDate(
+		List<CalendarBooking> calendarBookings, DateValue dateValue);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<CalendarBooking> getCalendarBookings(long calendarId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -346,11 +360,22 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public CalendarBooking getEarliestCalendarBooking(
+		List<CalendarBooking> calendarBookings);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public long getEarliestStartTime(List<CalendarBooking> calendarBookings);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
 		PortletDataContext portletDataContext);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public CalendarBooking getMasterRecurringCalendarBooking(
+		CalendarBooking calendarBooking) throws PortalException;
 
 	/**
 	* Returns the OSGi service identifier.
@@ -459,6 +484,16 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 		long firstReminder, java.lang.String firstReminderType,
 		long secondReminder, java.lang.String secondReminderType,
 		ServiceContext serviceContext) throws PortalException;
+
+	public CalendarBooking updateRecurringCalendarBooking(long userId,
+		long calendarBookingId, long calendarId, long[] childCalendarIds,
+		Map<Locale, java.lang.String> titleMap,
+		Map<Locale, java.lang.String> descriptionMap,
+		java.lang.String location, long startTime, long endTime,
+		boolean allDay, java.lang.String recurrence, long firstReminder,
+		java.lang.String firstReminderType, long secondReminder,
+		java.lang.String secondReminderType, ServiceContext serviceContext)
+		throws PortalException;
 
 	@Indexable(type = IndexableType.REINDEX)
 	public CalendarBooking updateStatus(long userId,

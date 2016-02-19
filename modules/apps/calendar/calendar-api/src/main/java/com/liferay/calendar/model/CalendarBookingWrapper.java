@@ -912,6 +912,11 @@ public class CalendarBookingWrapper implements CalendarBooking,
 		return _calendarBooking.isCachedModel();
 	}
 
+	@Override
+	public boolean isChildRecurringBooking() {
+		return _calendarBooking.isChildRecurringBooking();
+	}
+
 	/**
 	* Returns <code>true</code> if this calendar booking is denied.
 	*

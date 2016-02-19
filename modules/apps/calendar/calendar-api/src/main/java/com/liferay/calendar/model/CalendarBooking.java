@@ -81,6 +81,8 @@ public interface CalendarBooking extends CalendarBookingModel, PermissionedModel
 
 	public java.util.TimeZone getTimeZone();
 
+	public boolean isChildRecurringBooking();
+
 	public boolean isMasterBooking();
 
 	public boolean isRecurring();
