@@ -1445,14 +1445,29 @@ public class CalendarPortlet extends MVCPortlet {
 				calendarBooking = getFirstCalendarBookingInstance(
 					calendarBooking, recurrence, timeZone);
 
-				calendarBooking = _calendarBookingService.updateCalendarBooking(
-					calendarBookingId, calendar.getCalendarId(),
-					childCalendarIds, titleMap, descriptionMap, location,
-					calendarBooking.getStartTime(),
-					calendarBooking.getEndTime(), allDay,
-					RecurrenceSerializer.serialize(recurrence), reminders[0],
-					remindersType[0], reminders[1], remindersType[1],
-					serviceContext);
+				if (calendarBooking.isRecurring()) {
+					calendarBooking =
+						_calendarBookingService.updateRecurringCalendarBooking(
+							calendarBookingId, calendar.getCalendarId(),
+							childCalendarIds, titleMap, descriptionMap,
+							location, calendarBooking.getStartTime(),
+							calendarBooking.getEndTime(), allDay,
+							RecurrenceSerializer.serialize(recurrence),
+							reminders[0], remindersType[0], reminders[1],
+							remindersType[1], serviceContext);
+				}
+
+				else {
+					calendarBooking =
+						_calendarBookingService.updateCalendarBooking(
+							calendarBookingId, calendar.getCalendarId(),
+							childCalendarIds, titleMap, descriptionMap,
+							location, calendarBooking.getStartTime(),
+							calendarBooking.getEndTime(), allDay,
+							RecurrenceSerializer.serialize(recurrence),
+							reminders[0], remindersType[0], reminders[1],
+							remindersType[1], serviceContext);
+				}
 			}
 		}
 

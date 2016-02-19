@@ -197,6 +197,7 @@ AUI.add(
 						hasWorkflowInstanceLink: calendarBooking.hasWorkflowInstanceLink,
 						instanceIndex: calendarBooking.instanceIndex,
 						location: calendarBooking.location,
+						masterRecurrence: calendarBooking.masterRecurrence,
 						parentCalendarBookingId: calendarBooking.parentCalendarBookingId,
 						recurrence: calendarBooking.recurrence,
 						secondReminder: calendarBooking.secondReminder,
@@ -633,6 +634,7 @@ AUI.add(
 							calendarBookingId: data.calendarBookingId,
 							calendarId: newCalendarId,
 							calendarResourceId: data.calendarResourceId,
+							masterRecurrence: data.recurrence,
 							parentCalendarBookingId: data.parentCalendarBookingId,
 							recurrence: data.recurrence,
 							status: data.status
@@ -896,6 +898,12 @@ AUI.add(
 						value: STR_BLANK
 					},
 
+					masterRecurrence: {
+						setter: String,
+						validator: isValue,
+						value: STR_BLANK
+					},
+
 					parentCalendarBookingId: {
 						setter: toInt,
 						value: 0
@@ -940,7 +948,7 @@ AUI.add(
 
 				NAME: 'scheduler-event',
 
-				PROPAGATE_ATTRS: A.SchedulerEvent.PROPAGATE_ATTRS.concat(['calendarBookingId', 'calendarId', 'calendarResourceId', 'parentCalendarBookingId', 'recurrence', 'status']),
+				PROPAGATE_ATTRS: A.SchedulerEvent.PROPAGATE_ATTRS.concat(['calendarBookingId', 'calendarId', 'calendarResourceId', 'masterRecurrence', 'parentCalendarBookingId', 'recurrence', 'status']),
 
 				prototype: {
 					eventModel: Liferay.SchedulerEvent,
@@ -1508,7 +1516,7 @@ AUI.add(
 					_getNewRecurrence: function(schedulerEvent, changedAttributes) {
 						var instance = this;
 
-						var recurrence = instance.parseRecurrence(schedulerEvent.get('recurrence'));
+						var recurrence = instance.parseRecurrence(schedulerEvent.get('masterRecurrence'));
 
 						if (recurrence && changedAttributes.startDate && changedAttributes.endDate) {
 							var rrule = recurrence.rrule;

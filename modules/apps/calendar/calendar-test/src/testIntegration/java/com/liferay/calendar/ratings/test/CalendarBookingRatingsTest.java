@@ -62,7 +62,7 @@ public class CalendarBookingRatingsTest extends BaseRatingsTestCase {
 			RandomTestUtil.randomLocaleStringMap(),
 			RandomTestUtil.randomLocaleStringMap(),
 			RandomTestUtil.randomString(), startTime,
-			startTime + (Time.HOUR * 10), false, null, 0, null, 0, null,
+			startTime + (Time.HOUR * 10), false, null, null, 0, null, 0, null,
 			serviceContext);
 	}
 

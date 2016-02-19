@@ -213,10 +213,17 @@ AssetEntry layoutAssetEntry = AssetEntryLocalServiceUtil.getEntry(CalendarBookin
 		var endValue = 'never';
 		var untilDate = null;
 
+		var masterEndValue = 'never';
+		var masterUntilDate = null;
+
 		<%
 		Recurrence recurrence = calendarBooking.getRecurrenceObj();
 
 		java.util.Calendar untilJCalendar = recurrence.getUntilJCalendar();
+
+		Recurrence masterRecurrence = calendarBooking.getRecurrenceObj();
+
+		java.util.Calendar masterUntilJCalendar = masterRecurrence.getUntilJCalendar();
 		%>
 
 		<c:choose>
@@ -227,6 +234,17 @@ AssetEntry layoutAssetEntry = AssetEntryLocalServiceUtil.getEntry(CalendarBookin
 			</c:when>
 			<c:when test="<%= (recurrence.getCount() > 0) %>">
 				endValue = 'after';
+			</c:when>
+		</c:choose>
+
+		<c:choose>
+			<c:when test="<%= (masterUntilJCalendar != null) %>">
+				masterEndValue = 'on';
+
+				masterUntilDate = new Date('<%= dateFormatLongDate.format(masterUntilJCalendar.getTimeInMillis()) %>');
+			</c:when>
+			<c:when test="<%= (recurrence.getCount() > 0) %>">
+				masterEndValue = 'after';
 			</c:when>
 		</c:choose>
 
@@ -261,6 +279,16 @@ AssetEntry layoutAssetEntry = AssetEntryLocalServiceUtil.getEntry(CalendarBookin
 			interval: <%= recurrence.getInterval() %>,
 			positionalWeekday: positionalWeekday,
 			untilDate: untilDate,
+			weekdays: <%= jsonSerializer.serialize(weekdayValues) %>
+		};
+
+		var masterRecurrence = {
+			count: <%= masterRecurrence.getCount() %>,
+			endValue: masterEndValue,
+			frequency: '<%= String.valueOf(frequency) %>',
+			interval: <%= masterRecurrence.getInterval() %>,
+			positionalWeekday: positionalWeekday,
+			untilDate: masterUntilDate,
 			weekdays: <%= jsonSerializer.serialize(weekdayValues) %>
 		};
 
