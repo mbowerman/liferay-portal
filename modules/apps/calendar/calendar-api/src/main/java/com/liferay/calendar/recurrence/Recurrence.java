@@ -118,6 +118,13 @@ public class Recurrence {
 		return exceptionDateValues.contains(dateValue);
 	}
 
+	public boolean isUnending() {
+		if (_untilJCalendar == null && _count == 0) {
+			return true;
+		}
+		return false;
+	}
+
 	public void removeExceptionDate(Calendar calendar) {
 		_exceptionJCalendars.remove(calendar);
 	}

@@ -121,6 +121,29 @@ public class JCalendarUtil {
 		return timeZone.getOffset(System.currentTimeMillis());
 	}
 
+	public static long getYearsBetween(
+		Calendar startJCalendar, Calendar endJCalendar) {
+
+		return endJCalendar.get(Calendar.YEAR) -
+			startJCalendar.get(Calendar.YEAR);
+	}
+
+	public static long getMonthsBetween(
+		Calendar startJCalendar, Calendar endJCalendar) {
+
+		return getYearsBetween(startJCalendar, endJCalendar) +
+			endJCalendar.get(Calendar.MONTH) -
+			startJCalendar.get(Calendar.MONTH);
+	}
+
+	public static long getWeeksBetween(
+		Calendar startJCalendar, Calendar endJCalendar) {
+
+		return getMonthsBetween(startJCalendar, endJCalendar) +
+			endJCalendar.get(Calendar.WEEK_OF_YEAR) -
+			startJCalendar.get(Calendar.WEEK_OF_YEAR);
+	}
+
 	public static boolean isSameDayOfWeek(
 		Calendar jCalendar1, Calendar jCalendar2) {
 
@@ -133,6 +156,13 @@ public class JCalendarUtil {
 		else {
 			return false;
 		}
+	}
+
+	public static boolean isSameDay(
+		Calendar jCalendar1, Calendar jCalendar2) {
+
+		return toMidnightJCalendar(jCalendar1).equals(
+			toMidnightJCalendar(jCalendar2));
 	}
 
 	public static Calendar mergeJCalendar(

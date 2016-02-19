@@ -27,8 +27,7 @@ import com.liferay.calendar.model.CalendarBookingConstants;
 import com.liferay.calendar.notification.NotificationTemplateType;
 import com.liferay.calendar.notification.NotificationType;
 import com.liferay.calendar.notification.impl.NotificationUtil;
-import com.liferay.calendar.recurrence.Recurrence;
-import com.liferay.calendar.recurrence.RecurrenceSerializer;
+import com.liferay.calendar.recurrence.*;
 import com.liferay.calendar.service.base.CalendarBookingLocalServiceBaseImpl;
 import com.liferay.calendar.service.configuration.CalendarServiceConfigurationValues;
 import com.liferay.calendar.social.CalendarActivityKeys;
@@ -1614,6 +1613,34 @@ public class CalendarBookingLocalServiceImpl
 		}
 	}
 
+	protected Recurrence convertToNewRecurrenceObj(
+		Recurrence oldRecurrenceObj, Recurrence newRecurrenceObj,
+		java.util.Calendar startJCalendar) {
+
+		if (oldRecurrenceObj == null || newRecurrenceObj == null) {
+			return null;
+		}
+
+		oldRecurrenceObj.setFrequency(newRecurrenceObj.getFrequency());
+		oldRecurrenceObj.setInterval(newRecurrenceObj.getInterval());
+		oldRecurrenceObj.setMonths(newRecurrenceObj.getMonths());
+		oldRecurrenceObj.setPositionalWeekdays(
+			newRecurrenceObj.getPositionalWeekdays());
+
+		List<java.util.Calendar> exceptionJCalendars =
+			oldRecurrenceObj.getExceptionJCalendars();
+
+		for (java.util.Calendar exceptionJCalendar : exceptionJCalendars) {
+			if (!hasCalendarDate(
+				oldRecurrenceObj, exceptionJCalendar, startJCalendar)) {
+
+				oldRecurrenceObj.removeExceptionDate(exceptionJCalendar);
+			}
+		}
+
+		return oldRecurrenceObj;
+	}
+
 	protected String getExtraDataJSON(CalendarBooking calendarBooking) {
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
@@ -1686,6 +1713,100 @@ public class CalendarBookingLocalServiceImpl
 		return unchangedList;
 	}
 
+	protected boolean hasCalendarDate(
+			Recurrence recurrenceObj, java.util.Calendar jCalendar,
+			java.util.Calendar startJCalendar)
+		throws SystemException {
+
+		Frequency frequency = recurrenceObj.getFrequency();
+
+		if (frequency.equals(Frequency.DAILY)) {
+			long dayDifference =
+				JCalendarUtil.getDaysBetween(startJCalendar, jCalendar);
+
+			if (dayDifference % recurrenceObj.getInterval() == 0) {
+				return true;
+			}
+			return false;
+		}
+		if (frequency.equals(Frequency.WEEKLY)) {
+			List<Weekday> weekdays = recurrenceObj.getWeekdays();
+
+			if (!weekdays.contains(Weekday.getWeekday(jCalendar))) {
+				return false;
+			}
+
+			long weekDifference =
+				JCalendarUtil.getWeeksBetween(startJCalendar, jCalendar);
+
+			if (weekDifference % recurrenceObj.getInterval() == 0) {
+				return true;
+			}
+			return false;
+		}
+		if (frequency.equals(Frequency.MONTHLY)) {
+			List<PositionalWeekday> positionalWeekdays = recurrenceObj.getPositionalWeekdays();
+
+			if (Validator.isNotNull(positionalWeekdays)) {
+				PositionalWeekday jCalendarPositionalWeekday = new PositionalWeekday(jCalendar);
+
+				if (!positionalWeekdays.contains(jCalendarPositionalWeekday)) {
+					return false;
+				}
+			}
+			else {
+				if (jCalendar.get(java.util.Calendar.DAY_OF_MONTH) != startJCalendar.get(java.util.Calendar.DAY_OF_MONTH)) {
+					return false;
+				}
+			}
+
+			long monthsDifference =
+				JCalendarUtil.getMonthsBetween(startJCalendar, jCalendar);
+
+			if (monthsDifference % recurrenceObj.getInterval() == 0) {
+				return true;
+			}
+			return false;
+		}
+		if (frequency.equals(Frequency.YEARLY)) {
+			List<Integer> months = recurrenceObj.getMonths();
+
+			if (Validator.isNull(months)) {
+				months.add(startJCalendar.get(java.util.Calendar.MONTH));
+			}
+
+			Integer month = jCalendar.get(java.util.Calendar.MONTH);
+
+			if (!months.contains(month)){
+				return false;
+			}
+
+			List<PositionalWeekday> positionalWeekdays = recurrenceObj.getPositionalWeekdays();
+
+			if (Validator.isNotNull(positionalWeekdays)) {
+				PositionalWeekday jCalendarPositionalWeekday = new PositionalWeekday(jCalendar);
+
+				if (!positionalWeekdays.contains(jCalendarPositionalWeekday)) {
+					return false;
+				}
+			}
+			else {
+				if (jCalendar.get(java.util.Calendar.DAY_OF_MONTH) != startJCalendar.get(java.util.Calendar.DAY_OF_MONTH)) {
+					return false;
+				}
+			}
+
+			long yearsDifference =
+				JCalendarUtil.getYearsBetween(startJCalendar, jCalendar);
+
+			if (yearsDifference % recurrenceObj.getInterval() == 0) {
+				return true;
+			}
+			return false;
+		}
+		throw new IllegalArgumentException();
+	}
+
 	protected boolean hasDateValue(
 		CalendarBooking calendarBooking, DateValue dateValue) {
 
@@ -1729,6 +1850,24 @@ public class CalendarBookingLocalServiceImpl
 		}
 
 		return true;
+	}
+
+	protected boolean isInRecurrenceScope(
+		CalendarBooking calendarBooking, Recurrence recurrenceObj, java.util.Calendar startJCalendar) {
+
+		java.util.Calendar jCalendar = JCalendarUtil.getJCalendar(calendarBooking.getStartTime());
+
+		if (Validator.isNull(recurrenceObj)) {
+			return JCalendarUtil.isSameDay(jCalendar, startJCalendar);
+		}
+
+		Recurrence oldRecurrenceObj = calendarBooking.getRecurrenceObj();
+
+		if (Validator.isNotNull(oldRecurrenceObj)) {
+			return true;
+		}
+
+		return hasCalendarDate(recurrenceObj, jCalendar, startJCalendar);
 	}
 
 	protected void sendNotification(
@@ -1879,6 +2018,51 @@ public class CalendarBookingLocalServiceImpl
 		}
 	}
 
+	protected void updateMasterRecurrence(
+			CalendarBooking calendarBooking, Recurrence newRecurrenceObj,
+			boolean allFollowing, boolean updateInstance)
+		throws PortalException {
+
+		Recurrence oldRecurrenceObj = calendarBooking.getRecurrenceObj();
+
+		if (updateInstance && !allFollowing) {
+			return;
+		}
+
+		String newRecurrence = RecurrenceSerializer.serialize(newRecurrenceObj);
+
+		List<CalendarBooking> calendarBookings =
+			getRelatedRecurringCalendarBookings(
+				calendarBooking.getCalendarBookingId());
+
+		long earliestStartTime = getEarliestStartTime(calendarBookings);
+
+		java.util.Calendar earliestStartCalendar =
+			JCalendarUtil.getJCalendar(earliestStartTime);
+
+		if (!updateInstance) {
+			for (CalendarBooking curCalendarBooking : calendarBookings) {
+				if (isInRecurrenceScope(curCalendarBooking, newRecurrenceObj)) {
+					curCalendarBooking.setMasterRecurrence(newRecurrence);
+
+					Recurrence curRecurrenceObj =
+						curCalendarBooking.getRecurrenceObj();
+
+					curRecurrenceObj = convertToNewRecurrenceObj(
+						curRecurrenceObj, newRecurrenceObj,
+						earliestStartCalendar);
+
+
+
+					calendarBookingPersistence.update(curCalendarBooking);
+				}
+				else {
+					deleteCalendarBooking(curCalendarBooking, false);
+				}
+			}
+		}
+	}
+
 	protected void validate(
 			java.util.Calendar startTimeJCalendar,
 			java.util.Calendar endTimeJCalendar, String recurrence)
@@ -1904,6 +2088,9 @@ public class CalendarBookingLocalServiceImpl
 	}
 
 	private static final long _MILLISECONDS_PER_DAY = 86400000;
+
+	private static final long _MILLISECONDS_PER_WEEK =
+		_MILLISECONDS_PER_DAY * 7;
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		CalendarBookingLocalServiceImpl.class);
