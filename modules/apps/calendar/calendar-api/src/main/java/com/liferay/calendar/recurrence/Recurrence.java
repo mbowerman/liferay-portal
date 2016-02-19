@@ -14,6 +14,8 @@
 
 package com.liferay.calendar.recurrence;
 
+import com.google.ical.values.DateValue;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -101,6 +103,23 @@ public class Recurrence {
 		}
 
 		return weekdays;
+	}
+
+	public boolean hasExceptionDate(DateValue dateValue) {
+		List<Calendar> exceptionJCalendars = getExceptionJCalendars();
+
+		List<DateValue> exceptionDateValues = new ArrayList<>();
+
+		for (Calendar exceptionJCalendar : exceptionJCalendars) {
+			exceptionDateValues.add(
+				RecurrenceSerializer.toDateValue(exceptionJCalendar));
+		}
+
+		return exceptionDateValues.contains(dateValue);
+	}
+
+	public void removeExceptionDate(Calendar calendar) {
+		_exceptionJCalendars.remove(calendar);
 	}
 
 	public void setCount(int count) {

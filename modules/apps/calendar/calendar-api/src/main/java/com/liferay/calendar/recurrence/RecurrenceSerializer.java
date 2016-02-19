@@ -156,7 +156,7 @@ public class RecurrenceSerializer {
 		Calendar jCalendar = recurrence.getUntilJCalendar();
 
 		if (jCalendar != null) {
-			DateValue dateValue = _toDateValue(jCalendar);
+			DateValue dateValue = toDateValue(jCalendar);
 
 			rRule.setUntil(dateValue);
 		}
@@ -170,7 +170,7 @@ public class RecurrenceSerializer {
 			DateValue[] dateValues = new DateValue[exceptionJCalendars.size()];
 
 			for (int i = 0; i < exceptionJCalendars.size(); i++) {
-				dateValues[i] = _toDateValue(exceptionJCalendars.get(i));
+				dateValues[i] = toDateValue(exceptionJCalendars.get(i));
 			}
 
 			RDateList rDateList = new RDateList(
@@ -185,7 +185,7 @@ public class RecurrenceSerializer {
 		return data;
 	}
 
-	private static DateValue _toDateValue(Calendar jCalendar) {
+	public static DateValue toDateValue(Calendar jCalendar) {
 		DateValue dateValue = new DateValueImpl(
 			jCalendar.get(Calendar.YEAR), jCalendar.get(Calendar.MONTH) + 1,
 			jCalendar.get(Calendar.DATE));

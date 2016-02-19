@@ -90,6 +90,10 @@ public class RecurrenceUtil {
 		List<CalendarBooking> expandedCalendarBookings = new ArrayList<>();
 
 		for (CalendarBooking calendarBooking : calendarBookings) {
+			if (calendarBooking.isChildRecurringBooking()) {
+				continue;
+			}
+
 			List<CalendarBooking> expandedCalendarBooking =
 				expandCalendarBooking(
 					calendarBooking, startTime, endTime, maxSize);

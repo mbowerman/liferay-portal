@@ -41,6 +41,14 @@ import java.util.TimeZone;
  */
 public class CalendarBookingIterator implements Iterator<CalendarBooking> {
 
+	public static DateValue toDateValue(long time, TimeZone timeZone) {
+		Calendar jCalendar = JCalendarUtil.getJCalendar(time, timeZone);
+
+		return new DateValueImpl(
+			jCalendar.get(Calendar.YEAR), jCalendar.get(Calendar.MONTH) + 1,
+			jCalendar.get(Calendar.DAY_OF_MONTH));
+	}
+
 	public CalendarBookingIterator(CalendarBooking calendarBooking)
 		throws ParseException {
 
@@ -60,10 +68,13 @@ public class CalendarBookingIterator implements Iterator<CalendarBooking> {
 
 		_calendarBooking = calendarBooking;
 
+		_startTime = CalendarBookingLocalServiceUtil.getEarliestStartTime(
+			_calendarBookings);
+
 		_recurrenceIterator =
 			RecurrenceIteratorFactory.createRecurrenceIterator(
 				calendarBooking.getMasterRecurrence(),
-				_toDateValue(calendarBooking.getStartTime()),
+				toDateValue(_startTime, _getTimeZone(_calendarBooking)),
 				calendarBooking.getTimeZone());
 	}
 
@@ -82,15 +93,20 @@ public class CalendarBookingIterator implements Iterator<CalendarBooking> {
 			throw new NoSuchElementException();
 		}
 
-		CalendarBooking newCalendarBooking =
-			(CalendarBooking)_calendarBooking.clone();
-
 		_currentDateValue = _recurrenceIterator.next();
 
-		Calendar jCalendar = _getStartTimeJCalendar(_currentDateValue);
+		CalendarBooking calendarBooking =
+			CalendarBookingLocalServiceUtil.getCalendarBookingWithDate(
+				_calendarBookings, _currentDateValue);
+
+		CalendarBooking newCalendarBooking =
+			(CalendarBooking)calendarBooking.clone();
+
+		Calendar jCalendar = _getStartTimeJCalendar(
+			_currentDateValue, calendarBooking);
 
 		newCalendarBooking.setEndTime(
-			jCalendar.getTimeInMillis() +_calendarBooking.getDuration());
+			jCalendar.getTimeInMillis() + calendarBooking.getDuration());
 		newCalendarBooking.setInstanceIndex(_instanceIndex);
 		newCalendarBooking.setStartTime(jCalendar.getTimeInMillis());
 
@@ -104,17 +120,19 @@ public class CalendarBookingIterator implements Iterator<CalendarBooking> {
 		throw new UnsupportedOperationException();
 	}
 
-	private Calendar _getStartTimeJCalendar(DateValue dateValue) {
+	private Calendar _getStartTimeJCalendar(
+		DateValue dateValue, CalendarBooking calendarBooking) {
+
 		Calendar jCalendar = JCalendarUtil.getJCalendar(
-			_calendarBooking.getStartTime(), _getTimeZone(_calendarBooking));
+			calendarBooking.getStartTime(), _getTimeZone(calendarBooking));
 
 		Calendar startTimeJCalendar = JCalendarUtil.getJCalendar(
 			dateValue.year(), dateValue.month() - 1, dateValue.day(),
 			jCalendar.get(Calendar.HOUR_OF_DAY), jCalendar.get(Calendar.MINUTE),
 			jCalendar.get(Calendar.SECOND), jCalendar.get(Calendar.MILLISECOND),
-			_getTimeZone(_calendarBooking));
+			_getTimeZone(calendarBooking));
 
-		TimeZone timeZone = _getTimeZone(_calendarBooking);
+		TimeZone timeZone = _getTimeZone(calendarBooking);
 
 		int shift = JCalendarUtil.getDSTShift(
 			jCalendar, startTimeJCalendar, timeZone);
@@ -157,22 +175,14 @@ public class CalendarBookingIterator implements Iterator<CalendarBooking> {
 		return false;
 	}
 
-	private DateValue _toDateValue(long time) {
-		Calendar jCalendar = JCalendarUtil.getJCalendar(
-			time, _getTimeZone(_calendarBooking));
-
-		return new DateValueImpl(
-			jCalendar.get(Calendar.YEAR), jCalendar.get(Calendar.MONTH) + 1,
-			jCalendar.get(Calendar.DAY_OF_MONTH));
-	}
-
 	private static final Log _log = LogFactoryUtil.getLog(
 		CalendarBookingIterator.class);
 
+	private final CalendarBooking _calendarBooking;
 	private final List<CalendarBooking> _calendarBookings;
-	private CalendarBooking _calendarBooking;
 	private DateValue _currentDateValue;
 	private int _instanceIndex;
 	private final RecurrenceIterator _recurrenceIterator;
+	private final long _startTime;
 
 }
