@@ -654,6 +654,17 @@ public class CalendarBookingLocalServiceUtil {
 			secondReminderType, serviceContext);
 	}
 
+	public static long updateMasterRecurrence(long calendarBookingId,
+		java.lang.String newRecurrence, long userId, long startTime,
+		boolean allFollowing, boolean updateInstance, boolean checkChanges,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .updateMasterRecurrence(calendarBookingId, newRecurrence,
+			userId, startTime, allFollowing, updateInstance, checkChanges,
+			serviceContext);
+	}
+
 	public static com.liferay.calendar.model.CalendarBooking updateRecurringCalendarBooking(
 		long userId, long calendarBookingId, long calendarId,
 		long[] childCalendarIds,

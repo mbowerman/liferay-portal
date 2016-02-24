@@ -376,6 +376,17 @@ public class CalendarBookingServiceWrapper implements CalendarBookingService,
 	}
 
 	@Override
+	public long updateMasterRecurrence(long calendarBookingId, long calendarId,
+		java.lang.String newRecurrence, long startTime, boolean allFollowing,
+		boolean updateInstance, boolean checkChanges,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _calendarBookingService.updateMasterRecurrence(calendarBookingId,
+			calendarId, newRecurrence, startTime, allFollowing, updateInstance,
+			checkChanges, serviceContext);
+	}
+
+	@Override
 	public com.liferay.calendar.model.CalendarBooking updateOffsetAndDuration(
 		long calendarBookingId, long calendarId, long[] childCalendarIds,
 		java.util.Map<java.util.Locale, java.lang.String> titleMap,

@@ -669,6 +669,25 @@ public class CalendarBookingServiceSoap {
 		}
 	}
 
+	public static long updateMasterRecurrence(long calendarBookingId,
+		long calendarId, java.lang.String newRecurrence, long startTime,
+		boolean allFollowing, boolean updateInstance, boolean checkChanges,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws RemoteException {
+		try {
+			long returnValue = CalendarBookingServiceUtil.updateMasterRecurrence(calendarBookingId,
+					calendarId, newRecurrence, startTime, allFollowing,
+					updateInstance, checkChanges, serviceContext);
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
 	public static com.liferay.calendar.model.CalendarBookingSoap updateOffsetAndDuration(
 		long calendarBookingId, long calendarId, long[] childCalendarIds,
 		java.lang.String[] titleMapLanguageIds,
