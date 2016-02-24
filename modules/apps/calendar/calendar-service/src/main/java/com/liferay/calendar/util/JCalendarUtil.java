@@ -14,6 +14,8 @@
 
 package com.liferay.calendar.util;
 
+import com.liferay.calendar.recurrence.PositionalWeekday;
+import com.liferay.calendar.recurrence.Weekday;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
@@ -117,8 +119,24 @@ public class JCalendarUtil {
 		return jCalendar;
 	}
 
+	public static long getMonthsBetween(
+		Calendar startJCalendar, Calendar endJCalendar) {
+
+		return getYearsBetween(startJCalendar, endJCalendar) +
+			endJCalendar.get(Calendar.MONTH) -
+				startJCalendar.get(Calendar.MONTH);
+	}
+
 	public static int getTimeZoneOffset(TimeZone timeZone) {
 		return timeZone.getOffset(System.currentTimeMillis());
+	}
+
+	public static long getWeeksBetween(
+		Calendar startJCalendar, Calendar endJCalendar) {
+
+		return getMonthsBetween(startJCalendar, endJCalendar) +
+			endJCalendar.get(Calendar.WEEK_OF_YEAR) -
+				startJCalendar.get(Calendar.WEEK_OF_YEAR);
 	}
 
 	public static long getYearsBetween(
@@ -128,20 +146,51 @@ public class JCalendarUtil {
 			startJCalendar.get(Calendar.YEAR);
 	}
 
-	public static long getMonthsBetween(
-		Calendar startJCalendar, Calendar endJCalendar) {
+	public static boolean isLastWeekdayOfMonth(Calendar jCalendar) {
+		Calendar jCalendarClone = (Calendar)jCalendar.clone();
 
-		return getYearsBetween(startJCalendar, endJCalendar) +
-			endJCalendar.get(Calendar.MONTH) -
-			startJCalendar.get(Calendar.MONTH);
+		jCalendarClone.add(Calendar.DATE, 7);
+
+		if (jCalendar.get(Calendar.MONTH) !=
+				jCalendarClone.get(Calendar.MONTH)) {
+
+			return true;
+		}
+
+		return false;
 	}
 
-	public static long getWeeksBetween(
-		Calendar startJCalendar, Calendar endJCalendar) {
+	public static boolean isPositionalWeekday(
+		Calendar jCalendar, PositionalWeekday positionalWeekday) {
 
-		return getMonthsBetween(startJCalendar, endJCalendar) +
-			endJCalendar.get(Calendar.WEEK_OF_YEAR) -
-			startJCalendar.get(Calendar.WEEK_OF_YEAR);
+		PositionalWeekday jCalendarPositionalWeekday = new PositionalWeekday(
+			jCalendar);
+
+		if (jCalendarPositionalWeekday.equals(positionalWeekday)) {
+			return true;
+		}
+
+		if (positionalWeekday.getPosition() != -1) {
+			return false;
+		}
+
+		Weekday jCalendarWeekday = jCalendarPositionalWeekday.getWeekday();
+		Weekday weekday = positionalWeekday.getWeekday();
+
+		if (!jCalendarWeekday.equals(weekday)) {
+			return false;
+		}
+
+		if (isLastWeekdayOfMonth(jCalendar)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean isSameDay(Calendar jCalendar1, Calendar jCalendar2) {
+		return toMidnightJCalendar(jCalendar1).equals(
+			toMidnightJCalendar(jCalendar2));
 	}
 
 	public static boolean isSameDayOfWeek(
@@ -156,13 +205,6 @@ public class JCalendarUtil {
 		else {
 			return false;
 		}
-	}
-
-	public static boolean isSameDay(
-		Calendar jCalendar1, Calendar jCalendar2) {
-
-		return toMidnightJCalendar(jCalendar1).equals(
-			toMidnightJCalendar(jCalendar2));
 	}
 
 	public static Calendar mergeJCalendar(

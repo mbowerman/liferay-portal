@@ -36,6 +36,28 @@ public class PositionalWeekday {
 		_position = position;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof PositionalWeekday)) {
+			return false;
+		}
+
+		PositionalWeekday positionalWeekday = (PositionalWeekday)obj;
+
+		int position = positionalWeekday.getPosition();
+		Weekday weekday = positionalWeekday.getWeekday();
+
+		if ((_position == position) && _weekday.equals(weekday)) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public int getPosition() {
 		return _position;
 	}

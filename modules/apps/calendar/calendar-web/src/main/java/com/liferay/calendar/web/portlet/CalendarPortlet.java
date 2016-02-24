@@ -1420,6 +1420,12 @@ public class CalendarPortlet extends MVCPortlet {
 		}
 		else {
 			if (updateInstance) {
+				calendarBookingId =
+					_calendarBookingService.updateMasterRecurrence(
+						calendarBookingId, calendar.getCalendarId(),
+						RecurrenceSerializer.serialize(recurrence), startTime,
+						allFollowing, updateInstance, true, serviceContext);
+
 				calendarBooking =
 					_calendarBookingService.updateCalendarBookingInstance(
 						calendarBookingId, instanceIndex,
@@ -1446,6 +1452,13 @@ public class CalendarPortlet extends MVCPortlet {
 					calendarBooking, recurrence, timeZone);
 
 				if (calendarBooking.isRecurring()) {
+					calendarBookingId =
+						_calendarBookingService.updateMasterRecurrence(
+							calendarBookingId, calendar.getCalendarId(),
+							RecurrenceSerializer.serialize(recurrence),
+							startTime, allFollowing, updateInstance, true,
+							serviceContext);
+
 					calendarBooking =
 						_calendarBookingService.updateRecurringCalendarBooking(
 							calendarBookingId, calendar.getCalendarId(),
