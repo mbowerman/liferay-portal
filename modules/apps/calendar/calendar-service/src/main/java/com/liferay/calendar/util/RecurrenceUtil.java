@@ -25,6 +25,7 @@ import com.liferay.calendar.recurrence.PositionalWeekday;
 import com.liferay.calendar.recurrence.Recurrence;
 import com.liferay.calendar.recurrence.RecurrenceSerializer;
 import com.liferay.calendar.recurrence.Weekday;
+import com.liferay.calendar.service.CalendarBookingLocalServiceUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 
@@ -49,6 +50,28 @@ public class RecurrenceUtil {
 		try {
 			CalendarBookingIterator calendarBookingIterator =
 				new CalendarBookingIterator(calendarBooking);
+
+			if (calendarBookingIterator.hasNext()) {
+				CalendarBooking newCalendarBooking =
+					calendarBookingIterator.next();
+
+				if ((newCalendarBooking.getEndTime() >= startTime) &&
+					CalendarBookingLocalServiceUtil.hasValidStartTime(
+						newCalendarBooking)) {
+
+					if (newCalendarBooking.getStartTime() > endTime) {
+						return expandedCalendarBookings;
+					}
+
+					expandedCalendarBookings.add(newCalendarBooking);
+
+					if ((maxSize > 0) &&
+						(expandedCalendarBookings.size() >= maxSize)) {
+
+						return expandedCalendarBookings;
+					}
+				}
+			}
 
 			while (calendarBookingIterator.hasNext()) {
 				CalendarBooking newCalendarBooking =

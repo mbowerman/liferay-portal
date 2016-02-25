@@ -1420,12 +1420,6 @@ public class CalendarPortlet extends MVCPortlet {
 		}
 		else {
 			if (updateInstance) {
-				calendarBookingId =
-					_calendarBookingService.updateMasterRecurrence(
-						calendarBookingId, calendar.getCalendarId(),
-						RecurrenceSerializer.serialize(recurrence), startTime,
-						allFollowing, updateInstance, true, serviceContext);
-
 				calendarBooking =
 					_calendarBookingService.updateCalendarBookingInstance(
 						calendarBookingId, instanceIndex,
@@ -1434,6 +1428,13 @@ public class CalendarPortlet extends MVCPortlet {
 						RecurrenceSerializer.serialize(recurrence),
 						allFollowing, reminders[0], remindersType[0],
 						reminders[1], remindersType[1], serviceContext);
+
+				calendarBooking =
+					_calendarBookingService.updateMasterRecurrence(
+						calendarBooking.getCalendarBookingId(),
+						calendar.getCalendarId(),
+						RecurrenceSerializer.serialize(recurrence), startTime,
+						allFollowing, updateInstance, true, serviceContext);
 			}
 			else {
 				calendarBooking =
@@ -1452,13 +1453,6 @@ public class CalendarPortlet extends MVCPortlet {
 					calendarBooking, recurrence, timeZone);
 
 				if (calendarBooking.isRecurring()) {
-					calendarBookingId =
-						_calendarBookingService.updateMasterRecurrence(
-							calendarBookingId, calendar.getCalendarId(),
-							RecurrenceSerializer.serialize(recurrence),
-							startTime, allFollowing, updateInstance, true,
-							serviceContext);
-
 					calendarBooking =
 						_calendarBookingService.updateRecurringCalendarBooking(
 							calendarBookingId, calendar.getCalendarId(),
@@ -1468,6 +1462,14 @@ public class CalendarPortlet extends MVCPortlet {
 							RecurrenceSerializer.serialize(recurrence),
 							reminders[0], remindersType[0], reminders[1],
 							remindersType[1], serviceContext);
+
+					calendarBooking =
+						_calendarBookingService.updateMasterRecurrence(
+							calendarBooking.getCalendarBookingId(),
+							calendar.getCalendarId(),
+							RecurrenceSerializer.serialize(recurrence),
+							startTime, allFollowing, updateInstance, true,
+							serviceContext);
 				}
 
 				else {

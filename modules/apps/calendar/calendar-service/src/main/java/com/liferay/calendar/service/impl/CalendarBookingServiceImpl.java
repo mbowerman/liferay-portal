@@ -601,7 +601,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 			secondReminderType, serviceContext);
 	}
 
-	public long updateMasterRecurrence(
+	public CalendarBooking updateMasterRecurrence(
 			long calendarBookingId, long calendarId, String newRecurrence,
 			long startTime, boolean allFollowing, boolean updateInstance,
 			boolean checkChanges, ServiceContext serviceContext)

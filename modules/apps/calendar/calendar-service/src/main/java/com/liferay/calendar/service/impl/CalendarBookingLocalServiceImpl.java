@@ -785,6 +785,21 @@ public class CalendarBookingLocalServiceImpl
 	}
 
 	@Override
+	public boolean hasValidStartTime(CalendarBooking calendarBooking) {
+		long startTime = calendarBooking.getStartTime();
+
+		java.util.Calendar startJCalendar = JCalendarUtil.getJCalendar(
+			startTime);
+
+		Recurrence masterRecurrenceObj =
+			calendarBooking.getMasterRecurrenceObj();
+
+		return hasCalendarDate(
+			masterRecurrenceObj, startJCalendar, startJCalendar,
+			startJCalendar);
+	}
+
+	@Override
 	public CalendarBooking moveCalendarBookingToTrash(
 			long userId, CalendarBooking calendarBooking)
 		throws PortalException {
@@ -1368,23 +1383,23 @@ public class CalendarBookingLocalServiceImpl
 			serviceContext);
 	}
 
-	public long updateMasterRecurrence(
+	public CalendarBooking updateMasterRecurrence(
 			long calendarBookingId, String newRecurrence, long userId,
 			long startTime, boolean allFollowing, boolean updateInstance,
 			boolean checkChanges, ServiceContext serviceContext)
 		throws PortalException {
 
-		if (updateInstance && !allFollowing) {
-			return calendarBookingId;
-		}
-
 		CalendarBooking calendarBooking =
 			calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
+
+		if (updateInstance && !allFollowing) {
+			return calendarBooking;
+		}
 
 		String oldRecurrence = calendarBooking.getMasterRecurrence();
 
 		if (oldRecurrence.equals(newRecurrence) && checkChanges) {
-			return calendarBookingId;
+			return calendarBooking;
 		}
 
 		Recurrence newRecurrenceObj = RecurrenceSerializer.deserialize(
@@ -1464,7 +1479,15 @@ public class CalendarBookingLocalServiceImpl
 				}
 			}
 
-			return calendarBookingId;
+			try {
+				calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
+			}
+			catch (PortalException pe) {
+				calendarBooking = calendarBookingPersistence.findByPrimaryKey(
+					calendarBooking.getRecurringCalendarBookingId());
+			}
+
+			return calendarBooking;
 		}
 
 		else {
@@ -1662,7 +1685,8 @@ public class CalendarBookingLocalServiceImpl
 
 		updateCalendarBookingsByChanges(
 			userId, calendarId, childCalendarIds, titleMap, descriptionMap,
-			location, startTime, endTime, allDay, recurrence, firstReminder,
+			location, startTime, endTime, allDay,
+			calendarBooking.getMasterRecurrence(), firstReminder,
 			firstReminderType, secondReminder, secondReminderType,
 			serviceContext, relatedCalendarBookings, unchangedList);
 
@@ -2107,11 +2131,20 @@ public class CalendarBookingLocalServiceImpl
 			List<PositionalWeekday> positionalWeekdays =
 				recurrenceObj.getPositionalWeekdays();
 
-			if (Validator.isNotNull(positionalWeekdays)) {
-				PositionalWeekday jCalendarPositionalWeekday =
-					new PositionalWeekday(jCalendar);
+			if (ListUtil.isNotEmpty(positionalWeekdays)) {
+				boolean contains = false;
 
-				if (!positionalWeekdays.contains(jCalendarPositionalWeekday)) {
+				for (PositionalWeekday positionalWeekday : positionalWeekdays) {
+					if (JCalendarUtil.isPositionalWeekday(
+							jCalendar, positionalWeekday)) {
+
+						contains = true;
+
+						break;
+					}
+				}
+
+				if (!contains) {
 					return false;
 				}
 			}
