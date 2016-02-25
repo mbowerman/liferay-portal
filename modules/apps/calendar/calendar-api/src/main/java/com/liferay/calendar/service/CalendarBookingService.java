@@ -246,9 +246,9 @@ public interface CalendarBookingService extends BaseService {
 		java.lang.String secondReminderType, ServiceContext serviceContext)
 		throws PortalException;
 
-	public long updateMasterRecurrence(long calendarBookingId, long calendarId,
-		java.lang.String newRecurrence, long startTime, boolean allFollowing,
-		boolean updateInstance, boolean checkChanges,
+	public CalendarBooking updateMasterRecurrence(long calendarBookingId,
+		long calendarId, java.lang.String newRecurrence, long startTime,
+		boolean allFollowing, boolean updateInstance, boolean checkChanges,
 		ServiceContext serviceContext) throws PortalException;
 
 	public CalendarBooking updateOffsetAndDuration(long calendarBookingId,

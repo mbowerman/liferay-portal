@@ -1141,8 +1141,8 @@ public class CalendarBookingServiceHttp {
 		}
 	}
 
-	public static long updateMasterRecurrence(HttpPrincipal httpPrincipal,
-		long calendarBookingId, long calendarId,
+	public static com.liferay.calendar.model.CalendarBooking updateMasterRecurrence(
+		HttpPrincipal httpPrincipal, long calendarBookingId, long calendarId,
 		java.lang.String newRecurrence, long startTime, boolean allFollowing,
 		boolean updateInstance, boolean checkChanges,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -1169,7 +1169,7 @@ public class CalendarBookingServiceHttp {
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
-			return ((Long)returnObj).longValue();
+			return (com.liferay.calendar.model.CalendarBooking)returnObj;
 		}
 		catch (com.liferay.portal.kernel.exception.SystemException se) {
 			_log.error(se, se);

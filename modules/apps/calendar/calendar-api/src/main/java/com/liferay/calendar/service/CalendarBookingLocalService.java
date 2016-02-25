@@ -19,7 +19,6 @@ import aQute.bnd.annotation.ProviderType;
 import com.google.ical.values.DateValue;
 
 import com.liferay.calendar.model.CalendarBooking;
-import com.liferay.calendar.recurrence.*;
 
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 
@@ -394,6 +393,9 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 	public List<CalendarBooking> getRelatedRecurringCalendarBookings(
 		long calendarBookingId) throws PortalException;
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public boolean hasValidStartTime(CalendarBooking calendarBooking);
+
 	public CalendarBooking moveCalendarBookingToTrash(long userId,
 		CalendarBooking calendarBooking) throws PortalException;
 
@@ -486,7 +488,7 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 		long secondReminder, java.lang.String secondReminderType,
 		ServiceContext serviceContext) throws PortalException;
 
-	public long updateMasterRecurrence(long calendarBookingId,
+	public CalendarBooking updateMasterRecurrence(long calendarBookingId,
 		java.lang.String newRecurrence, long userId, long startTime,
 		boolean allFollowing, boolean updateInstance, boolean checkChanges,
 		ServiceContext serviceContext) throws PortalException;

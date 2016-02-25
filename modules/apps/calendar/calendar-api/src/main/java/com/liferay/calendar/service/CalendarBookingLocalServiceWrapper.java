@@ -536,6 +536,12 @@ public class CalendarBookingLocalServiceWrapper
 	}
 
 	@Override
+	public boolean hasValidStartTime(
+		com.liferay.calendar.model.CalendarBooking calendarBooking) {
+		return _calendarBookingLocalService.hasValidStartTime(calendarBooking);
+	}
+
+	@Override
 	public com.liferay.calendar.model.CalendarBooking moveCalendarBookingToTrash(
 		long userId, com.liferay.calendar.model.CalendarBooking calendarBooking)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -705,9 +711,10 @@ public class CalendarBookingLocalServiceWrapper
 	}
 
 	@Override
-	public long updateMasterRecurrence(long calendarBookingId,
-		java.lang.String newRecurrence, long userId, long startTime,
-		boolean allFollowing, boolean updateInstance, boolean checkChanges,
+	public com.liferay.calendar.model.CalendarBooking updateMasterRecurrence(
+		long calendarBookingId, java.lang.String newRecurrence, long userId,
+		long startTime, boolean allFollowing, boolean updateInstance,
+		boolean checkChanges,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _calendarBookingLocalService.updateMasterRecurrence(calendarBookingId,

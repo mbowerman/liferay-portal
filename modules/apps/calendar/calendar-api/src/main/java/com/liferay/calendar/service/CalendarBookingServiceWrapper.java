@@ -376,7 +376,8 @@ public class CalendarBookingServiceWrapper implements CalendarBookingService,
 	}
 
 	@Override
-	public long updateMasterRecurrence(long calendarBookingId, long calendarId,
+	public com.liferay.calendar.model.CalendarBooking updateMasterRecurrence(
+		long calendarBookingId, long calendarId,
 		java.lang.String newRecurrence, long startTime, boolean allFollowing,
 		boolean updateInstance, boolean checkChanges,
 		com.liferay.portal.service.ServiceContext serviceContext)
