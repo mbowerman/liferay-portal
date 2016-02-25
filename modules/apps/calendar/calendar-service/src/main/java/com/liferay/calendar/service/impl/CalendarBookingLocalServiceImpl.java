@@ -794,6 +794,10 @@ public class CalendarBookingLocalServiceImpl
 		Recurrence masterRecurrenceObj =
 			calendarBooking.getMasterRecurrenceObj();
 
+		if (masterRecurrenceObj == null) {
+			return true;
+		}
+
 		return hasCalendarDate(
 			masterRecurrenceObj, startJCalendar, startJCalendar,
 			startJCalendar);
