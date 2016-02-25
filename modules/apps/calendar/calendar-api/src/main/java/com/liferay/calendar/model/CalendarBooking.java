@@ -85,6 +85,8 @@ public interface CalendarBooking extends CalendarBookingModel, PermissionedModel
 
 	public boolean isMasterBooking();
 
+	public boolean isMasterRecurringBooking();
+
 	public boolean isRecurring();
 
 	@com.liferay.portal.kernel.json.JSON()
