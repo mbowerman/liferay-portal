@@ -57,16 +57,16 @@ import com.liferay.portal.kernel.util.MethodKey;
 public class CalendarBookingServiceHttp {
 	public static com.liferay.calendar.model.CalendarBooking addCalendarBooking(
 		HttpPrincipal httpPrincipal, long calendarId, long[] childCalendarIds,
-		long parentCalendarBookingId,
+		long parentCalendarBookingId, long recurringCalendarBookingId,
 		java.util.Map<java.util.Locale, java.lang.String> titleMap,
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.lang.String location, int startTimeYear, int startTimeMonth,
 		int startTimeDay, int startTimeHour, int startTimeMinute,
 		int endTimeYear, int endTimeMonth, int endTimeDay, int endTimeHour,
 		int endTimeMinute, java.lang.String timeZoneId, boolean allDay,
-		java.lang.String recurrence, long firstReminder,
-		java.lang.String firstReminderType, long secondReminder,
-		java.lang.String secondReminderType,
+		java.lang.String recurrence, java.lang.String masterRecurrence,
+		long firstReminder, java.lang.String firstReminderType,
+		long secondReminder, java.lang.String secondReminderType,
 		com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
@@ -75,12 +75,13 @@ public class CalendarBookingServiceHttp {
 
 			MethodHandler methodHandler = new MethodHandler(methodKey,
 					calendarId, childCalendarIds, parentCalendarBookingId,
-					titleMap, descriptionMap, location, startTimeYear,
-					startTimeMonth, startTimeDay, startTimeHour,
-					startTimeMinute, endTimeYear, endTimeMonth, endTimeDay,
-					endTimeHour, endTimeMinute, timeZoneId, allDay, recurrence,
-					firstReminder, firstReminderType, secondReminder,
-					secondReminderType, serviceContext);
+					recurringCalendarBookingId, titleMap, descriptionMap,
+					location, startTimeYear, startTimeMonth, startTimeDay,
+					startTimeHour, startTimeMinute, endTimeYear, endTimeMonth,
+					endTimeDay, endTimeHour, endTimeMinute, timeZoneId, allDay,
+					recurrence, masterRecurrence, firstReminder,
+					firstReminderType, secondReminder, secondReminderType,
+					serviceContext);
 
 			Object returnObj = null;
 
@@ -106,11 +107,12 @@ public class CalendarBookingServiceHttp {
 
 	public static com.liferay.calendar.model.CalendarBooking addCalendarBooking(
 		HttpPrincipal httpPrincipal, long calendarId, long[] childCalendarIds,
-		long parentCalendarBookingId,
+		long parentCalendarBookingId, long recurringCalendarBookingId,
 		java.util.Map<java.util.Locale, java.lang.String> titleMap,
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.lang.String location, long startTime, long endTime,
-		boolean allDay, java.lang.String recurrence, long firstReminder,
+		boolean allDay, java.lang.String recurrence,
+		java.lang.String masterRecurrence, long firstReminder,
 		java.lang.String firstReminderType, long secondReminder,
 		java.lang.String secondReminderType,
 		com.liferay.portal.kernel.service.ServiceContext serviceContext)
@@ -121,8 +123,9 @@ public class CalendarBookingServiceHttp {
 
 			MethodHandler methodHandler = new MethodHandler(methodKey,
 					calendarId, childCalendarIds, parentCalendarBookingId,
-					titleMap, descriptionMap, location, startTime, endTime,
-					allDay, recurrence, firstReminder, firstReminderType,
+					recurringCalendarBookingId, titleMap, descriptionMap,
+					location, startTime, endTime, allDay, recurrence,
+					masterRecurrence, firstReminder, firstReminderType,
 					secondReminder, secondReminderType, serviceContext);
 
 			Object returnObj = null;
@@ -1230,19 +1233,21 @@ public class CalendarBookingServiceHttp {
 
 	private static Log _log = LogFactoryUtil.getLog(CalendarBookingServiceHttp.class);
 	private static final Class<?>[] _addCalendarBookingParameterTypes0 = new Class[] {
-			long.class, long[].class, long.class, java.util.Map.class,
-			java.util.Map.class, java.lang.String.class, int.class, int.class,
+			long.class, long[].class, long.class, long.class,
+			java.util.Map.class, java.util.Map.class, java.lang.String.class,
 			int.class, int.class, int.class, int.class, int.class, int.class,
-			int.class, int.class, java.lang.String.class, boolean.class,
-			java.lang.String.class, long.class, java.lang.String.class,
-			long.class, java.lang.String.class,
+			int.class, int.class, int.class, int.class, java.lang.String.class,
+			boolean.class, java.lang.String.class, java.lang.String.class,
+			long.class, java.lang.String.class, long.class,
+			java.lang.String.class,
 			com.liferay.portal.kernel.service.ServiceContext.class
 		};
 	private static final Class<?>[] _addCalendarBookingParameterTypes1 = new Class[] {
-			long.class, long[].class, long.class, java.util.Map.class,
-			java.util.Map.class, java.lang.String.class, long.class, long.class,
-			boolean.class, java.lang.String.class, long.class,
+			long.class, long[].class, long.class, long.class,
+			java.util.Map.class, java.util.Map.class, java.lang.String.class,
+			long.class, long.class, boolean.class, java.lang.String.class,
 			java.lang.String.class, long.class, java.lang.String.class,
+			long.class, java.lang.String.class,
 			com.liferay.portal.kernel.service.ServiceContext.class
 		};
 	private static final Class<?>[] _deleteCalendarBookingParameterTypes2 = new Class[] {
