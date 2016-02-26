@@ -1426,7 +1426,9 @@ public class CalendarPortlet extends MVCPortlet {
 			calendarBooking = _calendarBookingService.addCalendarBooking(
 				calendar.getCalendarId(), childCalendarIds,
 				CalendarBookingConstants.PARENT_CALENDAR_BOOKING_ID_DEFAULT,
+				CalendarBookingConstants.RECURRING_CALENDAR_BOOKING_ID_DEFAULT,
 				titleMap, descriptionMap, location, startTime, endTime, allDay,
+				RecurrenceSerializer.serialize(recurrence),
 				RecurrenceSerializer.serialize(recurrence), reminders[0],
 				remindersType[0], reminders[1], remindersType[1],
 				serviceContext);

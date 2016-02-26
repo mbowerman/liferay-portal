@@ -66,15 +66,15 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 	@Override
 	public CalendarBooking addCalendarBooking(
 			long calendarId, long[] childCalendarIds,
-			long parentCalendarBookingId, Map<Locale, String> titleMap,
-			Map<Locale, String> descriptionMap, String location,
-			int startTimeYear, int startTimeMonth, int startTimeDay,
-			int startTimeHour, int startTimeMinute, int endTimeYear,
-			int endTimeMonth, int endTimeDay, int endTimeHour,
+			long parentCalendarBookingId, long recurringCalendarBookingId,
+			Map<Locale, String> titleMap, Map<Locale, String> descriptionMap,
+			String location, int startTimeYear, int startTimeMonth,
+			int startTimeDay, int startTimeHour, int startTimeMinute,
+			int endTimeYear, int endTimeMonth, int endTimeDay, int endTimeHour,
 			int endTimeMinute, String timeZoneId, boolean allDay,
-			String recurrence, long firstReminder, String firstReminderType,
-			long secondReminder, String secondReminderType,
-			ServiceContext serviceContext)
+			String recurrence, String masterRecurrence, long firstReminder,
+			String firstReminderType, long secondReminder,
+			String secondReminderType, ServiceContext serviceContext)
 		throws PortalException {
 
 		TimeZone timeZone = TimeZoneUtil.getTimeZone(timeZoneId);
@@ -91,19 +91,21 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 			0, 0, timeZone);
 
 		return calendarBookingService.addCalendarBooking(
-			calendarId, childCalendarIds, parentCalendarBookingId, titleMap,
-			descriptionMap, location, startTimeJCalendar.getTimeInMillis(),
+			calendarId, childCalendarIds, parentCalendarBookingId,
+			recurringCalendarBookingId, titleMap, descriptionMap, location,
+			startTimeJCalendar.getTimeInMillis(),
 			endTimeJCalendar.getTimeInMillis(), allDay, recurrence,
-			firstReminder, firstReminderType, secondReminder,
+			masterRecurrence, firstReminder, firstReminderType, secondReminder,
 			secondReminderType, serviceContext);
 	}
 
 	@Override
 	public CalendarBooking addCalendarBooking(
 			long calendarId, long[] childCalendarIds,
-			long parentCalendarBookingId, Map<Locale, String> titleMap,
-			Map<Locale, String> descriptionMap, String location, long startTime,
-			long endTime, boolean allDay, String recurrence, long firstReminder,
+			long parentCalendarBookingId, long recurringCalendarBookingId,
+			Map<Locale, String> titleMap, Map<Locale, String> descriptionMap,
+			String location, long startTime, long endTime, boolean allDay,
+			String recurrence, String masterRecurrence, long firstReminder,
 			String firstReminderType, long secondReminder,
 			String secondReminderType, ServiceContext serviceContext)
 		throws PortalException {
@@ -114,8 +116,9 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 
 		return calendarBookingLocalService.addCalendarBooking(
 			getUserId(), calendarId, childCalendarIds, parentCalendarBookingId,
-			titleMap, descriptionMap, location, startTime, endTime, allDay,
-			recurrence, firstReminder, firstReminderType, secondReminder,
+			recurringCalendarBookingId, titleMap, descriptionMap, location,
+			startTime, endTime, allDay, recurrence, masterRecurrence,
+			firstReminder, firstReminderType, secondReminder,
 			secondReminderType, serviceContext);
 	}
 
