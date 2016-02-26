@@ -1180,7 +1180,7 @@ public class CalendarBookingLocalServiceImpl
 			long calendarId, long[] childCalendarIds,
 			Map<Locale, String> titleMap, Map<Locale, String> descriptionMap,
 			String location, long startTime, long endTime, boolean allDay,
-			String recurrence, boolean allFollowing, long firstReminder,
+			String masterRecurrence, boolean allFollowing, long firstReminder,
 			String firstReminderType, long secondReminder,
 			String secondReminderType, ServiceContext serviceContext)
 		throws PortalException {
@@ -1194,16 +1194,19 @@ public class CalendarBookingLocalServiceImpl
 			return updateRecurringCalendarBooking(
 				userId, calendarBookingId, calendarId, childCalendarIds,
 				titleMap, descriptionMap, location, startTime, endTime, allDay,
-				recurrence, firstReminder, firstReminderType, secondReminder,
-				secondReminderType, serviceContext);
+				masterRecurrence, firstReminder, firstReminderType,
+				secondReminder, secondReminderType, serviceContext);
 		}
 
-		String masterRecurrence = calendarBooking.getMasterRecurrence();
+		String oldMasterRecurrence = calendarBooking.getMasterRecurrence();
+
+		java.util.Calendar startJCalendar = JCalendarUtil.getJCalendar(
+			startTime);
 
 		if (allFollowing) {
 			List<String> unchangedList = getUnchangedList(
 				calendarBooking, calendarId, titleMap, descriptionMap, location,
-				startTime, endTime, allDay, recurrence, firstReminder,
+				startTime, endTime, allDay, masterRecurrence, firstReminder,
 				firstReminderType, secondReminder, secondReminderType);
 
 			List<CalendarBooking> relatedCalendarBookings =
@@ -1219,9 +1222,8 @@ public class CalendarBookingLocalServiceImpl
 			for (CalendarBooking relatedCalendarBooking :
 					relatedCalendarBookings) {
 
-				if (relatedCalendarBooking.getStartTime() >=
-						JCalendarUtil.convertTimeToNewDay(
-							calendarBooking.getStartTime(), startTime)) {
+				if (!JCalendarUtil.isEarlierDay(
+						relatedCalendarBooking.getStartTime(), startTime))  {
 
 					followingCalendarBookings.add(relatedCalendarBooking);
 
@@ -1239,8 +1241,8 @@ public class CalendarBookingLocalServiceImpl
 							relatedRecurrenceObj.getUntilJCalendar();
 
 						if ((relatedUntilJCalendar == null) ||
-							((relatedUntilJCalendar.getTimeInMillis() +
-								JCalendarUtil.DAY) > startTime)) {
+								!JCalendarUtil.isEarlierDay(
+									relatedUntilJCalendar, startJCalendar)) {
 
 							splitCalendarBooking = relatedCalendarBooking;
 						}
@@ -1249,13 +1251,15 @@ public class CalendarBookingLocalServiceImpl
 			}
 
 			if (splitCalendarBooking != null) {
-				boolean updatedRecurrence = false;
+				boolean updatedSplitRecurrence = false;
 
-				Recurrence recurrenceObj =
-					splitCalendarBooking.getRecurrenceObj().clone();
+				Recurrence newRecurrenceObj =
+					splitCalendarBooking.getRecurrenceObj();
 
-				if (recurrenceObj.getCount() > 0) {
-					recurrenceObj.setCount(
+				Recurrence splitRecurrenceObj = newRecurrenceObj.clone();
+
+				if (splitRecurrenceObj.getCount() > 0) {
+					splitRecurrenceObj.setCount(
 						calendarBooking.getMasterRecurrenceObj().getCount() -
 							instanceIndex);
 				}
@@ -1263,39 +1267,33 @@ public class CalendarBookingLocalServiceImpl
 				deleteCalendarBookingInstance(
 					splitCalendarBooking, startTime, true, false);
 
-				Recurrence earlierRecurrenceObj =
-					splitCalendarBooking.getRecurrenceObj();
 
-				List<java.util.Calendar> exceptionJCalendars =
-					new ArrayList<>();
 
-				for (java.util.Calendar exceptionJCalendar :
-						recurrenceObj.getExceptionJCalendars()) {
-
-					exceptionJCalendars.add(exceptionJCalendar);
-				}
+				List<java.util.Calendar> exceptionJCalendars = new ArrayList<>(
+					splitRecurrenceObj.getExceptionJCalendars());
 
 				for (java.util.Calendar exceptionJCalendar :
 						exceptionJCalendars) {
 
-					if ((exceptionJCalendar.getTimeInMillis() +
-							JCalendarUtil.DAY) > startTime) {
+					if (JCalendarUtil.isEarlierDay(
+							exceptionJCalendar, startJCalendar)) {
 
-						earlierRecurrenceObj.removeExceptionDate(
+						newRecurrenceObj.removeExceptionDate(
 							exceptionJCalendar);
-
-						updatedRecurrence = true;
 					}
 					else {
-						recurrenceObj.removeExceptionDate(exceptionJCalendar);
+						splitRecurrenceObj.removeExceptionDate(
+							exceptionJCalendar);
+
+						updatedSplitRecurrence = true;
 					}
 				}
 
-				if (updatedRecurrence) {
-					String earlierRecurrence = RecurrenceSerializer.serialize(
-						earlierRecurrenceObj);
+				if (updatedSplitRecurrence) {
+					String splitRecurrence = RecurrenceSerializer.serialize(
+						splitRecurrenceObj);
 
-					splitCalendarBooking.setRecurrence(earlierRecurrence);
+					splitCalendarBooking.setRecurrence(splitRecurrence);
 
 					calendarBookingPersistence.update(splitCalendarBooking);
 				}
@@ -1304,11 +1302,12 @@ public class CalendarBookingLocalServiceImpl
 					long untilTime = getEarliestStartTime(
 						followingRecurringCalendarBookings) - JCalendarUtil.DAY;
 
-					recurrenceObj.setUntilJCalendar(
+					newRecurrenceObj.setUntilJCalendar(
 						JCalendarUtil.getJCalendar(untilTime));
 				}
 
-				recurrence = RecurrenceSerializer.serialize(recurrenceObj);
+				String newRecurrence =
+					RecurrenceSerializer.serialize(newRecurrenceObj);
 
 				Map<Locale, String> updatedTitleMap =
 					splitCalendarBooking.getTitleMap();
@@ -1335,8 +1334,8 @@ public class CalendarBookingLocalServiceImpl
 					splitCalendarBooking.getRecurringCalendarBookingId(),
 					updatedTitleMap, updatedDescriptionMap,
 					splitCalendarBooking.getLocation(), splitStartTime,
-					splitEndTime, splitCalendarBooking.getAllDay(), recurrence,
-					splitCalendarBooking.getMasterRecurrence(),
+					splitEndTime, splitCalendarBooking.getAllDay(),
+					newRecurrence, splitCalendarBooking.getMasterRecurrence(),
 					splitCalendarBooking.getFirstReminder(),
 					splitCalendarBooking.getFirstReminderType(),
 					splitCalendarBooking.getSecondReminder(),
@@ -1358,7 +1357,7 @@ public class CalendarBookingLocalServiceImpl
 			deleteCalendarBookingInstance(
 				calendarBooking, startTime, false, false);
 
-			recurrence = StringPool.BLANK;
+			String recurrence = StringPool.BLANK;
 
 			Map<Locale, String> updatedTitleMap = calendarBooking.getTitleMap();
 

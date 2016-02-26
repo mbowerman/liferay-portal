@@ -146,6 +146,42 @@ public class JCalendarUtil {
 			startJCalendar.get(Calendar.YEAR);
 	}
 
+	public static boolean isEarlierDay(long time1, long time2) {
+		return isEarlierDay(getJCalendar(time1), getJCalendar(time2));
+	}
+
+	public static boolean isEarlierDay(
+		Calendar jCalendar1, Calendar jCalendar2) {
+
+		Calendar adjustedJCalendar1 = toLastHourJCalendar(jCalendar1);
+		Calendar adjustedJCalendar2 = toLastHourJCalendar(jCalendar2);
+
+		if (adjustedJCalendar1.before(adjustedJCalendar2)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public static boolean isLaterDay(long time1, long time2) {
+		return isLaterDay(getJCalendar(time1), getJCalendar(time2));
+	}
+
+	public static boolean isLaterDay(
+		Calendar jCalendar1, Calendar jCalendar2) {
+
+		Calendar adjustedJCalendar1 = toLastHourJCalendar(jCalendar1);
+		Calendar adjustedJCalendar2 = toLastHourJCalendar(jCalendar2);
+
+		if (adjustedJCalendar1.after(adjustedJCalendar2)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	public static boolean isLastWeekdayOfMonth(Calendar jCalendar) {
 		Calendar jCalendarClone = (Calendar)jCalendar.clone();
 
