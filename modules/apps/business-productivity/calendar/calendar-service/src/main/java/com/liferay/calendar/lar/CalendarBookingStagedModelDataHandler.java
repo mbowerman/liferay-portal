@@ -205,13 +205,16 @@ public class CalendarBookingStagedModelDataHandler
 				importedCalendarBooking =
 					_calendarBookingLocalService.addCalendarBooking(
 						userId, calendarId, new long[0],
-						parentCalendarBookingId, calendarBooking.getTitleMap(),
+						parentCalendarBookingId,
+						calendarBooking.getRecurringCalendarBookingId(),
+						calendarBooking.getTitleMap(),
 						calendarBooking.getDescriptionMap(),
 						calendarBooking.getLocation(),
 						calendarBooking.getStartTime(),
 						calendarBooking.getEndTime(),
 						calendarBooking.isAllDay(),
 						calendarBooking.getRecurrence(),
+						calendarBooking.getMasterRecurrence(),
 						calendarBooking.getFirstReminder(),
 						calendarBooking.getFirstReminderType(),
 						calendarBooking.getSecondReminder(),
@@ -240,12 +243,14 @@ public class CalendarBookingStagedModelDataHandler
 			importedCalendarBooking =
 				_calendarBookingLocalService.addCalendarBooking(
 					userId, calendarId, new long[0], parentCalendarBookingId,
+					calendarBooking.getRecurringCalendarBookingId(),
 					calendarBooking.getTitleMap(),
 					calendarBooking.getDescriptionMap(),
 					calendarBooking.getLocation(),
 					calendarBooking.getStartTime(),
 					calendarBooking.getEndTime(), calendarBooking.isAllDay(),
 					calendarBooking.getRecurrence(),
+					calendarBooking.getMasterRecurrence(),
 					calendarBooking.getFirstReminder(),
 					calendarBooking.getFirstReminderType(),
 					calendarBooking.getSecondReminder(),
