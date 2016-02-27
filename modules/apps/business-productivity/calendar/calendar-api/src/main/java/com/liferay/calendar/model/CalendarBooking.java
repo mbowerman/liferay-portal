@@ -70,6 +70,8 @@ public interface CalendarBooking extends CalendarBookingModel, PermissionedModel
 	@com.liferay.portal.kernel.json.JSON()
 	public int getInstanceIndex();
 
+	public com.liferay.calendar.recurrence.Recurrence getMasterRecurrenceObj();
+
 	public com.liferay.calendar.model.CalendarBooking getParentCalendarBooking()
 		throws com.liferay.portal.kernel.exception.PortalException;
 

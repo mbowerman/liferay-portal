@@ -553,6 +553,11 @@ public class CalendarBookingWrapper implements CalendarBooking,
 		return _calendarBooking.getMasterRecurrence();
 	}
 
+	@Override
+	public com.liferay.calendar.recurrence.Recurrence getMasterRecurrenceObj() {
+		return _calendarBooking.getMasterRecurrenceObj();
+	}
+
 	/**
 	* Returns the modified date of this calendar booking.
 	*
