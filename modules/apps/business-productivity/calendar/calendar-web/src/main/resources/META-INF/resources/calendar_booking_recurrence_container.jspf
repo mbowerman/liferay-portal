@@ -27,32 +27,32 @@ List<Weekday> weekdays = new ArrayList<Weekday>();
 boolean afterChecked = false;
 boolean onChecked = false;
 
-if (recurrence != null) {
-	count = recurrence.getCount();
-	frequency = recurrence.getFrequency();
-	interval = recurrence.getInterval();
+if (masterRecurrence != null) {
+	count = masterRecurrence.getCount();
+	frequency = masterRecurrence.getFrequency();
+	interval = masterRecurrence.getInterval();
 
-	if (recurrence.getPositionalWeekday() != null) {
-		positionalWeekday = recurrence.getPositionalWeekday();
+	if (masterRecurrence.getPositionalWeekday() != null) {
+		positionalWeekday = masterRecurrence.getPositionalWeekday();
 	}
 
-	if (recurrence.getUntilJCalendar() != null) {
-		untilJCalendar = recurrence.getUntilJCalendar();
+	if (masterRecurrence.getUntilJCalendar() != null) {
+		untilJCalendar = masterRecurrence.getUntilJCalendar();
 	}
 
-	weekdays = recurrence.getWeekdays();
+	weekdays = masterRecurrence.getWeekdays();
 
 	if (count > 0) {
 		afterChecked = true;
 	}
 
-	if (recurrence.getUntilJCalendar() != null) {
+	if (masterRecurrence.getUntilJCalendar() != null) {
 		onChecked = true;
 	}
 
 	StringBundler sb = new StringBundler();
 
-	List<java.util.Calendar> exceptionJCalendars = recurrence.getExceptionJCalendars();
+	List<java.util.Calendar> exceptionJCalendars = masterRecurrence.getExceptionJCalendars();
 
 	Iterator<java.util.Calendar> exceptionJCalendarsIterator = exceptionJCalendars.iterator();
 
