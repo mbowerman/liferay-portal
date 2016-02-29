@@ -101,6 +101,7 @@ boolean hasWorkflowDefinitionLink = false;
 boolean invitable = true;
 boolean masterBooking = true;
 Recurrence recurrence = null;
+Recurrence masterRecurrence = null;
 boolean recurring = false;
 
 Calendar calendar = CalendarServiceUtil.fetchCalendar(calendarId);
@@ -135,6 +136,8 @@ if (calendarBooking != null) {
 	}
 
 	recurrence = RecurrenceUtil.inTimeZone(calendarBooking.getRecurrenceObj(), startTimeJCalendar, calendarBookingTimeZone);
+
+	masterRecurrence = RecurrenceUtil.inTimeZone(calendarBooking.getMasterRecurrenceObj(), startTimeJCalendar, calendarBookingTimeZone);
 
 	approved = calendarBooking.isApproved();
 

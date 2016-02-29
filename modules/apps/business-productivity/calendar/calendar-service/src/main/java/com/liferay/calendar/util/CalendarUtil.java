@@ -282,6 +282,8 @@ public class CalendarUtil {
 
 		String recurrence = calendarBooking.getRecurrence();
 
+		String masterRecurrence = calendarBooking.getMasterRecurrence();
+
 		java.util.Calendar startTimeJCalendar = JCalendarUtil.getJCalendar(
 			calendarBooking.getStartTime(), timeZone);
 
@@ -291,9 +293,17 @@ public class CalendarUtil {
 				timeZone);
 
 			recurrence = RecurrenceSerializer.serialize(recurrenceObj);
+
+			Recurrence masterRecurrenceObj = RecurrenceUtil.inTimeZone(
+				calendarBooking.getMasterRecurrenceObj(), startTimeJCalendar,
+				timeZone);
+
+			masterRecurrence = RecurrenceSerializer.serialize(
+				masterRecurrenceObj);
 		}
 
 		jsonObject.put("recurrence", recurrence);
+		jsonObject.put("masterRecurrence", masterRecurrence);
 
 		jsonObject.put("secondReminder", calendarBooking.getSecondReminder());
 		jsonObject.put(

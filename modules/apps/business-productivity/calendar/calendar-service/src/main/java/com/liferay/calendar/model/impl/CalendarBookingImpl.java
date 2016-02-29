@@ -72,6 +72,16 @@ public class CalendarBookingImpl extends CalendarBookingBaseImpl {
 	}
 
 	@Override
+	public Recurrence getMasterRecurrenceObj() {
+		if ((_masterRecurrenceObj == null) && isRecurring()) {
+			_masterRecurrenceObj = RecurrenceSerializer.deserialize(
+				getMasterRecurrence(), getTimeZone());
+		}
+
+		return _masterRecurrenceObj;
+	}
+
+	@Override
 	public CalendarBooking getParentCalendarBooking() throws PortalException {
 		return CalendarBookingLocalServiceUtil.getCalendarBooking(
 			getParentCalendarBookingId());
@@ -121,7 +131,7 @@ public class CalendarBookingImpl extends CalendarBookingBaseImpl {
 
 	@Override
 	public boolean isRecurring() {
-		if (Validator.isNotNull(getRecurrence())) {
+		if (Validator.isNotNull(getMasterRecurrence())) {
 			return true;
 		}
 
@@ -135,6 +145,7 @@ public class CalendarBookingImpl extends CalendarBookingBaseImpl {
 	}
 
 	private int _instanceIndex;
+	private Recurrence _masterRecurrenceObj;
 	private Recurrence _recurrenceObj;
 
 }

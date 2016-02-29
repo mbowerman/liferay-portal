@@ -196,6 +196,7 @@ AUI.add(
 						hasWorkflowInstanceLink: calendarBooking.hasWorkflowInstanceLink,
 						instanceIndex: calendarBooking.instanceIndex,
 						location: calendarBooking.location,
+						masterRecurrence: calendarBooking.masterRecurrence,
 						parentCalendarBookingId: calendarBooking.parentCalendarBookingId,
 						recurrence: calendarBooking.recurrence,
 						secondReminder: calendarBooking.secondReminder,
@@ -646,6 +647,7 @@ AUI.add(
 							calendarBookingId: data.calendarBookingId,
 							calendarId: newCalendarId,
 							calendarResourceId: data.calendarResourceId,
+							masterRecurrence: data.masterRecurrence,
 							parentCalendarBookingId: data.parentCalendarBookingId,
 							recurrence: data.recurrence,
 							status: data.status
@@ -765,6 +767,7 @@ AUI.add(
 							endTimeMonth: endDate.getMonth(),
 							endTimeYear: endDate.getFullYear(),
 							instanceIndex: schedulerEvent.get('instanceIndex'),
+							masterRecurrence: schedulerEvent.get('masterRecurrence'),
 							recurrence: schedulerEvent.get('recurrence'),
 							startTimeDay: startDate.getDate(),
 							startTimeHour: startDate.getHours(),
@@ -909,6 +912,12 @@ AUI.add(
 						value: STR_BLANK
 					},
 
+					masterRecurrence: {
+						setter: String,
+						validator: isValue,
+						value: STR_BLANK
+					},
+
 					parentCalendarBookingId: {
 						setter: toInt,
 						value: 0
@@ -953,7 +962,7 @@ AUI.add(
 
 				NAME: 'scheduler-event',
 
-				PROPAGATE_ATTRS: A.SchedulerEvent.PROPAGATE_ATTRS.concat(['calendarBookingId', 'calendarId', 'calendarResourceId', 'parentCalendarBookingId', 'recurrence', 'status']),
+				PROPAGATE_ATTRS: A.SchedulerEvent.PROPAGATE_ATTRS.concat(['calendarBookingId', 'calendarId', 'calendarResourceId', 'masterRecurrence', 'parentCalendarBookingId', 'recurrence', 'status']),
 
 				prototype: {
 					eventModel: Liferay.SchedulerEvent,
@@ -987,7 +996,7 @@ AUI.add(
 					isRecurring: function() {
 						var instance = this;
 
-						return instance.get('recurrence') !== STR_BLANK;
+						return (instance.get('masterRecurrence') !== STR_BLANK);
 					},
 
 					syncNodeColorUI: function() {
@@ -1518,13 +1527,13 @@ AUI.add(
 						return offset;
 					},
 
-					_getNewRecurrence: function(schedulerEvent, changedAttributes) {
+					_getNewMasterRecurrence: function(schedulerEvent, changedAttributes) {
 						var instance = this;
 
-						var recurrence = instance.parseRecurrence(schedulerEvent.get('recurrence'));
+						var masterRecurrence = instance.parseRecurrence(schedulerEvent.get('masterRecurrence'));
 
-						if (recurrence && changedAttributes.startDate && changedAttributes.endDate) {
-							var rrule = recurrence.rrule;
+						if (masterRecurrence && changedAttributes.startDate && changedAttributes.endDate) {
+							var rrule = masterRecurrence.rrule;
 
 							var newDate = changedAttributes.startDate.newVal;
 
@@ -1559,7 +1568,7 @@ AUI.add(
 							}
 						}
 
-						return recurrence;
+						return masterRecurrence;
 					},
 
 					_onClickAddEvent: function(event) {
@@ -1669,13 +1678,13 @@ AUI.add(
 						var instance = this;
 
 						var answers = data.answers;
-						var newRecurrence = data.newRecurrence;
+						var newMasterRecurrence = data.newMasterRecurrence;
 						var schedulerEvent = data.schedulerEvent;
 
 						var showNextQuestion = A.bind(instance.load, instance);
 
-						if (newRecurrence && (!answers.updateInstance || answers.allFollowing)) {
-							schedulerEvent.set('recurrence', instance.encodeRecurrence(newRecurrence));
+						if (newMasterRecurrence && (!answers.updateInstance || answers.allFollowing)) {
+							schedulerEvent.set('masterRecurrence', instance.encodeRecurrence(newMasterRecurrence));
 						}
 
 						if (answers.cancel) {
@@ -1697,7 +1706,7 @@ AUI.add(
 								duration: instance._getCalendarBookingDuration(schedulerEvent),
 								hasChild: schedulerEvent.get('hasChildCalendarBookings'),
 								masterBooking: schedulerEvent.isMasterBooking(),
-								newRecurrence: instance._getNewRecurrence(schedulerEvent, changedAttributes),
+								newMasterRecurrence: instance._getNewMasterRecurrence(schedulerEvent, changedAttributes),
 								offset: instance._getCalendarBookingOffset(schedulerEvent, changedAttributes),
 								recurring: schedulerEvent.isRecurring(),
 								resolver: A.bind(instance._queueableQuestionResolver, instance),
