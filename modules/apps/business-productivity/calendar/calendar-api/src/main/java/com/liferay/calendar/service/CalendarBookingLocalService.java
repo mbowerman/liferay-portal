@@ -356,6 +356,10 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException;
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<CalendarBooking> getRelatedRecurringCalendarBookings(
+		CalendarBooking calendarBooking);
+
 	public CalendarBooking moveCalendarBookingToTrash(long userId,
 		CalendarBooking calendarBooking) throws PortalException;
 

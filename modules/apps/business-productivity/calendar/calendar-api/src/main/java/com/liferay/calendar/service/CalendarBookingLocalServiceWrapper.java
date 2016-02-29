@@ -472,6 +472,12 @@ public class CalendarBookingLocalServiceWrapper
 	}
 
 	@Override
+	public java.util.List<com.liferay.calendar.model.CalendarBooking> getRelatedRecurringCalendarBookings(
+		com.liferay.calendar.model.CalendarBooking calendarBooking) {
+		return _calendarBookingLocalService.getRelatedRecurringCalendarBookings(calendarBooking);
+	}
+
+	@Override
 	public com.liferay.calendar.model.CalendarBooking moveCalendarBookingToTrash(
 		long userId, com.liferay.calendar.model.CalendarBooking calendarBooking)
 		throws com.liferay.portal.kernel.exception.PortalException {
