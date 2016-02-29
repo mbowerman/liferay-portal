@@ -66,7 +66,7 @@ public class CalendarBookingCacheModel implements CacheModel<CalendarBooking>,
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(61);
+		StringBundler sb = new StringBundler(63);
 
 		sb.append("{uuid=");
 		sb.append(uuid);
@@ -110,6 +110,8 @@ public class CalendarBookingCacheModel implements CacheModel<CalendarBooking>,
 		sb.append(allDay);
 		sb.append(", recurrence=");
 		sb.append(recurrence);
+		sb.append(", masterRecurrence=");
+		sb.append(masterRecurrence);
 		sb.append(", firstReminder=");
 		sb.append(firstReminder);
 		sb.append(", firstReminderType=");
@@ -215,6 +217,13 @@ public class CalendarBookingCacheModel implements CacheModel<CalendarBooking>,
 			calendarBookingImpl.setRecurrence(recurrence);
 		}
 
+		if (masterRecurrence == null) {
+			calendarBookingImpl.setMasterRecurrence(StringPool.BLANK);
+		}
+		else {
+			calendarBookingImpl.setMasterRecurrence(masterRecurrence);
+		}
+
 		calendarBookingImpl.setFirstReminder(firstReminder);
 
 		if (firstReminderType == null) {
@@ -297,6 +306,7 @@ public class CalendarBookingCacheModel implements CacheModel<CalendarBooking>,
 
 		allDay = objectInput.readBoolean();
 		recurrence = objectInput.readUTF();
+		masterRecurrence = objectInput.readUTF();
 
 		firstReminder = objectInput.readLong();
 		firstReminderType = objectInput.readUTF();
@@ -391,6 +401,13 @@ public class CalendarBookingCacheModel implements CacheModel<CalendarBooking>,
 			objectOutput.writeUTF(recurrence);
 		}
 
+		if (masterRecurrence == null) {
+			objectOutput.writeUTF(StringPool.BLANK);
+		}
+		else {
+			objectOutput.writeUTF(masterRecurrence);
+		}
+
 		objectOutput.writeLong(firstReminder);
 
 		if (firstReminderType == null) {
@@ -446,6 +463,7 @@ public class CalendarBookingCacheModel implements CacheModel<CalendarBooking>,
 	public long endTime;
 	public boolean allDay;
 	public String recurrence;
+	public String masterRecurrence;
 	public long firstReminder;
 	public String firstReminderType;
 	public long secondReminder;

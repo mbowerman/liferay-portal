@@ -52,6 +52,7 @@
 		<property name="endTime" type="com.liferay.portal.dao.orm.hibernate.LongType" />
 		<property name="allDay" type="com.liferay.portal.dao.orm.hibernate.BooleanType" />
 		<property name="recurrence" type="com.liferay.portal.dao.orm.hibernate.StringType" />
+		<property name="masterRecurrence" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 		<property name="firstReminder" type="com.liferay.portal.dao.orm.hibernate.LongType" />
 		<property name="firstReminderType" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 		<property name="secondReminder" type="com.liferay.portal.dao.orm.hibernate.LongType" />
