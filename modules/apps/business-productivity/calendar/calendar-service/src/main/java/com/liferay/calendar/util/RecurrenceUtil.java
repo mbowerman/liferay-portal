@@ -24,6 +24,7 @@ import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.calendar.recurrence.PositionalWeekday;
 import com.liferay.calendar.recurrence.Recurrence;
 import com.liferay.calendar.recurrence.Weekday;
+import com.liferay.calendar.service.CalendarBookingLocalServiceUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 
@@ -45,9 +46,13 @@ public class RecurrenceUtil {
 
 		List<CalendarBooking> expandedCalendarBookings = new ArrayList<>();
 
+		List<CalendarBooking> relatedCalendarBookings =
+			CalendarBookingLocalServiceUtil.getRelatedRecurringCalendarBookings(
+				calendarBooking);
+
 		try {
 			CalendarBookingIterator calendarBookingIterator =
-				new CalendarBookingIterator(calendarBooking);
+				new CalendarBookingIterator(relatedCalendarBookings);
 
 			while (calendarBookingIterator.hasNext()) {
 				CalendarBooking newCalendarBooking =
@@ -90,6 +95,10 @@ public class RecurrenceUtil {
 		List<CalendarBooking> expandedCalendarBookings = new ArrayList<>();
 
 		for (CalendarBooking calendarBooking : calendarBookings) {
+			if (!calendarBooking.isMasterRecurringBooking()) {
+				continue;
+			}
+
 			List<CalendarBooking> expandedCalendarBooking =
 				expandCalendarBooking(
 					calendarBooking, startTime, endTime, maxSize);
@@ -103,9 +112,13 @@ public class RecurrenceUtil {
 	public static CalendarBooking getCalendarBookingInstance(
 		CalendarBooking calendarBooking, int instanceIndex) {
 
+		List<CalendarBooking> relatedCalendarBookings =
+			CalendarBookingLocalServiceUtil.getRelatedRecurringCalendarBookings(
+				calendarBooking);
+
 		try {
 			CalendarBookingIterator calendarBookingIterator =
-				new CalendarBookingIterator(calendarBooking);
+				new CalendarBookingIterator(relatedCalendarBookings);
 
 			while (calendarBookingIterator.hasNext()) {
 				CalendarBooking calendarBookingInstance =
