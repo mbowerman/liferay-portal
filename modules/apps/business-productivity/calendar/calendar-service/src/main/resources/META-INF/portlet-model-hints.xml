@@ -57,6 +57,9 @@
 		<field name="recurrence" type="String">
 			<hint-collection name="TEXTAREA" />
 		</field>
+		<field name="masterRecurrence" type="String">
+			<hint-collection name="TEXTAREA" />
+		</field>
 		<field name="firstReminder" type="long" />
 		<field name="firstReminderType" type="String" />
 		<field name="secondReminder" type="long" />
