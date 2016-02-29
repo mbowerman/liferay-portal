@@ -105,12 +105,16 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 	*
 	* @param calendarBooking the calendar booking
 	* @return the calendar booking that was removed
-	* @throws PortalException
 	*/
+	@Indexable(type = IndexableType.DELETE)
+	public CalendarBooking deleteCalendarBooking(
+		CalendarBooking calendarBooking);
+
 	@Indexable(type = IndexableType.DELETE)
 	@SystemEvent(action = SystemEventConstants.ACTION_SKIP, type = SystemEventConstants.TYPE_DELETE)
 	public CalendarBooking deleteCalendarBooking(
-		CalendarBooking calendarBooking) throws PortalException;
+		CalendarBooking calendarBooking, boolean allRecurringInstances)
+		throws PortalException;
 
 	/**
 	* Deletes the calendar booking with the primary key from the database. Also notifies the appropriate model listeners.
@@ -127,7 +131,15 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 		int instanceIndex, boolean allFollowing) throws PortalException;
 
 	public void deleteCalendarBookingInstance(CalendarBooking calendarBooking,
+		int instanceIndex, boolean allFollowing, boolean updateMasterRecurrence)
+		throws PortalException;
+
+	public void deleteCalendarBookingInstance(CalendarBooking calendarBooking,
 		long startTime, boolean allFollowing) throws PortalException;
+
+	public void deleteCalendarBookingInstance(CalendarBooking calendarBooking,
+		long startTime, boolean allFollowing, boolean updateMasterRecurrence)
+		throws PortalException;
 
 	public void deleteCalendarBookingInstance(long calendarBookingId,
 		long startTime, boolean allFollowing) throws PortalException;

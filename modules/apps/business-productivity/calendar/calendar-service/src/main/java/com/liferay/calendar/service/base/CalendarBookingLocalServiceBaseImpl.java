@@ -153,12 +153,11 @@ public abstract class CalendarBookingLocalServiceBaseImpl
 	 *
 	 * @param calendarBooking the calendar booking
 	 * @return the calendar booking that was removed
-	 * @throws PortalException
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	public CalendarBooking deleteCalendarBooking(
-		CalendarBooking calendarBooking) throws PortalException {
+		CalendarBooking calendarBooking) {
 		return calendarBookingPersistence.remove(calendarBooking);
 	}
 

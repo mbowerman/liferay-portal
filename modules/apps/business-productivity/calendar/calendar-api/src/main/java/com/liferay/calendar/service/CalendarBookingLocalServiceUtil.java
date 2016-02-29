@@ -94,12 +94,18 @@ public class CalendarBookingLocalServiceUtil {
 	*
 	* @param calendarBooking the calendar booking
 	* @return the calendar booking that was removed
-	* @throws PortalException
 	*/
 	public static com.liferay.calendar.model.CalendarBooking deleteCalendarBooking(
-		com.liferay.calendar.model.CalendarBooking calendarBooking)
-		throws com.liferay.portal.kernel.exception.PortalException {
+		com.liferay.calendar.model.CalendarBooking calendarBooking) {
 		return getService().deleteCalendarBooking(calendarBooking);
+	}
+
+	public static com.liferay.calendar.model.CalendarBooking deleteCalendarBooking(
+		com.liferay.calendar.model.CalendarBooking calendarBooking,
+		boolean allRecurringInstances)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .deleteCalendarBooking(calendarBooking, allRecurringInstances);
 	}
 
 	/**
@@ -126,11 +132,29 @@ public class CalendarBookingLocalServiceUtil {
 
 	public static void deleteCalendarBookingInstance(
 		com.liferay.calendar.model.CalendarBooking calendarBooking,
+		int instanceIndex, boolean allFollowing, boolean updateMasterRecurrence)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService()
+			.deleteCalendarBookingInstance(calendarBooking, instanceIndex,
+			allFollowing, updateMasterRecurrence);
+	}
+
+	public static void deleteCalendarBookingInstance(
+		com.liferay.calendar.model.CalendarBooking calendarBooking,
 		long startTime, boolean allFollowing)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService()
 			.deleteCalendarBookingInstance(calendarBooking, startTime,
 			allFollowing);
+	}
+
+	public static void deleteCalendarBookingInstance(
+		com.liferay.calendar.model.CalendarBooking calendarBooking,
+		long startTime, boolean allFollowing, boolean updateMasterRecurrence)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService()
+			.deleteCalendarBookingInstance(calendarBooking, startTime,
+			allFollowing, updateMasterRecurrence);
 	}
 
 	public static void deleteCalendarBookingInstance(long calendarBookingId,
