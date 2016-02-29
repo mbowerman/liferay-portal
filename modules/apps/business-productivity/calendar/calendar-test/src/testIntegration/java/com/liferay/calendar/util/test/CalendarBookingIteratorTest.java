@@ -24,7 +24,9 @@ import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.text.ParseException;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.junit.Assert;
@@ -53,8 +55,12 @@ public class CalendarBookingIteratorTest {
 		calendarBooking.setStartTime(calendar.getTimeInMillis());
 		calendarBooking.setRecurrence(null);
 
+		List<CalendarBooking> calendarBookings = new ArrayList<>();
+
+		calendarBookings.add(calendarBooking);
+
 		CalendarBookingIterator calendarBookingIterator =
-			new CalendarBookingIterator(calendarBooking);
+			new CalendarBookingIterator(calendarBookings);
 
 		int count = 0;
 
@@ -81,8 +87,12 @@ public class CalendarBookingIteratorTest {
 		calendarBooking.setRecurrence(
 			"RRULE:FREQ=WEEKLY;COUNT=2;INTERVAL=1;BYDAY=MO");
 
+		List<CalendarBooking> calendarBookings = new ArrayList<>();
+
+		calendarBookings.add(calendarBooking);
+
 		CalendarBookingIterator calendarBookingIterator =
-			new CalendarBookingIterator(calendarBooking);
+			new CalendarBookingIterator(calendarBookings);
 
 		int count = 0;
 
@@ -109,8 +119,12 @@ public class CalendarBookingIteratorTest {
 		calendarBooking.setRecurrence(
 			"RRULE:FREQ=WEEKLY;COUNT=2;INTERVAL=1;BYDAY=WE");
 
+		List<CalendarBooking> calendarBookings = new ArrayList<>();
+
+		calendarBookings.add(calendarBooking);
+
 		CalendarBookingIterator calendarBookingIterator =
-			new CalendarBookingIterator(calendarBooking);
+			new CalendarBookingIterator(calendarBookings);
 
 		int count = 0;
 

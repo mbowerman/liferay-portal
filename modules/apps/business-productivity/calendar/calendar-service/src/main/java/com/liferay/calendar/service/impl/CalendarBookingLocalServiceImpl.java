@@ -587,6 +587,17 @@ public class CalendarBookingLocalServiceImpl
 	}
 
 	@Override
+	public List<CalendarBooking> getRelatedRecurringCalendarBookings(
+		CalendarBooking calendarBooking) {
+
+		long recurringCalendarBookingId =
+			calendarBooking.getRecurringCalendarBookingId();
+
+		return calendarBookingPersistence.findByRecurringCalendarBookingId(
+			recurringCalendarBookingId);
+	}
+
+	@Override
 	public CalendarBooking moveCalendarBookingToTrash(
 			long userId, CalendarBooking calendarBooking)
 		throws PortalException {
