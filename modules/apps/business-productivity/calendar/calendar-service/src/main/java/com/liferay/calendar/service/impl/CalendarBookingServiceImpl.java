@@ -528,7 +528,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 			long calendarBookingId, int instanceIndex, long calendarId,
 			long[] childCalendarIds, Map<Locale, String> titleMap,
 			Map<Locale, String> descriptionMap, String location, long startTime,
-			long endTime, boolean allDay, String recurrence,
+			long endTime, boolean allDay, String masterRecurrence,
 			boolean allFollowing, long firstReminder, String firstReminderType,
 			long secondReminder, String secondReminderType,
 			ServiceContext serviceContext)
@@ -541,7 +541,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 		return calendarBookingLocalService.updateCalendarBookingInstance(
 			getUserId(), calendarBookingId, instanceIndex, calendarId,
 			childCalendarIds, titleMap, descriptionMap, location, startTime,
-			endTime, allDay, recurrence, allFollowing, firstReminder,
+			endTime, allDay, masterRecurrence, allFollowing, firstReminder,
 			firstReminderType, secondReminder, secondReminderType,
 			serviceContext);
 	}
@@ -646,6 +646,27 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 			calendarBookingId, calendarId, childCalendarIds, titleMap,
 			descriptionMap, location, offset, duration, allDay, recurrence,
 			firstReminder, firstReminderType, secondReminder,
+			secondReminderType, serviceContext);
+	}
+
+	@Override
+	public CalendarBooking updateRecurringCalendarBooking(
+			long calendarBookingId, long calendarId, long[] childCalendarIds,
+			Map<Locale, String> titleMap, Map<Locale, String> descriptionMap,
+			String location, long startTime, long endTime, boolean allDay,
+			String recurrence, long firstReminder, String firstReminderType,
+			long secondReminder, String secondReminderType,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		CalendarPermission.check(
+			getPermissionChecker(), calendarId,
+			CalendarActionKeys.MANAGE_BOOKINGS);
+
+		return calendarBookingLocalService.updateRecurringCalendarBooking(
+			getUserId(), calendarBookingId, calendarId, childCalendarIds,
+			titleMap, descriptionMap, location, startTime, endTime, allDay,
+			recurrence, firstReminder, firstReminderType, secondReminder,
 			secondReminderType, serviceContext);
 	}
 

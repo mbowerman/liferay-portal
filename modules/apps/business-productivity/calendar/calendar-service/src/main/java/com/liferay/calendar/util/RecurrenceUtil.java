@@ -23,6 +23,7 @@ import com.google.ical.values.DateValueImpl;
 import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.calendar.recurrence.PositionalWeekday;
 import com.liferay.calendar.recurrence.Recurrence;
+import com.liferay.calendar.recurrence.RecurrenceSerializer;
 import com.liferay.calendar.recurrence.Weekday;
 import com.liferay.calendar.service.CalendarBookingLocalServiceUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -138,6 +139,46 @@ public class RecurrenceUtil {
 		return null;
 	}
 
+	public static Calendar getFinalCalendarBookingJCalendar(
+		Recurrence recurrenceObj, Calendar startJCalendar) {
+
+		if (recurrenceObj == null) {
+			return startJCalendar;
+		}
+
+		Calendar untilJCalendar = recurrenceObj.getUntilJCalendar();
+
+		if (untilJCalendar != null) {
+			return untilJCalendar;
+		}
+
+		int count = recurrenceObj.getCount();
+
+		if (count == 0) {
+			return null;
+		}
+
+		DateValue finalDateValue = _toDateValue(
+			startJCalendar.getTimeInMillis());
+
+		try {
+			RecurrenceIterator recurrenceIterator =
+				RecurrenceIteratorFactory.createRecurrenceIterator(
+					RecurrenceSerializer.serialize(recurrenceObj),
+					_toDateValue(startJCalendar.getTimeInMillis()),
+					recurrenceObj.getTimeZone());
+
+			while (recurrenceIterator.hasNext()) {
+				finalDateValue = recurrenceIterator.next();
+			}
+		}
+		catch (ParseException pe) {
+			_log.error("Unable to parse data ", pe);
+		}
+
+		return _toJCalendar(finalDateValue, startJCalendar);
+	}
+
 	public static int getIndexOfInstance(
 		String recurrence, long recurrenceStartTime, long instanceStartTime) {
 
@@ -230,12 +271,50 @@ public class RecurrenceUtil {
 		return recurrence;
 	}
 
+	public static void removeExceptionDatesBefore(
+		Recurrence recurrence, Calendar calendar) {
+
+		List<java.util.Calendar> exceptionJCalendars = new ArrayList<>(
+			recurrence.getExceptionJCalendars());
+
+		for (Calendar exceptionJCalendar : exceptionJCalendars) {
+			if (JCalendarUtil.isEarlierDay(exceptionJCalendar, calendar)) {
+				recurrence.removeExceptionDate(exceptionJCalendar);
+			}
+		}
+	}
+
+	public static void removeExceptionDatesFollowing(
+		Recurrence recurrence, Calendar calendar) {
+
+		List<java.util.Calendar> exceptionJCalendars = new ArrayList<>(
+			recurrence.getExceptionJCalendars());
+
+		for (Calendar exceptionJCalendar : exceptionJCalendars) {
+			if (!JCalendarUtil.isEarlierDay(exceptionJCalendar, calendar)) {
+				recurrence.removeExceptionDate(exceptionJCalendar);
+			}
+		}
+	}
+
 	private static DateValue _toDateValue(long time) {
 		Calendar jCalendar = JCalendarUtil.getJCalendar(time);
 
 		return new DateValueImpl(
 			jCalendar.get(Calendar.YEAR), jCalendar.get(Calendar.MONTH) + 1,
 			jCalendar.get(Calendar.DAY_OF_MONTH));
+	}
+
+	private static Calendar _toJCalendar(
+		DateValue dateValue, Calendar jCalendar) {
+
+		Calendar returnJCalendar = (Calendar)jCalendar.clone();
+
+		returnJCalendar.set(Calendar.YEAR, dateValue.year());
+		returnJCalendar.set(Calendar.MONTH, dateValue.month() - 1);
+		returnJCalendar.set(Calendar.DATE, dateValue.day());
+
+		return returnJCalendar;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(RecurrenceUtil.class);
