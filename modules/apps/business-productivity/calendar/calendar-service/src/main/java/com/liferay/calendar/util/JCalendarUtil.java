@@ -14,6 +14,8 @@
 
 package com.liferay.calendar.util;
 
+import com.liferay.calendar.recurrence.PositionalWeekday;
+import com.liferay.calendar.recurrence.Weekday;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
@@ -37,6 +39,18 @@ public class JCalendarUtil {
 	public static final long MONTH = Time.DAY * 30;
 
 	public static final long SECOND = 1000;
+
+	public static long convertTimeToNewDay(long oldTime, long newTime) {
+		Calendar oldJCalendar = JCalendarUtil.getJCalendar(oldTime);
+		Calendar newJCalendar = JCalendarUtil.getJCalendar(newTime);
+
+		newJCalendar.set(Calendar.AM_PM, oldJCalendar.get(Calendar.AM_PM));
+		newJCalendar.set(Calendar.HOUR, oldJCalendar.get(Calendar.HOUR));
+		newJCalendar.set(Calendar.MINUTE, oldJCalendar.get(Calendar.MINUTE));
+		newJCalendar.set(Calendar.SECOND, oldJCalendar.get(Calendar.SECOND));
+
+		return newJCalendar.getTimeInMillis();
+	}
 
 	public static long getDaysBetween(
 		Calendar startTimeJCalendar, Calendar endTimeJCalendar) {
@@ -105,8 +119,113 @@ public class JCalendarUtil {
 		return jCalendar;
 	}
 
+	public static long getMonthsBetween(
+		Calendar startJCalendar, Calendar endJCalendar) {
+
+		return getYearsBetween(startJCalendar, endJCalendar) +
+			endJCalendar.get(Calendar.MONTH) -
+				startJCalendar.get(Calendar.MONTH);
+	}
+
 	public static int getTimeZoneOffset(TimeZone timeZone) {
 		return timeZone.getOffset(System.currentTimeMillis());
+	}
+
+	public static long getWeeksBetween(
+		Calendar startJCalendar, Calendar endJCalendar) {
+
+		return getYearsBetween(startJCalendar, endJCalendar) +
+			endJCalendar.get(Calendar.WEEK_OF_YEAR) -
+				startJCalendar.get(Calendar.WEEK_OF_YEAR);
+	}
+
+	public static long getYearsBetween(
+		Calendar startJCalendar, Calendar endJCalendar) {
+
+		return endJCalendar.get(Calendar.YEAR) -
+			startJCalendar.get(Calendar.YEAR);
+	}
+
+	public static boolean isEarlierDay(
+		Calendar jCalendar1, Calendar jCalendar2) {
+
+		Calendar adjustedJCalendar1 = toLastHourJCalendar(jCalendar1);
+		Calendar adjustedJCalendar2 = toLastHourJCalendar(jCalendar2);
+
+		if (adjustedJCalendar1.before(adjustedJCalendar2)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public static boolean isEarlierDay(long time1, long time2) {
+		return isEarlierDay(getJCalendar(time1), getJCalendar(time2));
+	}
+
+	public static boolean isLastWeekdayOfMonth(Calendar jCalendar) {
+		Calendar jCalendarClone = (Calendar)jCalendar.clone();
+
+		jCalendarClone.add(Calendar.DATE, 7);
+
+		if (jCalendar.get(Calendar.MONTH) !=
+				jCalendarClone.get(Calendar.MONTH)) {
+
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public static boolean isLaterDay(Calendar jCalendar1, Calendar jCalendar2) {
+		Calendar adjustedJCalendar1 = toLastHourJCalendar(jCalendar1);
+		Calendar adjustedJCalendar2 = toLastHourJCalendar(jCalendar2);
+
+		if (adjustedJCalendar1.after(adjustedJCalendar2)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public static boolean isLaterDay(long time1, long time2) {
+		return isLaterDay(getJCalendar(time1), getJCalendar(time2));
+	}
+
+	public static boolean isPositionalWeekday(
+		Calendar jCalendar, PositionalWeekday positionalWeekday) {
+
+		PositionalWeekday jCalendarPositionalWeekday = new PositionalWeekday(
+			jCalendar);
+
+		if (jCalendarPositionalWeekday.equals(positionalWeekday)) {
+			return true;
+		}
+
+		if (positionalWeekday.getPosition() != -1) {
+			return false;
+		}
+
+		Weekday jCalendarWeekday = jCalendarPositionalWeekday.getWeekday();
+		Weekday weekday = positionalWeekday.getWeekday();
+
+		if (!jCalendarWeekday.equals(weekday)) {
+			return false;
+		}
+
+		if (isLastWeekdayOfMonth(jCalendar)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean isSameDay(Calendar jCalendar1, Calendar jCalendar2) {
+		return toMidnightJCalendar(jCalendar1).equals(
+			toMidnightJCalendar(jCalendar2));
 	}
 
 	public static boolean isSameDayOfWeek(
