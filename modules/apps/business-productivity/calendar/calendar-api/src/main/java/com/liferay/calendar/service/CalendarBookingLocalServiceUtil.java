@@ -434,6 +434,11 @@ public class CalendarBookingLocalServiceUtil {
 		return getService().getPersistedModel(primaryKeyObj);
 	}
 
+	public static java.util.List<com.liferay.calendar.model.CalendarBooking> getRelatedRecurringCalendarBookings(
+		com.liferay.calendar.model.CalendarBooking calendarBooking) {
+		return getService().getRelatedRecurringCalendarBookings(calendarBooking);
+	}
+
 	public static com.liferay.calendar.model.CalendarBooking moveCalendarBookingToTrash(
 		long userId, com.liferay.calendar.model.CalendarBooking calendarBooking)
 		throws com.liferay.portal.kernel.exception.PortalException {
