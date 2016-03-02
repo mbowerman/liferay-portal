@@ -90,13 +90,20 @@ public class CalendarBookingLocalServiceWrapper
 	*
 	* @param calendarBooking the calendar booking
 	* @return the calendar booking that was removed
-	* @throws PortalException
 	*/
 	@Override
 	public com.liferay.calendar.model.CalendarBooking deleteCalendarBooking(
-		com.liferay.calendar.model.CalendarBooking calendarBooking)
-		throws com.liferay.portal.kernel.exception.PortalException {
+		com.liferay.calendar.model.CalendarBooking calendarBooking) {
 		return _calendarBookingLocalService.deleteCalendarBooking(calendarBooking);
+	}
+
+	@Override
+	public com.liferay.calendar.model.CalendarBooking deleteCalendarBooking(
+		com.liferay.calendar.model.CalendarBooking calendarBooking,
+		boolean allRecurringInstances)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _calendarBookingLocalService.deleteCalendarBooking(calendarBooking,
+			allRecurringInstances);
 	}
 
 	/**
@@ -125,10 +132,28 @@ public class CalendarBookingLocalServiceWrapper
 	@Override
 	public void deleteCalendarBookingInstance(
 		com.liferay.calendar.model.CalendarBooking calendarBooking,
+		int instanceIndex, boolean allFollowing, boolean updateMasterRecurrence)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_calendarBookingLocalService.deleteCalendarBookingInstance(calendarBooking,
+			instanceIndex, allFollowing, updateMasterRecurrence);
+	}
+
+	@Override
+	public void deleteCalendarBookingInstance(
+		com.liferay.calendar.model.CalendarBooking calendarBooking,
 		long startTime, boolean allFollowing)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_calendarBookingLocalService.deleteCalendarBookingInstance(calendarBooking,
 			startTime, allFollowing);
+	}
+
+	@Override
+	public void deleteCalendarBookingInstance(
+		com.liferay.calendar.model.CalendarBooking calendarBooking,
+		long startTime, boolean allFollowing, boolean updateMasterRecurrence)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_calendarBookingLocalService.deleteCalendarBookingInstance(calendarBooking,
+			startTime, allFollowing, updateMasterRecurrence);
 	}
 
 	@Override
@@ -471,6 +496,14 @@ public class CalendarBookingLocalServiceWrapper
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _calendarBookingLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	@Override
+	public com.liferay.calendar.model.CalendarBooking getPreviousCalendarBooking(
+		java.util.List<com.liferay.calendar.model.CalendarBooking> calendarBookings,
+		long startTime) {
+		return _calendarBookingLocalService.getPreviousCalendarBooking(calendarBookings,
+			startTime);
 	}
 
 	@Override
