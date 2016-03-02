@@ -82,6 +82,7 @@ public class CalendarBookingWrapper implements CalendarBooking,
 		attributes.put("endTime", getEndTime());
 		attributes.put("allDay", getAllDay());
 		attributes.put("recurrence", getRecurrence());
+		attributes.put("masterRecurrence", getMasterRecurrence());
 		attributes.put("firstReminder", getFirstReminder());
 		attributes.put("firstReminderType", getFirstReminderType());
 		attributes.put("secondReminder", getSecondReminder());
@@ -223,6 +224,12 @@ public class CalendarBookingWrapper implements CalendarBooking,
 
 		if (recurrence != null) {
 			setRecurrence(recurrence);
+		}
+
+		String masterRecurrence = (String)attributes.get("masterRecurrence");
+
+		if (masterRecurrence != null) {
+			setMasterRecurrence(masterRecurrence);
 		}
 
 		Long firstReminder = (Long)attributes.get("firstReminder");
@@ -534,6 +541,16 @@ public class CalendarBookingWrapper implements CalendarBooking,
 	@Override
 	public java.lang.String getLocation() {
 		return _calendarBooking.getLocation();
+	}
+
+	/**
+	* Returns the master recurrence of this calendar booking.
+	*
+	* @return the master recurrence of this calendar booking
+	*/
+	@Override
+	public java.lang.String getMasterRecurrence() {
+		return _calendarBooking.getMasterRecurrence();
 	}
 
 	/**
@@ -1236,6 +1253,16 @@ public class CalendarBookingWrapper implements CalendarBooking,
 	@Override
 	public void setLocation(java.lang.String location) {
 		_calendarBooking.setLocation(location);
+	}
+
+	/**
+	* Sets the master recurrence of this calendar booking.
+	*
+	* @param masterRecurrence the master recurrence of this calendar booking
+	*/
+	@Override
+	public void setMasterRecurrence(java.lang.String masterRecurrence) {
+		_calendarBooking.setMasterRecurrence(masterRecurrence);
 	}
 
 	/**

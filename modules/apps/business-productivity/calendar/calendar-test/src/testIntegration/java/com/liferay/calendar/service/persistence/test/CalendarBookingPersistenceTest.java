@@ -164,6 +164,8 @@ public class CalendarBookingPersistenceTest {
 
 		newCalendarBooking.setRecurrence(RandomTestUtil.randomString());
 
+		newCalendarBooking.setMasterRecurrence(RandomTestUtil.randomString());
+
 		newCalendarBooking.setFirstReminder(RandomTestUtil.nextLong());
 
 		newCalendarBooking.setFirstReminderType(RandomTestUtil.randomString());
@@ -230,6 +232,8 @@ public class CalendarBookingPersistenceTest {
 			newCalendarBooking.getAllDay());
 		Assert.assertEquals(existingCalendarBooking.getRecurrence(),
 			newCalendarBooking.getRecurrence());
+		Assert.assertEquals(existingCalendarBooking.getMasterRecurrence(),
+			newCalendarBooking.getMasterRecurrence());
 		Assert.assertEquals(existingCalendarBooking.getFirstReminder(),
 			newCalendarBooking.getFirstReminder());
 		Assert.assertEquals(existingCalendarBooking.getFirstReminderType(),
@@ -384,10 +388,10 @@ public class CalendarBookingPersistenceTest {
 			"calendarResourceId", true, "parentCalendarBookingId", true,
 			"recurringCalendarBookingId", true, "vEventUid", true, "title",
 			true, "location", true, "startTime", true, "endTime", true,
-			"allDay", true, "recurrence", true, "firstReminder", true,
-			"firstReminderType", true, "secondReminder", true,
-			"secondReminderType", true, "lastPublishDate", true, "status",
-			true, "statusByUserId", true, "statusByUserName", true,
+			"allDay", true, "recurrence", true, "masterRecurrence", true,
+			"firstReminder", true, "firstReminderType", true, "secondReminder",
+			true, "secondReminderType", true, "lastPublishDate", true,
+			"status", true, "statusByUserId", true, "statusByUserName", true,
 			"statusDate", true);
 	}
 
@@ -663,6 +667,8 @@ public class CalendarBookingPersistenceTest {
 		calendarBooking.setAllDay(RandomTestUtil.randomBoolean());
 
 		calendarBooking.setRecurrence(RandomTestUtil.randomString());
+
+		calendarBooking.setMasterRecurrence(RandomTestUtil.randomString());
 
 		calendarBooking.setFirstReminder(RandomTestUtil.nextLong());
 
