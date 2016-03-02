@@ -55,21 +55,22 @@ public class CalendarBookingLocalServiceUtil {
 
 	public static com.liferay.calendar.model.CalendarBooking addCalendarBooking(
 		long userId, long calendarId, long[] childCalendarIds,
-		long parentCalendarBookingId,
+		long parentCalendarBookingId, long recurringCalendarBookingId,
 		java.util.Map<java.util.Locale, java.lang.String> titleMap,
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.lang.String location, long startTime, long endTime,
-		boolean allDay, java.lang.String recurrence, long firstReminder,
+		boolean allDay, java.lang.String recurrence,
+		java.lang.String masterRecurrence, long firstReminder,
 		java.lang.String firstReminderType, long secondReminder,
 		java.lang.String secondReminderType,
 		com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .addCalendarBooking(userId, calendarId, childCalendarIds,
-			parentCalendarBookingId, titleMap, descriptionMap, location,
-			startTime, endTime, allDay, recurrence, firstReminder,
-			firstReminderType, secondReminder, secondReminderType,
-			serviceContext);
+			parentCalendarBookingId, recurringCalendarBookingId, titleMap,
+			descriptionMap, location, startTime, endTime, allDay, recurrence,
+			masterRecurrence, firstReminder, firstReminderType, secondReminder,
+			secondReminderType, serviceContext);
 	}
 
 	public static void checkCalendarBookings()
