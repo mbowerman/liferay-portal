@@ -53,6 +53,7 @@ public class CalendarBookingIteratorTest {
 		CalendarBooking calendarBooking = new MockCalendarBooking();
 
 		calendarBooking.setStartTime(calendar.getTimeInMillis());
+		calendarBooking.setMasterRecurrence(null);
 		calendarBooking.setRecurrence(null);
 
 		List<CalendarBooking> calendarBookings = new ArrayList<>();
@@ -84,6 +85,8 @@ public class CalendarBookingIteratorTest {
 		CalendarBooking calendarBooking = new MockCalendarBooking();
 
 		calendarBooking.setStartTime(calendar.getTimeInMillis());
+		calendarBooking.setMasterRecurrence(
+			"RRULE:FREQ=WEEKLY;COUNT=2;INTERVAL=1;BYDAY=MO");
 		calendarBooking.setRecurrence(
 			"RRULE:FREQ=WEEKLY;COUNT=2;INTERVAL=1;BYDAY=MO");
 
@@ -117,6 +120,8 @@ public class CalendarBookingIteratorTest {
 
 		calendarBooking.setStartTime(calendar.getTimeInMillis());
 		calendarBooking.setRecurrence(
+			"RRULE:FREQ=WEEKLY;COUNT=2;INTERVAL=1;BYDAY=WE");
+		calendarBooking.setMasterRecurrence(
 			"RRULE:FREQ=WEEKLY;COUNT=2;INTERVAL=1;BYDAY=WE");
 
 		List<CalendarBooking> calendarBookings = new ArrayList<>();
