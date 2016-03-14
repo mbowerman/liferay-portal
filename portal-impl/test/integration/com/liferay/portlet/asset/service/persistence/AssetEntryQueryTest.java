@@ -14,9 +14,22 @@
 
 package com.liferay.portlet.asset.service.persistence;
 
-import com.liferay.portal.kernel.cache.Lifecycle;
-import com.liferay.portal.kernel.cache.ThreadLocalCache;
-import com.liferay.portal.kernel.cache.ThreadLocalCacheManager;
+import com.liferay.asset.kernel.model.AssetCategory;
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.model.AssetVocabulary;
+import com.liferay.asset.kernel.service.AssetCategoryLocalServiceUtil;
+import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
+import com.liferay.asset.kernel.service.AssetEntryServiceUtil;
+import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
+import com.liferay.asset.kernel.service.AssetVocabularyLocalServiceUtil;
+import com.liferay.asset.kernel.service.persistence.AssetEntryQuery;
+import com.liferay.blogs.kernel.model.BlogsEntry;
+import com.liferay.blogs.kernel.service.BlogsEntryLocalServiceUtil;
+import com.liferay.portal.kernel.cache.thread.local.Lifecycle;
+import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCache;
+import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCacheManager;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -27,24 +40,11 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
-import com.liferay.portlet.asset.model.AssetCategory;
-import com.liferay.portlet.asset.model.AssetEntry;
-import com.liferay.portlet.asset.model.AssetVocabulary;
-import com.liferay.portlet.asset.service.AssetCategoryLocalServiceUtil;
-import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
-import com.liferay.portlet.asset.service.AssetEntryServiceUtil;
-import com.liferay.portlet.asset.service.AssetTagLocalServiceUtil;
-import com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil;
 import com.liferay.portlet.asset.service.impl.AssetEntryServiceImpl;
-import com.liferay.portlet.blogs.model.BlogsEntry;
-import com.liferay.portlet.blogs.service.BlogsEntryLocalServiceUtil;
-import com.liferay.portlet.ratings.model.RatingsStats;
-import com.liferay.portlet.ratings.service.RatingsEntryServiceUtil;
-import com.liferay.portlet.ratings.service.RatingsStatsLocalServiceUtil;
+import com.liferay.ratings.kernel.model.RatingsStats;
+import com.liferay.ratings.kernel.service.RatingsEntryServiceUtil;
+import com.liferay.ratings.kernel.service.RatingsStatsLocalServiceUtil;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -64,8 +64,7 @@ public class AssetEntryQueryTest {
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE);
+		new LiferayIntegrationTestRule();
 
 	@Before
 	public void setUp() throws Exception {
@@ -272,8 +271,8 @@ public class AssetEntryQueryTest {
 	@Test
 	public void testAllAssetCategories2() throws Exception {
 		testAssetCategories(
-			new long[] {_healthAssetCategoryId, _sportAssetCategoryId},
-			false, false, 2);
+			new long[] {_healthAssetCategoryId, _sportAssetCategoryId}, false,
+			false, 2);
 	}
 
 	@Test
@@ -330,8 +329,8 @@ public class AssetEntryQueryTest {
 	@Test
 	public void testAnyAssetCategories2() throws Exception {
 		testAssetCategories(
-			new long[] {_healthAssetCategoryId, _sportAssetCategoryId},
-			true, false, 2);
+			new long[] {_healthAssetCategoryId, _sportAssetCategoryId}, true,
+			false, 2);
 	}
 
 	@Test
@@ -347,8 +346,8 @@ public class AssetEntryQueryTest {
 	@Test
 	public void testAnyAssetCategories4() throws Exception {
 		testAssetCategories(
-			new long[] {_fashionAssetCategoryId, _foodAssetCategoryId},
-			true, false, 1);
+			new long[] {_fashionAssetCategoryId, _foodAssetCategoryId}, true,
+			false, 1);
 	}
 
 	@Test
@@ -404,15 +403,15 @@ public class AssetEntryQueryTest {
 	@Test
 	public void testNotAllAssetCategories2() throws Exception {
 		testAssetCategories(
-			new long[] {_healthAssetCategoryId, _sportAssetCategoryId},
-			false, true, 0);
+			new long[] {_healthAssetCategoryId, _sportAssetCategoryId}, false,
+			true, 0);
 	}
 
 	@Test
 	public void testNotAllAssetCategories3() throws Exception {
 		testAssetCategories(
-			new long[] {_fashionAssetCategoryId, _foodAssetCategoryId},
-			false, true, 1);
+			new long[] {_fashionAssetCategoryId, _foodAssetCategoryId}, false,
+			true, 1);
 	}
 
 	@Test
@@ -457,8 +456,8 @@ public class AssetEntryQueryTest {
 	@Test
 	public void testNotAnyAssetCategories2() throws Exception {
 		testAssetCategories(
-			new long[] {_healthAssetCategoryId, _sportAssetCategoryId},
-			true, true, 0);
+			new long[] {_healthAssetCategoryId, _sportAssetCategoryId}, true,
+			true, 0);
 	}
 
 	@Test
@@ -474,8 +473,8 @@ public class AssetEntryQueryTest {
 	@Test
 	public void testNotAnyAssetCategories4() throws Exception {
 		testAssetCategories(
-			new long[] {_fashionAssetCategoryId, _foodAssetCategoryId},
-			true, true, 1);
+			new long[] {_fashionAssetCategoryId, _foodAssetCategoryId}, true,
+			true, 1);
 	}
 
 	@Test

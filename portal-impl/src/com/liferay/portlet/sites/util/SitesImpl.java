@@ -14,22 +14,82 @@
 
 package com.liferay.portlet.sites.util;
 
-import com.liferay.portal.RequiredLayoutException;
+import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationConstants;
+import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationSettingsMapFactory;
+import com.liferay.exportimport.kernel.lar.ExportImportHelperUtil;
+import com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys;
+import com.liferay.exportimport.kernel.lar.UserIdStrategy;
+import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
+import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalServiceUtil;
+import com.liferay.exportimport.kernel.service.ExportImportLocalServiceUtil;
+import com.liferay.exportimport.kernel.service.ExportImportServiceUtil;
+import com.liferay.exportimport.kernel.staging.MergeLayoutPrototypesThreadLocal;
 import com.liferay.portal.events.EventsProcessorUtil;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManagerUtil;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskThreadLocal;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.RequiredLayoutException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.lock.Lock;
 import com.liferay.portal.kernel.lock.LockManagerUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutConstants;
+import com.liferay.portal.kernel.model.LayoutPrototype;
+import com.liferay.portal.kernel.model.LayoutSet;
+import com.liferay.portal.kernel.model.LayoutSetPrototype;
+import com.liferay.portal.kernel.model.LayoutType;
+import com.liferay.portal.kernel.model.LayoutTypePortlet;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.PortletConstants;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserGroup;
+import com.liferay.portal.kernel.model.impl.VirtualLayout;
+import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.GroupServiceUtil;
+import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutPrototypeLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutServiceUtil;
+import com.liferay.portal.kernel.service.LayoutSetLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutSetServiceUtil;
+import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
+import com.liferay.portal.kernel.service.PortletPreferencesLocalServiceUtil;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
+import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextFactory;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.service.UserGroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.service.permission.GroupPermissionUtil;
+import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
+import com.liferay.portal.kernel.service.permission.PortalPermissionUtil;
+import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
+import com.liferay.portal.kernel.service.persistence.LayoutSetUtil;
+import com.liferay.portal.kernel.service.persistence.LayoutUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -38,72 +98,13 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.GroupConstants;
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.model.LayoutConstants;
-import com.liferay.portal.model.LayoutPrototype;
-import com.liferay.portal.model.LayoutSet;
-import com.liferay.portal.model.LayoutSetPrototype;
-import com.liferay.portal.model.LayoutType;
-import com.liferay.portal.model.LayoutTypePortlet;
-import com.liferay.portal.model.Organization;
-import com.liferay.portal.model.PortletConstants;
-import com.liferay.portal.model.ResourceConstants;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.model.User;
-import com.liferay.portal.model.UserGroup;
-import com.liferay.portal.model.impl.VirtualLayout;
-import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.auth.PrincipalThreadLocal;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.security.permission.PermissionThreadLocal;
-import com.liferay.portal.security.permission.ResourceActionsUtil;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.GroupServiceUtil;
-import com.liferay.portal.service.LayoutLocalServiceUtil;
-import com.liferay.portal.service.LayoutPrototypeLocalServiceUtil;
-import com.liferay.portal.service.LayoutServiceUtil;
-import com.liferay.portal.service.LayoutSetLocalServiceUtil;
-import com.liferay.portal.service.LayoutSetPrototypeLocalServiceUtil;
-import com.liferay.portal.service.LayoutSetServiceUtil;
-import com.liferay.portal.service.OrganizationLocalServiceUtil;
-import com.liferay.portal.service.PortletPreferencesLocalServiceUtil;
-import com.liferay.portal.service.ResourcePermissionLocalServiceUtil;
-import com.liferay.portal.service.RoleLocalServiceUtil;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.ServiceContextFactory;
-import com.liferay.portal.service.ServiceContextThreadLocal;
-import com.liferay.portal.service.UserGroupLocalServiceUtil;
-import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.service.impl.LayoutLocalServiceVirtualLayoutsAdvice;
-import com.liferay.portal.service.permission.GroupPermissionUtil;
-import com.liferay.portal.service.permission.LayoutPermissionUtil;
-import com.liferay.portal.service.permission.PortalPermissionUtil;
-import com.liferay.portal.service.permission.PortletPermissionUtil;
-import com.liferay.portal.service.persistence.LayoutSetUtil;
-import com.liferay.portal.service.persistence.LayoutUtil;
-import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.WebKeys;
-import com.liferay.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portlet.PortletPreferencesImpl;
-import com.liferay.portlet.exportimport.configuration.ExportImportConfigurationConstants;
-import com.liferay.portlet.exportimport.configuration.ExportImportConfigurationSettingsMapFactory;
-import com.liferay.portlet.exportimport.lar.ExportImportHelperUtil;
-import com.liferay.portlet.exportimport.lar.PortletDataHandlerKeys;
-import com.liferay.portlet.exportimport.lar.UserIdStrategy;
-import com.liferay.portlet.exportimport.model.ExportImportConfiguration;
-import com.liferay.portlet.exportimport.service.ExportImportConfigurationLocalServiceUtil;
-import com.liferay.portlet.exportimport.service.ExportImportLocalServiceUtil;
-import com.liferay.portlet.exportimport.service.ExportImportServiceUtil;
-import com.liferay.portlet.exportimport.staging.MergeLayoutPrototypesThreadLocal;
+import com.liferay.sites.kernel.util.Sites;
 
 import java.io.File;
 import java.io.InputStream;
@@ -117,9 +118,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
 import javax.portlet.PortletPreferences;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletResponse;
 import javax.portlet.PortletURL;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
@@ -160,11 +161,8 @@ public class SitesImpl implements Sites {
 
 	@Override
 	public void addPortletBreadcrumbEntries(
-			Group group, HttpServletRequest request,
-			RenderResponse renderResponse)
+			Group group, HttpServletRequest request, PortletURL portletURL)
 		throws Exception {
-
-		PortletURL portletURL = renderResponse.createRenderURL();
 
 		List<Group> ancestorGroups = group.getAncestors();
 
@@ -187,6 +185,17 @@ public class SitesImpl implements Sites {
 		PortalUtil.addPortletBreadcrumbEntry(
 			request, unescapedGroup.getDescriptiveName(),
 			portletURL.toString());
+	}
+
+	@Override
+	public void addPortletBreadcrumbEntries(
+			Group group, HttpServletRequest request,
+			RenderResponse renderResponse)
+		throws Exception {
+
+		PortletURL portletURL = renderResponse.createRenderURL();
+
+		addPortletBreadcrumbEntries(group, request, portletURL);
 	}
 
 	@Override
@@ -342,12 +351,7 @@ public class SitesImpl implements Sites {
 		LayoutLocalServiceUtil.updateLookAndFeel(
 			targetLayout.getGroupId(), targetLayout.isPrivateLayout(),
 			targetLayout.getLayoutId(), sourceLayout.getThemeId(),
-			sourceLayout.getColorSchemeId(), sourceLayout.getCss(), false);
-
-		LayoutLocalServiceUtil.updateLookAndFeel(
-			targetLayout.getGroupId(), targetLayout.isPrivateLayout(),
-			targetLayout.getLayoutId(), sourceLayout.getWapThemeId(),
-			sourceLayout.getWapColorSchemeId(), sourceLayout.getCss(), true);
+			sourceLayout.getColorSchemeId(), sourceLayout.getCss());
 	}
 
 	@Override
@@ -477,19 +481,6 @@ public class SitesImpl implements Sites {
 
 	@Override
 	public Object[] deleteLayout(
-			ActionRequest actionRequest, ActionResponse actionResponse)
-		throws Exception {
-
-		HttpServletRequest request = PortalUtil.getHttpServletRequest(
-			actionRequest);
-		HttpServletResponse response = PortalUtil.getHttpServletResponse(
-			actionResponse);
-
-		return deleteLayout(request, response);
-	}
-
-	@Override
-	public Object[] deleteLayout(
 			HttpServletRequest request, HttpServletResponse response)
 		throws Exception {
 
@@ -499,7 +490,7 @@ public class SitesImpl implements Sites {
 		PermissionChecker permissionChecker =
 			themeDisplay.getPermissionChecker();
 
-		long plid = ParamUtil.getLong(request, "plid");
+		long selPlid = ParamUtil.getLong(request, "selPlid");
 
 		long groupId = ParamUtil.getLong(request, "groupId");
 		boolean privateLayout = ParamUtil.getBoolean(request, "privateLayout");
@@ -507,12 +498,12 @@ public class SitesImpl implements Sites {
 
 		Layout layout = null;
 
-		if (plid <= 0) {
+		if (selPlid <= 0) {
 			layout = LayoutLocalServiceUtil.getLayout(
 				groupId, privateLayout, layoutId);
 		}
 		else {
-			layout = LayoutLocalServiceUtil.getLayout(plid);
+			layout = LayoutLocalServiceUtil.getLayout(selPlid);
 
 			groupId = layout.getGroupId();
 			privateLayout = layout.isPrivateLayout();
@@ -573,6 +564,19 @@ public class SitesImpl implements Sites {
 		}
 
 		return new Object[] {group, oldFriendlyURL, newPlid};
+	}
+
+	@Override
+	public Object[] deleteLayout(
+			PortletRequest portletRequest, PortletResponse portletResponse)
+		throws Exception {
+
+		HttpServletRequest request = PortalUtil.getHttpServletRequest(
+			portletRequest);
+		HttpServletResponse response = PortalUtil.getHttpServletResponse(
+			portletResponse);
+
+		return deleteLayout(request, response);
 	}
 
 	@Override
@@ -747,8 +751,6 @@ public class SitesImpl implements Sites {
 	 * @param  layoutPrototype the page template being checked for failed merge
 	 *         attempts
 	 * @return the number of failed merge attempts for the layout prototype
-	 * @throws PortalException if no page was associated with the layout
-	 *         prototype or if a portal exception occurred
 	 */
 	@Override
 	public int getMergeFailCount(LayoutPrototype layoutPrototype)
@@ -776,8 +778,6 @@ public class SitesImpl implements Sites {
 	 * @param  layoutSetPrototype the site template being checked for failed
 	 *         merge attempts
 	 * @return the number of failed merge attempts for the layout set prototype
-	 * @throws PortalException if no site was associated with the layout set
-	 *         prototype or if a portal exception occurred
 	 */
 	@Override
 	public int getMergeFailCount(LayoutSetPrototype layoutSetPrototype)
@@ -920,7 +920,7 @@ public class SitesImpl implements Sites {
 		int groupContentSharingEnabled = GetterUtil.getInteger(
 			typeSettingsProperties.getProperty(
 				"contentSharingWithChildrenEnabled"),
-				CONTENT_SHARING_WITH_CHILDREN_DEFAULT_VALUE);
+			CONTENT_SHARING_WITH_CHILDREN_DEFAULT_VALUE);
 
 		if ((groupContentSharingEnabled ==
 				CONTENT_SHARING_WITH_CHILDREN_ENABLED) ||
@@ -942,7 +942,7 @@ public class SitesImpl implements Sites {
 		Layout firstLayout = LayoutLocalServiceUtil.fetchFirstLayout(
 			groupId, privateLayout, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
 
-		if ((firstLayout != null) && (firstLayout.getLayoutId() == layoutId )) {
+		if ((firstLayout != null) && (firstLayout.getLayoutId() == layoutId)) {
 			return true;
 		}
 
@@ -1023,8 +1023,6 @@ public class SitesImpl implements Sites {
 	 *         merge into
 	 * @return <code>true</code> if the linked site template can be merged into
 	 *         the layout set; <code>false</code> otherwise
-	 * @throws PortalException if no site template was associated with the
-	 *         layout set or if a portal exception occurred
 	 */
 	@Override
 	public boolean isLayoutSetMergeable(Group group, LayoutSet layoutSet)
@@ -1248,18 +1246,6 @@ public class SitesImpl implements Sites {
 		doMergeLayoutPrototypeLayout(group, layout);
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             #mergeLayoutPrototypeLayout(Group, Layout)}
-	 */
-	@Deprecated
-	@Override
-	public void mergeLayoutProtypeLayout(Group group, Layout layout)
-		throws Exception {
-
-		mergeLayoutPrototypeLayout(group, layout);
-	}
-
 	@Override
 	public void mergeLayoutSetPrototypeLayouts(Group group, LayoutSet layoutSet)
 		throws Exception {
@@ -1370,18 +1356,6 @@ public class SitesImpl implements Sites {
 		}
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             #mergeLayoutSetPrototypeLayouts(Group, LayoutSet)}
-	 */
-	@Deprecated
-	@Override
-	public void mergeLayoutSetProtypeLayouts(Group group, LayoutSet layoutSet)
-		throws Exception {
-
-		mergeLayoutSetPrototypeLayouts(group, layoutSet);
-	}
-
 	@Override
 	public void removeMergeFailFriendlyURLLayouts(LayoutSet layoutSet) {
 		UnicodeProperties settingsProperties =
@@ -1396,10 +1370,7 @@ public class SitesImpl implements Sites {
 	 * Checks the permissions necessary for resetting the layout. If sufficient,
 	 * the layout is reset by calling {@link #doResetPrototype(Layout)}.
 	 *
-	 * @param  layout the page being checked for sufficient permissions
-	 * @throws PortalException if no site was associated with the layout, if the
-	 *         user did not have permission to update the layout or the layout's
-	 *         site, or if a portal exception occurred
+	 * @param layout the page being checked for sufficient permissions
 	 */
 	@Override
 	public void resetPrototype(Layout layout) throws PortalException {
@@ -1413,9 +1384,7 @@ public class SitesImpl implements Sites {
 	 * sufficient, the layout set is reset by calling {@link
 	 * #doResetPrototype(LayoutSet)}.
 	 *
-	 * @param  layoutSet the site being checked for sufficient permissions
-	 * @throws PortalException if the user did not have permission to update the
-	 *         site or if a portal exception occurred
+	 * @param layoutSet the site being checked for sufficient permissions
 	 */
 	@Override
 	public void resetPrototype(LayoutSet layoutSet) throws PortalException {
@@ -1428,11 +1397,8 @@ public class SitesImpl implements Sites {
 	 * Sets the number of failed merge attempts for the layout prototype to a
 	 * new value.
 	 *
-	 * @param  layoutPrototype the page template of the counter being updated
-	 * @param  newMergeFailCount the new value of the counter
-	 * @throws PortalException if no page was associated with the layout
-	 *         prototype, if the user did not have permission to update the
-	 *         page, or if a portal exception occurred
+	 * @param layoutPrototype the page template of the counter being updated
+	 * @param newMergeFailCount the new value of the counter
 	 */
 	@Override
 	public void setMergeFailCount(
@@ -1463,11 +1429,8 @@ public class SitesImpl implements Sites {
 	 * Sets the number of failed merge attempts for the layout set prototype to
 	 * a new value.
 	 *
-	 * @param  layoutSetPrototype the site template of the counter being updated
-	 * @param  newMergeFailCount the new value of the counter
-	 * @throws PortalException if no site was associated with the layout set
-	 *         prototype, if the user did not have permission to update the
-	 *         layout set prototype, or if a portal exception occurred
+	 * @param layoutSetPrototype the site template of the counter being updated
+	 * @param newMergeFailCount the new value of the counter
 	 */
 	@Override
 	public void setMergeFailCount(
@@ -1524,7 +1487,7 @@ public class SitesImpl implements Sites {
 		}
 
 		String portletTitle = PortalUtil.getPortletTitle(
-			sourcePortletId, languageId);
+			PortletConstants.getRootPortletId(sourcePortletId), languageId);
 
 		String newPortletTitle = PortalUtil.getNewPortletTitle(
 			portletTitle, String.valueOf(sourceLayout.getLayoutId()),
@@ -1563,12 +1526,10 @@ public class SitesImpl implements Sites {
 	 * Checks the permissions necessary for resetting the layout or site. If the
 	 * permissions are not sufficient, a {@link PortalException} is thrown.
 	 *
-	 * @param  group the site being checked for sufficient permissions
-	 * @param  layout the page being checked for sufficient permissions
-	 *         (optionally <code>null</code>). If <code>null</code>, the
-	 *         permissions are only checked for resetting the site.
-	 * @throws PortalException if the user did not have permission to update the
-	 *         layout or site, or if a portal exception occurred
+	 * @param group the site being checked for sufficient permissions
+	 * @param layout the page being checked for sufficient permissions
+	 *        (optionally <code>null</code>). If <code>null</code>, the
+	 *        permissions are only checked for resetting the site.
 	 */
 	protected void checkResetPrototypePermissions(Group group, Layout layout)
 		throws PortalException {
@@ -1720,9 +1681,7 @@ public class SitesImpl implements Sites {
 	 * accessed.
 	 * </p>
 	 *
-	 * @param  layout the page having its timestamp reset
-	 * @throws PortalException if no site was associated with the layout or if a
-	 *         portal exception occurred
+	 * @param layout the page having its timestamp reset
 	 */
 	protected void doResetPrototype(Layout layout) throws PortalException {
 		layout.setModifiedDate(null);

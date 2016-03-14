@@ -20,7 +20,6 @@ import com.liferay.portal.kernel.deploy.hot.HotDeployException;
 import com.liferay.portal.kernel.deploy.hot.HotDeployListener;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portal.test.rule.SyntheticBundleRule;
 import com.liferay.portal.util.test.AtomicState;
 
@@ -46,7 +45,7 @@ public class OSGiHotDeployListenerTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
+			new LiferayIntegrationTestRule(),
 			new SyntheticBundleRule("bundle.osgihotdeploylistener"));
 
 	@BeforeClass
@@ -73,16 +72,14 @@ public class OSGiHotDeployListenerTest {
 
 	@Test
 	public void testInvokeDeploy() throws HotDeployException {
-		_hotDeployListener.invokeDeploy(
-			new HotDeployEvent(_servletContext, null));
+		_hotDeployListener.invokeDeploy(new HotDeployEvent(_servletContext));
 
 		Assert.assertTrue(_atomicState.isSet());
 	}
 
 	@Test
 	public void testInvokeUndeploy() throws HotDeployException {
-		_hotDeployListener.invokeUndeploy(
-			new HotDeployEvent(_servletContext, null));
+		_hotDeployListener.invokeUndeploy(new HotDeployEvent(_servletContext));
 
 		Assert.assertTrue(_atomicState.isSet());
 	}

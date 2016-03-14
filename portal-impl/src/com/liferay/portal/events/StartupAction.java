@@ -16,12 +16,9 @@ package com.liferay.portal.events;
 
 import com.liferay.portal.fabric.server.FabricServerUtil;
 import com.liferay.portal.jericho.CachedLoggerProvider;
-import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManager;
-import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManagerUtil;
-import com.liferay.portal.kernel.cluster.ClusterExecutor;
-import com.liferay.portal.kernel.cluster.ClusterMasterExecutor;
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
+import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.events.ActionException;
 import com.liferay.portal.kernel.events.SimpleAction;
 import com.liferay.portal.kernel.executor.PortalExecutorManager;
@@ -39,22 +36,20 @@ import com.liferay.portal.kernel.resiliency.mpi.MPIHelperUtil;
 import com.liferay.portal.kernel.resiliency.spi.agent.annotation.Direction;
 import com.liferay.portal.kernel.resiliency.spi.agent.annotation.DistributedRegistry;
 import com.liferay.portal.kernel.resiliency.spi.agent.annotation.MatchType;
-import com.liferay.portal.kernel.scheduler.SchedulerEngineHelper;
-import com.liferay.portal.kernel.scheduler.SchedulerLifecycle;
 import com.liferay.portal.kernel.search.IndexerRegistry;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.service.ClassNameLocalServiceUtil;
+import com.liferay.portal.kernel.service.ResourceActionLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.PortalLifecycle;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.plugin.PluginPackageIndexer;
 import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.messageboards.util.MBMessageIndexer;
-import com.liferay.registry.Filter;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.dependency.ServiceDependencyListener;
@@ -112,11 +107,11 @@ public class StartupAction extends SimpleAction {
 		ServiceDependencyManager portalResiliencyServiceDependencyManager =
 			new ServiceDependencyManager();
 
-		portalResiliencyServiceDependencyManager.registerDependencies(
-			MessageBus.class, PortalExecutorManager.class);
-
 		portalResiliencyServiceDependencyManager.addServiceDependencyListener(
 			new PortalResiliencyServiceDependencyLister());
+
+		portalResiliencyServiceDependencyManager.registerDependencies(
+			MessageBus.class, PortalExecutorManager.class);
 
 		// Shutdown hook
 
@@ -133,9 +128,6 @@ public class StartupAction extends SimpleAction {
 		ServiceDependencyManager indexerRegistryServiceDependencyManager =
 			new ServiceDependencyManager();
 
-		indexerRegistryServiceDependencyManager.registerDependencies(
-			IndexerRegistry.class);
-
 		indexerRegistryServiceDependencyManager.addServiceDependencyListener(
 			new ServiceDependencyListener() {
 
@@ -151,66 +143,46 @@ public class StartupAction extends SimpleAction {
 
 			});
 
+		indexerRegistryServiceDependencyManager.registerDependencies(
+			IndexerRegistry.class);
+
 		// MySQL version
 
-		DB db = DBFactoryUtil.getDB();
+		DB db = DBManagerUtil.getDB();
 
-		String dbType = db.getType();
-
-		if (dbType.equals(DB.TYPE_MYSQL) &&
+		if ((db.getDBType() == DBType.MYSQL) &&
 			GetterUtil.getFloat(db.getVersionString()) < 5.6F) {
 
-			if (_log.isWarnEnabled()) {
-				_log.warn(
-					"Please upgrade to at least MySQL 5.6.4. The portal will " +
-						"soon drop support for older versions of MySQL.");
-			}
+			_log.error(
+				"Please upgrade to at least MySQL 5.6.4. The portal no " +
+					"longer supports older versions of MySQL.");
+
+			System.exit(1);
 		}
 
-		// Upgrade
+		// Check required build number
 
 		if (_log.isDebugEnabled()) {
-			_log.debug("Upgrade database");
+			_log.debug("Check required build number");
 		}
 
-		DBUpgrader.upgrade();
+		DBUpgrader.checkRequiredBuildNumber(ReleaseInfo.getParentBuildNumber());
 
-		// Scheduler
+		// Check class names
 
 		if (_log.isDebugEnabled()) {
-			_log.debug("Initialize scheduler engine lifecycle");
+			_log.debug("Check class names");
 		}
 
-		ServiceDependencyManager schedulerServiceDependencyManager =
-			new ServiceDependencyManager();
+		ClassNameLocalServiceUtil.checkClassNames();
 
-		schedulerServiceDependencyManager.addServiceDependencyListener(
-			new ServiceDependencyListener() {
+		// Check resource actions
 
-				@Override
-				public void dependenciesFulfilled() {
-					SchedulerLifecycle schedulerLifecycle =
-						new SchedulerLifecycle();
+		if (_log.isDebugEnabled()) {
+			_log.debug("Check resource actions");
+		}
 
-					schedulerLifecycle.registerPortalLifecycle(
-						PortalLifecycle.METHOD_INIT);
-				}
-
-				@Override
-				public void destroy() {
-				}
-
-			});
-
-		final Registry registry = RegistryUtil.getRegistry();
-
-		Filter filter = registry.getFilter(
-			"(objectClass=com.liferay.portal.scheduler.quartz.internal." +
-				"QuartzSchemaManager)");
-
-		schedulerServiceDependencyManager.registerDependencies(
-			new Class[] {SchedulerEngineHelper.class},
-			new Filter[] {filter});
+		ResourceActionLocalServiceUtil.checkResourceActions();
 
 		// Verify
 
@@ -219,39 +191,6 @@ public class StartupAction extends SimpleAction {
 		}
 
 		DBUpgrader.verify();
-
-		// Cluster master token listener
-
-		ServiceDependencyManager clusterMasterExecutorServiceDependencyManager =
-			new ServiceDependencyManager();
-
-		clusterMasterExecutorServiceDependencyManager.
-			addServiceDependencyListener(
-				new ServiceDependencyListener() {
-
-					@Override
-					public void dependenciesFulfilled() {
-						ClusterMasterExecutor clusterMasterExecutor =
-							registry.getService(ClusterMasterExecutor.class);
-
-						if (!clusterMasterExecutor.isEnabled()) {
-							BackgroundTaskManagerUtil.cleanUpBackgroundTasks();
-						}
-						else {
-							clusterMasterExecutor.
-								notifyMasterTokenTransitionListeners();
-						}
-					}
-
-					@Override
-					public void destroy() {
-					}
-
-				});
-
-		clusterMasterExecutorServiceDependencyManager.registerDependencies(
-			BackgroundTaskManager.class, ClusterExecutor.class,
-			ClusterMasterExecutor.class);
 
 		// Liferay JspFactory
 
@@ -264,7 +203,7 @@ public class StartupAction extends SimpleAction {
 
 	private static final Log _log = LogFactoryUtil.getLog(StartupAction.class);
 
-	private class PortalResiliencyServiceDependencyLister
+	private static class PortalResiliencyServiceDependencyLister
 		implements ServiceDependencyListener {
 
 		@Override

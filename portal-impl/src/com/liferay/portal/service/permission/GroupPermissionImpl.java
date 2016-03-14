@@ -15,22 +15,25 @@
 package com.liferay.portal.service.permission;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.BaseModelPermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.service.permission.GroupPermission;
+import com.liferay.portal.kernel.service.permission.PortalPermissionUtil;
+import com.liferay.portal.kernel.service.permission.UserPermissionUtil;
 import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.User;
-import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.security.permission.BaseModelPermissionChecker;
-import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.UserLocalServiceUtil;
 
 /**
  * @author Brian Wing Shun Chan
  * @author Raymond Augé
  */
 @OSGiBeanProperties(
-	property = {"model.class.name=com.liferay.portal.model.Group"}
+	property = {"model.class.name=com.liferay.portal.kernel.model.Group"}
 )
 public class GroupPermissionImpl
 	implements BaseModelPermissionChecker, GroupPermission {
@@ -91,12 +94,6 @@ public class GroupPermissionImpl
 			return false;
 		}
 
-		if (actionId.equals(ActionKeys.VIEW_SITE_ADMINISTRATION) &&
-			group.isLayoutPrototype()) {
-
-			return false;
-		}
-
 		long groupId = group.getGroupId();
 
 		if (group.isStagingGroup()) {
@@ -138,7 +135,8 @@ public class GroupPermissionImpl
 			return true;
 		}
 		else if ((actionId.equals(ActionKeys.EXPORT_IMPORT_LAYOUTS) ||
-				  actionId.equals(ActionKeys.EXPORT_IMPORT_PORTLET_INFO)) &&
+				  actionId.equals(ActionKeys.EXPORT_IMPORT_PORTLET_INFO) ||
+				  actionId.equals(ActionKeys.PUBLISH_PORTLET_INFO)) &&
 				 permissionChecker.hasPermission(
 					 groupId, Group.class.getName(), groupId,
 					 ActionKeys.PUBLISH_STAGING)) {
@@ -214,7 +212,7 @@ public class GroupPermissionImpl
 		PermissionChecker permissionChecker, String actionId) {
 
 		return permissionChecker.hasPermission(
-			0, Group.class.getName(), 0, actionId);
+			0, Group.class.getName(), Group.class.getName(), actionId);
 	}
 
 }

@@ -32,15 +32,12 @@ import com.liferay.portal.kernel.servlet.SecureServlet;
 import com.liferay.portal.kernel.servlet.SerializableSessionAttributeListener;
 import com.liferay.portal.kernel.servlet.filters.invoker.InvokerFilter;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
-import com.liferay.portal.kernel.util.OSDetector;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ServerDetector;
-import com.liferay.portal.kernel.util.StreamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -55,8 +52,8 @@ import com.liferay.portal.plugin.PluginPackageUtil;
 import com.liferay.portal.security.lang.SecurityManagerUtil;
 import com.liferay.portal.tools.ToolDependencies;
 import com.liferay.portal.tools.WebXMLBuilder;
+import com.liferay.portal.tools.deploy.extension.DeploymentExtension;
 import com.liferay.portal.util.ExtRegistry;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
@@ -74,11 +71,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -114,9 +116,17 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 	}
 
 	public BaseDeployer() {
+		for (DeploymentExtension deploymentExtension : ServiceLoader.load(
+				DeploymentExtension.class,
+				BaseDeployer.class.getClassLoader())) {
+
+			_deploymentExtensions.add(deploymentExtension);
+		}
 	}
 
 	public BaseDeployer(List<String> wars, List<String> jars) {
+		this();
+
 		baseDir = System.getProperty("deployer.base.dir");
 		destDir = System.getProperty("deployer.dest.dir");
 		appServerType = System.getProperty("deployer.app.server.type");
@@ -321,37 +331,6 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 
 		DeployUtil.copyDependencyXml(
 			fileName, targetDir, fileName, filterMap, overwrite);
-	}
-
-	public void copyDtds(File srcFile, PluginPackage pluginPackage)
-		throws Exception {
-
-		File portalLog4jXml = new File(
-			srcFile.getAbsolutePath() +
-				"/WEB-INF/classes/META-INF/portal-log4j.xml");
-
-		if (!portalLog4jXml.exists()) {
-			return;
-		}
-
-		InputStream is = null;
-
-		try {
-			Class<?> clazz = getClass();
-
-			ClassLoader classLoader = clazz.getClassLoader();
-
-			is = classLoader.getResourceAsStream("META-INF/log4j.dtd");
-
-			File file = new File(
-				srcFile.getAbsolutePath() +
-					"/WEB-INF/classes/META-INF/log4j.dtd");
-
-			FileUtil.write(file, is);
-		}
-		finally {
-			StreamUtil.cleanUp(is);
-		}
 	}
 
 	@Override
@@ -591,15 +570,17 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 			copyDependencyXml(
 				"jboss-deployment-structure.xml", srcFile + "/WEB-INF");
 		}
-		else if (appServerType.equals(ServerDetector.WEBLOGIC_ID)) {
-			copyDependencyXml("weblogic.xml", srcFile + "/WEB-INF");
-		}
-		else if (appServerType.equals(ServerDetector.WEBSPHERE_ID)) {
-			copyDependencyXml("ibm-web-ext.xmi", srcFile + "/WEB-INF");
-		}
 		else if (appServerType.equals(ServerDetector.WILDFLY_ID)) {
 			copyDependencyXml(
 				"jboss-deployment-structure.xml", srcFile + "/WEB-INF");
+		}
+
+		for (DeploymentExtension deploymentExtension : _deploymentExtensions) {
+			if (Validator.equals(
+					appServerType, deploymentExtension.getServerId())) {
+
+				deploymentExtension.copyXmls(this, srcFile);
+			}
 		}
 
 		copyDependencyXml("web.xml", srcFile + "/WEB-INF");
@@ -666,7 +647,6 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 
 		processPluginPackageProperties(srcFile, displayName, pluginPackage);
 
-		copyDtds(srcFile, pluginPackage);
 		copyJars(srcFile, pluginPackage);
 		copyProperties(srcFile, pluginPackage);
 		copyTlds(srcFile, pluginPackage);
@@ -708,7 +688,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		String excludes = StringPool.BLANK;
 
 		if (appServerType.equals(ServerDetector.JBOSS_ID) ||
-			appServerType.equals(ServerDetector.WILDFLY_ID )) {
+			appServerType.equals(ServerDetector.WILDFLY_ID)) {
 
 			excludes += "**/WEB-INF/lib/log4j.jar,";
 		}
@@ -775,9 +755,11 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		}
 
 		if (!unpackWar) {
-			File tempDir = new File(
-				SystemProperties.get(SystemProperties.TMP_DIR) +
-					File.separator + Time.getTimestamp());
+			Path tempDirPath = Files.createTempDirectory(
+				Paths.get(SystemProperties.get(SystemProperties.TMP_DIR)),
+				null);
+
+			File tempDir = tempDirPath.toFile();
 
 			excludes += "/WEB-INF/web.xml";
 
@@ -1072,9 +1054,10 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 			return false;
 		}
 
-		File tempDir = new File(
-			SystemProperties.get(SystemProperties.TMP_DIR) + File.separator +
-				Time.getTimestamp());
+		Path tempDirPath = Files.createTempDirectory(
+			Paths.get(SystemProperties.get(SystemProperties.TMP_DIR)), null);
+
+		File tempDir = tempDirPath.toFile();
 
 		ExpandTask.expand(srcFile, tempDir);
 
@@ -1085,30 +1068,6 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		DeleteTask.deleteDirectory(tempDir);
 
 		return true;
-	}
-
-	public String downloadJar(String jar) throws Exception {
-		String tmpDir = SystemProperties.get(SystemProperties.TMP_DIR);
-
-		File file = new File(
-			tmpDir + "/liferay/com/liferay/portal/deploy/dependencies/" + jar);
-
-		if (!file.exists()) {
-			synchronized (this) {
-				String url = PropsUtil.get(
-					PropsKeys.LIBRARY_DOWNLOAD_URL + jar);
-
-				if (_log.isInfoEnabled()) {
-					_log.info("Downloading library from " + url);
-				}
-
-				byte[] bytes = HttpUtil.URLtoByteArray(url);
-
-				FileUtil.write(file, bytes);
-			}
-		}
-
-		return FileUtil.getAbsolutePath(file);
 	}
 
 	public String fixPortalDependencyJar(String portalJar) {
@@ -1221,22 +1180,6 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		}
 
 		sb.append(getDynamicResourceServletContent());
-
-		File serverConfigWsdd = new File(
-			srcFile + "/WEB-INF/server-config.wsdd");
-
-		if (serverConfigWsdd.exists()) {
-			File webXml = new File(srcFile + "/WEB-INF/web.xml");
-
-			String content = FileUtil.read(webXml);
-
-			if (!content.contains("axis.servicesPath")) {
-				String remotingContent = FileUtil.read(
-					DeployUtil.getResourcePath("remoting-web.xml"));
-
-				sb.append(remotingContent);
-			}
-		}
 
 		boolean hasTaglib = false;
 
@@ -1655,11 +1598,16 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		else if (appServerType.equals(ServerDetector.JBOSS_ID)) {
 			postDeployJBoss(destDir, deployDir);
 		}
-		else if (appServerType.equals(ServerDetector.WEBSPHERE_ID)) {
-			postDeployWebSphere(destDir, deployDir);
-		}
 		else if (appServerType.equals(ServerDetector.WILDFLY_ID)) {
 			postDeployWildfly(destDir, deployDir);
+		}
+
+		for (DeploymentExtension deploymentExtension : _deploymentExtensions) {
+			if (Validator.equals(
+					appServerType, deploymentExtension.getServerId())) {
+
+				deploymentExtension.postDeploy(destDir, deployDir);
+			}
 		}
 	}
 
@@ -1674,150 +1622,6 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 
 		FileUtil.write(
 			destDir + "/" + deployDir + ".dodeploy", StringPool.BLANK);
-	}
-
-	public void postDeployWebSphere(String destDir, String deployDir)
-		throws Exception {
-
-		if (Validator.isNull(
-				PropsValues.AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_QUERY)) {
-
-			if (_log.isInfoEnabled()) {
-				StringBundler sb = new StringBundler();
-
-				sb.append("Do not install the plugin with wsadmin since the ");
-				sb.append("property \"");
-				sb.append(
-					PropsKeys.AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_QUERY);
-				sb.append("\"is not configured");
-
-				_log.info(sb.toString());
-			}
-
-			return;
-		}
-
-		String wsadminContent = FileUtil.read(
-			DeployUtil.getResourcePath("wsadmin.py"));
-
-		String adminAppListOptions =
-			PropsValues.AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_LIST_OPTIONS;
-
-		if (Validator.isNotNull(adminAppListOptions)) {
-			adminAppListOptions =
-				StringPool.APOSTROPHE + adminAppListOptions +
-					StringPool.APOSTROPHE;
-		}
-
-		wsadminContent = StringUtil.replace(
-			wsadminContent,
-			new String[] {
-				"${auto.deploy.websphere.wsadmin.app.manager.install.options}",
-				"${auto.deploy.websphere.wsadmin.app.manager.list.options}",
-				"${auto.deploy.websphere.wsadmin.app.manager.query}",
-				"${auto.deploy.websphere.wsadmin.app.manager.update.options}"
-			},
-			new String[] {
-				PropsValues.
-					AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_INSTALL_OPTIONS,
-				adminAppListOptions,
-				PropsValues.AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_QUERY,
-				PropsValues.
-					AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_UPDATE_OPTIONS
-			});
-
-		String pluginServletContextName = deployDir.substring(
-			0, deployDir.length() - 4);
-
-		String pluginApplicationName = pluginServletContextName;
-
-		if (Validator.isNotNull(
-				PropsValues.AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_NAME_SUFFIX)) {
-
-			pluginApplicationName +=
-				PropsValues.AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_NAME_SUFFIX;
-		}
-
-		wsadminContent = StringUtil.replace(
-			wsadminContent,
-			new String[] {
-				"${auto.deploy.dest.dir}",
-				"${auto.deploy.websphere.wsadmin.app.name}",
-				"${plugin.servlet.context.name}"
-			},
-			new String[] {
-				destDir, pluginApplicationName, pluginServletContextName
-			});
-
-		String wsadminFileName = FileUtil.createTempFileName("py");
-
-		FileUtil.write(wsadminFileName, wsadminContent);
-
-		String webSphereHome = System.getenv("WAS_HOME");
-
-		List<String> commands = new ArrayList<>();
-
-		if (OSDetector.isWindows()) {
-			commands.add(webSphereHome + "\\bin\\wsadmin.bat");
-		}
-		else {
-			commands.add(webSphereHome + "/bin/wsadmin.sh");
-		}
-
-		if (Validator.isNotNull(
-				PropsValues.AUTO_DEPLOY_WEBSPHERE_WSADMIN_PROPERTIES_FILE)) {
-
-			commands.add("-p");
-			commands.add(
-				PropsValues.AUTO_DEPLOY_WEBSPHERE_WSADMIN_PROPERTIES_FILE);
-		}
-
-		commands.add("-f");
-		commands.add(wsadminFileName);
-
-		if (_log.isInfoEnabled()) {
-			StringBundler sb = new StringBundler(commands.size() + 1);
-
-			sb.append("Installing plugin by executing");
-
-			for (String command : commands) {
-				sb.append(StringPool.SPACE);
-				sb.append(command);
-			}
-
-			_log.info(sb.toString());
-		}
-
-		ProcessBuilder processBuilder = new ProcessBuilder(commands);
-
-		processBuilder.redirectErrorStream(true);
-
-		Process process = processBuilder.start();
-
-		if (_log.isInfoEnabled()) {
-			InputStream inputStream = process.getInputStream();
-
-			String output = StringUtil.read(inputStream);
-
-			for (String line : StringUtil.split(output, CharPool.NEW_LINE)) {
-				_log.info("Process output: " + line);
-			}
-
-			int exitValue = process.exitValue();
-
-			if (exitValue == 0) {
-				_log.info(
-					"Successfully executed command with an exit value of " +
-						exitValue);
-			}
-			else {
-				_log.info(
-					"Unsuccessfully executed command with an exit value of " +
-						exitValue);
-			}
-		}
-
-		FileUtil.delete(wsadminFileName);
 	}
 
 	public void postDeployWildfly(String destDir, String deployDir)
@@ -2420,5 +2224,8 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		"com.liferay.support.tomcat.loader.PortalClassLoader";
 
 	private static final Log _log = LogFactoryUtil.getLog(BaseDeployer.class);
+
+	private final List<DeploymentExtension> _deploymentExtensions =
+		new ArrayList<>();
 
 }

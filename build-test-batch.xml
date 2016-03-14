@@ -7,187 +7,6 @@
 		<isset property="env.AXIS_VARIABLE" />
 	</condition>
 
-	<property name="default.test.results.axis.dir" value="${default.test.results.dir}/test-suite" />
-	<property name="default.test.results.axis.file.name" value="TESTS-${test.batch.name}_${axis.variable}_axis.xml" />
-	<property name="default.test.results.dir" value="${project.dir}/test-results" />
-	<property name="default.test.results.suite.dir" value="${default.test.results.dir}/test-suite" />
-	<property name="default.test.results.suite.file.name" value="TESTS-${test.batch.name}_${axis.variable}_suite.xml" />
-
-	<macrodef name="apply-properties-to-testray-results">
-		<attribute name="test.results.file" />
-
-		<sequential>
-			<property name="test.suite.properties">
-				<![CDATA[
-					<environments>
-						<environment type="Application Server" option="${env.option.app.server}" />
-						<environment type="Browser" option="${env.option.browser}" />
-						<environment type="Database" option="${env.option.database}" />
-						<environment type="Java JDK" option="${env.option.java.jdk}" />
-						<environment type="Operating System" option="${env.option.operating.system}" />
-					</environments>
-					<properties>
-						<property name="app.server.type" value="${app.server.type}" />
-						<property name="app.server.version" value="${app.server.version}" />
-						<property name="browser.type" value="${browser.type}" />
-						<property name="browser.version" value="${browser.version}" />
-						<property name="database.type" value="${database.type}" />
-						<property name="database.version" value="${database.version}" />
-						<property name="liferay.compare.urls" value="${liferay.compare.urls}" />
-						<property name="liferay.plugins.git.id" value="${liferay.plugins.git.id}" />
-						<property name="liferay.portal.branch" value="${liferay.portal.branch}" />
-						<property name="liferay.portal.bundle" value="${liferay.portal.bundle}" />
-						<property name="liferay.portal.git.id" value="${liferay.portal.git.id}" />
-						<property name="java.jdk.type" value="${java.jdk.type}" />
-						<property name="java.jdk.version" value="${java.jdk.version}" />
-						<property name="operating.system.type" value="${operating.system.type}" />
-						<property name="operating.system.version" value="${operating.system.version}" />
-						<property name="testray.build.name" value="${testray.build.name}" />
-						<property name="testray.build.time" value="${testray.build.time}" />
-						<property name="testray.build.type" value="${testray.build.type}" />
-						<property name="testray.product.type" value="${testray.product.type}" />
-						<property name="testray.product.version" value="${testray.product.version}" />
-						<property name="testray.project.name" value="${testray.project.name}" />
-						<property name="testray.run.id" value="${testray.run.id}" />
-					</properties>
-				]]>
-			</property>
-
-			<replaceregexp
-				file="@{test.results.file}"
-				match="&lt;testcase[^&gt;]*&gt;"
-				replace="${test.suite.properties}\0"
-			/>
-
-			<if>
-				<isset property="testray.logs.report" />
-				<then>
-					<property name="test.case.attachments">
-						<![CDATA[
-							<attachments>
-								<file name="console.output" value="${testray.logs.console}" />
-								<file name="report.html" value="${testray.logs.report}" />
-							</attachments>
-						]]>
-					</property>
-				</then>
-				<else>
-					<property name="test.case.attachments">
-						<![CDATA[
-							<attachments>
-								<file name="console.output" value="${testray.logs.console}" />
-							</attachments>
-						]]>
-					</property>
-				</else>
-			</if>
-
-			<property name="test.case.properties">
-				<![CDATA[
-					<properties>
-						<property name="testray.case.defect" value="${testray.case.defect}" />
-						<property name="testray.component.names" value="${testray.component.names}" />
-						<property name="testray.main.component.name" value="${testray.main.component.name}" />
-						<property name="testray.team.name" value="${testray.team.name}" />
-						<property name="testray.testcase.description" value="${testray.testcase.description}" />
-						<property name="testray.testcase.name" value="${testray.testcase.name}" />
-						<property name="testray.testcase.priority" value="${testray.testcase.priority}" />
-						<property name="testray.testcase.product.edition" value="${testray.testcase.product.edition}" />
-					</properties>
-				]]>
-			</property>
-
-			<replaceregexp
-				file="@{test.results.file}"
-				flags="g"
-				match="(&lt;/?)error"
-				replace="\1failure"
-			/>
-
-			<replaceregexp
-				file="@{test.results.file}"
-				flags="g"
-				match="(&lt;failure\s*)type"
-				replace="\1message"
-			/>
-
-			<replaceregexp
-				file="@{test.results.file}"
-				flags="g"
-				match="&lt;testcase[^&gt;]*&gt;"
-				replace="\0${test.case.attachments}${line.separator}${test.case.properties}"
-			/>
-		</sequential>
-	</macrodef>
-
-	<macrodef name="apply-testcase-name-to-testray-results">
-		<attribute name="test.results.file" />
-
-		<sequential>
-			<replaceregexp
-				file="@{test.results.file}"
-				flags="g"
-				match="(.*classname=&quot;\S+\.(\w+).*name=&quot;(\w+)[\s\S]+?)(\$\{testray\.testcase\.name\})"
-				replace="\1\2#\3"
-			/>
-
-			<replaceregexp
-				file="@{test.results.file}"
-				flags="g"
-				match="\$\{testray\.testcase\.name\}"
-				replace="${testray.main.component.name}"
-			/>
-
-			<if>
-				<contains string="@{test.results.file}" substring="EvaluateLog" />
-				<then>
-					<replaceregexp
-						file="@{test.results.file}"
-						flags="g"
-						match="testray\.testcase\.name.*(?=&quot;)"
-						replace="\0_EvaluateLog"
-					/>
-				</then>
-			</if>
-		</sequential>
-	</macrodef>
-
-	<macrodef name="build-testray-result">
-		<attribute name="test.results.file" />
-
-		<sequential>
-			<echo>Build testray result: @{test.results.file}.</echo>
-
-			<format-testray-results test.results.file="@{test.results.file}" />
-
-			<clean-testray-results test.results.file="@{test.results.file}" />
-
-			<apply-properties-to-testray-results test.results.file="@{test.results.file}" />
-
-			<apply-testcase-name-to-testray-results test.results.file="@{test.results.file}" />
-
-			<format-testray-results test.results.file="@{test.results.file}" />
-		</sequential>
-	</macrodef>
-
-	<macrodef name="build-testray-results">
-		<attribute default="${default.test.results.dir}" name="test.results.dir" />
-		<attribute default="**/TEST-*.xml" name="test.results.fileset" />
-
-		<sequential>
-			<for param="file.name">
-				<path>
-					<fileset dir="@{test.results.dir}" erroronmissingdir="false">
-						<include name="@{test.results.fileset}" />
-					</fileset>
-				</path>
-				<sequential>
-					<build-testray-result test.results.file="@{file.name}" />
-				</sequential>
-			</for>
-		</sequential>
-	</macrodef>
-
 	<macrodef name="check-deprecated-method">
 		<sequential>
 			<if>
@@ -197,6 +16,84 @@
 				</and>
 				<then>
 					<copy file="javac.output.txt" tofile="${env.TOP_LEVEL_SHARED_DIR}/javac.output.txt" />
+				</then>
+			</if>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="check-jenkins-console">
+		<sequential>
+			<if>
+				<isset property="env.BUILD_URL" />
+				<then>
+					<var name="tstamp.value" unset="true" />
+
+					<tstamp>
+						<format property="tstamp.value" pattern="yyyyMMddkkmmssSSS" />
+					</tstamp>
+
+					<propertyregex
+						input="${env.BUILD_URL}"
+						property="jenkins.build.url"
+						regexp="https:\/\/([^\.]+)\.[^\/]+"
+						replace="http://\1"
+					/>
+
+					<propertyregex
+						input="${jenkins.build.url}"
+						override="true"
+						property="jenkins.build.url"
+						regexp="http:\/\/([^\/]+)\/(\d+)"
+						replace="http://\1-\2/\2"
+					/>
+
+					<get dest="${tstamp.value}.txt" ignoreerrors="true" src="${jenkins.build.url}/consoleText" />
+
+					<var name="jenkins.console.txt" unset="true" />
+
+					<loadfile property="jenkins.console.txt" srcfile="${tstamp.value}.txt" />
+
+					<delete file="${tstamp.value}.txt" />
+
+					<var name="tstamp.value" unset="true" />
+
+					<var name="junit.failure.count" unset="true" />
+					<var name="junit.failure.message" unset="true" />
+					<var name="junit.timestamp" unset="true" />
+
+					<if>
+						<contains string="${jenkins.console.txt}" substring="!MESSAGE error" />
+						<then>
+							<property name="junit.failure.count" value="1" />
+							<property name="junit.failure.message"><![CDATA[<failure message="!MESSAGE error" type="java.lang.Exception" />]]></property>
+						</then>
+						<elseif>
+							<contains string="${jenkins.console.txt}" substring="!MESSAGE warning" />
+							<then>
+								<property name="junit.failure.count" value="1" />
+								<property name="junit.failure.message"><![CDATA[<failure message="!MESSAGE warning" type="java.lang.Exception" />]]></property>
+							</then>
+						</elseif>
+						<else>
+							<property name="junit.failure.count" value="0" />
+							<property name="junit.failure.message" value="" />
+						</else>
+					</if>
+
+					<tstamp>
+						<format property="junit.timestamp" pattern="yyyy-MM-dd_kk:mm:ss" />
+					</tstamp>
+
+					<echo file="portal-impl/test-results/TEST-JenkinsLogAssertTest.xml"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+
+<testsuite name="com.liferay.jenkins.JenkinsLogAsserterTest" tests="1" skipped="0" failures="${junit.failure.count}" errors="0" timestamp="${junit.timestamp}" hostname="localhost" time="0.0">
+	<properties />
+	<testcase name="testScanJenkinsLog" classname="com.liferay.jenkins.JenkinsLogAsserterTest" time="0.0">
+		${junit.failure.message}
+	</testcase>
+	<system-out></system-out>
+	<system-err></system-err>
+</testsuite>]]></echo>
 				</then>
 			</if>
 		</sequential>
@@ -252,72 +149,6 @@
 		</sequential>
 	</macrodef>
 
-	<macrodef name="clean-testray-results">
-		<attribute name="test.results.file" />
-
-		<sequential>
-			<replaceregexp
-				file="@{test.results.file}"
-				flags="gm"
-				match="^\s*&lt;/?attachments[^&gt;]*&gt;[\s]"
-				replace=""
-			/>
-
-			<replaceregexp
-				file="@{test.results.file}"
-				flags="gm"
-				match="^\s*&lt;/?environment[^&gt;]*&gt;[\s]"
-				replace=""
-			/>
-
-			<replaceregexp
-				file="@{test.results.file}"
-				flags="gm"
-				match="^\s*&lt;/?file[^&gt;]*&gt;[\s]"
-				replace=""
-			/>
-
-			<replaceregexp
-				file="@{test.results.file}"
-				flags="gm"
-				match="^\s*&lt;/?propert[^&gt;]*&gt;[\s]"
-				replace=""
-			/>
-
-			<replaceregexp
-				file="@{test.results.file}"
-				flags="gm"
-				match="&lt;testcase[^&lt;]*?&lt;skipped[\s\S]*?testcase&gt;"
-				replace=""
-			/>
-		</sequential>
-	</macrodef>
-
-	<macrodef name="copy-testray-results">
-		<attribute default="${default.test.results.dir}" name="test.results.dest.dir" />
-		<attribute default="**/TEST-*.xml" name="test.results.fileset" />
-
-		<sequential>
-			<copy flatten="true" todir="@{test.results.dest.dir}">
-				<fileset dir="modules" erroronmissingdir="false">
-					<include name="@{test.results.fileset}" />
-				</fileset>
-				<fileset dir="portal-impl/test-results" erroronmissingdir="false">
-					<include name="@{test.results.fileset}" />
-				</fileset>
-				<fileset dir="portal-service/test-results" erroronmissingdir="false">
-					<include name="@{test.results.fileset}" />
-				</fileset>
-				<fileset dir="portal-web/test-results" erroronmissingdir="false">
-					<include name="@{test.results.fileset}" />
-				</fileset>
-				<fileset dir="util-java/test-results" erroronmissingdir="false">
-					<include name="@{test.results.fileset}" />
-				</fileset>
-			</copy>
-		</sequential>
-	</macrodef>
-
 	<macrodef name="database-test-action">
 		<attribute name="database.type" />
 		<element name="action" />
@@ -353,6 +184,44 @@
 			<var name="database.type" value="@{database.type}" />
 			<var name="database.version" value="@{database.version}" />
 
+			<if>
+				<and>
+					<equals arg1="@{database.type}" arg2="mysql" />
+					<equals arg1="@{database.version}" arg2="5.5" />
+				</and>
+				<then>
+					<var name="database.mysql.service.cmd.start" unset="true" />
+					<var name="database.mysql.service.cmd.stop" unset="true" />
+					<var name="database.mysql.version" unset="true" />
+					<var name="mysql.executable" unset="true" />
+
+					<property name="database.mysql.service.cmd.start" value="mysql55 start" />
+					<property name="database.mysql.service.cmd.stop" value="mysql55 stop" />
+					<property name="database.mysql.version" value="5.5" />
+					<property name="mysql.executable" value="mysql55" />
+
+					<echo append="true" file="test.${env.HOSTNAME}.properties"><![CDATA[
+database.mysql.service.cmd.start=${database.mysql.service.cmd.start}
+database.mysql.service.cmd.stop=${database.mysql.service.cmd.stop}
+database.mysql.version=${database.mysql.version}]]></echo>
+
+					<echo append="true" file="sql/sql.${env.HOSTNAME}.properties"><![CDATA[
+mysql.executable=${mysql.executable}]]></echo>
+				</then>
+			</if>
+
+			<if>
+				<equals arg1="@{database.type}" arg2="mariadb" />
+				<then>
+					<var name="mariadb.executable" unset="true" />
+
+					<property name="mariadb.executable" value="mariadb" />
+
+					<echo append="true" file="sql/sql.${env.HOSTNAME}.properties"><![CDATA[
+mariadb.executable=${mariadb.executable}]]></echo>
+				</then>
+			</if>
+
 			<database-test-action database.type="@{database.type}">
 				<action>
 					<exec executable="${database.service.executable}">
@@ -383,9 +252,61 @@
 						<param name="todir" value="${app.server.lib.global.dir}" />
 					</antcall>
 
-					<antcall target="rebuild-database" inheritall="false" >
-						<param name="database.type" value="@{database.type}" />
-					</antcall>
+					<trycatch property="database.error">
+						<try>
+							<record action="start" name="${project.dir}/database.log" />
+
+							<antcall target="rebuild-database" inheritall="false" >
+								<param name="database.type" value="@{database.type}" />
+							</antcall>
+
+							<record action="stop" name="${project.dir}/database.log" />
+						</try>
+						<catch>
+							<if>
+								<resourcecontains resource="${project.dir}/database.log" substring="ERROR 1010" />
+								<then>
+									<zip destfile="${env.TOP_LEVEL_SHARED_DIR}/database.error.zip">
+										<fileset dir="/var/lib/mysql/${database.mysql.schema}" />
+									</zip>
+
+									<delete includeemptydirs="true">
+										<fileset dir="/var/lib/mysql/${database.mysql.schema}" includes="**/*" />
+									</delete>
+
+									<antcall target="rebuild-database" inheritall="false" >
+										<param name="database.type" value="@{database.type}" />
+									</antcall>
+
+									<echo file="${project.dir}/database_error.sh">
+										<![CDATA[service sendmail stop
+
+if [[ -n `service postfix status | grep 'dead\|stopped'` ]]
+then
+	service postfix restart
+fi
+
+service postfix status
+
+EMAIL_BODY="Invalid files found in MySQL database. Archive can be found in ${TOP_LEVEL_SHARED_DIR}."
+
+echo ${BUILD_URL} > /tmp/database_failure_email_body.txt
+echo -e ${EMAIL_BODY} >> /tmp/database_failure_email_body.txt
+
+mail -s "$(echo -e "${NODE_NAME} failed to delete a MySQL database on $(date).\nFrom: Jenkins Slave Verification <root@${NODE_NAME}.lax.liferay.com>\n")" ${EMAIL_LIST} < /tmp/database_failure_email_body.txt
+
+echo "Sent notification."]]>
+									</echo>
+
+									<chmod file="database_error.sh" perm="a+x" />
+
+									<exec executable="${project.dir}/database_error.sh" />
+
+									<delete file="database_error.sh" />
+								</then>
+							</if>
+						</catch>
+					</trycatch>
 
 					<test-action />
 
@@ -406,210 +327,6 @@
 		</sequential>
 	</macrodef>
 
-	<macrodef name="format-testray-results">
-		<attribute name="test.results.file" />
-
-		<sequential>
-			<replaceregexp
-				file="@{test.results.file}"
-				flags="g"
-				match="\^"
-				replace=""
-			/>
-
-			<replaceregexp
-				file="@{test.results.file}"
-				flags="gm"
-				match="&gt;([^&gt;^&lt;]*)&lt;"
-				replace="&gt;${line.separator}&lt;"
-			/>
-
-			<replaceregexp
-				file="@{test.results.file}"
-				flags="g"
-				match="(\s*&lt;testcase[^/\n]*)/&gt;"
-				replace="\1&gt;${line.separator}&lt;/testcase&gt;"
-			/>
-		</sequential>
-	</macrodef>
-
-	<macrodef name="generate-testray-axis-result">
-		<attribute default="" name="job.failure.message" />
-		<attribute default="${default.test.results.axis.dir}" name="test.results.axis.dir" />
-		<attribute default="${default.test.results.axis.file.name}" name="test.results.axis.file.name" />
-
-		<sequential>
-			<local name="test.results.axis.file" />
-
-			<property name="test.results.axis.file" value="@{test.results.axis.dir}/@{test.results.axis.file.name}" />
-
-			<echo>Generate axis result ${test.results.axis.file}.</echo>
-
-			<var name="build.name" value="${env.JOB_NAME}" />
-
-			<if>
-				<isset property="env.JOB_VARIANT" />
-				<then>
-					<var name="build.name" value="${env.JOB_NAME}_${env.JOB_VARIANT}" />
-				</then>
-			</if>
-
-			<var name="job.failure.report" unset="true" />
-
-			<if>
-				<equals arg1="@{job.failure.message}" arg2="" />
-				<then>
-					<property name="job.failure.report" value="" />
-				</then>
-				<else>
-					<property name="job.failure.report">
-						<![CDATA[
-							<failure message="@{job.failure.message}">
-								@{job.failure.message}
-							</failure>
-						]]>
-					</property>
-				</else>
-			</if>
-
-			<echo file="${test.results.axis.file}">
-				<![CDATA[
-					<testsuite errors="0" failures="0" name="com.liferay.jenkins.Jenkins" skipped="0" tests="1" time="0">
-						<environments>
-							<environment type="Application Server" option="${env.option.app.server}" />
-							<environment type="Browser" option="${env.option.browser}" />
-							<environment type="Database" option="${env.option.database}" />
-							<environment type="Java JDK" option="${env.option.java.jdk}" />
-							<environment type="Operating System" option="${env.option.operating.system}" />
-						</environments>
-
-						<properties>
-							<property name="app.server.type" value="${app.server.type}" />
-							<property name="app.server.version" value="${app.server.version}" />
-							<property name="browser.type" value="${browser.type}" />
-							<property name="browser.version" value="${browser.version}" />
-							<property name="database.type" value="${database.type}" />
-							<property name="database.version" value="${database.version}" />
-							<property name="liferay.compare.urls" value="${liferay.compare.urls}" />
-							<property name="liferay.plugins.git.id" value="${liferay.plugins.git.id}" />
-							<property name="liferay.portal.branch" value="${liferay.portal.branch}" />
-							<property name="liferay.portal.bundle" value="${liferay.portal.bundle}" />
-							<property name="liferay.portal.git.id" value="${liferay.portal.git.id}" />
-							<property name="java.jdk.type" value="${java.jdk.type}" />
-							<property name="java.jdk.version" value="${java.jdk.version}" />
-							<property name="operating.system.type" value="${operating.system.type}" />
-							<property name="operating.system.version" value="${operating.system.version}" />
-							<property name="testray.build.name" value="${testray.build.name}" />
-							<property name="testray.build.time" value="${testray.build.time}" />
-							<property name="testray.build.type" value="${testray.build.type}" />
-							<property name="testray.product.type" value="${testray.product.type}" />
-							<property name="testray.product.version" value="${testray.product.version}" />
-							<property name="testray.project.name" value="${testray.project.name}" />
-							<property name="testray.run.id" value="${testray.run.id}" />
-						</properties>
-
-						<testcase classname="com.liferay.jenkins.Jenkins" name="${build.name}" time="0">
-							<attachments>
-								<file name="console.output" value="${testray.logs.console}" />
-							</attachments>
-							${job.failure.report}
-							<properties>
-								<property name="testray.case.defect" value="${testray.case.defect}" />
-								<property name="testray.component.names" value="${testray.component.names}" />
-								<property name="testray.main.component.name" value="${testray.main.component.name}" />
-								<property name="testray.team.name" value="${testray.team.name}" />
-								<property name="testray.testcase.description" value="${testray.testcase.description}" />
-								<property name="testray.testcase.name" value="${testray.axis.name}" />
-								<property name="testray.testcase.priority" value="${testray.testcase.priority}" />
-								<property name="testray.testcase.product.edition" value="${testray.testcase.product.edition}" />
-							</properties>
-						</testcase>
-
-						<system-out />
-
-						<system-err />
-					</testsuite>
-				]]>
-			</echo>
-		</sequential>
-	</macrodef>
-
-	<macrodef name="get-testray-build-time">
-		<sequential>
-			<var name="test.batch.duration" unset="true" />
-			<var name="testray.build.time" unset="true" />
-
-			<if>
-				<isset property="test.batch.start.time" />
-				<then>
-					<beanshell>
-						<![CDATA[
-							long testBatchStopTime = System.currentTimeMillis();
-
-							project.setProperty("test.batch.stop.time", String.valueOf(testBatchStopTime));
-						]]>
-					</beanshell>
-
-					<math
-						datatype="long"
-						operand1="${test.batch.stop.time}"
-						operand2="${test.batch.start.time}"
-						operation="-"
-						result="test.batch.duration"
-					/>
-				</then>
-				<else>
-					<var name="test.batch.duration" value="0" />
-				</else>
-			</if>
-
-			<beanshell>
-				<![CDATA[
-					import java.util.concurrent.TimeUnit;
-
-					int milliseconds = Integer.parseInt(project.getProperty("test.batch.duration"));
-
-					int hours = TimeUnit.MILLISECONDS.toHours(milliseconds);
-					int minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds) % 60;
-					int seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds) % 60;
-
-					StringBuilder sb = new StringBuilder();
-
-					if (hours > 0) {
-						sb.append(hours);
-						sb.append(" hour");
-
-						if (hours > 1) {
-							sb.append("s");
-						}
-
-						sb.append(" ");
-					}
-
-					if (minutes > 0) {
-						sb.append(minutes);
-						sb.append(" minute");
-
-						if (minutes > 1) {
-							sb.append("s");
-						}
-
-						sb.append(" ");
-					}
-
-					sb.append(seconds);
-					sb.append(" second");
-
-					if (seconds > 1) {
-						sb.append("s");
-					}
-
-					project.setProperty("testray.build.time", sb.toString());
-				]]>
-			</beanshell>
-		</sequential>
-	</macrodef>
-
 	<macrodef name="merge-test-results">
 		<sequential>
 			<antcall target="merge-test-results" />
@@ -625,91 +342,89 @@
 		</sequential>
 	</macrodef>
 
-	<macrodef name="merge-testray-results">
-		<attribute default="${default.test.results.dir}" name="test.results.dir" />
-		<attribute default="*.xml" name="test.results.fileset" />
-		<attribute default="${default.test.results.suite.dir}" name="test.results.suite.dir" />
-		<attribute default="${default.test.results.suite.file.name}" name="test.results.suite.file.name" />
-
-		<sequential>
-			<local name="test.results.suite.file" />
-
-			<property name="test.results.suite.file" value="@{test.results.suite.dir}/@{test.results.suite.file.name}" />
-
-			<echo>Merging into file ${test.results.suite.file}.</echo>
-
-			<first id="first">
-				<fileset dir="@{test.results.dir}" includes="@{test.results.fileset}" />
-			</first>
-
-			<loadfile property="test.results.suite.file.header" srcfile="${toString:first}" />
-
-			<propertyregex
-				input="${test.results.suite.file.header}"
-				override="true"
-				property="test.results.suite.file.header"
-				regexp="&lt;testcase[\s\S.]*"
-				replace=""
-			/>
-
-			<propertyregex
-				input="${test.results.suite.file.header}"
-				override="true"
-				property="test.results.suite.file.header"
-				regexp="&lt;testsuite.*\n"
-				replace="&lt;testsuite&gt;${line.separator}"
-			/>
-
-			<echo file="${test.results.suite.file}">${test.results.suite.file.header}</echo>
-
-			<for param="test.results.file">
-				<path>
-					<fileset dir="@{test.results.dir}">
-						<include name="@{test.results.fileset}" />
-					</fileset>
-				</path>
-				<sequential>
-					<var name="test.results.file.body" unset="true" />
-
-					<loadfile property="test.results.file.body" srcfile="@{test.results.file}" />
-
-					<if>
-						<contains string="${test.results.file.body}" substring="testcase" />
-						<then>
-							<echo>Merging @{test.results.file}.</echo>
-
-							<propertyregex
-								input="${test.results.file.body}"
-								override="true"
-								property="test.results.file.body"
-								regexp="&lt;\?xml[\s\S]*?&lt;testcase"
-								replace="&lt;testcase"
-							/>
-
-							<propertyregex
-								input="${test.results.file.body}"
-								override="true"
-								property="test.results.file.body"
-								regexp="&lt;/testcase&gt;[\s\S]*"
-								replace="&lt;/testcase&gt;${line.separator}"
-							/>
-
-							<echo append="true" file="${test.results.suite.file}">${test.results.file.body}</echo>
-						</then>
-					</if>
-				</sequential>
-			</for>
-
-			<echo append="true" file="${test.results.suite.file}">&lt;/testsuite&gt;</echo>
-		</sequential>
-	</macrodef>
-
 	<macrodef name="prepare-test-build">
 		<sequential>
 			<antcall target="prepare-test-build">
 				<param name="test.class.groups.size" value="${test.batch.size}" />
 				<param name="test.plugin.groups.size" value="${test.batch.size}" />
 			</antcall>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="prepare-test-build-dist">
+		<attribute name="app.server.type" />
+
+		<sequential>
+			<var name="app.server.type" value="@{app.server.type}" />
+
+			<echo append="true" file="app.server.${env.HOSTNAME}.properties"><![CDATA[
+app.server.type=@{app.server.type}]]></echo>
+
+			<record-git-commit-portal />
+
+			<antcall target="compile" inheritAll="false" />
+
+			<ant antfile="build-dist.xml" target="build-dist-@{app.server.type}" inheritAll="false" />
+
+			<antcall target="prepare-portal-ext-properties" inheritAll="false" />
+
+			<antcall target="prepare-system-ext-properties" inheritAll="false" />
+
+			<if>
+				<equals arg1="@{app.server.type}" arg2="tomcat" />
+				<then>
+					<setup-testable-tomcat />
+
+					<replace file="${app.server.tomcat.bin.dir}/setenv${file.suffix.bat}">
+						<replacetoken><![CDATA[-Xmx1024m -XX:MaxPermSize=256m]]></replacetoken>
+						<replacevalue><![CDATA[-verbose:gc -Xloggc:/tmp/tomcat-gc.log -Xms512m -Xmx512m -XX:MaxNewSize=32m -XX:MaxPermSize=200m -XX:MaxTenuringThreshold=0 -XX:NewSize=32m -XX:ParallelGCThreads=2 -XX:PermSize=200m -XX:+PrintGCCause -XX:+PrintGCDetails -XX:SurvivorRatio=65536 -XX:TargetSurvivorRatio=0 -XX:+UseParNewGC]]></replacevalue>
+					</replace>
+				</then>
+			</if>
+
+			<prepare-elasticsearch-configuration />
+
+			<antcall target="compile-test" inheritAll="false" />
+
+			<echo file="${project.dir}/.gitignore">/.ivy/
+/app.server.*.properties
+/build.*.properties
+/release.*.properties
+/sql/sql.*.properties
+/test.*.properties
+/tools/cobertura-agent/classes
+/tools/liferay-doclet
+/tools/maven/*.asc
+/tools/node*
+/tools/selenium/*.exe
+/tools/selenium/extensions/ide.*.js
+/tools/tck
+/tools/zip_tmpl/license</echo>
+
+			<echo file="${project.dir}/modules/.gitignore">tmp
+/*/*/ivy.xml.MD5
+/*/*/javadoc
+/*/*/lib
+/*/*/tmp
+/*/*/*/ivy.xml.MD5
+/*/*/*/javadoc
+/*/*/*/lib
+/*/*/*/tmp
+/*/*/*/*/ivy.xml.MD5
+/*/*/*/*/javadoc
+/*/*/*/*/lib
+/*/*/*/*/tmp</echo>
+
+			<execute>
+				<![CDATA[
+					rm bundles/*.zip
+
+					git add -A
+
+					git diff --binary --cached bundles/ > liferay-portal-bundle-@{app.server.type}.diff
+					git diff --binary --cached --name-only | grep -v '^bundles/' | xargs git diff --binary --cached -- > liferay-portal-source.diff
+				]]>
+			</execute>
 		</sequential>
 	</macrodef>
 
@@ -721,29 +436,23 @@
 		</sequential>
 	</macrodef>
 
-	<macrodef name="prepare-testray-results">
-		<attribute default="" name="job.failure.message" />
-		<attribute default="${default.test.results.dir}" name="test.results.dir" />
-		<attribute default="${default.test.results.suite.dir}" name="test.results.suite.dir" />
-		<attribute default="${default.test.results.suite.file.name}" name="test.results.suite.file.name" />
+	<macrodef name="prepare-test-environment">
+		<attribute default="tomcat" name="app.server.type" />
 
 		<sequential>
-			<set-testray-required-properties />
+			<execute>
+				<![CDATA[
+					git apply --whitespace=nowarn liferay-portal-bundle-@{app.server.type}.diff
+					git apply --exclude=.gitignore --whitespace=nowarn liferay-portal-source.diff
+				]]>
+			</execute>
 
-			<generate-testray-axis-result job.failure.message="@{job.failure.message}" />
+			<antcall target="install-portal-snapshots" inheritAll="false" />
 
-			<copy-testray-results />
+			<echo if:set="env.JENKINS_HOME">ANT_OPTS=${env.ANT_OPTS}</echo>
 
-			<if>
-				<resourcecount when="greater" count="0">
-					<fileset dir="@{test.results.dir}" erroronmissingdir="false" includes="TEST-*.xml" />
-				</resourcecount>
-				<then>
-					<build-testray-results />
-
-					<merge-testray-results />
-				</then>
-			</if>
+			<antcall if:set="env.JENKINS_HOME" target="clean-up-db2-processes" inheritAll="false" />
+			<antcall if:set="env.JENKINS_HOME" target="clean-up-java-processes" inheritAll="false" />
 		</sequential>
 	</macrodef>
 
@@ -767,6 +476,8 @@
 		<element name="test-tear-down" optional="true" />
 
 		<sequential>
+			<antcall if:set="env.JENKINS_HOME" inheritAll="false" target="clean-up-java-processes" />
+
 			<test-set-up />
 
 			<trycatch property="job.failure.message">
@@ -779,18 +490,11 @@
 
 					<echo>${job.failure.message}</echo>
 
-					<if>
-						<isset property="testray.results.dir" />
-						<then>
-							<prepare-testray-results job.failure.message="${job.failure.message}" />
+					<check-deprecated-method />
 
-							<send-testray-results testray.results.dir="${testray.results.dir}" />
-						</then>
-					</if>
+					<check-jenkins-console />
 
 					<merge-test-results />
-
-					<check-deprecated-method />
 
 					<test-tear-down />
 
@@ -808,6 +512,12 @@
 		<attribute default="${app.server.@{app.server.type}.version}" name="app.server.version" />
 		<attribute name="database.type" />
 		<attribute default="${database.@{database.type}.version}" name="database.version" />
+		<attribute default="" name="test.fix.pack.base.url" />
+		<attribute default="" name="test.fix.pack.zip.name" />
+		<attribute default="" name="test.license.xml.url" />
+		<attribute default="" name="test.plugin.zip.url" />
+		<attribute default="" name="test.portal.bundle.zip.url" />
+		<attribute default="" name="test.sql.zip.url" />
 		<attribute default="false" name="tomcat.gc.log" />
 		<attribute default="false" name="tsant.gc.log" />
 
@@ -815,31 +525,92 @@
 			<var name="app.server.type" value="@{app.server.type}" />
 			<var name="app.server.version" value="@{app.server.version}" />
 
-			<property name="test.class" value="${axis.variable}" />
+			<if>
+				<matches pattern="[A-z]+" string="${axis.variable}" />
+				<then>
+					<property name="test.class" value="${axis.variable}" />
+				</then>
+				<else>
+					<property name="test.class" value="${run.test.case.method.group}_${axis.variable}" />
+				</else>
+			</if>
 
 			<run-batch-test tomcat.gc.log="@{tomcat.gc.log}" tsant.gc.log="@{tsant.gc.log}">
 				<test-action>
-					<database-test-run-test database.type="@{database.type}">
+					<database-test-run-test database.type="@{database.type}" database.version="@{database.version}">
 						<test-action>
-							<ant antfile="build-test-@{app.server.type}.xml" inheritAll="false" target="run-selenium-@{app.server.type}">
+							<ant antfile="build-test-${app.server.type}.xml" inheritAll="false" target="run-selenium-${app.server.type}">
 								<property name="database.type" value="@{database.type}" />
 								<property name="print.java.process.on.fail" value="Bootstrap" />
-								<property name="test.class" value="${axis.variable}" />
+								<property name="test.class" value="${test.class}" />
 							</ant>
 						</test-action>
 					</database-test-run-test>
 				</test-action>
 
 				<test-set-up>
-					<antcall target="compile" />
+					<if>
+						<and>
+							<matches pattern="http" string="@{test.license.xml.url}" />
+							<matches pattern="http" string="@{test.portal.bundle.zip.url}" />
+							<matches pattern="http" string="@{test.sql.zip.url}" />
+						</and>
+						<then>
+							<propertycopy from="app.server.${app.server.type}.bin.dir" name="test.app.server.bin.dir" />
 
-					<ant antfile="build-dist.xml" target="build-dist-@{app.server.type}" />
+							<antcall inheritAll="false" target="prepare-test-bundle">
+								<param name="app.server.type" value="${app.server.type}" />
+								<param name="test.app.server.bin.dir" value="${test.app.server.bin.dir}" />
+								<param name="test.build.bundle.zip.url" value="@{test.portal.bundle.zip.url}" />
+								<param name="test.fix.pack.base.url" value="@{test.fix.pack.base.url}" />
+								<param name="test.fix.pack.zip.name" value="@{test.fix.pack.zip.name}" />
+							</antcall>
+
+							<antcall target="deploy-license-xml">
+								<param name="test.build.license.xml.zip.url" value="@{test.license.xml.url}" />
+							</antcall>
+
+							<antcall target="deploy-sql-zip">
+								<param name="test.sql.zip.url" value="@{test.sql.zip.url}" />
+							</antcall>
+						</then>
+						<else>
+							<if>
+								<isset property="env.DIST_PATH" />
+								<then>
+									<prepare-test-environment app.server.type="${app.server.type}" />
+								</then>
+								<else>
+									<antcall target="compile" />
+
+									<ant antfile="build-dist.xml" target="build-dist-${app.server.type}" />
+								</else>
+							</if>
+
+							<if>
+								<equals arg1="${app.server.type}" arg2="tomcat" />
+								<then>
+									<prepare-tomcat-setenv />
+								</then>
+							</if>
+						</else>
+					</if>
+
+					<if>
+						<matches pattern="http" string="@{test.plugin.zip.url}" />
+						<then>
+							<mkdir dir="${liferay.home}/deploy" />
+
+							<mirrors-get
+								dest="${liferay.home}/deploy"
+								src="@{test.plugin.zip.url}"
+							/>
+						</then>
+					</if>
 
 					<antcall target="record-test-generated-properties" />
 
 					<echo if:set="env.JENKINS_HOME">ANT_OPTS=${env.ANT_OPTS}</echo>
-
-					<antcall if:set="env.JENKINS_HOME" inheritAll="false" target="clean-up-java-processes" />
 				</test-set-up>
 
 				<test-tear-down>
@@ -858,14 +629,12 @@
 
 	<macrodef name="run-integration-test">
 		<attribute name="database.type" />
+		<attribute default="${database.@{database.type}.version}" name="database.version" />
 
 		<sequential>
-			<property name="testray.main.component.name" value="Integration" />
-			<property name="testray.testcase.priority" value="4" />
-
 			<run-batch-test>
 				<test-action>
-					<database-test-run-test database.type="@{database.type}">
+					<database-test-run-test database.type="@{database.type}" database.version="@{database.version}">
 						<test-action>
 							<print-test-class-group test.class.group.index="${axis.variable}" />
 
@@ -879,7 +648,19 @@
 				</test-action>
 
 				<test-set-up>
-					<prepare-test-build />
+					<if>
+						<isset property="env.DIST_PATH" />
+						<then>
+							<prepare-test-environment />
+
+							<antcall target="record-test-class-file-names" inheritAll="false">
+								<param name="test.class.groups.size" value="${test.batch.size}" />
+							</antcall>
+						</then>
+						<else>
+							<prepare-test-build />
+						</else>
+					</if>
 				</test-set-up>
 			</run-batch-test>
 		</sequential>
@@ -889,9 +670,6 @@
 		<attribute name="database.type" />
 
 		<sequential>
-			<property name="testray.main.component.name" value="Integration" />
-			<property name="testray.testcase.priority" value="4" />
-
 			<run-batch-test tomcat.gc.log="true">
 				<test-action>
 					<database-test-run-test database.type="@{database.type}" stop.app.server="true">
@@ -909,10 +687,11 @@
 							<antcall target="prepare-system-ext-properties" inheritAll="false" />
 
 							<gradle-execute dir="modules" task="testIntegration">
+								<arg value="-Ddatabase.type=@{database.type}" />
 								<arg value="-Dtest.class.group.index=${axis.variable}" />
 							</gradle-execute>
 
-							<ant dir="portal-service" target="test-class" inheritAll="false">
+							<ant dir="portal-kernel" target="test-class" inheritAll="false">
 								<property name="test.class" value="PortalLogAssertorTest" />
 							</ant>
 						</test-action>
@@ -920,7 +699,19 @@
 				</test-action>
 
 				<test-set-up>
-					<prepare-test-build />
+					<if>
+						<isset property="env.DIST_PATH" />
+						<then>
+							<prepare-test-environment />
+
+							<antcall target="record-test-class-file-names" inheritAll="false">
+								<param name="test.class.groups.size" value="${test.batch.size}" />
+							</antcall>
+						</then>
+						<else>
+							<prepare-test-build />
+						</else>
+					</if>
 				</test-set-up>
 			</run-batch-test>
 		</sequential>
@@ -938,144 +729,189 @@
 		</sequential>
 	</macrodef>
 
-	<macrodef name="send-testray-results">
-		<attribute default="${default.test.results.suite.dir}" name="test.results.suite.dir" />
-		<attribute name="testray.results.dir" />
+	<target name="compile-jsp-jdk7">
+		<run-batch-test>
+			<test-action>
+				<ant dir="portal-web" target="compile-tomcat" />
 
-		<sequential>
-			<echo>Sending testray results to @{testray.results.dir}.</echo>
+				<gradle-execute dir="modules" task="compileJSP" />
+			</test-action>
 
-			<copy failonerror="false" todir="@{testray.results.dir}">
-				<fileset dir="@{test.results.suite.dir}" erroronmissingdir="false" includes="TESTS-*.xml" />
-			</copy>
-		</sequential>
-	</macrodef>
+			<test-set-up>
+				<if>
+					<isset property="env.DIST_PATH" />
+					<then>
+						<prepare-test-environment />
+					</then>
+					<else>
+						<prepare-test-build />
+					</else>
+				</if>
+			</test-set-up>
+		</run-batch-test>
+	</target>
 
-	<macrodef name="set-testray-required-properties">
-		<sequential>
-			<get-env-app-server />
-			<get-env-browser />
-			<get-env-database />
-			<get-env-java-jdk />
-			<get-env-liferay-portal />
-			<get-env-operating-system />
-			<get-testray-build-time />
-			<get-testray-case-defect />
-			<get-testray-components />
-			<get-testray-logs />
-			<get-testray-project-name />
-			<get-testray-run-id />
-			<get-testray-team-name />
-			<get-testray-testcase-description />
-			<get-testray-testcase-name />
-			<get-testray-testcase-product-edition />
+	<target name="dist-jdk7">
+		<prepare-test-build-dist app.server.type="${axis.variable}" />
+	</target>
 
-			<if>
-				<not>
-					<isset property="testray.testcase.priority" />
-				</not>
-				<then>
-					<get-testray-testcase-priority />
-				</then>
-			</if>
+	<target name="functional-bundle-tomcat-mysql56-jdk7">
+		<set-tomcat-version-number liferay.portal.bundle="${test.portal.bundle.version}" />
 
-			<if>
-				<not>
-					<isset property="testray.run.id" />
-				</not>
-				<then>
-					<get-testray-testcase-run-id />
-				</then>
-			</if>
+		<run-functional-test
+			app.server.type="tomcat"
+			database.type="mysql"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.fix.pack.zip.name="${test.fix.pack.zip.name}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.plugin.zip.url="${test.plugin.zip.url}"
+			test.portal.bundle.zip.url="${test.portal.bundle.zip.url}"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
+	</target>
 
-			<property name="testray.axis.name" value="${test.batch.name}#${axis.variable}" />
-		</sequential>
-	</macrodef>
-
-	<target name="functional-tomcat-hypersonic">
+	<target name="functional-tomcat8-hypersonic20-jdk7">
 		<run-functional-test app.server.type="tomcat" database.type="hypersonic" />
 	</target>
 
-	<target name="functional-tomcat-mysql">
+	<target name="functional-tomcat8-mysql55-jdk7">
+		<run-functional-test app.server.type="tomcat" database.type="mysql" database.version="5.5" />
+	</target>
+
+	<target name="functional-tomcat8-mysql56-jdk7">
 		<run-functional-test app.server.type="tomcat" database.type="mysql" />
 	</target>
 
-	<target name="integration-db2">
+	<target name="functional-wildfly10-mariadb100-jdk8">
+		<run-functional-test app.server.type="wildfly" database.type="mariadb" />
+	</target>
+
+	<target name="integration-db2105-jdk7">
 		<run-integration-test database.type="db2" />
 	</target>
 
-	<target name="integration-hypersonic">
+	<target name="integration-hypersonic20-jdk7">
 		<run-integration-test database.type="hypersonic" />
 	</target>
 
-	<target name="integration-mysql">
+	<target name="integration-mysql56-jdk7">
 		<run-integration-test database.type="mysql" />
 	</target>
 
-	<target name="integration-oracle">
+	<target name="integration-oracle12-jdk7">
 		<run-integration-test database.type="oracle" />
 	</target>
 
-	<target name="integration-postgresql">
+	<target name="integration-postgresql94-jdk7">
 		<run-integration-test database.type="postgresql" />
 	</target>
 
-	<target name="integration-sybase">
+	<target name="integration-sybase160-jdk7">
 		<run-integration-test database.type="sybase" />
 	</target>
 
-	<target name="modules-integration-db2">
+	<target name="modules-functional-jdk7">
+		<run-batch-test>
+			<test-action>
+				<antcall target="run-selenium-test">
+					<param name="test.class" value="${axis.variable}" />
+				</antcall>
+			</test-action>
+		</run-batch-test>
+	</target>
+
+	<target name="modules-functional-tomcat8-mysql56-jdk7">
+		<run-functional-test app.server.type="tomcat" database.type="mysql" />
+	</target>
+
+	<target name="modules-integration-db2105-jdk7">
 		<run-modules-integration-test database.type="db2" />
 	</target>
 
-	<target name="modules-integration-hypersonic">
+	<target name="modules-integration-hypersonic20-jdk7">
 		<run-modules-integration-test database.type="hypersonic" />
 	</target>
 
-	<target name="modules-integration-mysql">
+	<target name="modules-integration-mysql56-jdk7">
 		<run-modules-integration-test database.type="mysql" />
 	</target>
 
-	<target name="modules-integration-oracle">
+	<target name="modules-integration-oracle12-jdk7">
 		<run-modules-integration-test database.type="oracle" />
 	</target>
 
-	<target name="modules-integration-postgresql">
+	<target name="modules-integration-postgresql94-jdk7">
 		<run-modules-integration-test database.type="postgresql" />
 	</target>
 
-	<target name="modules-integration-sybase">
+	<target name="modules-integration-sybase160-jdk7">
 		<run-modules-integration-test database.type="sybase" />
 	</target>
 
-	<target name="modules-unit">
-		<property name="testray.main.component.name" value="Unit" />
-		<property name="testray.testcase.priority" value="4" />
-
+	<target name="modules-unit-jdk7">
 		<run-batch-test>
 			<test-action>
 				<gradle-execute dir="modules" task="test">
 					<arg value="-Dtest.class.group.index=${axis.variable}" />
 				</gradle-execute>
-
-				<if>
-					<equals arg1="${axis.variable}" arg2="0" />
-					<then>
-						<gradle-execute dir="modules" task="compileJSP" />
-					</then>
-				</if>
 			</test-action>
 
 			<test-set-up>
-				<prepare-test-build />
+				<if>
+					<isset property="env.DIST_PATH" />
+					<then>
+						<prepare-test-environment />
+
+						<antcall target="record-test-class-file-names" inheritAll="false">
+							<param name="test.class.groups.size" value="${test.batch.size}" />
+						</antcall>
+					</then>
+					<else>
+						<prepare-test-build />
+					</else>
+				</if>
 			</test-set-up>
 		</run-batch-test>
 	</target>
 
-	<target name="plugins">
-		<property name="testray.main.component.name" value="Plugins" />
-		<property name="testray.testcase.priority" value="4" />
+	<target name="oracle-service-start">
+		<exec executable="service" failonerror="true">
+			<arg line="oracledb start" />
+		</exec>
 
+		<retry retrycount="60">
+			<sequential>
+				<local name="output.content" />
+				<local name="return.code" />
+
+				<exec executable="${oracle.lsnrctl.executable}" outputproperty="output.content">
+					<arg value="services" />
+				</exec>
+
+				<echo>Output:
+${output.content}</echo>
+
+				<if>
+					<or>
+						<contains string="${output.content}" substring="The listener supports no services" />
+					</or>
+					<then>
+						<sleep seconds="5" />
+
+						<fail message="Output: ${output.content}" />
+					</then>
+				</if>
+			</sequential>
+		</retry>
+	</target>
+
+	<target name="oracle-service-stop">
+		<exec executable="service">
+			<arg line="oracledb stop" />
+		</exec>
+	</target>
+
+	<target name="plugins-compile-jdk7">
 		<run-batch-test>
 			<test-action>
 				<ant antfile="build-test-plugins.xml" target="test-plugin-group">
@@ -1084,19 +920,48 @@
 			</test-action>
 
 			<test-set-up>
-				<prepare-test-build />
+				<if>
+					<isset property="env.DIST_PATH" />
+					<then>
+						<prepare-test-environment />
+
+						<antcall target="record-test-plugin-names" inheritAll="false">
+							<param name="test.plugin.groups.size" value="${test.batch.size}" />
+						</antcall>
+					</then>
+					<else>
+						<prepare-test-build />
+					</else>
+				</if>
 			</test-set-up>
 		</run-batch-test>
 	</target>
 
-	<target name="portal-web">
-		<property name="testray.main.component.name" value="Portal Web" />
-		<property name="testray.testcase.priority" value="4" />
+	<target name="plugins-functional-bundle-tomcat-mysql56-jdk7">
+		<set-tomcat-version-number liferay.portal.bundle="${test.portal.bundle.version}" />
 
+		<run-functional-test
+			app.server.type="tomcat"
+			database.type="mysql"
+			test.license.xml.url="${test.license.xml.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.fix.pack.zip.name="${test.fix.pack.zip.name}"
+			test.portal.bundle.zip.url="${test.portal.bundle.zip.url}"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
+	</target>
+
+	<target name="plugins-functional-tomcat8-mysql56-jdk7">
+		<run-functional-test app.server.type="tomcat" database.type="mysql" />
+	</target>
+
+	<target name="portal-web-jdk7">
 		<run-batch-test>
 			<test-action>
 				<database-test-run-test database.type="mysql">
 					<test-action>
+						<ant dir="portal-web" target="compile-tomcat" />
+
 						<run-poshi-validation />
 
 						<if>
@@ -1110,15 +975,105 @@
 			</test-action>
 
 			<test-set-up>
+				<if>
+					<isset property="env.DIST_PATH" />
+					<then>
+						<prepare-test-environment />
+					</then>
+					<else>
+						<prepare-test-build />
+					</else>
+				</if>
+			</test-set-up>
+		</run-batch-test>
+	</target>
+
+	<target name="ruby-sass-compiler-jdk7">
+		<antcall if:set="env.JENKINS_HOME" inheritAll="false" target="clean-up-java-processes" />
+
+		<if>
+			<isset property="env.DIST_PATH" />
+			<then>
+				<prepare-test-environment />
+			</then>
+			<else>
+				<prepare-test-build />
+			</else>
+		</if>
+
+		<echo file="build.${user.name}.properties">sass.compiler.class.name=ruby</echo>
+
+		<antcall target="setup-sdk" inheritAll="false" />
+
+		<record action="start" name="${project.dir}/sass-compiler-log" />
+
+		<gradle-execute dir="modules" task="buildCSS" />
+
+		<record action="stop" name="${project.dir}/sass-compiler-log" />
+
+		<fail message="The Sass compiler is not using Ruby.">
+			<condition>
+				<and>
+					<not>
+						<resourcecontains resource="${project.dir}/sass-compiler-log" substring="Using Ruby Sass compiler" />
+					</not>
+					<or>
+						<resourcecontains resource="${project.dir}/sass-compiler-log" substring="Unable to load Ruby compiler, falling back to native" />
+						<resourcecontains resource="${project.dir}/sass-compiler-log" substring="Using native Sass compiler" />
+					</or>
+				</and>
+			</condition>
+		</fail>
+	</target>
+
+	<target name="semantic-versioning-jdk7">
+		<run-batch-test>
+			<test-action>
+				<exec dir="${project.dir}" executable="git" outputproperty="git.status.log">
+					<arg line="status --short" />
+				</exec>
+
+				<propertyregex
+					input="${git.status.log}"
+					override="true"
+					property="git.status.log"
+					regexp="(.*)\n?\?\? bundles\/(.*)"
+					replace="\1\2"
+				/>
+
+				<propertyregex
+					input="${git.status.log}"
+					override="true"
+					property="git.status.log"
+					regexp="(.*)\n?\?\? git-commit-portal(.*)"
+					replace="\1\2"
+				/>
+
+				<if>
+					<not>
+						<equals arg1="${git.status.log}" arg2="" />
+					</not>
+					<then>
+						<echo></echo>
+						<echo>Semantic versioning is incorrect for the following packages:</echo>
+						<echo></echo>
+						<echo>${git.status.log}</echo>
+						<echo></echo>
+
+						<fail message="Semantic versioning is incorrect." />
+					</then>
+				</if>
+			</test-action>
+
+			<test-set-up>
+				<echo file="build.${user.name}.properties">baseline.jar.report.level=persist</echo>
+
 				<prepare-test-build />
 			</test-set-up>
 		</run-batch-test>
 	</target>
 
-	<target name="service-builder">
-		<property name="testray.main.component.name" value="Service Builder" />
-		<property name="testray.testcase.priority" value="4" />
-
+	<target name="service-builder-jdk7">
 		<run-batch-test>
 			<test-action>
 				<gradle-execute dir="modules/util/portal-tools-service-builder" task="deploy">
@@ -1131,6 +1086,7 @@
 
 				<record action="stop" name="${project.dir}/build.services.output.txt" />
 
+				<replace file="${project.dir}/build.services.output.txt" token="Writing src/main/resources/service.properties" value="" />
 				<replace file="${project.dir}/build.services.output.txt" token="Writing src/service.properties" value="" />
 
 				<loadfile property="build.services.output.txt.content" srcfile="${project.dir}/build.services.output.txt" />
@@ -1140,6 +1096,10 @@
 				<if>
 					<contains string="${build.services.output.txt.content}" substring="Writing " />
 					<then>
+						<exec executable="git">
+							<arg value="diff" />
+						</exec>
+
 						<fail>
 .
 
@@ -1151,7 +1111,15 @@ information. Make sure to commit in all build services results.
 			</test-action>
 
 			<test-set-up>
-				<prepare-test-build />
+				<if>
+					<isset property="env.DIST_PATH" />
+					<then>
+						<prepare-test-environment />
+					</then>
+					<else>
+						<prepare-test-build />
+					</else>
+				</if>
 			</test-set-up>
 		</run-batch-test>
 	</target>
@@ -1185,6 +1153,17 @@ go</echo>
 
 		<retry retrycount="10">
 			<sequential>
+				<if>
+					<not>
+						<available file="/opt/sybase/charsets" />
+					</not>
+					<then>
+						<clean-restart-sybase retry="true" />
+
+						<fail message="Missing /opt/sybase/charsets." />
+					</then>
+				</if>
+
 				<local name="output.content" />
 				<local name="return.code" />
 
@@ -1200,18 +1179,19 @@ go</echo>
 				</exec>
 
 				<echo>Return code: ${return.code}
-Output content:
+Output:
 ${output.content}</echo>
 
 				<if>
 					<or>
 						<contains string="${output.content}" substring="Database 'lportal' already exists" />
+						<contains string="${output.content}" substring="sp_dboption" />
 						<contains string="${output.content}" substring="The model database is unavailable. It is being used to create a new database." />
 					</or>
 					<then>
 						<clean-restart-sybase retry="true" />
 
-						<fail message="Output content: ${output.content}" />
+						<fail message="Output: ${output.content}" />
 					</then>
 				</if>
 
@@ -1245,10 +1225,7 @@ ${output.content}</echo>
 		<antcall target="clean-up-sybase-processes" />
 	</target>
 
-	<target name="tck">
-		<property name="testray.main.component.name" value="TCK" />
-		<property name="testray.testcase.priority" value="4" />
-
+	<target name="tck-jdk7">
 		<run-batch-test tomcat.gc.log="true" tsant.gc.log="true">
 			<test-action>
 				<database-test-run-test database.type="mysql" stop.app.server="true">
@@ -1265,22 +1242,29 @@ ${output.content}</echo>
 			</test-action>
 
 			<test-set-up>
-				<prepare-test-build />
+				<if>
+					<isset property="env.DIST_PATH" />
+					<then>
+						<prepare-test-environment />
+					</then>
+					<else>
+						<prepare-test-build />
+					</else>
+				</if>
 
-				<antcall target="prepare-portal-ext-properties" />
+				<antcall target="prepare-portal-ext-properties">
+					<param name="hot.deploy.dependency.management.enabled" value="false" />
+				</antcall>
 
 				<antcall target="prepare-system-ext-properties" />
 			</test-set-up>
 		</run-batch-test>
 	</target>
 
-	<target name="unit">
-		<property name="testray.main.component.name" value="Unit" />
-		<property name="testray.testcase.priority" value="4" />
-
+	<target name="unit-jdk7">
 		<run-batch-test>
 			<test-action>
-				<ant dir="portal-service" target="test-class-group" inheritAll="false">
+				<ant dir="portal-kernel" target="test-class-group" inheritAll="false">
 					<property name="test.class.group.index" value="${axis.variable}" />
 				</ant>
 
@@ -1295,7 +1279,19 @@ ${output.content}</echo>
 			</test-action>
 
 			<test-set-up>
-				<prepare-test-build-unit />
+				<if>
+					<isset property="env.DIST_PATH" />
+					<then>
+						<prepare-test-environment />
+
+						<antcall target="record-test-class-file-names" inheritAll="false">
+							<param name="test.class.groups.size" value="${test.batch.size}" />
+						</antcall>
+					</then>
+					<else>
+						<prepare-test-build-unit />
+					</else>
+				</if>
 			</test-set-up>
 		</run-batch-test>
 	</target>

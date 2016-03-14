@@ -19,7 +19,7 @@ import com.dumbster.smtp.SmtpServer;
 import com.dumbster.smtp.SmtpServerFactory;
 import com.dumbster.smtp.mailstores.RollingMailStore;
 
-import com.liferay.mail.service.MailServiceUtil;
+import com.liferay.mail.kernel.service.MailServiceUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.SocketUtil;
@@ -157,18 +157,18 @@ public class MailServiceTestUtil {
 
 	private static int _getFreePort() throws IOException {
 		try (ServerSocketChannel serverSocketChannel =
-			SocketUtil.createServerSocketChannel(
-				InetAddress.getLocalHost(), _START_PORT,
-				new ServerSocketConfigurator() {
+				SocketUtil.createServerSocketChannel(
+					InetAddress.getLocalHost(), _START_PORT,
+					new ServerSocketConfigurator() {
 
-					@Override
-					public void configure(ServerSocket serverSocket)
-						throws SocketException {
+						@Override
+						public void configure(ServerSocket serverSocket)
+							throws SocketException {
 
-						serverSocket.setReuseAddress(true);
-					}
+							serverSocket.setReuseAddress(true);
+						}
 
-				})) {
+					})) {
 
 			ServerSocket serverSocket = serverSocketChannel.socket();
 

@@ -1,4 +1,8 @@
 buildscript {
+	dependencies {
+		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.soy", version: "latest.release"
+	}
+
 	repositories {
 		mavenLocal()
 
@@ -6,19 +10,10 @@ buildscript {
 			url "http://cdn.repository.liferay.com/nexus/content/groups/public"
 		}
 	}
-
-	dependencies {
-		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.soy", version: "latest.release"
-	}
 }
-
-apply plugin: "java"
 
 apply plugin: "com.liferay.soy"
-
-dependencies {
-	compile group: "com.google.template", name: "soy", version: "2012-12-21"
-}
+apply plugin: "java"
 
 repositories {
 	mavenLocal()

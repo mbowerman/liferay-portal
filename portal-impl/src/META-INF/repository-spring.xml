@@ -7,18 +7,13 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
 >
-	<bean id="com.liferay.portal.kernel.repository.RepositoryFactory" class="com.liferay.portal.repository.RepositoryFactoryImpl" depends-on="com.liferay.portal.model.ModelHintsUtil" />
+	<bean id="com.liferay.portal.kernel.repository.RepositoryFactory" class="com.liferay.portal.repository.RepositoryFactoryImpl" depends-on="com.liferay.portal.kernel.model.ModelHintsUtil" />
 	<bean id="com.liferay.portal.kernel.repository.RepositoryFactoryUtil" class="com.liferay.portal.kernel.repository.RepositoryFactoryUtil">
 		<property name="repositoryFactory" ref="com.liferay.portal.kernel.repository.RepositoryFactory" />
 	</bean>
 	<bean id="com.liferay.portal.kernel.repository.RepositoryProvider" class="com.liferay.portal.repository.RepositoryProviderImpl" />
 	<bean id="com.liferay.portal.kernel.repository.RepositoryProviderUtil" class="com.liferay.portal.kernel.repository.RepositoryProviderUtil" >
 		<property name="repositoryProvider" ref="com.liferay.portal.kernel.repository.RepositoryProvider" />
-	</bean>
-	<bean id="com.liferay.portal.kernel.repository.util.RepositoryTrashUtil" class="com.liferay.portal.kernel.repository.util.RepositoryTrashUtil">
-		<property name="repositoryTrash">
-			<bean class="com.liferay.portal.repository.util.RepositoryTrashImpl" />
-		</property>
 	</bean>
 	<bean id="com.liferay.portal.repository.liferayrepository.social.LiferayFileEntrySocialActivityManager" class="com.liferay.portal.repository.liferayrepository.social.LiferayFileEntrySocialActivityManager" />
 	<bean id="com.liferay.portal.repository.liferayrepository.social.LiferayFileShortcutSocialActivityManager" class="com.liferay.portal.repository.liferayrepository.social.LiferayFileShortcutSocialActivityManager" />

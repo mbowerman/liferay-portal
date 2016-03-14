@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchOrganizationException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchOrganizationException;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.OrganizationPersistence;
+import com.liferay.portal.kernel.service.persistence.OrganizationUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -32,10 +36,6 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Organization;
-import com.liferay.portal.service.OrganizationLocalServiceUtil;
-import com.liferay.portal.service.persistence.OrganizationPersistence;
-import com.liferay.portal.service.persistence.OrganizationUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
@@ -152,8 +152,6 @@ public class OrganizationPersistenceTest {
 
 		newOrganization.setLogoId(RandomTestUtil.nextLong());
 
-		newOrganization.setLastPublishDate(RandomTestUtil.nextDate());
-
 		_organizations.add(_persistence.update(newOrganization));
 
 		Organization existingOrganization = _persistence.findByPrimaryKey(newOrganization.getPrimaryKey());
@@ -196,9 +194,6 @@ public class OrganizationPersistenceTest {
 			newOrganization.getComments());
 		Assert.assertEquals(existingOrganization.getLogoId(),
 			newOrganization.getLogoId());
-		Assert.assertEquals(Time.getShortTimestamp(
-				existingOrganization.getLastPublishDate()),
-			Time.getShortTimestamp(newOrganization.getLastPublishDate()));
 	}
 
 	@Test
@@ -296,7 +291,7 @@ public class OrganizationPersistenceTest {
 			true, "modifiedDate", true, "parentOrganizationId", true,
 			"treePath", true, "name", true, "type", true, "recursable", true,
 			"regionId", true, "countryId", true, "statusId", true, "comments",
-			true, "logoId", true, "lastPublishDate", true);
+			true, "logoId", true);
 	}
 
 	@Test
@@ -405,11 +400,9 @@ public class OrganizationPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = OrganizationLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<Organization>() {
 				@Override
-				public void performAction(Object object) {
-					Organization organization = (Organization)object;
-
+				public void performAction(Organization organization) {
 					Assert.assertNotNull(organization);
 
 					count.increment();
@@ -549,8 +542,6 @@ public class OrganizationPersistenceTest {
 		organization.setComments(RandomTestUtil.randomString());
 
 		organization.setLogoId(RandomTestUtil.nextLong());
-
-		organization.setLastPublishDate(RandomTestUtil.nextDate());
 
 		_organizations.add(_persistence.update(organization));
 

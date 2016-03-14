@@ -16,18 +16,18 @@ package com.liferay.portal.kernel.test.util;
 
 import com.liferay.portal.kernel.exception.LoggedExceptionInInitializerError;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Company;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.GroupConstants;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.CompanyLocalServiceUtil;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.LayoutLocalServiceUtil;
 
 /**
  * @author Brian Wing Shun Chan
@@ -42,7 +42,7 @@ public class TestPropsValues {
 		TestPropsUtil.get("assert.logs"));
 
 	public static final long CI_TEST_TIMEOUT_TIME = GetterUtil.getLong(
-		TestPropsUtil.get("ci.test.timeout.time"), 20 * Time.MINUTE);
+		TestPropsUtil.get("ci.test.timeout.time"), 40 * Time.MINUTE);
 
 	public static final String COMPANY_WEB_ID;
 

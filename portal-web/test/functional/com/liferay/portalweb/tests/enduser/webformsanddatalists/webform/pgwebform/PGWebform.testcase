@@ -6,13 +6,15 @@
 	<var name="portletName" value="Web Form" />
 
 	<set-up>
+		<execute macro="TestCase#setUpPortalInstance" />
+
 		<execute macro="User#firstLoginPG" />
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -22,7 +24,17 @@
 	</set-up>
 
 	<tear-down>
-		<execute macro="Page#tearDownPG" />
+		<var method="TestPropsUtil#get('test.portal.instance')" name="testPortalInstance" />
+
+		<if>
+			<equals arg1="${testPortalInstance}" arg2="true" />
+			<then>
+				<execute macro="PortalInstances#tearDownCP" />
+			</then>
+			<else>
+				<execute macro="Page#tearDownPG" />
+			</else>
+		</if>
 	</tear-down>
 
 	<command name="EditAndSendWebFormWithRequiredCheckbox" priority="4">
@@ -31,7 +43,7 @@
 			<var name="wfInformationTitle" value="Suggestions" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -58,7 +70,7 @@
 
 		<execute macro="WebFormPortlet#saveConfiguration" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -98,7 +110,7 @@
 	</command>
 
 	<command name="EditWebForm" priority="4">
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -119,7 +131,7 @@
 			<var name="wfFieldName" value="Comments" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -146,7 +158,7 @@
 
 		<execute macro="WebFormPortlet#saveConfiguration" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -170,7 +182,7 @@
 	</command>
 
 	<command name="EditWebFormAndViewMultipleFields" priority="4">
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -191,7 +203,7 @@
 			<var name="wfFieldName" value="Comments" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -224,7 +236,7 @@
 
 		<execute macro="WebFormPortlet#saveConfiguration" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -249,7 +261,7 @@
 			<var name="wfInformationTitle" value="Suggestions" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -276,7 +288,7 @@
 
 		<execute macro="WebFormPortlet#saveConfiguration" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -298,7 +310,7 @@
 			<var name="wfInformationTitle" value="Suggestions" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -325,7 +337,7 @@
 
 		<execute macro="WebFormPortlet#saveConfiguration" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -347,7 +359,7 @@
 			<var name="wfInformationTitle" value="Suggestions" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -375,7 +387,7 @@
 
 		<execute macro="WebFormPortlet#saveConfiguration" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -398,7 +410,7 @@
 			<var name="wfInformationTitle" value="Suggestions" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -425,7 +437,7 @@
 
 		<execute macro="WebFormPortlet#saveConfiguration" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -447,7 +459,7 @@
 			<var name="wfInformationTitle" value="Suggestions" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -474,7 +486,7 @@
 
 		<execute macro="WebFormPortlet#saveConfiguration" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -490,13 +502,81 @@
 		<execute macro="WebForm#sendPG" />
 	</command>
 
+	<command name="EditWebFormAndViewParagraphField" priority="4">
+		<execute macro="WebForm#viewPG">
+			<var name="wfInformationDescription" value="Your input is valuable to us. Please send us your suggestions." />
+			<var name="wfInformationTitle" value="Suggestions" />
+		</execute>
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="${pageName}" />
+		</execute>
+
+		<execute macro="WebFormPortlet#configureSetupFormFieldsPG" />
+
+		<execute macro="WebFormPortlet#deleteEditableField">
+			<var name="wfFieldName" value="Name" />
+		</execute>
+
+		<execute macro="WebFormPortlet#deleteEditableField">
+			<var name="wfFieldName" value="Rating" />
+		</execute>
+
+		<execute macro="WebFormPortlet#deleteEditableField">
+			<var name="wfFieldName" value="Comments" />
+		</execute>
+
+		<execute macro="WebFormPortlet#editField">
+			<var name="wfFieldName" value="New Item" />
+			<var name="wfFieldType" value="Paragraph" />
+			<var name="wfNewFieldName" value="Test Paragraph Field" />
+		</execute>
+
+		<execute macro="WebFormPortlet#editParagraphField">
+			<var name="wfNewFieldName" value="Test Paragraph Field" />
+			<var name="wfParagraphFieldText" value="Hello Liferay. This is the Test Paragraph Field." />
+		</execute>
+
+		<execute macro="WebFormPortlet#addField">
+			<var name="wfFieldType" value="Text" />
+			<var name="wfNewFieldName" value="Test Text Field" />
+			<var name="wfPreviousFieldName" value="Test Paragraph Field" />
+		</execute>
+
+		<execute macro="WebFormPortlet#saveConfiguration" />
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="${pageName}" />
+		</execute>
+
+		<execute macro="WebForm#viewPG">
+			<var name="wfInformationDescription" value="Your input is valuable to us. Please send us your suggestions." />
+			<var name="wfInformationTitle" value="Suggestions" />
+		</execute>
+
+		<execute macro="WebForm#viewFormFieldParagraph">
+			<var name="wfParagraphFieldText" value="Hello Liferay. This is the Test Paragraph Field." />
+		</execute>
+
+		<execute macro="WebForm#viewFormFieldText">
+			<var name="wfFieldName" value="Test Text Field" />
+		</execute>
+
+		<execute macro="WebForm#populateFieldText">
+			<var name="wfFieldName" value="Test Text Field" />
+			<var name="wfFieldValue" value="Welcome to Liferay." />
+		</execute>
+
+		<execute macro="WebForm#sendPG" />
+	</command>
+
 	<command name="EditWebFormAndViewRequiredCheckBoxField" priority="3">
 		<execute macro="WebForm#viewPG">
 			<var name="wfInformationDescription" value="Your input is valuable to us. Please send us your suggestions." />
 			<var name="wfInformationTitle" value="Suggestions" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -522,7 +602,7 @@
 
 		<execute macro="WebFormPortlet#saveConfiguration" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -551,7 +631,7 @@
 			<var name="wfInformationTitle" value="Suggestions" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -577,7 +657,7 @@
 
 		<execute macro="WebFormPortlet#saveConfiguration" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -603,7 +683,7 @@
 
 		<execute macro="WebFormPortlet#saveConfiguration" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -620,7 +700,7 @@
 			<var name="wfInformationTitle" value="Suggestions" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -647,7 +727,7 @@
 
 		<execute macro="WebFormPortlet#saveConfiguration" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -677,7 +757,7 @@
 			<var name="wfInformationTitle" value="Suggestions" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -703,7 +783,7 @@
 
 		<execute macro="WebFormPortlet#saveConfiguration" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -732,7 +812,7 @@
 			<var name="wfInformationTitle" value="Suggestions" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -758,7 +838,7 @@
 
 		<execute macro="WebFormPortlet#saveConfiguration" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -782,7 +862,7 @@
 	</command>
 
 	<command name="SendWebForm" priority="4">
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -806,7 +886,7 @@
 
 		<execute function="SelectFrameTop" value1="relative=top" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -827,7 +907,7 @@
 
 		<execute macro="WebForm#sendPG" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 

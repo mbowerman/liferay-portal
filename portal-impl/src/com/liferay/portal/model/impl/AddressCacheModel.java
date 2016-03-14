@@ -16,12 +16,12 @@ package com.liferay.portal.model.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.model.Address;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.MVCCModel;
 import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.Address;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.MVCCModel;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -79,7 +79,7 @@ public class AddressCacheModel implements CacheModel<Address>, Externalizable,
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(43);
+		StringBundler sb = new StringBundler(41);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -121,8 +121,6 @@ public class AddressCacheModel implements CacheModel<Address>, Externalizable,
 		sb.append(mailing);
 		sb.append(", primary=");
 		sb.append(primary);
-		sb.append(", lastPublishDate=");
-		sb.append(lastPublishDate);
 		sb.append("}");
 
 		return sb.toString();
@@ -210,13 +208,6 @@ public class AddressCacheModel implements CacheModel<Address>, Externalizable,
 		addressImpl.setMailing(mailing);
 		addressImpl.setPrimary(primary);
 
-		if (lastPublishDate == Long.MIN_VALUE) {
-			addressImpl.setLastPublishDate(null);
-		}
-		else {
-			addressImpl.setLastPublishDate(new Date(lastPublishDate));
-		}
-
 		addressImpl.resetOriginalValues();
 
 		return addressImpl;
@@ -226,25 +217,34 @@ public class AddressCacheModel implements CacheModel<Address>, Externalizable,
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		mvccVersion = objectInput.readLong();
 		uuid = objectInput.readUTF();
+
 		addressId = objectInput.readLong();
+
 		companyId = objectInput.readLong();
+
 		userId = objectInput.readLong();
 		userName = objectInput.readUTF();
 		createDate = objectInput.readLong();
 		modifiedDate = objectInput.readLong();
+
 		classNameId = objectInput.readLong();
+
 		classPK = objectInput.readLong();
 		street1 = objectInput.readUTF();
 		street2 = objectInput.readUTF();
 		street3 = objectInput.readUTF();
 		city = objectInput.readUTF();
 		zip = objectInput.readUTF();
+
 		regionId = objectInput.readLong();
+
 		countryId = objectInput.readLong();
+
 		typeId = objectInput.readLong();
+
 		mailing = objectInput.readBoolean();
+
 		primary = objectInput.readBoolean();
-		lastPublishDate = objectInput.readLong();
 	}
 
 	@Override
@@ -260,7 +260,9 @@ public class AddressCacheModel implements CacheModel<Address>, Externalizable,
 		}
 
 		objectOutput.writeLong(addressId);
+
 		objectOutput.writeLong(companyId);
+
 		objectOutput.writeLong(userId);
 
 		if (userName == null) {
@@ -272,7 +274,9 @@ public class AddressCacheModel implements CacheModel<Address>, Externalizable,
 
 		objectOutput.writeLong(createDate);
 		objectOutput.writeLong(modifiedDate);
+
 		objectOutput.writeLong(classNameId);
+
 		objectOutput.writeLong(classPK);
 
 		if (street1 == null) {
@@ -311,11 +315,14 @@ public class AddressCacheModel implements CacheModel<Address>, Externalizable,
 		}
 
 		objectOutput.writeLong(regionId);
+
 		objectOutput.writeLong(countryId);
+
 		objectOutput.writeLong(typeId);
+
 		objectOutput.writeBoolean(mailing);
+
 		objectOutput.writeBoolean(primary);
-		objectOutput.writeLong(lastPublishDate);
 	}
 
 	public long mvccVersion;
@@ -338,5 +345,4 @@ public class AddressCacheModel implements CacheModel<Address>, Externalizable,
 	public long typeId;
 	public boolean mailing;
 	public boolean primary;
-	public long lastPublishDate;
 }

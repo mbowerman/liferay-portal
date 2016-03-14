@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchResourcePermissionException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchResourcePermissionException;
+import com.liferay.portal.kernel.model.ResourcePermission;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.ResourcePermissionPersistence;
+import com.liferay.portal.kernel.service.persistence.ResourcePermissionUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -31,10 +35,6 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.ResourcePermission;
-import com.liferay.portal.service.ResourcePermissionLocalServiceUtil;
-import com.liferay.portal.service.persistence.ResourcePermissionPersistence;
-import com.liferay.portal.service.persistence.ResourcePermissionUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
@@ -201,6 +201,16 @@ public class ResourcePermissionPersistenceTest {
 		_persistence.countByC_N_S(0L, StringPool.NULL, 0);
 
 		_persistence.countByC_N_S(0L, (String)null, 0);
+	}
+
+	@Test
+	public void testCountByC_S_P() throws Exception {
+		_persistence.countByC_S_P(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt(), StringPool.BLANK);
+
+		_persistence.countByC_S_P(0L, 0, StringPool.NULL);
+
+		_persistence.countByC_S_P(0L, 0, (String)null);
 	}
 
 	@Test
@@ -392,11 +402,9 @@ public class ResourcePermissionPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ResourcePermissionLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ResourcePermission>() {
 				@Override
-				public void performAction(Object object) {
-					ResourcePermission resourcePermission = (ResourcePermission)object;
-
+				public void performAction(ResourcePermission resourcePermission) {
 					Assert.assertNotNull(resourcePermission);
 
 					count.increment();

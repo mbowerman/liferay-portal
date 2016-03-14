@@ -20,7 +20,11 @@
 page import="com.liferay.portal.kernel.search.RelatedSearchResult" %><%@
 page import="com.liferay.portal.kernel.util.DateFormatFactoryUtil" %><%@
 page import="com.liferay.taglib.aui.AUIUtil" %><%@
-page import="com.liferay.taglib.util.InlineUtil" %>
+page import="com.liferay.taglib.util.InlineUtil" %><%@
+page import="com.liferay.taglib.util.PortalIncludeUtil" %><%@
+page import="com.liferay.taglib.util.TagResourceBundleUtil" %>
+
+<%@ page import="java.io.IOException" %>
 
 <%
 PortletRequest portletRequest = (PortletRequest)request.getAttribute(JavaConstants.JAVAX_PORTLET_REQUEST);
@@ -43,6 +47,10 @@ if ((portletRequest != null) && (portletResponse != null)) {
 else {
 	currentURL = PortalUtil.getCurrentURL(request);
 }
+
+ResourceBundle resourceBundle = TagResourceBundleUtil.getResourceBundle(request, locale);
+
+pageContext.setAttribute("resourceBundle", resourceBundle);
 %>
 
 <%@ include file="/html/taglib/init-ext.jsp" %>

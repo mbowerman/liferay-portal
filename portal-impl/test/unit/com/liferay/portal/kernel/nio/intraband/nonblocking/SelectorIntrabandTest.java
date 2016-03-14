@@ -696,7 +696,7 @@ public class SelectorIntrabandTest {
 
 				Assert.fail();
 			}
-			catch (ClosedIntrabandException cibe) {
+			catch (ClosedIntrabandException cie) {
 			}
 		}
 		finally {
@@ -896,7 +896,7 @@ public class SelectorIntrabandTest {
 
 				Assert.fail();
 			}
-			catch (ClosedIntrabandException cibe) {
+			catch (ClosedIntrabandException cie) {
 			}
 		}
 	}
@@ -1061,8 +1061,7 @@ public class SelectorIntrabandTest {
 		Pipe writePipe = Pipe.open();
 
 		try (GatheringByteChannel gatheringByteChannel = writePipe.sink();
-				ScatteringByteChannel scatteringByteChannel =
-					readPipe.source()) {
+			ScatteringByteChannel scatteringByteChannel = readPipe.source()) {
 
 			SelectionKeyRegistrationReference registrationReference =
 				(SelectionKeyRegistrationReference)
@@ -1470,7 +1469,7 @@ public class SelectorIntrabandTest {
 
 	}
 
-	private class WakeUpRunnable implements Runnable {
+	private static class WakeUpRunnable implements Runnable {
 
 		public WakeUpRunnable(SelectorIntraband selectorIntraband) {
 			_selectorIntraband = selectorIntraband;

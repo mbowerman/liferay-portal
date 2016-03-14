@@ -14,12 +14,27 @@
 
 package com.liferay.portal.setup;
 
+import com.liferay.portal.events.EventsProcessorUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.dao.jdbc.DataSourceFactoryUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Account;
+import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.Contact;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.security.auth.FullNameGenerator;
+import com.liferay.portal.kernel.security.auth.FullNameGeneratorFactory;
+import com.liferay.portal.kernel.security.auth.ScreenNameGenerator;
+import com.liferay.portal.kernel.service.AccountLocalServiceUtil;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PropertiesParamUtil;
@@ -28,14 +43,17 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.security.auth.ScreenNameGeneratorFactory;
+import com.liferay.portal.util.PortalInstances;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.WebKeys;
 
 import java.io.IOException;
 
 import java.sql.Connection;
 
+import java.util.Calendar;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -136,10 +154,16 @@ public class SetupWizardUtil {
 		_processDatabaseProperties(
 			request, unicodeProperties, databaseConfigured);
 
+		_processOtherProperties(request, unicodeProperties);
+
 		updateLanguage(request, response);
 
 		unicodeProperties.put(
 			PropsKeys.SETUP_WIZARD_ENABLED, String.valueOf(false));
+
+		_updateCompany(request);
+
+		_updateAdminUser(request, response, unicodeProperties);
 
 		HttpSession session = request.getSession();
 
@@ -173,7 +197,7 @@ public class SetupWizardUtil {
 				defaultDriverClassName) &&
 			PropsValues.JDBC_DEFAULT_PASSWORD.equals(defaultPassword) &&
 			PropsValues.JDBC_DEFAULT_URL.equals(defaultURL) &&
-			PropsValues.JDBC_DEFAULT_USERNAME.equals(defaultUsername) ) {
+			PropsValues.JDBC_DEFAULT_USERNAME.equals(defaultUsername)) {
 
 			return true;
 		}
@@ -194,6 +218,36 @@ public class SetupWizardUtil {
 			unicodeProperties.remove(PropsKeys.JDBC_DEFAULT_DRIVER_CLASS_NAME);
 			unicodeProperties.remove(PropsKeys.JDBC_DEFAULT_USERNAME);
 			unicodeProperties.remove(PropsKeys.JDBC_DEFAULT_PASSWORD);
+		}
+	}
+
+	private static void _processOtherProperties(
+			HttpServletRequest request, UnicodeProperties unicodeProperties)
+		throws Exception {
+
+		_processProperty(
+			request, unicodeProperties, "adminFirstName",
+			PropsKeys.DEFAULT_ADMIN_FIRST_NAME,
+			PropsValues.DEFAULT_ADMIN_FIRST_NAME);
+		_processProperty(
+			request, unicodeProperties, "adminLastName",
+			PropsKeys.DEFAULT_ADMIN_LAST_NAME,
+			PropsValues.DEFAULT_ADMIN_LAST_NAME);
+		_processProperty(
+			request, unicodeProperties, "companyName",
+			PropsKeys.COMPANY_DEFAULT_NAME, PropsValues.COMPANY_DEFAULT_NAME);
+	}
+
+	private static void _processProperty(
+			HttpServletRequest request, UnicodeProperties unicodeProperties,
+			String parameterName, String propertyKey, String defaultValue)
+		throws Exception {
+
+		String value = ParamUtil.getString(
+			request, parameterName, defaultValue);
+
+		if (!value.equals(defaultValue)) {
+			unicodeProperties.put(propertyKey, value);
 		}
 	}
 
@@ -219,6 +273,157 @@ public class SetupWizardUtil {
 			DataAccess.cleanUp(connection);
 			DataSourceFactoryUtil.destroyDataSource(dataSource);
 		}
+	}
+
+	private static void _updateAdminUser(
+			HttpServletRequest request, HttpServletResponse response,
+			UnicodeProperties unicodeProperties)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		Company company = CompanyLocalServiceUtil.getCompanyById(
+			themeDisplay.getCompanyId());
+
+		String emailAddress = ParamUtil.getString(
+			request, "adminEmailAddress",
+			PropsValues.DEFAULT_ADMIN_EMAIL_ADDRESS_PREFIX + StringPool.AT +
+				company.getMx());
+
+		PropsValues.ADMIN_EMAIL_FROM_ADDRESS = emailAddress;
+
+		unicodeProperties.put(PropsKeys.ADMIN_EMAIL_FROM_ADDRESS, emailAddress);
+
+		ScreenNameGenerator screenNameGenerator =
+			ScreenNameGeneratorFactory.getInstance();
+
+		String screenName = GetterUtil.getString(
+			PropsValues.DEFAULT_ADMIN_EMAIL_ADDRESS_PREFIX, "test");
+
+		try {
+			screenName = screenNameGenerator.generate(0, 0, emailAddress);
+		}
+		catch (Exception e) {
+		}
+
+		String firstName = ParamUtil.getString(
+			request, "adminFirstName", PropsValues.DEFAULT_ADMIN_FIRST_NAME);
+		String lastName = ParamUtil.getString(
+			request, "adminLastName", PropsValues.DEFAULT_ADMIN_LAST_NAME);
+
+		FullNameGenerator fullNameGenerator =
+			FullNameGeneratorFactory.getInstance();
+
+		String fullName = fullNameGenerator.getFullName(
+			firstName, null, lastName);
+
+		PropsValues.ADMIN_EMAIL_FROM_NAME = fullName;
+
+		unicodeProperties.put(PropsKeys.ADMIN_EMAIL_FROM_NAME, fullName);
+
+		User user = UserLocalServiceUtil.fetchUserByEmailAddress(
+			themeDisplay.getCompanyId(), emailAddress);
+
+		if (user != null) {
+			String greeting = LanguageUtil.format(
+				themeDisplay.getLocale(), "welcome-x", fullName, false);
+
+			Contact contact = user.getContact();
+
+			Calendar birthdayCal = CalendarFactoryUtil.getCalendar();
+
+			birthdayCal.setTime(contact.getBirthday());
+
+			int birthdayMonth = birthdayCal.get(Calendar.MONTH);
+			int birthdayDay = birthdayCal.get(Calendar.DAY_OF_MONTH);
+			int birthdayYear = birthdayCal.get(Calendar.YEAR);
+
+			user = UserLocalServiceUtil.updateUser(
+				user.getUserId(), StringPool.BLANK, StringPool.BLANK,
+				StringPool.BLANK, false, user.getReminderQueryQuestion(),
+				user.getReminderQueryAnswer(), screenName, emailAddress,
+				user.getFacebookId(), user.getOpenId(), false, null,
+				themeDisplay.getLanguageId(), user.getTimeZoneId(), greeting,
+				user.getComments(), firstName, user.getMiddleName(), lastName,
+				contact.getPrefixId(), contact.getSuffixId(), contact.isMale(),
+				birthdayMonth, birthdayDay, birthdayYear, contact.getSmsSn(),
+				contact.getFacebookSn(), contact.getJabberSn(),
+				contact.getSkypeSn(), contact.getTwitterSn(),
+				contact.getJobTitle(), null, null, null, null, null,
+				new ServiceContext());
+		}
+		else {
+			UserLocalServiceUtil.addDefaultAdminUser(
+				themeDisplay.getCompanyId(), screenName, emailAddress,
+				themeDisplay.getLocale(), firstName, StringPool.BLANK,
+				lastName);
+
+			user = UserLocalServiceUtil.getUserByEmailAddress(
+				themeDisplay.getCompanyId(), emailAddress);
+
+			String defaultAdminEmailAddress =
+				PropsValues.DEFAULT_ADMIN_EMAIL_ADDRESS_PREFIX + "@" +
+					PropsValues.COMPANY_DEFAULT_WEB_ID;
+
+			if (!emailAddress.equals(defaultAdminEmailAddress)) {
+				User testUser = UserLocalServiceUtil.fetchUserByEmailAddress(
+					themeDisplay.getCompanyId(), defaultAdminEmailAddress);
+
+				if (testUser != null) {
+					UserLocalServiceUtil.updateStatus(
+						testUser.getUserId(), WorkflowConstants.STATUS_INACTIVE,
+						new ServiceContext());
+				}
+			}
+		}
+
+		user = UserLocalServiceUtil.updatePasswordReset(user.getUserId(), true);
+
+		HttpSession session = request.getSession();
+
+		session.setAttribute(WebKeys.EMAIL_ADDRESS, emailAddress);
+		session.setAttribute(WebKeys.SETUP_WIZARD_PASSWORD_UPDATED, true);
+		session.setAttribute(WebKeys.USER, user);
+		session.setAttribute(WebKeys.USER_ID, user.getUserId());
+
+		EventsProcessorUtil.process(
+			PropsKeys.LOGIN_EVENTS_POST, PropsValues.LOGIN_EVENTS_POST, request,
+			response);
+	}
+
+	private static void _updateCompany(HttpServletRequest request)
+		throws Exception {
+
+		Company company = CompanyLocalServiceUtil.getCompanyById(
+			PortalInstances.getDefaultCompanyId());
+
+		Account account = company.getAccount();
+
+		String currentName = account.getName();
+
+		String newName = ParamUtil.getString(
+			request, "companyName", PropsValues.COMPANY_DEFAULT_NAME);
+
+		if (!currentName.equals(newName)) {
+			account.setName(newName);
+
+			AccountLocalServiceUtil.updateAccount(account);
+		}
+
+		String languageId = ParamUtil.getString(
+			request, "companyLocale", getDefaultLanguageId());
+
+		User defaultUser = company.getDefaultUser();
+
+		defaultUser.setLanguageId(languageId);
+
+		UserLocalServiceUtil.updateUser(defaultUser);
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		themeDisplay.setCompany(company);
 	}
 
 	private static boolean _writePropertiesFile(

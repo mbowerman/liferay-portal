@@ -13,9 +13,10 @@
 		<root-path>/classic</root-path>
 		<templates-path>${root-path}/templates</templates-path>
 		<images-path>${root-path}/images</images-path>
-		<template-extension>vm</template-extension>
+		<template-extension>ftl</template-extension>
 		<settings>
 			<setting configurable="true" key="bullet-style" options="dots,arrows" type="select" value="dots" />
+			<setting configurable="true" key="show-maximize-minimize-application-links" type="checkbox" value="false" />
 			<setting configurable="false" key="show-site-name-default" value="true" />
 			<setting configurable="false" key="show-site-name-supported" value="true" />
 		</settings>
@@ -35,14 +36,8 @@
 	</theme>
 	<theme id="admin" name="Admin">
 		<root-path>/admin</root-path>
+		<template-extension>ftl</template-extension>
 		<control-panel-theme>true</control-panel-theme>
 		<page-theme>false</page-theme>
-	</theme>
-	<theme id="mobile" name="Mobile">
-		<root-path>/wap/themes/${theme-id}</root-path>
-		<settings>
-			<setting configurable="true" key="bullet-style" options="dots,arrows" type="select" value="dots" />
-		</settings>
-		<wap-theme>true</wap-theme>
 	</theme>
 </look-and-feel>

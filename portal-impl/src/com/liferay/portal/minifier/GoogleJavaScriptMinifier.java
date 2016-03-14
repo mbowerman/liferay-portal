@@ -83,15 +83,28 @@ public class GoogleJavaScriptMinifier implements JavaScriptMinifier {
 	private static final Log _log = LogFactoryUtil.getLog(
 		GoogleJavaScriptMinifier.class);
 
+	private static class SimpleMessageFormatter implements MessageFormatter {
+
+		@Override
+		public String formatError(JSError jsError) {
+			return String.format(
+				"(%s:%d): %s", jsError.sourceName, jsError.lineNumber,
+				jsError.description);
+		}
+
+		@Override
+		public String formatWarning(JSError jsError) {
+			return formatError(jsError);
+		}
+
+	}
+
 	private class LogErrorManager extends BasicErrorManager {
 
 		@Override
 		public void println(CheckLevel checkLevel, JSError jsError) {
 			if (checkLevel == CheckLevel.ERROR) {
-				if (_log.isErrorEnabled()) {
-					_log.error(
-						jsError.format(checkLevel, _simpleMessageFormatter));
-				}
+				_log.error(jsError.format(checkLevel, _simpleMessageFormatter));
 			}
 			else if (checkLevel == CheckLevel.WARNING) {
 				if (_log.isWarnEnabled()) {
@@ -103,7 +116,7 @@ public class GoogleJavaScriptMinifier implements JavaScriptMinifier {
 
 		@Override
 		protected void printSummary() {
-			if (_log.isErrorEnabled() && (getErrorCount() > 0)) {
+			if (getErrorCount() > 0) {
 				_log.error(_buildMessage());
 			}
 			else if (_log.isWarnEnabled() && (getWarningCount() > 0)) {
@@ -119,22 +132,6 @@ public class GoogleJavaScriptMinifier implements JavaScriptMinifier {
 
 		private final MessageFormatter _simpleMessageFormatter =
 			new SimpleMessageFormatter();
-
-	}
-
-	private class SimpleMessageFormatter implements MessageFormatter {
-
-		@Override
-		public String formatError(JSError jsError) {
-			return String.format(
-				"(%s:%d): %s", jsError.sourceName, jsError.lineNumber,
-				jsError.description);
-		}
-
-		@Override
-		public String formatWarning(JSError jsError) {
-			return formatError(jsError);
-		}
 
 	}
 

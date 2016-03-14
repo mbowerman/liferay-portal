@@ -18,9 +18,9 @@
 					<encoding>UTF-8</encoding>
 				</source-folder>
 				<source-folder>
-					<label>modules\core\registry-api\src</label>
+					<label>modules\core\registry-api\src\main\java</label>
 					<type>java</type>
-					<location>modules/core/registry-api/src</location>
+					<location>modules/core/registry-api/src/main/java</location>
 					<encoding>UTF-8</encoding>
 				</source-folder>
 				<source-folder>
@@ -42,21 +42,21 @@
 					<encoding>UTF-8</encoding>
 				</source-folder>
 				<source-folder>
-					<label>portal-service\src</label>
+					<label>portal-kernel\src</label>
 					<type>java</type>
-					<location>portal-service/src</location>
+					<location>portal-kernel/src</location>
 					<encoding>UTF-8</encoding>
 				</source-folder>
 				<!--<source-folder>
-					<label>portal-service\test\integration</label>
+					<label>portal-kernel\test\integration</label>
 					<type>java</type>
-					<location>portal-service/test/integration</location>
+					<location>portal-kernel/test/integration</location>
 					<encoding>UTF-8</encoding>
 				</source-folder>-->
 				<source-folder>
-					<label>portal-service\test\unit</label>
+					<label>portal-kernel\test\unit</label>
 					<type>java</type>
-					<location>portal-service/test/unit</location>
+					<location>portal-kernel/test/unit</location>
 					<encoding>UTF-8</encoding>
 				</source-folder>
 				<source-folder>
@@ -166,16 +166,16 @@
 						<location>portal-impl/test/unit</location>
 					</source-folder>
 					<source-folder style="packages">
-						<label>portal-service\src</label>
-						<location>portal-service/src</location>
+						<label>portal-kernel\src</label>
+						<location>portal-kernel/src</location>
 					</source-folder>
 					<!--<source-folder style="packages">
-						<label>portal-service\test\integration</label>
-						<location>portal-service/test/integration</location>
+						<label>portal-kernel\test\integration</label>
+						<location>portal-kernel/test/integration</location>
 					</source-folder>-->
 					<source-folder style="packages">
-						<label>portal-service\test\unit</label>
-						<location>portal-service/test/unit</location>
+						<label>portal-kernel\test\unit</label>
+						<location>portal-kernel/test/unit</location>
 					</source-folder>
 					<source-folder style="packages">
 						<label>portal-test\src</label>
@@ -235,9 +235,9 @@
 				<package-root>portal-impl/src</package-root>
 				<package-root>portal-impl/test/integration</package-root>
 				<package-root>portal-impl/test/unit</package-root>
-				<package-root>portal-service/src</package-root>
-				<!--<package-root>portal-service/test/integration</package-root>-->
-				<package-root>portal-service/test/unit</package-root>
+				<package-root>portal-kernel/src</package-root>
+				<!--<package-root>portal-kernel/test/integration</package-root>-->
+				<package-root>portal-kernel/test/unit</package-root>
 				<package-root>portal-web/test/functional</package-root>
 				<package-root>support-tomcat/src</package-root>
 				<package-root>util-bridges/src</package-root>
@@ -275,7 +275,6 @@
 				<classpath mode="compile">lib/development/jargs.jar</classpath>
 				<classpath mode="compile">lib/development/jarjar.jar</classpath>
 				<classpath mode="compile">lib/development/jasper.jar</classpath>
-				<classpath mode="compile">lib/development/javacpp.jar</classpath>
 				<classpath mode="compile">lib/development/jaxb-api.jar</classpath>
 				<classpath mode="compile">lib/development/jbi_rt.jar</classpath>
 				<classpath mode="compile">lib/development/jetty-server.jar</classpath>
@@ -292,17 +291,15 @@
 				<classpath mode="compile">lib/development/jymsg.jar</classpath>
 				<classpath mode="compile">lib/development/liferay-doclet.jar</classpath>
 				<classpath mode="compile">lib/development/mail.jar</classpath>
+				<classpath mode="compile">lib/development/mariadb.jar</classpath>
 				<classpath mode="compile">lib/development/maven-ant-tasks.jar</classpath>
 				<classpath mode="compile">lib/development/mockito.jar</classpath>
 				<classpath mode="compile">lib/development/mysql.jar</classpath>
 				<classpath mode="compile">lib/development/objenesis.jar</classpath>
-				<classpath mode="compile">lib/development/opencv.jar</classpath>
 				<classpath mode="compile">lib/development/orangevolt-ant-tasks.jar</classpath>
-				<classpath mode="compile">lib/development/org.freemarker-2.3.17.LIFERAY-PATCHED-1.jar</classpath>
+				<classpath mode="compile">lib/development/freemarker.jar</classpath>
 				<classpath mode="compile">lib/development/p6spy.jar</classpath>
 				<classpath mode="compile">lib/development/persistence.jar</classpath>
-				<classpath mode="compile">lib/development/piccolo2d-core.jar</classpath>
-				<classpath mode="compile">lib/development/piccolo2d-extras.jar</classpath>
 				<classpath mode="compile">lib/development/postgresql.jar</classpath>
 				<classpath mode="compile">lib/development/powermock-api-mockito.jar</classpath>
 				<classpath mode="compile">lib/development/powermock-api-support.jar</classpath>
@@ -311,20 +308,15 @@
 				<classpath mode="compile">lib/development/powermock-module-junit4.jar</classpath>
 				<classpath mode="compile">lib/development/powermock-reflect.jar</classpath>
 				<classpath mode="compile">lib/development/qdox.jar</classpath>
-				<classpath mode="compile">lib/development/resin.jar</classpath>
 				<classpath mode="compile">lib/development/saxpath.jar</classpath>
-				<classpath mode="compile">lib/development/script-10.jar</classpath>
 				<classpath mode="compile">lib/development/sdk-addon-api-0.2.jar</classpath>
-				<classpath mode="compile">lib/development/selenium-java.jar</classpath>
-				<classpath mode="compile">lib/development/selenium-server.jar</classpath>
 				<classpath mode="compile">lib/development/servlet-api.jar</classpath>
-				<classpath mode="compile">lib/development/sikuli-api.jar</classpath>
-				<classpath mode="compile">lib/development/sikuli-core.jar</classpath>
 				<classpath mode="compile">lib/development/smtp.jar</classpath>
 				<classpath mode="compile">lib/development/spring-instrument.jar</classpath>
 				<classpath mode="compile">lib/development/spring-instrument-tomcat.jar</classpath>
 				<classpath mode="compile">lib/development/spring-test.jar</classpath>
 				<classpath mode="compile">lib/development/tlddoc.jar</classpath>
+				<classpath mode="compile">lib/development/tomcat-api.jar</classpath>
 				<classpath mode="compile">lib/development/tomcat-coyote.jar</classpath>
 				<classpath mode="compile">lib/development/velocity.jar</classpath>
 				<classpath mode="compile">lib/development/velocity-tools.jar</classpath>
@@ -380,7 +372,6 @@
 				<classpath mode="compile">lib/portal/commons-validator.jar</classpath>
 				<classpath mode="compile">lib/portal/concurrent.jar</classpath>
 				<classpath mode="compile">lib/portal/crypt.jar</classpath>
-				<classpath mode="compile">lib/portal/daim.jar</classpath>
 				<classpath mode="compile">lib/portal/daisydiff.jar</classpath>
 				<classpath mode="compile">lib/portal/displaytag.jar</classpath>
 				<classpath mode="compile">lib/portal/dom4j.jar</classpath>
@@ -400,7 +391,6 @@
 				<classpath mode="compile">lib/portal/httpcore.jar</classpath>
 				<classpath mode="compile">lib/portal/httpmime.jar</classpath>
 				<classpath mode="compile">lib/portal/ical4j.jar</classpath>
-				<classpath mode="compile">lib/portal/icq.jar</classpath>
 				<classpath mode="compile">lib/portal/im4java.jar</classpath>
 				<classpath mode="compile">lib/portal/isoparser.jar</classpath>
 				<classpath mode="compile">lib/portal/jabsorb.jar</classpath>
@@ -451,7 +441,6 @@
 				<classpath mode="compile">lib/portal/mime4j-dom.jar</classpath>
 				<classpath mode="compile">lib/portal/mimepull.jar</classpath>
 				<classpath mode="compile">lib/portal/monte-cc.jar</classpath>
-				<classpath mode="compile">lib/portal/msnm.jar</classpath>
 				<classpath mode="compile">lib/portal/nekohtml.jar</classpath>
 				<classpath mode="compile">lib/portal/netcdf.jar</classpath>
 				<classpath mode="compile">lib/portal/netty-all.jar</classpath>

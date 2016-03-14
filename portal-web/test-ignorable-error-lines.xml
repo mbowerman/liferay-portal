@@ -14,6 +14,10 @@
 			<contains>Permission denied to access property 'type'</contains>
 			<matches></matches>
 		</ignore-error>
+		<ignore-error description="LRQA-21789">
+			<contains>mutating the [[Prototype]] of an object will cause your code to run very slowly</contains>
+			<matches></matches>
+		</ignore-error>
 	</javascript>
 	<log>
 		<ignore-error description="">
@@ -209,9 +213,21 @@
 			<contains></contains>
 			<matches>.*osgi.compendium:service=.*version=1.[0-9]+.*</matches>
 		</ignore-error>
+		<ignore-error description="LPS-57893, temporary workaround until André Oliveira fixes it">
+			<contains>com.liferay.portal.kernel.search.SearchException: Unable to delete</contains>
+			<matches></matches>
+		</ignore-error>
 		<ignore-error description="LRQA-14442, temporary workaround until Kiyoshi Lee fixes it">
 			<contains>[org_eclipse_equinox_http_servlet.*Framework Event Dispatcher: Equinox Container:</contains>
 			<matches></matches>
+		</ignore-error>
+		<ignore-error description="LRQA-21866">
+			<contains></contains>
+			<matches>.*\(/o/frontend-js-metal-web-1.0.0/metal-promise/src/promise/Promise.js:.*\): @define variable  assignment must be global.*</matches>
+		</ignore-error>
+		<ignore-error description="LRQA-21866">
+			<contains></contains>
+			<matches>.*\{0\} error\(s\), \{1\} warning\(s\).*</matches>
 		</ignore-error>
 		<ignore-error description="WCM-202">
 			<contains>No score point assigners available</contains>

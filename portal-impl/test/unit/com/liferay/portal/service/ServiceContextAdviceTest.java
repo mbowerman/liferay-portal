@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service;
 
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.spring.aop.ServiceBeanAopCacheManager;
 
@@ -153,7 +155,7 @@ public class ServiceContextAdviceTest {
 	private ServiceContextAdvice _serviceContextAdvice;
 	private TestServiceBeanAopCacheManager _testServiceBeanAopCacheManager;
 
-	private class TestInterceptedClass {
+	private static class TestInterceptedClass {
 
 		@SuppressWarnings("unused")
 		public void method() {
@@ -173,7 +175,7 @@ public class ServiceContextAdviceTest {
 
 	}
 
-	private class TestServiceBeanAopCacheManager
+	private static class TestServiceBeanAopCacheManager
 		extends ServiceBeanAopCacheManager {
 
 		public boolean isRemovedMethodInterceptor() {
@@ -192,7 +194,7 @@ public class ServiceContextAdviceTest {
 
 	}
 
-	private class TestServiceContextWrapper extends ServiceContext {
+	private static class TestServiceContextWrapper extends ServiceContext {
 	}
 
 }

@@ -34,6 +34,16 @@
 	<td></td>
 </tr>
 <tr>
+	<td>CHANGE_DEFAULT_LANGUAGE</td>
+	<td>//a[contains(@class,'change') and contains(@class,'locale')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DEFAULT_LANGUAGE</td>
+	<td>//span[contains(@class,'translation')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>CURRENT_LOCALE</td>
 	<td>//span[@locale='${key_translationLocale}']</td>
 	<td></td>
@@ -46,6 +56,11 @@
 <tr>
 	<td>LOCALIZATION_NAME</td>
 	<td>//li[@data-value='${key_localizationName}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REMOVE_TRANSLATION</td>
+	<td>//span[contains(.,'${key_localizedLanguage}')]//i[contains(@class,'icon-remove')]</td>
 	<td></td>
 </tr>
 </tbody>

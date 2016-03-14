@@ -1,7 +1,7 @@
 <definition>
 	<command name="configureDisplayFilter">
 		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletNameBorderless" value="${portletNameBorderless}" />
+			<var name="portletName" value="${portletName}" />
 			<var name="portletOption" value="Configuration" />
 		</execute>
 
@@ -35,8 +35,10 @@
 					<execute function="AssertTextEquals" locator1="UserSegmentContentList#SELECTED_ASSETS" value1="${assetType}" />
 				</for>
 
-				<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
-				<execute function="AssertClick" locator1="Message#SUCCESS" value1="Your request completed successfully." />
+				<execute macro="Button#clickSave" />
+
+				<execute macro="Alert#viewSuccessMessage" />
+
 				<execute function="Select" locator1="UserSegmentContentList#ASSET_TYPE_MENULIST" value1="Select More Than One..." />
 
 				<for list="${selectMultipleAssetTypes}" param="assetType">
@@ -47,8 +49,7 @@
 			</then>
 		</if>
 
-		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
-		<execute function="AssertClick" locator1="Message#SUCCESS" value1="Your request completed successfully." />
+		<execute macro="PortletEntry#save" />
 	</command>
 
 	<command name="viewContent">

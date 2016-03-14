@@ -14,8 +14,21 @@
 
 package com.liferay.portlet.messageboards.service;
 
+import com.liferay.message.boards.kernel.model.MBCategory;
+import com.liferay.message.boards.kernel.model.MBCategoryConstants;
+import com.liferay.message.boards.kernel.model.MBMessage;
+import com.liferay.message.boards.kernel.model.MBMessageConstants;
+import com.liferay.message.boards.kernel.service.MBCategoryServiceUtil;
+import com.liferay.message.boards.kernel.service.MBMessageLocalServiceUtil;
+import com.liferay.message.boards.kernel.service.MBMessageServiceUtil;
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
+import com.liferay.portal.kernel.dao.db.DBType;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
@@ -25,21 +38,11 @@ import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.DoAsUserThread;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.service.test.ServiceTestUtil;
 import com.liferay.portal.test.log.CaptureAppender;
 import com.liferay.portal.test.log.Log4JLoggerTestUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
-import com.liferay.portlet.messageboards.model.MBCategory;
-import com.liferay.portlet.messageboards.model.MBCategoryConstants;
-import com.liferay.portlet.messageboards.model.MBMessage;
-import com.liferay.portlet.messageboards.model.MBMessageConstants;
 
 import java.io.InputStream;
 
@@ -68,8 +71,7 @@ public class MBMessageServiceTest {
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			SynchronousDestinationTestRule.INSTANCE,
-			MainServletTestRule.INSTANCE);
+			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
 	public void setUp() throws Exception {
@@ -131,12 +133,12 @@ public class MBMessageServiceTest {
 		try (CaptureAppender captureAppender1 =
 				Log4JLoggerTestUtil.configureLog4JLogger(
 					BasePersistenceImpl.class.getName(), Level.ERROR);
-				CaptureAppender captureAppender2 =
-					Log4JLoggerTestUtil.configureLog4JLogger(
-						DoAsUserThread.class.getName(), Level.ERROR);
-				CaptureAppender captureAppender3 =
-					Log4JLoggerTestUtil.configureLog4JLogger(
-						JDBCExceptionReporter.class.getName(), Level.ERROR)) {
+			CaptureAppender captureAppender2 =
+				Log4JLoggerTestUtil.configureLog4JLogger(
+					DoAsUserThread.class.getName(), Level.ERROR);
+			CaptureAppender captureAppender3 =
+				Log4JLoggerTestUtil.configureLog4JLogger(
+					JDBCExceptionReporter.class.getName(), Level.ERROR)) {
 
 			for (DoAsUserThread doAsUserThread : doAsUserThreads) {
 				doAsUserThread.start();
@@ -146,11 +148,9 @@ public class MBMessageServiceTest {
 				doAsUserThread.join();
 			}
 
-			DB db = DBFactoryUtil.getDB();
+			DB db = DBManagerUtil.getDB();
 
-			String dbType = db.getType();
-
-			if (dbType.equals(DB.TYPE_SYBASE)) {
+			if (db.getDBType() == DBType.SYBASE) {
 				for (LoggingEvent loggingEvent :
 						captureAppender1.getLoggingEvents()) {
 

@@ -14,9 +14,13 @@
 
 package com.liferay.taglib.util;
 
+import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.log.LogUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.PortletConstants;
+import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.portlet.PortletBag;
 import com.liferay.portal.kernel.portlet.PortletBagPool;
 import com.liferay.portal.kernel.servlet.DirectRequestDispatcherFactoryUtil;
@@ -24,6 +28,8 @@ import com.liferay.portal.kernel.servlet.TrackedServletRequest;
 import com.liferay.portal.kernel.servlet.taglib.TagDynamicIdFactory;
 import com.liferay.portal.kernel.servlet.taglib.TagDynamicIdFactoryRegistry;
 import com.liferay.portal.kernel.servlet.taglib.TagDynamicIncludeUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.CustomJspRegistryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
@@ -33,12 +39,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.PortletConstants;
-import com.liferay.portal.model.Theme;
-import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.CustomJspRegistryUtil;
-import com.liferay.portlet.exportimport.staging.StagingUtil;
 import com.liferay.taglib.FileAvailabilityUtil;
 import com.liferay.taglib.servlet.JspWriterHttpServletResponse;
 import com.liferay.taglib.servlet.PipingServletResponse;
@@ -92,18 +92,7 @@ public class IncludeTag extends AttributesTagSupport {
 			throw new JspException(e);
 		}
 		finally {
-			clearDynamicAttributes();
-			clearParams();
-			clearProperties();
-
-			cleanUpSetAttributes();
-
-			if (!ServerDetector.isResin()) {
-				setPage(null);
-				setUseCustomPage(true);
-
-				cleanUp();
-			}
+			doClearTag();
 		}
 	}
 
@@ -190,6 +179,21 @@ public class IncludeTag extends AttributesTagSupport {
 			}
 
 			_trackedRequest = null;
+		}
+	}
+
+	protected void doClearTag() {
+		clearDynamicAttributes();
+		clearParams();
+		clearProperties();
+
+		cleanUpSetAttributes();
+
+		if (!ServerDetector.isResin()) {
+			setPage(null);
+			setUseCustomPage(true);
+
+			cleanUp();
 		}
 	}
 
@@ -399,7 +403,7 @@ public class IncludeTag extends AttributesTagSupport {
 			contextPath = StringPool.SLASH;
 		}
 
-		StringBundler sb = new StringBundler(13);
+		StringBundler sb = new StringBundler(8);
 
 		sb.append("Unable to find ");
 		sb.append(page);

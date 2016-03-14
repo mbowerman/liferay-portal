@@ -14,16 +14,15 @@
 
 package com.liferay.portal.verify;
 
-import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.asset.kernel.service.AssetCategoryLocalServiceUtil;
+import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
+import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.document.library.kernel.model.DLFileEntryConstants;
+import com.liferay.document.library.kernel.service.DLFileEntryLocalServiceUtil;
+import com.liferay.portal.kernel.util.LoggingTimer;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.asset.service.AssetCategoryLocalServiceUtil;
-import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
-import com.liferay.portlet.documentlibrary.model.DLFileEntryConstants;
-import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -33,15 +32,9 @@ import java.sql.ResultSet;
 public class VerifyAsset extends VerifyProcess {
 
 	protected void deleteOrphanedAssetEntries() throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
+		try (LoggingTimer loggingTimer = new LoggingTimer()) {
 			long classNameId = PortalUtil.getClassNameId(
 				DLFileEntryConstants.getClassName());
-
-			con = DataAccess.getUpgradeOptimizedConnection();
 
 			StringBundler sb = new StringBundler(5);
 
@@ -51,24 +44,22 @@ public class VerifyAsset extends VerifyProcess {
 			sb.append(" and classPK not in (select fileVersionId from ");
 			sb.append("DLFileVersion)");
 
-			ps = con.prepareStatement(sb.toString());
+			try (PreparedStatement ps = connection.prepareStatement(
+					sb.toString());
+				ResultSet rs = ps.executeQuery()) {
 
-			rs = ps.executeQuery();
+				while (rs.next()) {
+					long classPK = rs.getLong("classPK");
+					long entryId = rs.getLong("entryId");
 
-			while (rs.next()) {
-				long classPK = rs.getLong("classPK");
-				long entryId = rs.getLong("entryId");
+					DLFileEntry dlFileEntry =
+						DLFileEntryLocalServiceUtil.fetchDLFileEntry(classPK);
 
-				DLFileEntry dlFileEntry =
-					DLFileEntryLocalServiceUtil.fetchDLFileEntry(classPK);
-
-				if (dlFileEntry == null) {
-					AssetEntryLocalServiceUtil.deleteAssetEntry(entryId);
+					if (dlFileEntry == null) {
+						AssetEntryLocalServiceUtil.deleteAssetEntry(entryId);
+					}
 				}
 			}
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
 		}
 	}
 
@@ -79,27 +70,17 @@ public class VerifyAsset extends VerifyProcess {
 	}
 
 	protected void rebuildTree() throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+		try (LoggingTimer loggingTimer = new LoggingTimer();
+			PreparedStatement ps = connection.prepareStatement(
 				"select distinct groupId from AssetCategory where " +
 					"(leftCategoryId is null) or (rightCategoryId is null)");
-
-			rs = ps.executeQuery();
+			ResultSet rs = ps.executeQuery()) {
 
 			while (rs.next()) {
 				long groupId = rs.getLong("groupId");
 
 				AssetCategoryLocalServiceUtil.rebuildTree(groupId, true);
 			}
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
 		}
 	}
 

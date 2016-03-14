@@ -14,6 +14,7 @@
 
 package com.liferay.portal.repository.capabilities;
 
+import com.liferay.document.library.kernel.model.DLFileEntryConstants;
 import com.liferay.portal.kernel.comment.CommentManagerUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.capabilities.CommentCapability;
@@ -22,7 +23,6 @@ import com.liferay.portal.kernel.repository.event.RepositoryEventListener;
 import com.liferay.portal.kernel.repository.event.RepositoryEventType;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.registry.RepositoryEventRegistry;
-import com.liferay.portlet.documentlibrary.model.DLFileEntryConstants;
 
 /**
  * @author Adolfo Pérez
@@ -48,18 +48,18 @@ public class LiferayCommentCapability
 				new RepositoryEventListener
 					<RepositoryEventType.Add, FileEntry>() {
 
-						@Override
-						public void execute(FileEntry fileEntry)
-							throws PortalException {
+					@Override
+					public void execute(FileEntry fileEntry)
+						throws PortalException {
 
-							CommentManagerUtil.addDiscussion(
-								fileEntry.getUserId(), fileEntry.getGroupId(),
-								DLFileEntryConstants.getClassName(),
-								fileEntry.getFileEntryId(),
-								fileEntry.getUserName());
-						}
+						CommentManagerUtil.addDiscussion(
+							fileEntry.getUserId(), fileEntry.getGroupId(),
+							DLFileEntryConstants.getClassName(),
+							fileEntry.getFileEntryId(),
+							fileEntry.getUserName());
+					}
 
-					};
+				};
 
 	private static final RepositoryEventListener
 		<RepositoryEventType.Delete, FileEntry>
@@ -67,15 +67,15 @@ public class LiferayCommentCapability
 				new RepositoryEventListener
 					<RepositoryEventType.Delete, FileEntry>() {
 
-						@Override
-						public void execute(FileEntry fileEntry)
-							throws PortalException {
+					@Override
+					public void execute(FileEntry fileEntry)
+						throws PortalException {
 
-							CommentManagerUtil.deleteDiscussion(
-								DLFileEntryConstants.getClassName(),
-								fileEntry.getFileEntryId());
-						}
+						CommentManagerUtil.deleteDiscussion(
+							DLFileEntryConstants.getClassName(),
+							fileEntry.getFileEntryId());
+					}
 
-					};
+				};
 
 }

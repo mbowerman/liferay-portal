@@ -21,6 +21,8 @@
 
 	<property name="sdk.dir" value="${project.dir}/tools/sdk" />
 
+	<property name="portal.tools.dir" value="${sdk.dir}/tmp/portal-tools" />
+
 	<property name="test.properties" value="com/liferay/portal/tools/dependencies/portal-tools.properties" />
 
 	<property environment="env" />
@@ -61,10 +63,6 @@
 		<fileset dir="${project.dir}/lib/portal" includes="*.jar" />
 	</path>
 
-	<path id="portal.tools.classpath">
-		<fileset dir="${project.dir}/tools/sdk/tmp/portal-tools" includes="*.jar" />
-	</path>
-
 	<path id="project.classpath">
 		<pathelement path="${classpath.full}" />
 		<path refid="lib.classpath" />
@@ -95,8 +93,9 @@
 
 	<liferay-build-logger-installer />
 
-	<taskdef classname="com.tonicsystems.jarjar.JarJarTask" classpath="${project.dir}/lib/development/jarjar.jar" name="jarjar" />
 	<taskdef classname="com.oopsconsultancy.xmltask.ant.XmlTask" classpath="${project.dir}/lib/development/xmltask.jar" name="xmltask" />
+
+	<taskdef classname="com.tonicsystems.jarjar.JarJarTask" classpath="${project.dir}/lib/development/jarjar.jar" name="jarjar" />
 
 	<import file="build-common-ivy.xml" />
 
@@ -664,7 +663,7 @@ Please set the environment variable ANT_OPTS to the recommended value of
 				test.type="integration"
 			/>
 
-			<ant dir="${project.dir}/portal-service" target="jar" inheritAll="false" />
+			<ant dir="${project.dir}/portal-kernel" target="jar" inheritAll="false" />
 
 			<if>
 				<uptodate targetfile="${project.dir}/portal-impl/portal-impl.jar">
@@ -887,34 +886,26 @@ Please set the environment variable ANT_OPTS to the recommended value of
 		</sequential>
 	</macrodef>
 
-	<macrodef name="install-portal-snapshot">
-		<attribute name="artifact.dir" default="${basedir}" />
-		<attribute name="artifact.name" />
+	<macrodef name="install-portal-artifact">
+		<attribute name="packaging" default="jar" />
+		<attribute name="snapshot" default="false" />
 
 		<sequential>
-			<artifact:pom
-				artifactId="@{artifact.name}"
-				groupId="com.liferay.portal"
-				id="prepare-@{artifact.name}"
-				name="@{artifact.name}"
-				version="${lp.version}-SNAPSHOT"
-			/>
+			<condition property="snapshot.version.suffix" value="-SNAPSHOT" else="">
+				<istrue value="@{snapshot}" />
+			</condition>
 
-			<artifact:writepom pomRefId="prepare-@{artifact.name}" file="@{artifact.dir}/pom.xml" />
+			<prepare-portal-artifact-pom snapshot.version.suffix="${snapshot.version.suffix}" />
 
-			<artifact:pom file="@{artifact.dir}/pom.xml" id="@{artifact.name}" />
+			<artifact:install file="${artifact.name}.@{packaging}">
+				<pom file="pom.xml" />
+			</artifact:install>
 
-			<if>
-				<equals arg1="@{artifact.name}" arg2="portal-web" />
-				<then>
-					<artifact:install pomRefId="@{artifact.name}" file="@{artifact.dir}/@{artifact.name}.war" />
-				</then>
-				<else>
-					<artifact:install pomRefId="@{artifact.name}" file="@{artifact.dir}/@{artifact.name}.jar" />
-				</else>
-			</if>
+			<delete file="pom.xml" />
 
-			<delete file="@{artifact.dir}/pom.xml" />
+			<propertyfile file="../.gradle/gradle.properties">
+				<entry key="com.liferay.${processed.artifact.name}.version" value="${artifact.version}${snapshot.version.suffix}" />
+			</propertyfile>
 		</sequential>
 	</macrodef>
 
@@ -966,6 +957,7 @@ Please set the environment variable ANT_OPTS to the recommended value of
 				<jvmarg value="-Djava.net.preferIPv4Stack=true" />
 				<jvmarg value="-Dliferay.log.dir=${liferay.home}/logs" />
 				<jvmarg value="-Dliferay.mode=test" />
+				<jvmarg value="-Dosgi.state.dir=${liferay.home}/osgi/state" />
 				<misc />
 				<jvmarg value="-Duser.timezone=GMT" />
 				<classpath location="test-coverage" />
@@ -1018,7 +1010,7 @@ Please set the environment variable ANT_OPTS to the recommended value of
 					/>
 				</try>
 				<catch>
-					<ant dir="../portal-service" target="compile" inheritAll="false" />
+					<ant dir="../portal-kernel" target="compile" inheritAll="false" />
 					<ant dir="../util-java" target="compile" inheritAll="false" />
 
 					<taskdef
@@ -1037,6 +1029,36 @@ Please set the environment variable ANT_OPTS to the recommended value of
 		</sequential>
 	</macrodef>
 
+	<macrodef name="prepare-portal-artifact-pom">
+		<attribute name="snapshot.version.suffix" default="false" />
+
+		<sequential>
+			<property name="artifact.name" value="${ant.project.name}" />
+
+			<propertyregex
+				global="true"
+				input="${artifact.name}"
+				override="true"
+				property="processed.artifact.name"
+				regexp="-"
+				replace="."
+			/>
+
+			<property file="bnd.bnd" />
+
+			<property name="artifact.version" value="${Bundle-Version}" />
+
+			<copy file="../tools/maven/${artifact.name}.xml" tofile="pom.xml">
+				<filterchain>
+					<expandproperties />
+				</filterchain>
+				<filterset>
+					<filter token="version" value="${artifact.version}@{snapshot.version.suffix}" />
+				</filterset>
+			</copy>
+		</sequential>
+	</macrodef>
+
 	<macrodef name="print-current-time">
 		<sequential>
 			<local name="current.time" />
@@ -1046,6 +1068,47 @@ Please set the environment variable ANT_OPTS to the recommended value of
 			</tstamp>
 
 			<echo message="${current.time}" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="publish-portal-artifact">
+		<attribute name="packaging" default="jar" />
+		<attribute name="snapshot" default="false" />
+
+		<element name="attach-files" implicit="true" optional="true" />
+
+		<sequential>
+			<condition property="remote.repository.password" value="${sonatype.snapshot.password}" else="${sonatype.release.password}">
+				<istrue value="@{snapshot}" />
+			</condition>
+
+			<condition property="remote.repository.url" value="${sonatype.snapshot.url}" else="${sonatype.release.url}">
+				<istrue value="@{snapshot}" />
+			</condition>
+
+			<condition property="remote.repository.username" value="${sonatype.snapshot.username}" else="${sonatype.release.username}">
+				<istrue value="@{snapshot}" />
+			</condition>
+
+			<condition property="snapshot.version.suffix" value="-SNAPSHOT" else="">
+				<istrue value="@{snapshot}" />
+			</condition>
+
+			<prepare-portal-artifact-pom snapshot.version.suffix="${snapshot.version.suffix}" />
+
+			<artifact:deploy file="${artifact.name}.@{packaging}">
+				<attach-files />
+				<pom file="pom.xml" />
+				<remoteRepository url="${remote.repository.url}">
+					<authentication password="${remote.repository.password}" username="${remote.repository.username}" />
+				</remoteRepository>
+			</artifact:deploy>
+
+			<delete file="pom.xml" />
+
+			<propertyfile file="../.gradle/gradle.properties">
+				<entry key="com.liferay.${processed.artifact.name}.version" value="${artifact.version}${snapshot.version.suffix}" />
+			</propertyfile>
 		</sequential>
 	</macrodef>
 
@@ -1079,7 +1142,7 @@ Please set the environment variable ANT_OPTS to the recommended value of
 								<fileset dir="${project.dir}/portal-impl/src">
 									<include name="**/*.java" />
 								</fileset>
-								<fileset dir="${project.dir}/portal-service/src">
+								<fileset dir="${project.dir}/portal-kernel/src">
 									<include name="**/*.java" />
 								</fileset>
 								<fileset dir="${project.dir}/util-java/src">
@@ -1191,11 +1254,11 @@ Please set the environment variable ANT_OPTS to the recommended value of
 
 			<if>
 				<and>
-					<equals arg1="${basedir}" arg2="${project.dir}/portal-service" />
+					<equals arg1="${basedir}" arg2="${project.dir}/portal-kernel" />
 					<equals arg1="@{test.type}" arg2="unit" />
 				</and>
 				<then>
-					<var name="junit.classpath" value="${classpath.portal-service-unit}" />
+					<var name="junit.classpath" value="${classpath.portal-kernel-unit}" />
 				</then>
 			</if>
 
@@ -1216,6 +1279,7 @@ Please set the environment variable ANT_OPTS to the recommended value of
 				<fileset dir="${project.dir}/lib/development" includes="*.jar" excludes="jalopy.jar,jetty*.jar,tomcat*.jar" />
 				<fileset dir="${project.dir}/lib/global" includes="*.jar" />
 				<fileset dir="${project.dir}/lib/portal" includes="*.jar" excludes="ant.jar" />
+				<fileset dir="${sdk.dir}/dist" includes="com.liferay.portal.dao.db-*.jar" />
 			</path>
 		</sequential>
 	</macrodef>
@@ -1390,6 +1454,37 @@ rerun your task.
 				</sequential>
 			</for>
 
+			<for list="portal-impl,portal-kernel,portal-test,portal-test-internal,util-bridges,util-java,util-taglib" param="artifact.name">
+				<sequential>
+					<propertyregex
+						global="true"
+						input="@{artifact.name}"
+						override="true"
+						property="processed.artifact.name"
+						regexp="-"
+						replace="."
+					/>
+
+					<loadproperties srcFile="${basedir}/@{artifact.name}/bnd.bnd">
+						<filterchain>
+							<linecontains>
+								<contains value="Bundle-Version" />
+							</linecontains>
+						</filterchain>
+					</loadproperties>
+
+					<echo
+						append="true"
+						file="${basedir}/.gradle/gradle.properties"
+					>
+						com.liferay.${processed.artifact.name}.version=${Bundle-Version}-SNAPSHOT
+					</echo>
+
+					<var name="Bundle-Version" unset="true" />
+					<var name="processed.artifact.name" unset="true" />
+				</sequential>
+			</for>
+
 			<propertyselector
 				casesensitive="false"
 				delimiter="," match="ivy.pom.(.+)"
@@ -1427,6 +1522,39 @@ rerun your task.
 						</sequential>
 					</for>
 				</then>
+			</if>
+
+			<if>
+				<equals arg1="${jsp.precompile}" arg2="on" />
+				<then>
+					<var name="jsp.precompile.enabled" value="true" />
+				</then>
+				<else>
+					<var name="jsp.precompile.enabled" value="false" />
+				</else>
+			</if>
+
+			<exec executable="git" outputproperty="liferay.releng.branch">
+				<arg value="rev-parse" />
+				<arg value="--abbrev-ref" />
+				<arg value="HEAD" />
+			</exec>
+
+			<if>
+				<or>
+					<istrue value="${ee.override}" />
+					<matches pattern="ee-.+" string="${liferay.releng.branch}" />
+				</or>
+				<then>
+					<var name="liferay.releng.app.title.suffix" value="\s EE" />
+					<var name="liferay.releng.public" value="false" />
+					<var name="liferay.releng.supported" value="true" />
+				</then>
+				<else>
+					<var name="liferay.releng.app.title.suffix" value="" />
+					<var name="liferay.releng.public" value="true" />
+					<var name="liferay.releng.supported" value="false" />
+				</else>
 			</if>
 
 			<propertyselector
@@ -1474,15 +1602,24 @@ rerun your task.
 			>
 				app.server.type=${app.server.type}
 				auto.deploy.dir=${liferay.home}/osgi/apps
+				jsp.precompile.enabled=${jsp.precompile.enabled}
 				junit.java.integration.gc=${junit.java.integration.gc}
 				junit.java.unit.gc=${junit.java.unit.gc}
 				liferay.home=${liferay.home}
+				liferay.releng.app.title.suffix=${liferay.releng.app.title.suffix}
+				liferay.releng.public=${liferay.releng.public}
+				liferay.releng.supported=${liferay.releng.supported}
 				microsoft.translator.client.id=${microsoft.translator.client.id}
 				microsoft.translator.client.secret=${microsoft.translator.client.secret}
 				nodejs.npm.email=${nodejs.npm.email}
 				nodejs.npm.password=${nodejs.npm.password}
 				nodejs.npm.user=${nodejs.npm.user}
 				sass.compiler.class.name=${sass.compiler.class.name}
+				sass.generate.source.map=${sass.generate.source.map}
+				sass.precision=${sass.precision}
+				systemProp.build.performance.logger.enabled=${build.performance.logger.enabled}
+				systemProp.portal.build.modules.excludes=${build.modules.excludes}
+				systemProp.portal.build.modules.includes=${build.modules.includes}
 				upgrade.table.dir=${upgrade.table.dir}
 			</echo>
 		</sequential>
@@ -1671,23 +1808,25 @@ rerun your task.
 	<target name="format-javadoc">
 		<echo>Run "ant compile compile-test" before using format-javadoc to generate @Override tags.</echo>
 
+		<path id="javadoc.formatter.classpath">
+			<fileset dir="${portal.tools.dir}/javadoc-formatter" includes="*.jar" />
+			<path refid="project.classpath" />
+		</path>
+
 		<java
 			classname="com.liferay.javadoc.formatter.JavadocFormatter"
-			classpathref="portal.tools.classpath"
+			classpathref="javadoc.formatter.classpath"
 			fork="true"
 			newenvironment="true"
 		>
-			<jvmarg value="-Xmx1024m" />
+			<jvmarg value="-Xmx2048m" />
+			<arg value="javadoc.generate.xml=${generate.xml}" />
 			<arg value="javadoc.init=${init}" />
 			<arg value="javadoc.input.dir=${input.dir}" />
 			<arg value="javadoc.limit=${limit}" />
 			<arg value="javadoc.output.file.prefix=${output.file.prefix}" />
 			<arg value="javadoc.update=${update}" />
 		</java>
-	</target>
-
-	<target name="install-portal-snapshot">
-		<install-portal-snapshot artifact.name="${ant.project.name}" />
 	</target>
 
 	<target name="print-properties">
@@ -1777,7 +1916,7 @@ rerun your task.
 			</sequential>
 		</for>
 
-		<taskdef classpathref="portal.tools.classpath" resource="org/sonar/ant/antlib.xml" uri="antlib:org.sonar.ant" />
+		<taskdef classpath="${portal.tools.dir}/sonar/sonar-ant-task.jar" resource="org/sonar/ant/antlib.xml" uri="antlib:org.sonar.ant" />
 
 		<sonar:sonar />
 

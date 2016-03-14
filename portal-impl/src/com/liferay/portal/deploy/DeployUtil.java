@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.StreamUtil;
@@ -27,7 +28,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.spring.context.PortalContextLoaderListener;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.util.ant.CopyTask;
@@ -37,6 +37,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -262,20 +266,23 @@ public class DeployUtil {
 			return null;
 		}
 
-		String tmpDir = SystemProperties.get(SystemProperties.TMP_DIR);
+		Path tempDirPath = Files.createTempDirectory(
+			Paths.get(SystemProperties.get(SystemProperties.TMP_DIR)), null);
 
 		File file = new File(
-			tmpDir + "/liferay/com/liferay/portal/deploy/dependencies/" +
+			tempDirPath + "/liferay/com/liferay/portal/deploy/dependencies/" +
 				resource);
 
 		//if (!file.exists() || resource.startsWith("ext-")) {
-			File parentFile = file.getParentFile();
 
-			if (parentFile != null) {
-				FileUtil.mkdirs(parentFile);
-			}
+		File parentFile = file.getParentFile();
 
-			StreamUtil.transfer(inputStream, new FileOutputStream(file));
+		if (parentFile != null) {
+			FileUtil.mkdirs(parentFile);
+		}
+
+		StreamUtil.transfer(inputStream, new FileOutputStream(file));
+
 		//}
 
 		return FileUtil.getAbsolutePath(file);

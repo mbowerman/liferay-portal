@@ -86,9 +86,9 @@ public class DialectDetector {
 					sb.append("Liferay is configured to use Hypersonic as ");
 					sb.append("its database. Do NOT use Hypersonic in ");
 					sb.append("production. Hypersonic is an embedded ");
-					sb.append("database useful for development and demo'ing ");
-					sb.append("purposes. The database settings can be ");
-					sb.append("changed in portal-ext.properties.");
+					sb.append("database useful for development and ");
+					sb.append("demonstration purposes. The database settings ");
+					sb.append("can be changed in portal-ext.properties.");
 
 					_log.warn(sb.toString());
 				}
@@ -97,6 +97,11 @@ public class DialectDetector {
 					 (dbMajorVersion >= 15)) {
 
 				dialect = new SybaseASE157Dialect();
+			}
+			else if (dbName.equals("ASE")) {
+				throw new RuntimeException(
+					"jTDS is no longer suppported. Please use the Sybase " +
+						"JDBC driver to connect to Sybase.");
 			}
 			else if (dbName.startsWith("DB2") && (dbMajorVersion >= 9)) {
 				dialect = new DB2Dialect();
@@ -138,7 +143,9 @@ public class DialectDetector {
 		}
 		else if (dialectKey != null) {
 			if (_log.isInfoEnabled()) {
-				_log.info("Found dialect " + dialect.getClass().getName());
+				Class<?> clazz = dialect.getClass();
+
+				_log.info("Found dialect " + clazz.getName());
 			}
 
 			_dialects.put(dialectKey, dialect);

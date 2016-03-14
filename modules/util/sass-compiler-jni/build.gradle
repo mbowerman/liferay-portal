@@ -1,20 +1,6 @@
 import com.liferay.gradle.util.FileUtil
 import com.liferay.gradle.util.copy.StripPathSegmentsAction
 
-configurations {
-	jnaerator
-}
-
-dependencies {
-	compile group: "com.liferay", name: "com.liferay.sass.compiler.api", version: "2.0.0"
-
-	jnaerator classifier: "shaded", group: "com.nativelibs4java", name: "jnaerator", transitive: false, version: "0.11"
-
-	provided group: "com.nativelibs4java", name: "jnaerator-runtime", transitive: false, version: "0.11"
-	provided group: "com.nativelibs4java", name: "ochafik-util", transitive: false, version: "0.11"
-	provided group: "net.java.dev.jna", name: "jna", transitive: false, version: "4.1.0"
-}
-
 ext {
 	libSassVersion = "3.2.5"
 	sassSpecVersion = "f34eb8b4e6c9ba192fc37231a252af1ab79972fd"
@@ -40,7 +26,7 @@ buildLibSass_Darwin {
 		File buildShFile = new File(libSassDir, "build.sh")
 
 		buildShFile.write("""\
-LIBSASS_VERSION=\"${libSassVersion}\"
+LIBSASS_VERSION=\"${project.libSassVersion}\"
 autoreconf --force --install
 ./configure --disable-tests --enable-shared
 make -j5""")
@@ -69,14 +55,14 @@ buildLibSass_Linux_x86_64 {
 
 buildLibSass_Win32_x86 {
 	inputFileName = "sass.dll"
-	makeExecutable = "mingw32-make.exe shared"
+	makeExecutable = "mingw32-make.exe CC=gcc shared"
 	outputFileName = "liferaysass.dll"
 	resourcesDirName = "win32-x86"
 }
 
 buildLibSass_Win32_x86_64 {
 	inputFileName = "sass.dll"
-	makeExecutable = "mingw32-make.exe shared"
+	makeExecutable = "mingw32-make.exe CC=gcc shared"
 	outputFileName = "liferaysass.dll"
 	resourcesDirName = "win32-x86-64"
 }
@@ -85,8 +71,22 @@ compileJava {
 	dependsOn generateJNALibrary
 }
 
+configurations {
+	jnaerator
+}
+
+dependencies {
+	compile group: "com.liferay", name: "com.liferay.sass.compiler.api", version: "2.0.0"
+
+	jnaerator classifier: "shaded", group: "com.nativelibs4java", name: "jnaerator", transitive: false, version: "0.11"
+
+	provided group: "com.nativelibs4java", name: "jnaerator-runtime", transitive: false, version: "0.11"
+	provided group: "com.nativelibs4java", name: "ochafik-util", transitive: false, version: "0.11"
+	provided group: "net.java.dev.jna", name: "jna", transitive: false, version: "4.1.0"
+}
+
 downloadSassSpec {
-	File sassSpecDir = project.file("test/unit/com/liferay/sass/compiler/jni/internal/dependencies/sass-spec")
+	File sassSpecDir = file("src/test/resources/com/liferay/sass/compiler/jni/internal/dependencies/sass-spec")
 
 	eachFile new StripPathSegmentsAction(3)
 
@@ -95,10 +95,10 @@ downloadSassSpec {
 	}
 
 	from {
-		zipTree FileUtil.get(project, sassSpecUrl)
+		zipTree(FileUtil.get(project, project.sassSpecUrl))
 	}
 
-	include "**/spec/basic/**"
+	include "**/spec/basic/"
 	into sassSpecDir
 
 	onlyIf {
@@ -107,22 +107,22 @@ downloadSassSpec {
 }
 
 generateJNALibrary {
-	File jnaLibraryFile = project.file("src/com/liferay/sass/compiler/jni/internal/libsass/LiferaysassLibrary.java")
+	File jnaLibraryFile = file("src/main/java/com/liferay/sass/compiler/jni/internal/libsass/LiferaysassLibrary.java")
 
 	doLast {
 		copy {
-			from zipTree(FileUtil.get(project, libSassUrl))
+			from zipTree(FileUtil.get(project, project.libSassUrl))
 			into temporaryDir
 		}
 
-		File libSassDir = new File(temporaryDir, "libsass-${libSassVersion}")
+		File libSassDir = new File(temporaryDir, "libsass-${project.libSassVersion}")
 
 		javaexec {
 			args configurations.jnaerator.singleFile
 			args "-f"
 			args "-library", "liferaysass"
 			args "-mode", "Directory"
-			args "-o", FileUtil.relativize(file("src"), libSassDir)
+			args "-o", FileUtil.relativize(file("src/main/java"), libSassDir)
 			args "-package", "com.liferay.sass.compiler.jni.internal.libsass"
 			args "-runtime", "JNAerator"
 			args "sass_context.h"
@@ -173,7 +173,7 @@ class BuildLibSassTask extends DefaultTask {
 
 	@OutputDirectory
 	File getResourcesDir() {
-		project.file("resources/" + resourcesDirName)
+		project.file("src/main/resources/" + resourcesDirName)
 	}
 
 	@TaskAction

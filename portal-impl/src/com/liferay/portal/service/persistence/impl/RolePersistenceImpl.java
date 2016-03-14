@@ -16,7 +16,6 @@ package com.liferay.portal.service.persistence.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.NoSuchRoleException;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
@@ -28,8 +27,23 @@ import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.SQLQuery;
 import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.exception.NoSuchRoleException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.MVCCModel;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.service.persistence.CompanyProvider;
+import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
+import com.liferay.portal.kernel.service.persistence.GroupPersistence;
+import com.liferay.portal.kernel.service.persistence.RolePersistence;
+import com.liferay.portal.kernel.service.persistence.UserPersistence;
+import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
+import com.liferay.portal.kernel.service.persistence.impl.TableMapper;
+import com.liferay.portal.kernel.service.persistence.impl.TableMapperFactory;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
@@ -38,17 +52,8 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.MVCCModel;
-import com.liferay.portal.model.Role;
 import com.liferay.portal.model.impl.RoleImpl;
 import com.liferay.portal.model.impl.RoleModelImpl;
-import com.liferay.portal.security.permission.InlineSQLHelperUtil;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.ServiceContextThreadLocal;
-import com.liferay.portal.service.persistence.GroupPersistence;
-import com.liferay.portal.service.persistence.RolePersistence;
-import com.liferay.portal.service.persistence.UserPersistence;
 
 import java.io.Serializable;
 
@@ -71,7 +76,7 @@ import java.util.Set;
  *
  * @author Brian Wing Shun Chan
  * @see RolePersistence
- * @see com.liferay.portal.service.persistence.RoleUtil
+ * @see com.liferay.portal.kernel.service.persistence.RoleUtil
  * @generated
  */
 @ProviderType
@@ -217,7 +222,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -439,8 +444,9 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -604,10 +610,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(3 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -735,11 +741,12 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -1162,7 +1169,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -1402,11 +1409,12 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_ROLE_WHERE);
@@ -1568,7 +1576,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public List<Role> filterFindByUuid_C(String uuid, long companyId,
 		int start, int end, OrderByComparator<Role> orderByComparator) {
-		if (!InlineSQLHelperUtil.isEnabled()) {
+		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
@@ -1576,10 +1584,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(4 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(4);
+			query = new StringBundler(5);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -1677,7 +1685,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	public Role[] filterFindByUuid_C_PrevAndNext(long roleId, String uuid,
 		long companyId, OrderByComparator<Role> orderByComparator)
 		throws NoSuchRoleException {
-		if (!InlineSQLHelperUtil.isEnabled()) {
+		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return findByUuid_C_PrevAndNext(roleId, uuid, companyId,
 				orderByComparator);
 		}
@@ -1716,10 +1724,11 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(5);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -1959,7 +1968,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public int filterCountByUuid_C(String uuid, long companyId) {
-		if (!InlineSQLHelperUtil.isEnabled()) {
+		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
 		}
 
@@ -2147,7 +2156,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -2357,8 +2366,9 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -2501,7 +2511,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public List<Role> filterFindByCompanyId(long companyId, int start, int end,
 		OrderByComparator<Role> orderByComparator) {
-		if (!InlineSQLHelperUtil.isEnabled()) {
+		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
@@ -2509,10 +2519,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(3 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -2591,7 +2601,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	public Role[] filterFindByCompanyId_PrevAndNext(long roleId,
 		long companyId, OrderByComparator<Role> orderByComparator)
 		throws NoSuchRoleException {
-		if (!InlineSQLHelperUtil.isEnabled()) {
+		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return findByCompanyId_PrevAndNext(roleId, companyId,
 				orderByComparator);
 		}
@@ -2629,11 +2639,12 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -2834,7 +2845,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public int filterCountByCompanyId(long companyId) {
-		if (!InlineSQLHelperUtil.isEnabled()) {
+		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
 		}
 
@@ -2994,7 +3005,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -3216,8 +3227,9 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -3381,10 +3393,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(3 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -3512,11 +3524,12 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -3922,7 +3935,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -4130,8 +4143,9 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -4281,10 +4295,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(3 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -4398,11 +4412,12 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -4766,7 +4781,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -4990,8 +5005,9 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -5156,10 +5172,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(3 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -5288,11 +5304,12 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -5967,7 +5984,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -6192,11 +6209,12 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_ROLE_WHERE);
@@ -6344,7 +6362,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public List<Role> filterFindByC_T(long companyId, int type, int start,
 		int end, OrderByComparator<Role> orderByComparator) {
-		if (!InlineSQLHelperUtil.isEnabled()) {
+		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return findByC_T(companyId, type, start, end, orderByComparator);
 		}
 
@@ -6352,10 +6370,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(4 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(4);
+			query = new StringBundler(5);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -6439,7 +6457,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	public Role[] filterFindByC_T_PrevAndNext(long roleId, long companyId,
 		int type, OrderByComparator<Role> orderByComparator)
 		throws NoSuchRoleException {
-		if (!InlineSQLHelperUtil.isEnabled()) {
+		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return findByC_T_PrevAndNext(roleId, companyId, type,
 				orderByComparator);
 		}
@@ -6478,10 +6496,11 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(5);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -6663,7 +6682,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public List<Role> filterFindByC_T(long companyId, int[] types, int start,
 		int end, OrderByComparator<Role> orderByComparator) {
-		if (!InlineSQLHelperUtil.isEnabled()) {
+		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return findByC_T(companyId, types, start, end, orderByComparator);
 		}
 
@@ -7109,7 +7128,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public int filterCountByC_T(long companyId, int type) {
-		if (!InlineSQLHelperUtil.isEnabled()) {
+		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_T(companyId, type);
 		}
 
@@ -7161,7 +7180,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public int filterCountByC_T(long companyId, int[] types) {
-		if (!InlineSQLHelperUtil.isEnabled()) {
+		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_T(companyId, types);
 		}
 
@@ -7361,7 +7380,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -7600,11 +7619,12 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_ROLE_WHERE);
@@ -7774,10 +7794,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(4 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(4);
+			query = new StringBundler(5);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -7914,10 +7934,11 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(5);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -8664,6 +8685,8 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 		role.setUuid(uuid);
 
+		role.setCompanyId(companyProvider.getCompanyId());
+
 		return role;
 	}
 
@@ -8721,11 +8744,9 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	protected Role removeImpl(Role role) {
 		role = toUnwrappedModel(role);
 
-		roleToGroupTableMapper.deleteLeftPrimaryKeyTableMappings(0,
-			role.getPrimaryKey());
+		roleToGroupTableMapper.deleteLeftPrimaryKeyTableMappings(role.getPrimaryKey());
 
-		roleToUserTableMapper.deleteLeftPrimaryKeyTableMappings(0,
-			role.getPrimaryKey());
+		roleToUserTableMapper.deleteLeftPrimaryKeyTableMappings(role.getPrimaryKey());
 
 		Session session = null;
 
@@ -8992,13 +9013,12 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		roleImpl.setDescription(role.getDescription());
 		roleImpl.setType(role.getType());
 		roleImpl.setSubtype(role.getSubtype());
-		roleImpl.setLastPublishDate(role.getLastPublishDate());
 
 		return roleImpl;
 	}
 
 	/**
-	 * Returns the role with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the role with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the role
 	 * @return the role
@@ -9269,7 +9289,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(2 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 
 				query.append(_SQL_SELECT_ROLE);
 
@@ -9379,7 +9399,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public long[] getGroupPrimaryKeys(long pk) {
-		long[] pks = roleToGroupTableMapper.getRightPrimaryKeys(0, pk);
+		long[] pks = roleToGroupTableMapper.getRightPrimaryKeys(pk);
 
 		return pks.clone();
 	}
@@ -9391,7 +9411,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 * @return the groups associated with the role
 	 */
 	@Override
-	public List<com.liferay.portal.model.Group> getGroups(long pk) {
+	public List<com.liferay.portal.kernel.model.Group> getGroups(long pk) {
 		return getGroups(pk, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 	}
 
@@ -9408,8 +9428,8 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 * @return the range of groups associated with the role
 	 */
 	@Override
-	public List<com.liferay.portal.model.Group> getGroups(long pk, int start,
-		int end) {
+	public List<com.liferay.portal.kernel.model.Group> getGroups(long pk,
+		int start, int end) {
 		return getGroups(pk, start, end, null);
 	}
 
@@ -9427,10 +9447,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 * @return the ordered range of groups associated with the role
 	 */
 	@Override
-	public List<com.liferay.portal.model.Group> getGroups(long pk, int start,
-		int end,
-		OrderByComparator<com.liferay.portal.model.Group> orderByComparator) {
-		return roleToGroupTableMapper.getRightBaseModels(0, pk, start, end,
+	public List<com.liferay.portal.kernel.model.Group> getGroups(long pk,
+		int start, int end,
+		OrderByComparator<com.liferay.portal.kernel.model.Group> orderByComparator) {
+		return roleToGroupTableMapper.getRightBaseModels(pk, start, end,
 			orderByComparator);
 	}
 
@@ -9442,7 +9462,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public int getGroupsSize(long pk) {
-		long[] pks = roleToGroupTableMapper.getRightPrimaryKeys(0, pk);
+		long[] pks = roleToGroupTableMapper.getRightPrimaryKeys(pk);
 
 		return pks.length;
 	}
@@ -9456,7 +9476,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public boolean containsGroup(long pk, long groupPK) {
-		return roleToGroupTableMapper.containsTableMapping(0, pk, groupPK);
+		return roleToGroupTableMapper.containsTableMapping(pk, groupPK);
 	}
 
 	/**
@@ -9483,7 +9503,16 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void addGroup(long pk, long groupPK) {
-		roleToGroupTableMapper.addTableMapping(0, pk, groupPK);
+		Role role = fetchByPrimaryKey(pk);
+
+		if (role == null) {
+			roleToGroupTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, groupPK);
+		}
+		else {
+			roleToGroupTableMapper.addTableMapping(role.getCompanyId(), pk,
+				groupPK);
+		}
 	}
 
 	/**
@@ -9493,8 +9522,17 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 * @param group the group
 	 */
 	@Override
-	public void addGroup(long pk, com.liferay.portal.model.Group group) {
-		roleToGroupTableMapper.addTableMapping(0, pk, group.getPrimaryKey());
+	public void addGroup(long pk, com.liferay.portal.kernel.model.Group group) {
+		Role role = fetchByPrimaryKey(pk);
+
+		if (role == null) {
+			roleToGroupTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, group.getPrimaryKey());
+		}
+		else {
+			roleToGroupTableMapper.addTableMapping(role.getCompanyId(), pk,
+				group.getPrimaryKey());
+		}
 	}
 
 	/**
@@ -9505,8 +9543,19 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void addGroups(long pk, long[] groupPKs) {
+		long companyId = 0;
+
+		Role role = fetchByPrimaryKey(pk);
+
+		if (role == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = role.getCompanyId();
+		}
+
 		for (long groupPK : groupPKs) {
-			roleToGroupTableMapper.addTableMapping(0, pk, groupPK);
+			roleToGroupTableMapper.addTableMapping(companyId, pk, groupPK);
 		}
 	}
 
@@ -9517,9 +9566,22 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 * @param groups the groups
 	 */
 	@Override
-	public void addGroups(long pk, List<com.liferay.portal.model.Group> groups) {
-		for (com.liferay.portal.model.Group group : groups) {
-			roleToGroupTableMapper.addTableMapping(0, pk, group.getPrimaryKey());
+	public void addGroups(long pk,
+		List<com.liferay.portal.kernel.model.Group> groups) {
+		long companyId = 0;
+
+		Role role = fetchByPrimaryKey(pk);
+
+		if (role == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = role.getCompanyId();
+		}
+
+		for (com.liferay.portal.kernel.model.Group group : groups) {
+			roleToGroupTableMapper.addTableMapping(companyId, pk,
+				group.getPrimaryKey());
 		}
 	}
 
@@ -9530,7 +9592,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void clearGroups(long pk) {
-		roleToGroupTableMapper.deleteLeftPrimaryKeyTableMappings(0, pk);
+		roleToGroupTableMapper.deleteLeftPrimaryKeyTableMappings(pk);
 	}
 
 	/**
@@ -9541,7 +9603,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void removeGroup(long pk, long groupPK) {
-		roleToGroupTableMapper.deleteTableMapping(0, pk, groupPK);
+		roleToGroupTableMapper.deleteTableMapping(pk, groupPK);
 	}
 
 	/**
@@ -9551,8 +9613,8 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 * @param group the group
 	 */
 	@Override
-	public void removeGroup(long pk, com.liferay.portal.model.Group group) {
-		roleToGroupTableMapper.deleteTableMapping(0, pk, group.getPrimaryKey());
+	public void removeGroup(long pk, com.liferay.portal.kernel.model.Group group) {
+		roleToGroupTableMapper.deleteTableMapping(pk, group.getPrimaryKey());
 	}
 
 	/**
@@ -9564,7 +9626,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public void removeGroups(long pk, long[] groupPKs) {
 		for (long groupPK : groupPKs) {
-			roleToGroupTableMapper.deleteTableMapping(0, pk, groupPK);
+			roleToGroupTableMapper.deleteTableMapping(pk, groupPK);
 		}
 	}
 
@@ -9576,10 +9638,9 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void removeGroups(long pk,
-		List<com.liferay.portal.model.Group> groups) {
-		for (com.liferay.portal.model.Group group : groups) {
-			roleToGroupTableMapper.deleteTableMapping(0, pk,
-				group.getPrimaryKey());
+		List<com.liferay.portal.kernel.model.Group> groups) {
+		for (com.liferay.portal.kernel.model.Group group : groups) {
+			roleToGroupTableMapper.deleteTableMapping(pk, group.getPrimaryKey());
 		}
 	}
 
@@ -9593,20 +9654,31 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	public void setGroups(long pk, long[] groupPKs) {
 		Set<Long> newGroupPKsSet = SetUtil.fromArray(groupPKs);
 		Set<Long> oldGroupPKsSet = SetUtil.fromArray(roleToGroupTableMapper.getRightPrimaryKeys(
-					0, pk));
+					pk));
 
 		Set<Long> removeGroupPKsSet = new HashSet<Long>(oldGroupPKsSet);
 
 		removeGroupPKsSet.removeAll(newGroupPKsSet);
 
 		for (long removeGroupPK : removeGroupPKsSet) {
-			roleToGroupTableMapper.deleteTableMapping(0, pk, removeGroupPK);
+			roleToGroupTableMapper.deleteTableMapping(pk, removeGroupPK);
 		}
 
 		newGroupPKsSet.removeAll(oldGroupPKsSet);
 
+		long companyId = 0;
+
+		Role role = fetchByPrimaryKey(pk);
+
+		if (role == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = role.getCompanyId();
+		}
+
 		for (long newGroupPK : newGroupPKsSet) {
-			roleToGroupTableMapper.addTableMapping(0, pk, newGroupPK);
+			roleToGroupTableMapper.addTableMapping(companyId, pk, newGroupPK);
 		}
 	}
 
@@ -9617,12 +9689,13 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 * @param groups the groups to be associated with the role
 	 */
 	@Override
-	public void setGroups(long pk, List<com.liferay.portal.model.Group> groups) {
+	public void setGroups(long pk,
+		List<com.liferay.portal.kernel.model.Group> groups) {
 		try {
 			long[] groupPKs = new long[groups.size()];
 
 			for (int i = 0; i < groups.size(); i++) {
-				com.liferay.portal.model.Group group = groups.get(i);
+				com.liferay.portal.kernel.model.Group group = groups.get(i);
 
 				groupPKs[i] = group.getPrimaryKey();
 			}
@@ -9642,7 +9715,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public long[] getUserPrimaryKeys(long pk) {
-		long[] pks = roleToUserTableMapper.getRightPrimaryKeys(0, pk);
+		long[] pks = roleToUserTableMapper.getRightPrimaryKeys(pk);
 
 		return pks.clone();
 	}
@@ -9654,7 +9727,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 * @return the users associated with the role
 	 */
 	@Override
-	public List<com.liferay.portal.model.User> getUsers(long pk) {
+	public List<com.liferay.portal.kernel.model.User> getUsers(long pk) {
 		return getUsers(pk, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 	}
 
@@ -9671,8 +9744,8 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 * @return the range of users associated with the role
 	 */
 	@Override
-	public List<com.liferay.portal.model.User> getUsers(long pk, int start,
-		int end) {
+	public List<com.liferay.portal.kernel.model.User> getUsers(long pk,
+		int start, int end) {
 		return getUsers(pk, start, end, null);
 	}
 
@@ -9690,10 +9763,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 * @return the ordered range of users associated with the role
 	 */
 	@Override
-	public List<com.liferay.portal.model.User> getUsers(long pk, int start,
-		int end,
-		OrderByComparator<com.liferay.portal.model.User> orderByComparator) {
-		return roleToUserTableMapper.getRightBaseModels(0, pk, start, end,
+	public List<com.liferay.portal.kernel.model.User> getUsers(long pk,
+		int start, int end,
+		OrderByComparator<com.liferay.portal.kernel.model.User> orderByComparator) {
+		return roleToUserTableMapper.getRightBaseModels(pk, start, end,
 			orderByComparator);
 	}
 
@@ -9705,7 +9778,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public int getUsersSize(long pk) {
-		long[] pks = roleToUserTableMapper.getRightPrimaryKeys(0, pk);
+		long[] pks = roleToUserTableMapper.getRightPrimaryKeys(pk);
 
 		return pks.length;
 	}
@@ -9719,7 +9792,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public boolean containsUser(long pk, long userPK) {
-		return roleToUserTableMapper.containsTableMapping(0, pk, userPK);
+		return roleToUserTableMapper.containsTableMapping(pk, userPK);
 	}
 
 	/**
@@ -9746,7 +9819,16 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void addUser(long pk, long userPK) {
-		roleToUserTableMapper.addTableMapping(0, pk, userPK);
+		Role role = fetchByPrimaryKey(pk);
+
+		if (role == null) {
+			roleToUserTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, userPK);
+		}
+		else {
+			roleToUserTableMapper.addTableMapping(role.getCompanyId(), pk,
+				userPK);
+		}
 	}
 
 	/**
@@ -9756,8 +9838,17 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 * @param user the user
 	 */
 	@Override
-	public void addUser(long pk, com.liferay.portal.model.User user) {
-		roleToUserTableMapper.addTableMapping(0, pk, user.getPrimaryKey());
+	public void addUser(long pk, com.liferay.portal.kernel.model.User user) {
+		Role role = fetchByPrimaryKey(pk);
+
+		if (role == null) {
+			roleToUserTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, user.getPrimaryKey());
+		}
+		else {
+			roleToUserTableMapper.addTableMapping(role.getCompanyId(), pk,
+				user.getPrimaryKey());
+		}
 	}
 
 	/**
@@ -9768,8 +9859,19 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void addUsers(long pk, long[] userPKs) {
+		long companyId = 0;
+
+		Role role = fetchByPrimaryKey(pk);
+
+		if (role == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = role.getCompanyId();
+		}
+
 		for (long userPK : userPKs) {
-			roleToUserTableMapper.addTableMapping(0, pk, userPK);
+			roleToUserTableMapper.addTableMapping(companyId, pk, userPK);
 		}
 	}
 
@@ -9780,9 +9882,22 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 * @param users the users
 	 */
 	@Override
-	public void addUsers(long pk, List<com.liferay.portal.model.User> users) {
-		for (com.liferay.portal.model.User user : users) {
-			roleToUserTableMapper.addTableMapping(0, pk, user.getPrimaryKey());
+	public void addUsers(long pk,
+		List<com.liferay.portal.kernel.model.User> users) {
+		long companyId = 0;
+
+		Role role = fetchByPrimaryKey(pk);
+
+		if (role == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = role.getCompanyId();
+		}
+
+		for (com.liferay.portal.kernel.model.User user : users) {
+			roleToUserTableMapper.addTableMapping(companyId, pk,
+				user.getPrimaryKey());
 		}
 	}
 
@@ -9793,7 +9908,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void clearUsers(long pk) {
-		roleToUserTableMapper.deleteLeftPrimaryKeyTableMappings(0, pk);
+		roleToUserTableMapper.deleteLeftPrimaryKeyTableMappings(pk);
 	}
 
 	/**
@@ -9804,7 +9919,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void removeUser(long pk, long userPK) {
-		roleToUserTableMapper.deleteTableMapping(0, pk, userPK);
+		roleToUserTableMapper.deleteTableMapping(pk, userPK);
 	}
 
 	/**
@@ -9814,8 +9929,8 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 * @param user the user
 	 */
 	@Override
-	public void removeUser(long pk, com.liferay.portal.model.User user) {
-		roleToUserTableMapper.deleteTableMapping(0, pk, user.getPrimaryKey());
+	public void removeUser(long pk, com.liferay.portal.kernel.model.User user) {
+		roleToUserTableMapper.deleteTableMapping(pk, user.getPrimaryKey());
 	}
 
 	/**
@@ -9827,7 +9942,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public void removeUsers(long pk, long[] userPKs) {
 		for (long userPK : userPKs) {
-			roleToUserTableMapper.deleteTableMapping(0, pk, userPK);
+			roleToUserTableMapper.deleteTableMapping(pk, userPK);
 		}
 	}
 
@@ -9838,9 +9953,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 * @param users the users
 	 */
 	@Override
-	public void removeUsers(long pk, List<com.liferay.portal.model.User> users) {
-		for (com.liferay.portal.model.User user : users) {
-			roleToUserTableMapper.deleteTableMapping(0, pk, user.getPrimaryKey());
+	public void removeUsers(long pk,
+		List<com.liferay.portal.kernel.model.User> users) {
+		for (com.liferay.portal.kernel.model.User user : users) {
+			roleToUserTableMapper.deleteTableMapping(pk, user.getPrimaryKey());
 		}
 	}
 
@@ -9854,20 +9970,31 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	public void setUsers(long pk, long[] userPKs) {
 		Set<Long> newUserPKsSet = SetUtil.fromArray(userPKs);
 		Set<Long> oldUserPKsSet = SetUtil.fromArray(roleToUserTableMapper.getRightPrimaryKeys(
-					0, pk));
+					pk));
 
 		Set<Long> removeUserPKsSet = new HashSet<Long>(oldUserPKsSet);
 
 		removeUserPKsSet.removeAll(newUserPKsSet);
 
 		for (long removeUserPK : removeUserPKsSet) {
-			roleToUserTableMapper.deleteTableMapping(0, pk, removeUserPK);
+			roleToUserTableMapper.deleteTableMapping(pk, removeUserPK);
 		}
 
 		newUserPKsSet.removeAll(oldUserPKsSet);
 
+		long companyId = 0;
+
+		Role role = fetchByPrimaryKey(pk);
+
+		if (role == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = role.getCompanyId();
+		}
+
 		for (long newUserPK : newUserPKsSet) {
-			roleToUserTableMapper.addTableMapping(0, pk, newUserPK);
+			roleToUserTableMapper.addTableMapping(companyId, pk, newUserPK);
 		}
 	}
 
@@ -9878,12 +10005,13 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 * @param users the users to be associated with the role
 	 */
 	@Override
-	public void setUsers(long pk, List<com.liferay.portal.model.User> users) {
+	public void setUsers(long pk,
+		List<com.liferay.portal.kernel.model.User> users) {
 		try {
 			long[] userPKs = new long[users.size()];
 
 			for (int i = 0; i < users.size(); i++) {
-				com.liferay.portal.model.User user = users.get(i);
+				com.liferay.portal.kernel.model.User user = users.get(i);
 
 				userPKs[i] = user.getPrimaryKey();
 			}
@@ -9926,14 +10054,16 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		TableMapperFactory.removeTableMapper("Users_Roles");
 	}
 
+	@BeanReference(type = CompanyProviderWrapper.class)
+	protected CompanyProvider companyProvider;
 	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
 	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();
 	@BeanReference(type = GroupPersistence.class)
 	protected GroupPersistence groupPersistence;
-	protected TableMapper<Role, com.liferay.portal.model.Group> roleToGroupTableMapper;
+	protected TableMapper<Role, com.liferay.portal.kernel.model.Group> roleToGroupTableMapper;
 	@BeanReference(type = UserPersistence.class)
 	protected UserPersistence userPersistence;
-	protected TableMapper<Role, com.liferay.portal.model.User> roleToUserTableMapper;
+	protected TableMapper<Role, com.liferay.portal.kernel.model.User> roleToUserTableMapper;
 	private static final String _SQL_SELECT_ROLE = "SELECT role FROM Role role";
 	private static final String _SQL_SELECT_ROLE_WHERE_PKS_IN = "SELECT role FROM Role role WHERE roleId IN (";
 	private static final String _SQL_SELECT_ROLE_WHERE = "SELECT role FROM Role role WHERE ";

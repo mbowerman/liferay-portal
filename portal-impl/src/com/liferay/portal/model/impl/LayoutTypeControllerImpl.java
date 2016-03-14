@@ -17,19 +17,18 @@ package com.liferay.portal.model.impl;
 import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
-import com.liferay.portal.kernel.servlet.BrowserSnifferUtil;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutConstants;
+import com.liferay.portal.kernel.model.LayoutTypeController;
 import com.liferay.portal.kernel.servlet.DirectRequestDispatcherFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.model.LayoutConstants;
-import com.liferay.portal.model.LayoutTypeController;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.struts.StrutsUtil;
 import com.liferay.portal.util.PropsUtil;
-import com.liferay.portal.util.WebKeys;
 import com.liferay.taglib.servlet.PipingServletResponse;
 
 import java.util.Collection;
@@ -99,12 +98,8 @@ public class LayoutTypeControllerImpl implements LayoutTypeController {
 		return _url;
 	}
 
-	public String getViewPath(String portletId, boolean wap) {
+	public String getViewPath(String portletId) {
 		String path = StrutsUtil.TEXT_HTML_DIR;
-
-		if (wap) {
-			path = StrutsUtil.TEXT_WAP_DIR;
-		}
 
 		// Manually check the p_p_id. See LEP-1724.
 
@@ -157,7 +152,7 @@ public class LayoutTypeControllerImpl implements LayoutTypeController {
 
 		String portletId = ParamUtil.getString(request, "p_p_id");
 
-		String path = getViewPath(portletId, BrowserSnifferUtil.isWap(request));
+		String path = getViewPath(portletId);
 
 		RequestDispatcher requestDispatcher =
 			DirectRequestDispatcherFactoryUtil.getRequestDispatcher(
@@ -233,8 +228,8 @@ public class LayoutTypeControllerImpl implements LayoutTypeController {
 
 			return values.contains(friendlyURL);
 		}
-		catch (SystemException e) {
-			throw new RuntimeException(e);
+		catch (SystemException se) {
+			throw new RuntimeException(se);
 		}
 	}
 

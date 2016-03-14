@@ -14,6 +14,25 @@
 
 package com.liferay.portlet.messageboards.service.impl;
 
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.model.AssetLinkConstants;
+import com.liferay.document.library.kernel.model.DLFolderConstants;
+import com.liferay.message.boards.kernel.constants.MBConstants;
+import com.liferay.message.boards.kernel.exception.DiscussionMaxCommentsException;
+import com.liferay.message.boards.kernel.exception.MessageBodyException;
+import com.liferay.message.boards.kernel.exception.MessageSubjectException;
+import com.liferay.message.boards.kernel.exception.NoSuchThreadException;
+import com.liferay.message.boards.kernel.exception.RequiredMessageException;
+import com.liferay.message.boards.kernel.model.MBCategory;
+import com.liferay.message.boards.kernel.model.MBCategoryConstants;
+import com.liferay.message.boards.kernel.model.MBDiscussion;
+import com.liferay.message.boards.kernel.model.MBMessage;
+import com.liferay.message.boards.kernel.model.MBMessageConstants;
+import com.liferay.message.boards.kernel.model.MBMessageDisplay;
+import com.liferay.message.boards.kernel.model.MBThread;
+import com.liferay.message.boards.kernel.model.MBThreadConstants;
+import com.liferay.message.boards.kernel.util.comparator.MessageCreateDateComparator;
+import com.liferay.message.boards.kernel.util.comparator.MessageThreadComparator;
 import com.liferay.portal.kernel.comment.Comment;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -21,10 +40,17 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.ModelHintsUtil;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.SystemEventConstants;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.notifications.UserNotificationDefinition;
 import com.liferay.portal.kernel.parsers.bbcode.BBCodeTranslatorUtil;
 import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.portlet.PortletProviderUtil;
+import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.sanitizer.Sanitizer;
@@ -33,62 +59,39 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.settings.LocalizedValuesMap;
 import com.liferay.portal.kernel.social.SocialActivityManagerUtil;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.SubscriptionSender;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.portal.kernel.workflow.WorkflowThreadLocal;
-import com.liferay.portal.model.Company;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.ModelHintsUtil;
-import com.liferay.portal.model.ResourceConstants;
-import com.liferay.portal.model.SystemEventConstants;
-import com.liferay.portal.model.User;
-import com.liferay.portal.portletfilerepository.PortletFileRepositoryUtil;
-import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.permission.ModelPermissions;
-import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.LayoutURLUtil;
-import com.liferay.portal.util.Portal;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.SubscriptionSender;
-import com.liferay.portlet.asset.model.AssetEntry;
-import com.liferay.portlet.asset.model.AssetLinkConstants;
 import com.liferay.portlet.blogs.util.LinkbackProducerUtil;
-import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
-import com.liferay.portlet.messageboards.DiscussionMaxCommentsException;
 import com.liferay.portlet.messageboards.MBGroupServiceSettings;
-import com.liferay.portlet.messageboards.MessageBodyException;
-import com.liferay.portlet.messageboards.MessageSubjectException;
-import com.liferay.portlet.messageboards.NoSuchThreadException;
-import com.liferay.portlet.messageboards.RequiredMessageException;
-import com.liferay.portlet.messageboards.constants.MBConstants;
-import com.liferay.portlet.messageboards.model.MBCategory;
-import com.liferay.portlet.messageboards.model.MBCategoryConstants;
-import com.liferay.portlet.messageboards.model.MBDiscussion;
-import com.liferay.portlet.messageboards.model.MBMessage;
-import com.liferay.portlet.messageboards.model.MBMessageConstants;
-import com.liferay.portlet.messageboards.model.MBMessageDisplay;
-import com.liferay.portlet.messageboards.model.MBThread;
-import com.liferay.portlet.messageboards.model.MBThreadConstants;
 import com.liferay.portlet.messageboards.model.impl.MBCategoryImpl;
 import com.liferay.portlet.messageboards.model.impl.MBMessageDisplayImpl;
 import com.liferay.portlet.messageboards.service.base.MBMessageLocalServiceBaseImpl;
@@ -97,11 +100,8 @@ import com.liferay.portlet.messageboards.social.MBActivityKeys;
 import com.liferay.portlet.messageboards.util.MBSubscriptionSender;
 import com.liferay.portlet.messageboards.util.MBUtil;
 import com.liferay.portlet.messageboards.util.MailingListThreadLocal;
-import com.liferay.portlet.messageboards.util.comparator.MessageCreateDateComparator;
-import com.liferay.portlet.messageboards.util.comparator.MessageThreadComparator;
-import com.liferay.portlet.messageboards.util.comparator.ThreadLastPostDateComparator;
-import com.liferay.portlet.social.model.SocialActivityConstants;
-import com.liferay.portlet.trash.util.TrashUtil;
+import com.liferay.social.kernel.model.SocialActivityConstants;
+import com.liferay.trash.kernel.util.TrashUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -184,7 +184,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 				subject = body.substring(0, pos) + "...";
 			}
 			else {
-				throw new MessageBodyException();
+				throw new MessageBodyException("Body is null");
 			}
 		}
 
@@ -1025,9 +1025,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			}
 		}
 
-		return getMessageDisplay(
-			userId, message, status, MBThreadConstants.THREAD_VIEW_COMBINATION,
-			false, comparator);
+		return getMessageDisplay(userId, message, status, comparator);
 	}
 
 	/**
@@ -1172,6 +1170,21 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 	@Override
 	public MBMessageDisplay getMessageDisplay(
+			long userId, long messageId, int status)
+		throws PortalException {
+
+		MBMessage message = getMessage(messageId);
+
+		return getMessageDisplay(userId, message, status);
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #getMessageDisplay(long,
+	 *             long, int)}
+	 */
+	@Deprecated
+	@Override
+	public MBMessageDisplay getMessageDisplay(
 			long userId, long messageId, int status, String threadView,
 			boolean includePrevAndNext)
 		throws PortalException {
@@ -1184,19 +1197,17 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 	@Override
 	public MBMessageDisplay getMessageDisplay(
-			long userId, MBMessage message, int status, String threadView,
-			boolean includePrevAndNext)
+			long userId, MBMessage message, int status)
 		throws PortalException {
 
 		return getMessageDisplay(
-			userId, message, status, threadView, includePrevAndNext,
-			new MessageThreadComparator());
+			userId, message, status, new MessageThreadComparator());
 	}
 
 	@Override
 	public MBMessageDisplay getMessageDisplay(
-			long userId, MBMessage message, int status, String threadView,
-			boolean includePrevAndNext, Comparator<MBMessage> comparator)
+			long userId, MBMessage message, int status,
+			Comparator<MBMessage> comparator)
 		throws PortalException {
 
 		MBCategory category = null;
@@ -1234,38 +1245,44 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 				StringPool.BLANK, 0);
 		}
 
-		MBThread previousThread = null;
-		MBThread nextThread = null;
+		return new MBMessageDisplayImpl(
+			message, parentMessage, category, thread, status, this, comparator);
+	}
 
-		if (message.isApproved() && includePrevAndNext) {
-			ThreadLastPostDateComparator threadLastPostDateComparator =
-				new ThreadLastPostDateComparator(false);
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #getMessageDisplay(long,
+	 *             MBMessage, int)}
+	 */
+	@Deprecated
+	@Override
+	public MBMessageDisplay getMessageDisplay(
+			long userId, MBMessage message, int status, String threadView,
+			boolean includePrevAndNext)
+		throws PortalException {
 
-			MBThread[] prevAndNextThreads = null;
+		return getMessageDisplay(
+			userId, message, status, threadView, includePrevAndNext,
+			new MessageThreadComparator());
+	}
 
-			if (status == WorkflowConstants.STATUS_ANY) {
-				prevAndNextThreads =
-					mbThreadPersistence.filterFindByG_C_NotS_PrevAndNext(
-						message.getThreadId(), message.getGroupId(),
-						message.getCategoryId(),
-						WorkflowConstants.STATUS_IN_TRASH,
-						threadLastPostDateComparator);
-			}
-			else {
-				prevAndNextThreads =
-					mbThreadPersistence.filterFindByG_C_S_PrevAndNext(
-						message.getThreadId(), message.getGroupId(),
-						message.getCategoryId(), status,
-						threadLastPostDateComparator);
-			}
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #getMessageDisplay(long,
+	 *             MBMessage, int, Comparator)} (
+	 */
+	@Deprecated
+	@Override
+	public MBMessageDisplay getMessageDisplay(
+			long userId, MBMessage message, int status, String threadView,
+			boolean includePrevAndNext, Comparator<MBMessage> comparator)
+		throws PortalException {
 
-			previousThread = prevAndNextThreads[0];
-			nextThread = prevAndNextThreads[2];
-		}
+		MBMessageDisplay messageDisplay = getMessageDisplay(
+			userId, message, status, comparator);
 
 		return new MBMessageDisplayImpl(
-			message, parentMessage, category, thread, previousThread,
-			nextThread, status, threadView, this, comparator);
+			messageDisplay.getMessage(), messageDisplay.getParentMessage(),
+			messageDisplay.getCategory(), messageDisplay.getThread(), null,
+			null, status, threadView, this, comparator);
 	}
 
 	@Override
@@ -1538,7 +1555,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 				subject = body.substring(0, pos) + "...";
 			}
 			else {
-				throw new MessageBodyException();
+				throw new MessageBodyException("Body is null");
 			}
 		}
 
@@ -1826,7 +1843,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 					assetEntryLocalService.updateEntry(
 						message.getWorkflowClassName(), message.getMessageId(),
-						publishDate, true);
+						publishDate, null, true, true);
 				}
 
 				if (serviceContext.isCommandAdd()) {
@@ -1836,9 +1853,15 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 					JSONObject extraDataJSONObject =
 						JSONFactoryUtil.createJSONObject();
 
-					extraDataJSONObject.put("title", message.getSubject());
+					String title = message.getSubject();
 
-					if (!message.isDiscussion() ) {
+					if (message.isDiscussion()) {
+						title = HtmlUtil.stripHtml(title);
+					}
+
+					extraDataJSONObject.put("title", title);
+
+					if (!message.isDiscussion()) {
 						if (!message.isAnonymous() && !user.isDefaultUser()) {
 							long receiverUserId = 0;
 
@@ -1989,7 +2012,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 				MBMessage.class.getName(), PortletProvider.Action.MANAGE);
 
 			PortletURL portletURL = PortalUtil.getControlPanelPortletURL(
-				request, portletId, 0, PortletRequest.RENDER_PHASE);
+				request, portletId, PortletRequest.RENDER_PHASE);
 
 			portletURL.setParameter(
 				"mvcRenderCommandName", "/message_boards/view_message");
@@ -2285,8 +2308,8 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			}
 			catch (Exception e) {
 				_log.error(
-					"Could not parse message " + message.getMessageId() +
-						" " + e.getMessage());
+					"Could not parse message " + message.getMessageId() + " " +
+						e.getMessage());
 			}
 		}
 
@@ -2419,8 +2442,9 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			userId, message.getGroupId(), message.getCreateDate(),
 			message.getModifiedDate(), message.getWorkflowClassName(),
 			message.getMessageId(), message.getUuid(), 0, assetCategoryIds,
-			assetTagNames, visible, null, null, null, ContentTypes.TEXT_HTML,
-			message.getSubject(), null, null, null, null, 0, 0, null);
+			assetTagNames, true, visible, null, null, null,
+			ContentTypes.TEXT_HTML, message.getSubject(), null, null, null,
+			null, 0, 0, message.getPriority());
 
 		assetLinkLocalService.updateLinks(
 			userId, assetEntry.getEntryId(), assetLinkEntryIds,
@@ -2525,7 +2549,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 		throws PortalException {
 
 		if (Validator.isNull(subject) && Validator.isNull(body)) {
-			throw new MessageSubjectException();
+			throw new MessageSubjectException("Subject and body are null");
 		}
 	}
 
@@ -2540,7 +2564,9 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			className, classPK, WorkflowConstants.STATUS_APPROVED);
 
 		if (count >= PropsValues.DISCUSSION_MAX_COMMENTS) {
-			throw new DiscussionMaxCommentsException();
+			int max = PropsValues.DISCUSSION_MAX_COMMENTS - 1;
+
+			throw new DiscussionMaxCommentsException(count + " exceeds " + max);
 		}
 	}
 

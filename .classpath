@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="definitions"/>
-	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="modules/core/registry-api/src"/>
+	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="modules/core/registry-api/src/main/java"/>
 	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="portal-impl/src"/>
 	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="portal-impl/test/integration"/>
 	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="portal-impl/test/unit"/>
-	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="portal-service/src"/>
-	<!--<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="portal-service/test/integration"/>-->
-	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="portal-service/test/unit"/>
+	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="portal-kernel/src"/>
+	<!--<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="portal-kernel/test/integration"/>-->
+	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="portal-kernel/test/unit"/>
 	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="portal-test/src"/>
 	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="portal-test-internal/src"/>
 	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="portal-web/test/functional"/>
@@ -49,7 +49,6 @@
 	<classpathentry kind="lib" path="lib/development/jargs.jar"/>
 	<classpathentry kind="lib" path="lib/development/jarjar.jar"/>
 	<classpathentry kind="lib" path="lib/development/jasper.jar"/>
-	<classpathentry kind="lib" path="lib/development/javacpp.jar"/>
 	<classpathentry kind="lib" path="lib/development/jaxb-api.jar"/>
 	<classpathentry kind="lib" path="lib/development/jbi_rt.jar"/>
 	<classpathentry kind="lib" path="lib/development/jetty-server.jar"/>
@@ -66,17 +65,15 @@
 	<classpathentry kind="lib" path="lib/development/jymsg.jar"/>
 	<classpathentry kind="lib" path="lib/development/liferay-doclet.jar"/>
 	<classpathentry kind="lib" path="lib/development/mail.jar"/>
+	<classpathentry kind="lib" path="lib/development/mariadb.jar"/>
 	<classpathentry kind="lib" path="lib/development/maven-ant-tasks.jar"/>
 	<classpathentry kind="lib" path="lib/development/mockito.jar"/>
 	<classpathentry kind="lib" path="lib/development/mysql.jar"/>
 	<classpathentry kind="lib" path="lib/development/objenesis.jar"/>
-	<classpathentry kind="lib" path="lib/development/opencv.jar"/>
 	<classpathentry kind="lib" path="lib/development/orangevolt-ant-tasks.jar"/>
-	<classpathentry kind="lib" path="lib/development/org.freemarker-2.3.17.LIFERAY-PATCHED-1.jar"/>
+	<classpathentry kind="lib" path="lib/development/freemarker.jar"/>
 	<classpathentry kind="lib" path="lib/development/p6spy.jar"/>
 	<classpathentry kind="lib" path="lib/development/persistence.jar"/>
-	<classpathentry kind="lib" path="lib/development/piccolo2d-core.jar"/>
-	<classpathentry kind="lib" path="lib/development/piccolo2d-extras.jar"/>
 	<classpathentry kind="lib" path="lib/development/postgresql.jar"/>
 	<classpathentry kind="lib" path="lib/development/powermock-api-mockito.jar"/>
 	<classpathentry kind="lib" path="lib/development/powermock-api-support.jar"/>
@@ -85,20 +82,15 @@
 	<classpathentry kind="lib" path="lib/development/powermock-module-junit4.jar"/>
 	<classpathentry kind="lib" path="lib/development/powermock-reflect.jar"/>
 	<classpathentry kind="lib" path="lib/development/qdox.jar"/>
-	<classpathentry kind="lib" path="lib/development/resin.jar"/>
 	<classpathentry kind="lib" path="lib/development/saxpath.jar"/>
-	<classpathentry kind="lib" path="lib/development/script-10.jar"/>
 	<classpathentry kind="lib" path="lib/development/sdk-addon-api-0.2.jar"/>
-	<classpathentry kind="lib" path="lib/development/selenium-java.jar"/>
-	<classpathentry kind="lib" path="lib/development/selenium-server.jar"/>
 	<classpathentry kind="lib" path="lib/development/servlet-api.jar"/>
-	<classpathentry kind="lib" path="lib/development/sikuli-api.jar"/>
-	<classpathentry kind="lib" path="lib/development/sikuli-core.jar"/>
 	<classpathentry kind="lib" path="lib/development/smtp.jar"/>
 	<classpathentry kind="lib" path="lib/development/spring-instrument.jar"/>
 	<classpathentry kind="lib" path="lib/development/spring-instrument-tomcat.jar"/>
 	<classpathentry kind="lib" path="lib/development/spring-test.jar"/>
 	<classpathentry kind="lib" path="lib/development/tlddoc.jar"/>
+	<classpathentry kind="lib" path="lib/development/tomcat-api.jar"/>
 	<classpathentry kind="lib" path="lib/development/tomcat-coyote.jar"/>
 	<classpathentry kind="lib" path="lib/development/velocity.jar"/>
 	<classpathentry kind="lib" path="lib/development/velocity-tools.jar"/>
@@ -154,7 +146,6 @@
 	<classpathentry kind="lib" path="lib/portal/commons-validator.jar"/>
 	<classpathentry kind="lib" path="lib/portal/concurrent.jar"/>
 	<classpathentry kind="lib" path="lib/portal/crypt.jar"/>
-	<classpathentry kind="lib" path="lib/portal/daim.jar"/>
 	<classpathentry kind="lib" path="lib/portal/daisydiff.jar"/>
 	<classpathentry kind="lib" path="lib/portal/displaytag.jar"/>
 	<classpathentry kind="lib" path="lib/portal/dom4j.jar"/>
@@ -174,7 +165,6 @@
 	<classpathentry kind="lib" path="lib/portal/httpcore.jar"/>
 	<classpathentry kind="lib" path="lib/portal/httpmime.jar"/>
 	<classpathentry kind="lib" path="lib/portal/ical4j.jar"/>
-	<classpathentry kind="lib" path="lib/portal/icq.jar"/>
 	<classpathentry kind="lib" path="lib/portal/im4java.jar"/>
 	<classpathentry kind="lib" path="lib/portal/isoparser.jar"/>
 	<classpathentry kind="lib" path="lib/portal/jabsorb.jar"/>
@@ -225,7 +215,6 @@
 	<classpathentry kind="lib" path="lib/portal/mime4j-dom.jar"/>
 	<classpathentry kind="lib" path="lib/portal/mimepull.jar"/>
 	<classpathentry kind="lib" path="lib/portal/monte-cc.jar"/>
-	<classpathentry kind="lib" path="lib/portal/msnm.jar"/>
 	<classpathentry kind="lib" path="lib/portal/nekohtml.jar"/>
 	<classpathentry kind="lib" path="lib/portal/netcdf.jar"/>
 	<classpathentry kind="lib" path="lib/portal/netty-all.jar"/>

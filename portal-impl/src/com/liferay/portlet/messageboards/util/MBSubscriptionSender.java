@@ -14,16 +14,16 @@
 
 package com.liferay.portlet.messageboards.util;
 
+import com.liferay.mail.kernel.model.Account;
+import com.liferay.mail.kernel.model.SMTPAccount;
+import com.liferay.message.boards.kernel.model.MBMailingList;
+import com.liferay.message.boards.kernel.service.MBMailingListLocalServiceUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.mail.Account;
-import com.liferay.portal.kernel.mail.SMTPAccount;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.GroupSubscriptionCheckSubscriptionSender;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.User;
-import com.liferay.portal.util.GroupSubscriptionCheckSubscriptionSender;
-import com.liferay.portlet.messageboards.model.MBMailingList;
-import com.liferay.portlet.messageboards.service.MBMailingListLocalServiceUtil;
 
 /**
  * @author Brian Wing Shun Chan
@@ -38,7 +38,7 @@ public class MBSubscriptionSender
 
 	public void addMailingListSubscriber(long groupId, long categoryId) {
 		if (_calledAddMailingListSubscriber) {
-			throw new IllegalStateException();
+			throw new IllegalStateException("Method may only be called once");
 		}
 
 		_calledAddMailingListSubscriber = true;
@@ -88,7 +88,7 @@ public class MBSubscriptionSender
 	protected void sendNotification(User user) throws Exception {
 		sendEmailNotification(user);
 
-		if (currentUserId == user.getUserId() ) {
+		if (currentUserId == user.getUserId()) {
 			if (_log.isDebugEnabled()) {
 				_log.debug("Skip notification for user " + currentUserId);
 			}

@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchLayoutSetException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchLayoutSetException;
+import com.liferay.portal.kernel.model.LayoutSet;
+import com.liferay.portal.kernel.service.LayoutSetLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.LayoutSetPersistence;
+import com.liferay.portal.kernel.service.persistence.LayoutSetUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -31,10 +35,6 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.model.LayoutSet;
-import com.liferay.portal.service.LayoutSetLocalServiceUtil;
-import com.liferay.portal.service.persistence.LayoutSetPersistence;
-import com.liferay.portal.service.persistence.LayoutSetUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
@@ -135,10 +135,6 @@ public class LayoutSetPersistenceTest {
 
 		newLayoutSet.setColorSchemeId(RandomTestUtil.randomString());
 
-		newLayoutSet.setWapThemeId(RandomTestUtil.randomString());
-
-		newLayoutSet.setWapColorSchemeId(RandomTestUtil.randomString());
-
 		newLayoutSet.setCss(RandomTestUtil.randomString());
 
 		newLayoutSet.setPageCount(RandomTestUtil.nextInt());
@@ -175,10 +171,6 @@ public class LayoutSetPersistenceTest {
 			newLayoutSet.getThemeId());
 		Assert.assertEquals(existingLayoutSet.getColorSchemeId(),
 			newLayoutSet.getColorSchemeId());
-		Assert.assertEquals(existingLayoutSet.getWapThemeId(),
-			newLayoutSet.getWapThemeId());
-		Assert.assertEquals(existingLayoutSet.getWapColorSchemeId(),
-			newLayoutSet.getWapColorSchemeId());
 		Assert.assertEquals(existingLayoutSet.getCss(), newLayoutSet.getCss());
 		Assert.assertEquals(existingLayoutSet.getPageCount(),
 			newLayoutSet.getPageCount());
@@ -241,9 +233,8 @@ public class LayoutSetPersistenceTest {
 			true, "layoutSetId", true, "groupId", true, "companyId", true,
 			"createDate", true, "modifiedDate", true, "privateLayout", true,
 			"logoId", true, "themeId", true, "colorSchemeId", true,
-			"wapThemeId", true, "wapColorSchemeId", true, "pageCount", true,
-			"layoutSetPrototypeUuid", true, "layoutSetPrototypeLinkEnabled",
-			true);
+			"pageCount", true, "layoutSetPrototypeUuid", true,
+			"layoutSetPrototypeLinkEnabled", true);
 	}
 
 	@Test
@@ -352,11 +343,9 @@ public class LayoutSetPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = LayoutSetLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<LayoutSet>() {
 				@Override
-				public void performAction(Object object) {
-					LayoutSet layoutSet = (LayoutSet)object;
-
+				public void performAction(LayoutSet layoutSet) {
 					Assert.assertNotNull(layoutSet);
 
 					count.increment();
@@ -479,10 +468,6 @@ public class LayoutSetPersistenceTest {
 		layoutSet.setThemeId(RandomTestUtil.randomString());
 
 		layoutSet.setColorSchemeId(RandomTestUtil.randomString());
-
-		layoutSet.setWapThemeId(RandomTestUtil.randomString());
-
-		layoutSet.setWapColorSchemeId(RandomTestUtil.randomString());
 
 		layoutSet.setCss(RandomTestUtil.randomString());
 

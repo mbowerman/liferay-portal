@@ -23,29 +23,29 @@ import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.messaging.SynchronousDestination;
 import com.liferay.portal.kernel.messaging.sender.SynchronousMessageSender;
+import com.liferay.portal.kernel.model.Portlet;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelper;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelperUtil;
-import com.liferay.portal.kernel.search.SearchEngineUtil;
+import com.liferay.portal.kernel.search.SearchEngineHelperUtil;
+import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
+import com.liferay.portal.kernel.service.ResourceActionLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
-import com.liferay.portal.model.Portlet;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.User;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.model.impl.PortletImpl;
 import com.liferay.portal.repository.liferayrepository.LiferayRepository;
-import com.liferay.portal.security.auth.PrincipalThreadLocal;
-import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.security.permission.PermissionCheckerFactoryUtil;
-import com.liferay.portal.security.permission.PermissionThreadLocal;
-import com.liferay.portal.security.permission.ResourceActionsUtil;
-import com.liferay.portal.service.CompanyLocalServiceUtil;
-import com.liferay.portal.service.ResourceActionLocalServiceUtil;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.ServiceContextThreadLocal;
 import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PortalInstances;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.registry.Filter;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
@@ -168,8 +168,7 @@ public class ServiceTestUtil {
 				"QuartzSchemaManager)");
 
 		schedulerServiceDependencyManager.registerDependencies(
-			new Class[] {SchedulerEngineHelper.class},
-			new Filter[] {filter});
+			new Class[] {SchedulerEngineHelper.class}, new Filter[] {filter});
 
 		// Verify
 
@@ -201,7 +200,7 @@ public class ServiceTestUtil {
 		// Search engine
 
 		try {
-			SearchEngineUtil.initialize(TestPropsValues.getCompanyId());
+			SearchEngineHelperUtil.initialize(TestPropsValues.getCompanyId());
 		}
 		catch (Exception e) {
 			_log.error(e, e);
@@ -340,8 +339,8 @@ public class ServiceTestUtil {
 		Registry registry = RegistryUtil.getRegistry();
 
 		return registry.getFilter(
-			"(&(destination.name=" + destinationName +
-				")(objectClass=" + Destination.class.getName() + "))");
+			"(&(destination.name=" + destinationName + ")(objectClass=" +
+				Destination.class.getName() + "))");
 	}
 
 	private static void _replaceWithSynchronousDestination(String name) {

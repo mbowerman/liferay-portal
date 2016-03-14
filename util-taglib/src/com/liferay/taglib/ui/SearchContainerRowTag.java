@@ -17,13 +17,13 @@ package com.liferay.taglib.ui;
 import com.liferay.portal.kernel.bean.BeanPropertiesUtil;
 import com.liferay.portal.kernel.dao.search.ResultRow;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
+import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.repository.model.RepositoryModel;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.BaseModel;
 import com.liferay.taglib.util.ParamAndPropertyAncestorTagImpl;
 
 import java.util.ArrayList;
@@ -295,10 +295,11 @@ public class SearchContainerRowTag<R>
 			primaryKey = String.valueOf(model);
 		}
 		else if (isStringKey()) {
-			primaryKey = BeanPropertiesUtil.getString(model, _keyProperty);
+			primaryKey = BeanPropertiesUtil.getStringSilent(
+				model, _keyProperty);
 		}
 		else {
-			Object primaryKeyObj = BeanPropertiesUtil.getObject(
+			Object primaryKeyObj = BeanPropertiesUtil.getObjectSilent(
 				model, _keyProperty);
 
 			primaryKey = String.valueOf(primaryKeyObj);
@@ -310,7 +311,7 @@ public class SearchContainerRowTag<R>
 			rowId = String.valueOf(_rowIndex + 1);
 		}
 		else {
-			Object rowIdObj = BeanPropertiesUtil.getObject(
+			Object rowIdObj = BeanPropertiesUtil.getObjectSilent(
 				model, _rowIdProperty);
 
 			if (Validator.isNull(rowIdObj)) {

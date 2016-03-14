@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchPortletPreferencesException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchPortletPreferencesException;
+import com.liferay.portal.kernel.model.PortletPreferences;
+import com.liferay.portal.kernel.service.PortletPreferencesLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.PortletPreferencesPersistence;
+import com.liferay.portal.kernel.service.persistence.PortletPreferencesUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -31,10 +35,6 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.PortletPreferences;
-import com.liferay.portal.service.PortletPreferencesLocalServiceUtil;
-import com.liferay.portal.service.persistence.PortletPreferencesPersistence;
-import com.liferay.portal.service.persistence.PortletPreferencesUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
@@ -119,6 +119,8 @@ public class PortletPreferencesPersistenceTest {
 
 		newPortletPreferences.setMvccVersion(RandomTestUtil.nextLong());
 
+		newPortletPreferences.setCompanyId(RandomTestUtil.nextLong());
+
 		newPortletPreferences.setOwnerId(RandomTestUtil.nextLong());
 
 		newPortletPreferences.setOwnerType(RandomTestUtil.nextInt());
@@ -137,6 +139,8 @@ public class PortletPreferencesPersistenceTest {
 			newPortletPreferences.getMvccVersion());
 		Assert.assertEquals(existingPortletPreferences.getPortletPreferencesId(),
 			newPortletPreferences.getPortletPreferencesId());
+		Assert.assertEquals(existingPortletPreferences.getCompanyId(),
+			newPortletPreferences.getCompanyId());
 		Assert.assertEquals(existingPortletPreferences.getOwnerId(),
 			newPortletPreferences.getOwnerId());
 		Assert.assertEquals(existingPortletPreferences.getOwnerType(),
@@ -246,8 +250,9 @@ public class PortletPreferencesPersistenceTest {
 
 	protected OrderByComparator<PortletPreferences> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("PortletPreferences",
-			"mvccVersion", true, "portletPreferencesId", true, "ownerId", true,
-			"ownerType", true, "plid", true, "portletId", true);
+			"mvccVersion", true, "portletPreferencesId", true, "companyId",
+			true, "ownerId", true, "ownerType", true, "plid", true,
+			"portletId", true);
 	}
 
 	@Test
@@ -356,11 +361,9 @@ public class PortletPreferencesPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = PortletPreferencesLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<PortletPreferences>() {
 				@Override
-				public void performAction(Object object) {
-					PortletPreferences portletPreferences = (PortletPreferences)object;
-
+				public void performAction(PortletPreferences portletPreferences) {
 					Assert.assertNotNull(portletPreferences);
 
 					count.increment();
@@ -479,6 +482,8 @@ public class PortletPreferencesPersistenceTest {
 		PortletPreferences portletPreferences = _persistence.create(pk);
 
 		portletPreferences.setMvccVersion(RandomTestUtil.nextLong());
+
+		portletPreferences.setCompanyId(RandomTestUtil.nextLong());
 
 		portletPreferences.setOwnerId(RandomTestUtil.nextLong());
 

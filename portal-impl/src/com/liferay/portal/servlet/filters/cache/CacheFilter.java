@@ -14,11 +14,17 @@
 
 package com.liferay.portal.servlet.filters.cache;
 
-import com.liferay.portal.NoSuchLayoutException;
+import com.liferay.portal.kernel.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutTypePortlet;
+import com.liferay.portal.kernel.security.auth.AuthTokenUtil;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.BrowserSnifferUtil;
 import com.liferay.portal.kernel.servlet.BufferCacheServletResponse;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
@@ -29,21 +35,15 @@ import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.model.LayoutTypePortlet;
-import com.liferay.portal.security.auth.AuthTokenUtil;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.LayoutLocalServiceUtil;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.servlet.filters.BasePortalFilter;
 import com.liferay.portal.util.PortalInstances;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.WebKeys;
 import com.liferay.util.servlet.filters.CacheResponseData;
 import com.liferay.util.servlet.filters.CacheResponseUtil;
 
@@ -385,7 +385,8 @@ public class CacheFilter extends BasePortalFilter {
 				}
 
 				processFilter(
-					CacheFilter.class, request, response, filterChain);
+					CacheFilter.class.getName(), request, response,
+					filterChain);
 
 				return;
 			}
@@ -416,7 +417,8 @@ public class CacheFilter extends BasePortalFilter {
 				}
 
 				processFilter(
-					CacheFilter.class, request, response, filterChain);
+					CacheFilter.class.getName(), request, response,
+					filterChain);
 
 				return;
 			}
@@ -429,8 +431,8 @@ public class CacheFilter extends BasePortalFilter {
 				new BufferCacheServletResponse(response);
 
 			processFilter(
-				CacheFilter.class, request, bufferCacheServletResponse,
-				filterChain);
+				CacheFilter.class.getName(), request,
+				bufferCacheServletResponse, filterChain);
 
 			cacheResponseData = new CacheResponseData(
 				bufferCacheServletResponse);

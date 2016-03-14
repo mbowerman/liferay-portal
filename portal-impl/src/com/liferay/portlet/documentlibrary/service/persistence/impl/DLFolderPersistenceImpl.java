@@ -16,6 +16,11 @@ package com.liferay.portlet.documentlibrary.service.persistence.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.document.library.kernel.exception.NoSuchFolderException;
+import com.liferay.document.library.kernel.model.DLFolder;
+import com.liferay.document.library.kernel.service.persistence.DLFileEntryTypePersistence;
+import com.liferay.document.library.kernel.service.persistence.DLFolderPersistence;
+
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
@@ -29,6 +34,15 @@ import com.liferay.portal.kernel.dao.orm.SQLQuery;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.service.persistence.CompanyProvider;
+import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
+import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
+import com.liferay.portal.kernel.service.persistence.impl.TableMapper;
+import com.liferay.portal.kernel.service.persistence.impl.TableMapperFactory;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
@@ -37,20 +51,9 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.security.permission.InlineSQLHelperUtil;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.ServiceContextThreadLocal;
-import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.service.persistence.impl.TableMapper;
-import com.liferay.portal.service.persistence.impl.TableMapperFactory;
 
-import com.liferay.portlet.documentlibrary.NoSuchFolderException;
-import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.model.impl.DLFolderImpl;
 import com.liferay.portlet.documentlibrary.model.impl.DLFolderModelImpl;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryTypePersistence;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFolderPersistence;
 
 import java.io.Serializable;
 
@@ -72,7 +75,7 @@ import java.util.Set;
  *
  * @author Brian Wing Shun Chan
  * @see DLFolderPersistence
- * @see com.liferay.portlet.documentlibrary.service.persistence.DLFolderUtil
+ * @see com.liferay.document.library.kernel.service.persistence.DLFolderUtil
  * @generated
  */
 @ProviderType
@@ -219,7 +222,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -446,8 +449,9 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -1030,7 +1034,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -1275,11 +1279,12 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_DLFOLDER_WHERE);
@@ -1603,7 +1608,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -1816,8 +1821,9 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -1968,10 +1974,10 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(3 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -2089,11 +2095,12 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -2461,7 +2468,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -2674,8 +2681,9 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -2970,7 +2978,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -3186,8 +3194,9 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -3485,7 +3494,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -3716,11 +3725,12 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_DLFOLDER_WHERE);
@@ -3877,10 +3887,10 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(4 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(4);
+			query = new StringBundler(5);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -4004,10 +4014,11 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(5);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -4386,7 +4397,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -4617,11 +4628,12 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_DLFOLDER_WHERE);
@@ -5157,7 +5169,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -5388,11 +5400,12 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_DLFOLDER_WHERE);
@@ -5697,7 +5710,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -5942,11 +5955,12 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_DLFOLDER_WHERE);
@@ -6297,7 +6311,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(5 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(5);
@@ -6546,10 +6560,11 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(5);
 		}
 
 		query.append(_SQL_SELECT_DLFOLDER_WHERE);
@@ -6716,10 +6731,10 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(5 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(5);
+			query = new StringBundler(6);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -6849,11 +6864,12 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(7 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(6);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -7550,7 +7566,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(6 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(6);
@@ -8018,7 +8034,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(6 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(6);
@@ -8285,11 +8301,12 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(7 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(6);
 		}
 
 		query.append(_SQL_SELECT_DLFOLDER_WHERE);
@@ -8463,10 +8480,10 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(6);
+			query = new StringBundler(7);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -8603,11 +8620,12 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(8 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(7);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -9045,7 +9063,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(6 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(6);
@@ -9326,11 +9344,12 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(7 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(6);
 		}
 
 		query.append(_SQL_SELECT_DLFOLDER_WHERE);
@@ -9518,10 +9537,10 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(6);
+			query = new StringBundler(7);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -9672,11 +9691,12 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(8 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(7);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -10173,7 +10193,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(6 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(6);
@@ -10440,11 +10460,12 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(7 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(6);
 		}
 
 		query.append(_SQL_SELECT_DLFOLDER_WHERE);
@@ -10618,10 +10639,10 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(6);
+			query = new StringBundler(7);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -10758,11 +10779,12 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(8 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(7);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -11229,7 +11251,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(7 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(7);
@@ -11515,11 +11537,12 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(8 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(7);
 		}
 
 		query.append(_SQL_SELECT_DLFOLDER_WHERE);
@@ -11701,10 +11724,10 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(7 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(7);
+			query = new StringBundler(8);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -11846,11 +11869,12 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(9 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(8);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -12414,6 +12438,8 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 		dlFolder.setUuid(uuid);
 
+		dlFolder.setCompanyId(companyProvider.getCompanyId());
+
 		return dlFolder;
 	}
 
@@ -12473,8 +12499,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	protected DLFolder removeImpl(DLFolder dlFolder) {
 		dlFolder = toUnwrappedModel(dlFolder);
 
-		dlFolderToDLFileEntryTypeTableMapper.deleteLeftPrimaryKeyTableMappings(0,
-			dlFolder.getPrimaryKey());
+		dlFolderToDLFileEntryTypeTableMapper.deleteLeftPrimaryKeyTableMappings(dlFolder.getPrimaryKey());
 
 		Session session = null;
 
@@ -12868,7 +12893,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	}
 
 	/**
-	 * Returns the document library folder with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the document library folder with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the document library folder
 	 * @return the document library folder
@@ -13140,7 +13165,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(2 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 
 				query.append(_SQL_SELECT_DLFOLDER);
 
@@ -13250,8 +13275,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	 */
 	@Override
 	public long[] getDLFileEntryTypePrimaryKeys(long pk) {
-		long[] pks = dlFolderToDLFileEntryTypeTableMapper.getRightPrimaryKeys(0,
-				pk);
+		long[] pks = dlFolderToDLFileEntryTypeTableMapper.getRightPrimaryKeys(pk);
 
 		return pks.clone();
 	}
@@ -13263,7 +13287,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	 * @return the document library file entry types associated with the document library folder
 	 */
 	@Override
-	public List<com.liferay.portlet.documentlibrary.model.DLFileEntryType> getDLFileEntryTypes(
+	public List<com.liferay.document.library.kernel.model.DLFileEntryType> getDLFileEntryTypes(
 		long pk) {
 		return getDLFileEntryTypes(pk, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 	}
@@ -13281,7 +13305,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	 * @return the range of document library file entry types associated with the document library folder
 	 */
 	@Override
-	public List<com.liferay.portlet.documentlibrary.model.DLFileEntryType> getDLFileEntryTypes(
+	public List<com.liferay.document.library.kernel.model.DLFileEntryType> getDLFileEntryTypes(
 		long pk, int start, int end) {
 		return getDLFileEntryTypes(pk, start, end, null);
 	}
@@ -13300,10 +13324,10 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	 * @return the ordered range of document library file entry types associated with the document library folder
 	 */
 	@Override
-	public List<com.liferay.portlet.documentlibrary.model.DLFileEntryType> getDLFileEntryTypes(
+	public List<com.liferay.document.library.kernel.model.DLFileEntryType> getDLFileEntryTypes(
 		long pk, int start, int end,
-		OrderByComparator<com.liferay.portlet.documentlibrary.model.DLFileEntryType> orderByComparator) {
-		return dlFolderToDLFileEntryTypeTableMapper.getRightBaseModels(0, pk,
+		OrderByComparator<com.liferay.document.library.kernel.model.DLFileEntryType> orderByComparator) {
+		return dlFolderToDLFileEntryTypeTableMapper.getRightBaseModels(pk,
 			start, end, orderByComparator);
 	}
 
@@ -13315,8 +13339,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	 */
 	@Override
 	public int getDLFileEntryTypesSize(long pk) {
-		long[] pks = dlFolderToDLFileEntryTypeTableMapper.getRightPrimaryKeys(0,
-				pk);
+		long[] pks = dlFolderToDLFileEntryTypeTableMapper.getRightPrimaryKeys(pk);
 
 		return pks.length;
 	}
@@ -13330,7 +13353,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	 */
 	@Override
 	public boolean containsDLFileEntryType(long pk, long dlFileEntryTypePK) {
-		return dlFolderToDLFileEntryTypeTableMapper.containsTableMapping(0, pk,
+		return dlFolderToDLFileEntryTypeTableMapper.containsTableMapping(pk,
 			dlFileEntryTypePK);
 	}
 
@@ -13358,8 +13381,16 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	 */
 	@Override
 	public void addDLFileEntryType(long pk, long dlFileEntryTypePK) {
-		dlFolderToDLFileEntryTypeTableMapper.addTableMapping(0, pk,
-			dlFileEntryTypePK);
+		DLFolder dlFolder = fetchByPrimaryKey(pk);
+
+		if (dlFolder == null) {
+			dlFolderToDLFileEntryTypeTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, dlFileEntryTypePK);
+		}
+		else {
+			dlFolderToDLFileEntryTypeTableMapper.addTableMapping(dlFolder.getCompanyId(),
+				pk, dlFileEntryTypePK);
+		}
 	}
 
 	/**
@@ -13370,9 +13401,17 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	 */
 	@Override
 	public void addDLFileEntryType(long pk,
-		com.liferay.portlet.documentlibrary.model.DLFileEntryType dlFileEntryType) {
-		dlFolderToDLFileEntryTypeTableMapper.addTableMapping(0, pk,
-			dlFileEntryType.getPrimaryKey());
+		com.liferay.document.library.kernel.model.DLFileEntryType dlFileEntryType) {
+		DLFolder dlFolder = fetchByPrimaryKey(pk);
+
+		if (dlFolder == null) {
+			dlFolderToDLFileEntryTypeTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, dlFileEntryType.getPrimaryKey());
+		}
+		else {
+			dlFolderToDLFileEntryTypeTableMapper.addTableMapping(dlFolder.getCompanyId(),
+				pk, dlFileEntryType.getPrimaryKey());
+		}
 	}
 
 	/**
@@ -13383,8 +13422,19 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	 */
 	@Override
 	public void addDLFileEntryTypes(long pk, long[] dlFileEntryTypePKs) {
+		long companyId = 0;
+
+		DLFolder dlFolder = fetchByPrimaryKey(pk);
+
+		if (dlFolder == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = dlFolder.getCompanyId();
+		}
+
 		for (long dlFileEntryTypePK : dlFileEntryTypePKs) {
-			dlFolderToDLFileEntryTypeTableMapper.addTableMapping(0, pk,
+			dlFolderToDLFileEntryTypeTableMapper.addTableMapping(companyId, pk,
 				dlFileEntryTypePK);
 		}
 	}
@@ -13397,9 +13447,20 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	 */
 	@Override
 	public void addDLFileEntryTypes(long pk,
-		List<com.liferay.portlet.documentlibrary.model.DLFileEntryType> dlFileEntryTypes) {
-		for (com.liferay.portlet.documentlibrary.model.DLFileEntryType dlFileEntryType : dlFileEntryTypes) {
-			dlFolderToDLFileEntryTypeTableMapper.addTableMapping(0, pk,
+		List<com.liferay.document.library.kernel.model.DLFileEntryType> dlFileEntryTypes) {
+		long companyId = 0;
+
+		DLFolder dlFolder = fetchByPrimaryKey(pk);
+
+		if (dlFolder == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = dlFolder.getCompanyId();
+		}
+
+		for (com.liferay.document.library.kernel.model.DLFileEntryType dlFileEntryType : dlFileEntryTypes) {
+			dlFolderToDLFileEntryTypeTableMapper.addTableMapping(companyId, pk,
 				dlFileEntryType.getPrimaryKey());
 		}
 	}
@@ -13411,8 +13472,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	 */
 	@Override
 	public void clearDLFileEntryTypes(long pk) {
-		dlFolderToDLFileEntryTypeTableMapper.deleteLeftPrimaryKeyTableMappings(0,
-			pk);
+		dlFolderToDLFileEntryTypeTableMapper.deleteLeftPrimaryKeyTableMappings(pk);
 	}
 
 	/**
@@ -13423,7 +13483,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	 */
 	@Override
 	public void removeDLFileEntryType(long pk, long dlFileEntryTypePK) {
-		dlFolderToDLFileEntryTypeTableMapper.deleteTableMapping(0, pk,
+		dlFolderToDLFileEntryTypeTableMapper.deleteTableMapping(pk,
 			dlFileEntryTypePK);
 	}
 
@@ -13435,8 +13495,8 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	 */
 	@Override
 	public void removeDLFileEntryType(long pk,
-		com.liferay.portlet.documentlibrary.model.DLFileEntryType dlFileEntryType) {
-		dlFolderToDLFileEntryTypeTableMapper.deleteTableMapping(0, pk,
+		com.liferay.document.library.kernel.model.DLFileEntryType dlFileEntryType) {
+		dlFolderToDLFileEntryTypeTableMapper.deleteTableMapping(pk,
 			dlFileEntryType.getPrimaryKey());
 	}
 
@@ -13449,7 +13509,7 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	@Override
 	public void removeDLFileEntryTypes(long pk, long[] dlFileEntryTypePKs) {
 		for (long dlFileEntryTypePK : dlFileEntryTypePKs) {
-			dlFolderToDLFileEntryTypeTableMapper.deleteTableMapping(0, pk,
+			dlFolderToDLFileEntryTypeTableMapper.deleteTableMapping(pk,
 				dlFileEntryTypePK);
 		}
 	}
@@ -13462,9 +13522,9 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	 */
 	@Override
 	public void removeDLFileEntryTypes(long pk,
-		List<com.liferay.portlet.documentlibrary.model.DLFileEntryType> dlFileEntryTypes) {
-		for (com.liferay.portlet.documentlibrary.model.DLFileEntryType dlFileEntryType : dlFileEntryTypes) {
-			dlFolderToDLFileEntryTypeTableMapper.deleteTableMapping(0, pk,
+		List<com.liferay.document.library.kernel.model.DLFileEntryType> dlFileEntryTypes) {
+		for (com.liferay.document.library.kernel.model.DLFileEntryType dlFileEntryType : dlFileEntryTypes) {
+			dlFolderToDLFileEntryTypeTableMapper.deleteTableMapping(pk,
 				dlFileEntryType.getPrimaryKey());
 		}
 	}
@@ -13479,21 +13539,32 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	public void setDLFileEntryTypes(long pk, long[] dlFileEntryTypePKs) {
 		Set<Long> newDLFileEntryTypePKsSet = SetUtil.fromArray(dlFileEntryTypePKs);
 		Set<Long> oldDLFileEntryTypePKsSet = SetUtil.fromArray(dlFolderToDLFileEntryTypeTableMapper.getRightPrimaryKeys(
-					0, pk));
+					pk));
 
 		Set<Long> removeDLFileEntryTypePKsSet = new HashSet<Long>(oldDLFileEntryTypePKsSet);
 
 		removeDLFileEntryTypePKsSet.removeAll(newDLFileEntryTypePKsSet);
 
 		for (long removeDLFileEntryTypePK : removeDLFileEntryTypePKsSet) {
-			dlFolderToDLFileEntryTypeTableMapper.deleteTableMapping(0, pk,
+			dlFolderToDLFileEntryTypeTableMapper.deleteTableMapping(pk,
 				removeDLFileEntryTypePK);
 		}
 
 		newDLFileEntryTypePKsSet.removeAll(oldDLFileEntryTypePKsSet);
 
+		long companyId = 0;
+
+		DLFolder dlFolder = fetchByPrimaryKey(pk);
+
+		if (dlFolder == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = dlFolder.getCompanyId();
+		}
+
 		for (long newDLFileEntryTypePK : newDLFileEntryTypePKsSet) {
-			dlFolderToDLFileEntryTypeTableMapper.addTableMapping(0, pk,
+			dlFolderToDLFileEntryTypeTableMapper.addTableMapping(companyId, pk,
 				newDLFileEntryTypePK);
 		}
 	}
@@ -13506,12 +13577,12 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 	 */
 	@Override
 	public void setDLFileEntryTypes(long pk,
-		List<com.liferay.portlet.documentlibrary.model.DLFileEntryType> dlFileEntryTypes) {
+		List<com.liferay.document.library.kernel.model.DLFileEntryType> dlFileEntryTypes) {
 		try {
 			long[] dlFileEntryTypePKs = new long[dlFileEntryTypes.size()];
 
 			for (int i = 0; i < dlFileEntryTypes.size(); i++) {
-				com.liferay.portlet.documentlibrary.model.DLFileEntryType dlFileEntryType =
+				com.liferay.document.library.kernel.model.DLFileEntryType dlFileEntryType =
 					dlFileEntryTypes.get(i);
 
 				dlFileEntryTypePKs[i] = dlFileEntryType.getPrimaryKey();
@@ -13552,11 +13623,13 @@ public class DLFolderPersistenceImpl extends BasePersistenceImpl<DLFolder>
 		TableMapperFactory.removeTableMapper("DLFileEntryTypes_DLFolders");
 	}
 
+	@BeanReference(type = CompanyProviderWrapper.class)
+	protected CompanyProvider companyProvider;
 	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
 	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();
 	@BeanReference(type = DLFileEntryTypePersistence.class)
 	protected DLFileEntryTypePersistence dlFileEntryTypePersistence;
-	protected TableMapper<DLFolder, com.liferay.portlet.documentlibrary.model.DLFileEntryType> dlFolderToDLFileEntryTypeTableMapper;
+	protected TableMapper<DLFolder, com.liferay.document.library.kernel.model.DLFileEntryType> dlFolderToDLFileEntryTypeTableMapper;
 	private static final String _SQL_SELECT_DLFOLDER = "SELECT dlFolder FROM DLFolder dlFolder";
 	private static final String _SQL_SELECT_DLFOLDER_WHERE_PKS_IN = "SELECT dlFolder FROM DLFolder dlFolder WHERE folderId IN (";
 	private static final String _SQL_SELECT_DLFOLDER_WHERE = "SELECT dlFolder FROM DLFolder dlFolder WHERE ";

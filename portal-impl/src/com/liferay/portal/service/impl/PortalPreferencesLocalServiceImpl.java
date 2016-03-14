@@ -17,14 +17,14 @@ package com.liferay.portal.service.impl;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.PortalPreferences;
+import com.liferay.portal.kernel.model.PortletConstants;
+import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.PortalPreferences;
-import com.liferay.portal.model.PortletConstants;
 import com.liferay.portal.service.base.PortalPreferencesLocalServiceBaseImpl;
 import com.liferay.portlet.PortalPreferencesImpl;
 import com.liferay.portlet.PortalPreferencesWrapper;
 import com.liferay.portlet.PortalPreferencesWrapperCacheUtil;
-import com.liferay.portlet.PortletPreferencesFactoryUtil;
 
 import javax.portlet.PortletPreferences;
 
@@ -75,19 +75,6 @@ public class PortalPreferencesLocalServiceImpl
 		return portalPreferences;
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #addPortalPreferences(long,
-	 *             int, String)}
-	 */
-	@Deprecated
-	@Override
-	public PortalPreferences addPortalPreferences(
-		long companyId, long ownerId, int ownerType,
-		String defaultPreferences) {
-
-		return addPortalPreferences(ownerId, ownerType, defaultPreferences);
-	}
-
 	@Override
 	public PortletPreferences getPreferences(long ownerId, int ownerType) {
 		return getPreferences(ownerId, ownerType, null);
@@ -125,34 +112,10 @@ public class PortalPreferencesLocalServiceImpl
 		return portalPreferencesWrapper.clone();
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getPreferences(long, int)}
-	 */
-	@Deprecated
-	@Override
-	public PortletPreferences getPreferences(
-		long companyId, long ownerId, int ownerType) {
-
-		return getPreferences(ownerId, ownerType);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getPreferences(long, int,
-	 *             String)}
-	 */
-	@Deprecated
-	@Override
-	public PortletPreferences getPreferences(
-		long companyId, long ownerId, int ownerType,
-		String defaultPreferences) {
-
-		return getPreferences(ownerId, ownerType, defaultPreferences);
-	}
-
 	@Override
 	public PortalPreferences updatePreferences(
 		long ownerId, int ownerType,
-		com.liferay.portlet.PortalPreferences portalPreferences) {
+		com.liferay.portal.kernel.portlet.PortalPreferences portalPreferences) {
 
 		String xml = PortletPreferencesFactoryUtil.toXML(portalPreferences);
 

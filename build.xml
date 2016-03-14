@@ -13,7 +13,7 @@
 	xsi:schemaLocation="http://www.zeroturnaround.com http://www.zeroturnaround.com/alderaan/rebel-2_0.xsd"
 >
 	<classpath>
-		<dir name="${basedir}/portal-service/classes" />
+		<dir name="${basedir}/portal-kernel/classes" />
 	</classpath>
 </application>]]></echo>
 
@@ -75,7 +75,7 @@
 
 			<ant dir="classes" target="clean" inheritAll="false" />
 
-			<ant dir="portal-service" target="clean" inheritAll="false" />
+			<ant dir="portal-kernel" target="clean" inheritAll="false" />
 
 			<ant dir="util-bridges" target="clean" inheritAll="false" />
 			<ant dir="util-java" target="clean" inheritAll="false" />
@@ -121,6 +121,7 @@
 			</delete>
 
 			<delete dir="${liferay.home}/osgi" failonerror="false" />
+			<delete dir="${liferay.home}/work" failonerror="false" />
 
 			<delete dir="test-coverage" />
 			<delete dir="test-results" />
@@ -210,7 +211,7 @@
 			<arg value="--parallel" />
 		</gradle-execute>
 
-		<ant dir="portal-service" target="compile" inheritAll="false" />
+		<ant dir="portal-kernel" target="compile" inheritAll="false" />
 
 		<parallel failonany="true" threadcount="${parallel.thread.count}">
 			<ant dir="portal-test" target="compile" inheritAll="false" />
@@ -248,7 +249,7 @@
 
 	<target name="compile-test">
 		<ant dir="portal-impl" target="compile-test" inheritAll="false" />
-		<ant dir="portal-service" target="compile-test" inheritAll="false" />
+		<ant dir="portal-kernel" target="compile-test" inheritAll="false" />
 		<ant dir="portal-web" target="compile-test" inheritAll="false" />
 		<ant dir="util-java" target="compile-test" inheritAll="false" />
 	</target>
@@ -278,7 +279,7 @@
 			</then>
 		</if>
 
-		<ant dir="portal-service" target="deploy" inheritAll="false" />
+		<ant dir="portal-kernel" target="deploy" inheritAll="false" />
 
 		<ant dir="util-bridges" target="deploy" inheritAll="false" />
 		<ant dir="util-java" target="deploy" inheritAll="false" />
@@ -334,11 +335,38 @@
 			<arg value="--parallel" />
 		</gradle-execute>
 
-		<gradle-execute dir="${project.dir}/modules" task="deploy">
-			<arg value="--parallel" />
-			<arg value="-Dportal.build=true" />
-			<env key="WAS_HOME" value="${app.server.websphere.dir}" />
-		</gradle-execute>
+		<if>
+			<equals arg1="${jsp.precompile}" arg2="on" />
+			<then>
+				<if>
+					<equals arg1="${jsp.precompile.parallel}" arg2="on" />
+					<then>
+						<gradle-execute dir="${project.dir}/modules" task="compileJSP">
+							<arg value="deploy" />
+							<arg value="--parallel" />
+							<arg value="-Dportal.build=true" />
+							<env key="WAS_HOME" value="${app.server.websphere.dir}" />
+						</gradle-execute>
+					</then>
+					<else>
+						<gradle-execute dir="${project.dir}/modules" task="deploy">
+							<arg value="--parallel" />
+							<arg value="-Dportal.build=true" />
+							<env key="WAS_HOME" value="${app.server.websphere.dir}" />
+						</gradle-execute>
+
+						<gradle-execute dir="${project.dir}/modules" task="compileJSP" />
+					</else>
+				</if>
+			</then>
+			<else>
+				<gradle-execute dir="${project.dir}/modules" task="deploy">
+					<arg value="--parallel" />
+					<arg value="-Dportal.build=true" />
+					<env key="WAS_HOME" value="${app.server.websphere.dir}" />
+				</gradle-execute>
+			</else>
+		</if>
 
 		<stopwatch action="elapsed" name="modules.stopwatch" />
 
@@ -360,7 +388,7 @@
 
 	<target name="deploy-additional-jars">
 		<copy todir="${app.server.lib.global.dir}">
-			<fileset dir="lib/development" includes="hsql.jar,mysql.jar,postgresql.jar" />
+			<fileset dir="lib/development" includes="hsql.jar,mariadb.jar,mysql.jar,postgresql.jar" />
 			<fileset dir="lib/global" />
 		</copy>
 
@@ -459,13 +487,6 @@
 					/>
 				</copy>
 
-				<copy todir="${app.server.temp.dir}/liferay/com/liferay/portal/deploy/dependencies">
-					<fileset
-						dir="lib/development"
-						includes="resin.jar,script-10.jar"
-					/>
-				</copy>
-
 				<if>
 					<equals arg1="${app.server.type}" arg2="tomcat" />
 					<then>
@@ -516,7 +537,6 @@
 	<target name="doc">
 		<antcall target="dtddoc" />
 		<antcall target="javadoc" />
-		<antcall target="javadoc-all" />
 		<antcall target="propertiesdoc" />
 		<ant dir="util-taglib" target="taglibdoc" inheritAll="false" />
 	</target>
@@ -542,19 +562,19 @@
 	</target>
 
 	<target name="install-portal-snapshots">
-		<install-portal-snapshot artifact.dir="portal-impl" artifact.name="portal-impl" />
-		<install-portal-snapshot artifact.dir="portal-service" artifact.name="portal-service" />
-		<install-portal-snapshot artifact.dir="portal-test" artifact.name="portal-test" />
-		<install-portal-snapshot artifact.dir="portal-test-internal" artifact.name="portal-test-internal" />
-		<install-portal-snapshot artifact.dir="portal-web" artifact.name="portal-web" />
-		<install-portal-snapshot artifact.dir="util-bridges" artifact.name="util-bridges" />
-		<install-portal-snapshot artifact.dir="util-java" artifact.name="util-java" />
-		<install-portal-snapshot artifact.dir="util-slf4j" artifact.name="util-slf4j" />
-		<install-portal-snapshot artifact.dir="util-taglib" artifact.name="util-taglib" />
+		<ant dir="portal-impl" target="install-portal-snapshot" inheritAll="false" />
+		<ant dir="portal-kernel" target="install-portal-snapshot" inheritAll="false" />
+		<ant dir="portal-test" target="install-portal-snapshot" inheritAll="false" />
+		<ant dir="portal-test-internal" target="install-portal-snapshot" inheritAll="false" />
+		<ant dir="portal-web" target="install-portal-snapshot" inheritAll="false" />
+		<ant dir="util-bridges" target="install-portal-snapshot" inheritAll="false" />
+		<ant dir="util-java" target="install-portal-snapshot" inheritAll="false" />
+		<ant dir="util-slf4j" target="install-portal-snapshot" inheritAll="false" />
+		<ant dir="util-taglib" target="install-portal-snapshot" inheritAll="false" />
 	</target>
 
 	<target name="jar">
-		<ant dir="portal-service" target="jar" inheritAll="false" />
+		<ant dir="portal-kernel" target="jar" inheritAll="false" />
 
 		<ant dir="util-bridges" target="jar" inheritAll="false" />
 		<ant dir="util-java" target="jar" inheritAll="false" />
@@ -571,7 +591,47 @@
 	</target>
 
 	<target name="javadoc">
-		<property name="doc.java.dir" value="${doc.dir}/javadocs" />
+		<remake-dir dir="${doc.dir}/javadocs" />
+
+		<antcall target="javadoc-portal-cmd">
+			<param name="generated.description" value="" />
+			<param name="module.dir" value="portal-impl" />
+		</antcall>
+
+		<antcall target="javadoc-portal-cmd">
+			<param name="generated.description" value="ServiceBuilder generated this class. Modifications in this class will be overwritten the next time it is generated." />
+			<param name="module.dir" value="portal-kernel" />
+		</antcall>
+
+		<antcall target="javadoc-portal-cmd">
+			<param name="generated.description" value="" />
+			<param name="module.dir" value="portal-test" />
+		</antcall>
+
+		<antcall target="javadoc-portal-cmd">
+			<param name="generated.description" value="" />
+			<param name="module.dir" value="portal-test-internal" />
+		</antcall>
+
+		<antcall target="javadoc-cmd">
+			<param name="generated.description" value="" />
+			<param name="module.dir" value="util-bridges" />
+		</antcall>
+
+		<antcall target="javadoc-cmd">
+			<param name="generated.description" value="" />
+			<param name="module.dir" value="util-java" />
+		</antcall>
+
+		<antcall target="javadoc-cmd">
+			<param name="generated.description" value="" />
+			<param name="module.dir" value="util-slf4j" />
+		</antcall>
+
+	</target>
+
+	<target name="javadoc-cmd">
+		<property name="doc.java.dir" value="${doc.dir}/javadocs/${module.dir}" />
 
 		<mkdir dir="${doc.java.dir}" />
 
@@ -579,43 +639,33 @@
 			breakiterator="yes"
 			classpathref="project.classpath"
 			destdir="${doc.java.dir}"
-			doctitle="Liferay ${lp.version} Public API Documentation"
+			doctitle="Liferay ${lp.version} ${module.dir} API"
 			encoding="UTF-8"
-			header="&lt;b&gt;Liferay ${lp.version}&lt;/b&gt;"
+			header="&lt;b&gt;Liferay ${lp.version} ${module.dir}&lt;/b&gt;"
 			maxmemory="2048m"
 			noqualifier="java.*"
-			overview="portal-service/src/portal-service-overview.html"
+			overview="${module.dir}/src/overview.html"
 			stylesheetfile="${project.dir}/tools/javadoc.css"
 			useexternalfile="yes"
 			use="yes"
-			windowtitle="Liferay ${lp.version} API"
+			windowtitle="Liferay ${lp.version} ${module.dir} API"
 		>
 			<doclet name="com.liferay.tools.doclets.standard.Standard" path="${project.dir}/lib/development/liferay-doclet.jar">
 				<param name="-linksource" />
 			</doclet>
-
-			<group title="Portal Services" packages="com.liferay.portal*:com.liferay.counter*:com.liferay.documentlibrary*:com.liferay.mail*" />
-			<group title="Portal Kernel" packages="com.liferay.portal.kernel*" />
-			<group title="Portlet Services" packages="com.liferay.portlet*" />
-			<group title="Portlet Bridges" packages="com.liferay.util.bridges*" />
 
 			<link href="http://docs.liferay.com/portlet-api/2.0/javadocs" />
 			<link href="http://java.sun.com/javase/6/docs/api" />
 			<link href="http://docs.liferay.com/portal/${lp.version.major}/javadocs" />
 
-			<packageset dir="portal-service/src" />
-			<packageset dir="portal-test/src" />
-			<packageset dir="portal-test-internal/src" />
-			<packageset dir="util-bridges/src" />
-			<packageset dir="util-java/src" />
-			<packageset dir="util-slf4j/src" />
+			<packageset dir="${module.dir}/src" />
 
-			<tag name="generated" description="" />
+			<tag name="generated" description="{$generated.description}" />
 		</javadoc>
 	</target>
 
-	<target name="javadoc-all">
-		<property name="doc.java.dir" value="${doc.dir}/javadocs-all" />
+	<target name="javadoc-portal-cmd">
+		<property name="doc.java.dir" value="${doc.dir}/javadocs/${module.dir}" />
 
 		<mkdir dir="${doc.java.dir}" />
 
@@ -623,37 +673,32 @@
 			breakiterator="yes"
 			classpathref="project.classpath"
 			destdir="${doc.java.dir}"
-			doctitle="Liferay ${lp.version} Internal API Documentation"
+			doctitle="Liferay ${lp.version} ${module.dir} API"
 			encoding="UTF-8"
-			header="&lt;b&gt;Liferay ${lp.version}&lt;/b&gt;"
+			header="&lt;b&gt;Liferay ${lp.version} ${module.dir}&lt;/b&gt;"
 			maxmemory="2048m"
 			noqualifier="java.*"
-			overview="portal-impl/src/portal-impl-overview.html"
+			overview="${module.dir}/src/overview.html"
 			stylesheetfile="${project.dir}/tools/javadoc.css"
 			useexternalfile="yes"
 			use="yes"
-			windowtitle="Liferay ${lp.version} Internal API"
+			windowtitle="Liferay ${lp.version} ${module.dir} API"
 		>
 			<doclet name="com.liferay.tools.doclets.standard.Standard" path="${project.dir}/lib/development/liferay-doclet.jar">
 				<param name="-linksource" />
 			</doclet>
 
-			<group title="Portal Services" packages="com.liferay.portal.service*" />
-			<group title="Portlet Services" packages="com.liferay.portlet*" />
+			<group title="Portal Services" packages="com.liferay.portal.*:com.liferay.counter.*:com.liferay.mail.*" />
+			<group title="Portal Kernel" packages="com.liferay.portal.kernel.*" />
+			<group title="Portlet Services" packages="com.liferay.*" />
 
 			<link href="http://docs.liferay.com/portlet-api/2.0/javadocs" />
 			<link href="http://java.sun.com/javase/6/docs/api" />
+			<link href="http://docs.liferay.com/portal/${lp.version.major}/javadocs" />
 
-			<packageset dir="portal-impl/src" />
-			<packageset dir="portal-service/src" />
-			<packageset dir="portal-test/src" />
-			<packageset dir="portal-test-internal/src" />
-			<packageset dir="util-bridges/src" />
-			<packageset dir="util-java/src" />
-			<packageset dir="util-slf4j/src" />
-			<packageset dir="util-taglib/src" />
+			<packageset dir="${module.dir}/src" />
 
-			<tag name="generated" description="ServiceBuilder generated this class. Modifications in this class will be overwritten the next time it is generated." />
+			<tag name="generated" description="{$generated.description}" />
 		</javadoc>
 	</target>
 
@@ -734,9 +779,13 @@
 	</target>
 
 	<target name="sort-xml-attributes">
+		<path id="source.formatter.classpath">
+			<fileset dir="${portal.tools.dir}/source-formatter" includes="*.jar" />
+		</path>
+
 		<java
-			classname="com.liferay.portal.tools.source.formatter.XMLAttributesSorter"
-			classpathref="portal.tools.classpath"
+			classname="com.liferay.source.formatter.XMLAttributesSorter"
+			classpathref="source.formatter.classpath"
 			fork="true"
 			newenvironment="true"
 		>
