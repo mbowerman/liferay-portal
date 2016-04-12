@@ -476,6 +476,15 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 		long secondReminder, java.lang.String secondReminderType,
 		ServiceContext serviceContext) throws PortalException;
 
+	public CalendarBooking updateRecurringCalendarBooking(long userId,
+		long calendarBookingId, long calendarId, long[] childCalendarIds,
+		Map<Locale, java.lang.String> titleMap,
+		Map<Locale, java.lang.String> descriptionMap,
+		java.lang.String location, long startTime, long endTime,
+		boolean allDay, long firstReminder, java.lang.String firstReminderType,
+		long secondReminder, java.lang.String secondReminderType,
+		ServiceContext serviceContext) throws PortalException;
+
 	@Indexable(type = IndexableType.REINDEX)
 	public CalendarBooking updateStatus(long userId,
 		CalendarBooking calendarBooking, int status,

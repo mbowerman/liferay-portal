@@ -1229,6 +1229,50 @@ public class CalendarBookingServiceHttp {
 		}
 	}
 
+	public static com.liferay.calendar.model.CalendarBooking updateRecurringCalendarBooking(
+		HttpPrincipal httpPrincipal, long calendarBookingId, long calendarId,
+		long[] childCalendarIds,
+		java.util.Map<java.util.Locale, java.lang.String> titleMap,
+		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
+		java.lang.String location, long startTime, long endTime,
+		boolean allDay, java.lang.String recurrence, long firstReminder,
+		java.lang.String firstReminderType, long secondReminder,
+		java.lang.String secondReminderType,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		try {
+			MethodKey methodKey = new MethodKey(CalendarBookingServiceUtil.class,
+					"updateRecurringCalendarBooking",
+					_updateRecurringCalendarBookingParameterTypes32);
+
+			MethodHandler methodHandler = new MethodHandler(methodKey,
+					calendarBookingId, calendarId, childCalendarIds, titleMap,
+					descriptionMap, location, startTime, endTime, allDay,
+					recurrence, firstReminder, firstReminderType,
+					secondReminder, secondReminderType, serviceContext);
+
+			Object returnObj = null;
+
+			try {
+				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
+			}
+			catch (Exception e) {
+				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
+					throw (com.liferay.portal.kernel.exception.PortalException)e;
+				}
+
+				throw new com.liferay.portal.kernel.exception.SystemException(e);
+			}
+
+			return (com.liferay.calendar.model.CalendarBooking)returnObj;
+		}
+		catch (com.liferay.portal.kernel.exception.SystemException se) {
+			_log.error(se, se);
+
+			throw se;
+		}
+	}
+
 	private static Log _log = LogFactoryUtil.getLog(CalendarBookingServiceHttp.class);
 	private static final Class<?>[] _addCalendarBookingParameterTypes0 = new Class[] {
 			long.class, long[].class, long.class, long.class,
@@ -1379,6 +1423,14 @@ public class CalendarBookingServiceHttp {
 			java.lang.String.class, long.class, long.class, boolean.class,
 			java.lang.String.class, long.class, java.lang.String.class,
 			long.class, java.lang.String.class,
+			com.liferay.portal.kernel.service.ServiceContext.class
+		};
+	private static final Class<?>[] _updateRecurringCalendarBookingParameterTypes32 =
+		new Class[] {
+			long.class, long.class, long[].class, java.util.Map.class,
+			java.util.Map.class, java.lang.String.class, long.class, long.class,
+			boolean.class, java.lang.String.class, long.class,
+			java.lang.String.class, long.class, java.lang.String.class,
 			com.liferay.portal.kernel.service.ServiceContext.class
 		};
 }
