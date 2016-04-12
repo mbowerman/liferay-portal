@@ -1182,6 +1182,36 @@ public class CalendarBookingLocalServiceImpl
 			serviceContext);
 	}
 
+	@Override
+	public CalendarBooking updateRecurringCalendarBooking(
+			long userId, long calendarBookingId, long calendarId,
+			long[] childCalendarIds, Map<Locale, String> titleMap,
+			Map<Locale, String> descriptionMap, String location, long startTime,
+			long endTime, boolean allDay, long firstReminder,
+			String firstReminderType, long secondReminder,
+			String secondReminderType, ServiceContext serviceContext)
+		throws PortalException {
+
+		CalendarBooking calendarBooking =
+			calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
+
+		List<CalendarBooking> relatedCalendarBookings =
+			getRelatedCalendarBookings(calendarBooking);
+
+		List<String> unchangedList = getUnchangedList(
+			calendarBooking, calendarId, titleMap, descriptionMap, location,
+			startTime, endTime, allDay, firstReminder, firstReminderType,
+			secondReminder, secondReminderType);
+
+		updateCalendarBookingsByChanges(
+			userId, calendarId, childCalendarIds, titleMap, descriptionMap,
+			location, startTime, endTime, allDay, firstReminder,
+			firstReminderType, secondReminder, secondReminderType,
+			serviceContext, relatedCalendarBookings, unchangedList);
+
+		return calendarBooking;
+	}
+
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public CalendarBooking updateStatus(
