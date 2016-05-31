@@ -101,11 +101,11 @@ public class ResourceActionLocalServiceImpl
 		}
 
 		for (ResourceAction resourceAction : resourceActions) {
-			if (!actionIds.contains(resourceAction.getActionId())) {
-				deleteResourceAction(resourceAction);
+			if (actionIds.contains(resourceAction.getActionId())) {
+				availableBitwiseValues.remove(resourceAction.getBitwiseValue());
 			}
 			else {
-				availableBitwiseValues.remove(resourceAction.getBitwiseValue());
+				deleteResourceAction(resourceAction);
 			}
 		}
 
@@ -124,11 +124,11 @@ public class ResourceActionLocalServiceImpl
 				name, actionId);
 
 			if (resourceAction == null) {
-				if (!actionId.equals(ActionKeys.VIEW)) {
-					bitwiseValue = availableBitwiseValues.pop();
+				if (actionId.equals(ActionKeys.VIEW)) {
+					bitwiseValue = 1;
 				}
 				else {
-					bitwiseValue = 1;
+					bitwiseValue = availableBitwiseValues.pop();
 				}
 
 				try {
