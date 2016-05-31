@@ -867,21 +867,17 @@ public class ResourceActionsImpl implements ResourceActions {
 			return portletResourceActionsBag;
 		}
 
-		synchronized(_portletResourceActionsBags) {
-			portletResourceActionsBag = _portletResourceActionsBags.get(
-				portletName);
+		portletResourceActionsBag = new PortletResourceActionsBagImpl();
 
-			if (portletResourceActionsBag != null) {
-				return portletResourceActionsBag;
-			}
-
-			portletResourceActionsBag = new PortletResourceActionsBagImpl();
-
+		PortletResourceActionsBag oldPortletResourceActionsBag =
 			_portletResourceActionsBags.put(
 				portletName, portletResourceActionsBag);
+
+		if (oldPortletResourceActionsBag == null) {
+			return portletResourceActionsBag;
 		}
 
-		return portletResourceActionsBag;
+		return oldPortletResourceActionsBag;
 	}
 
 	protected String getResourceBundlesString(
