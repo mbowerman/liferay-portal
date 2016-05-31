@@ -794,19 +794,16 @@ public class ResourceActionsImpl implements ResourceActions {
 			return modelResourceActionsBag;
 		}
 
-		synchronized(_modelResourceActionsBags) {
-			modelResourceActionsBag = _modelResourceActionsBags.get(modelName);
+		modelResourceActionsBag = new ModelResourceActionsBagImpl();
 
-			if (modelResourceActionsBag != null) {
-				return modelResourceActionsBag;
-			}
-
-			modelResourceActionsBag = new ModelResourceActionsBagImpl();
-
+		ModelResourceActionsBag oldModelResourceActionsBag =
 			_modelResourceActionsBags.put(modelName, modelResourceActionsBag);
+
+		if (oldModelResourceActionsBag == null) {
+			return modelResourceActionsBag;
 		}
 
-		return modelResourceActionsBag;
+		return oldModelResourceActionsBag;
 	}
 
 	protected Element getPermissionsChildElement(
