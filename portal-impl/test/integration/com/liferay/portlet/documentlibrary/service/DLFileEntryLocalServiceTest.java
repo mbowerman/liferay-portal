@@ -14,13 +14,46 @@
 
 package com.liferay.portlet.documentlibrary.service;
 
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
+import com.liferay.document.library.kernel.exception.DuplicateFileEntryException;
+import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.document.library.kernel.model.DLFileEntryMetadata;
+import com.liferay.document.library.kernel.model.DLFileEntryType;
+import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
+import com.liferay.document.library.kernel.model.DLFileVersion;
+import com.liferay.document.library.kernel.model.DLFolder;
+import com.liferay.document.library.kernel.model.DLFolderConstants;
+import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
+import com.liferay.document.library.kernel.service.DLAppServiceUtil;
+import com.liferay.document.library.kernel.service.DLFileEntryLocalServiceUtil;
+import com.liferay.document.library.kernel.service.DLFileEntryMetadataLocalServiceUtil;
+import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalServiceUtil;
+import com.liferay.document.library.kernel.service.DLFileVersionLocalServiceUtil;
+import com.liferay.document.library.kernel.service.DLTrashLocalServiceUtil;
+import com.liferay.document.library.kernel.store.DLStoreUtil;
+import com.liferay.dynamic.data.mapping.kernel.DDMForm;
+import com.liferay.dynamic.data.mapping.kernel.DDMFormField;
+import com.liferay.dynamic.data.mapping.kernel.DDMFormFieldValue;
+import com.liferay.dynamic.data.mapping.kernel.DDMFormValues;
+import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
+import com.liferay.dynamic.data.mapping.kernel.LocalizedValue;
+import com.liferay.dynamic.data.mapping.kernel.StorageEngineManagerUtil;
+import com.liferay.dynamic.data.mapping.kernel.UnlocalizedValue;
+import com.liferay.dynamic.data.mapping.kernel.Value;
+import com.liferay.expando.kernel.model.ExpandoBridge;
+import com.liferay.expando.kernel.model.ExpandoColumnConstants;
+import com.liferay.expando.kernel.model.ExpandoTable;
+import com.liferay.expando.kernel.service.ExpandoColumnLocalServiceUtil;
+import com.liferay.expando.kernel.service.ExpandoTableLocalServiceUtil;
 import com.liferay.portal.kernel.interval.IntervalActionProcessor;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.repository.LocalRepository;
 import com.liferay.portal.kernel.repository.RepositoryProviderUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
-import com.liferay.portal.kernel.repository.util.RepositoryTrashUtil;
-import com.liferay.portal.kernel.search.SearchEngineUtil;
+import com.liferay.portal.kernel.search.IndexWriterHelperUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
@@ -32,42 +65,20 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.randomizerbumpers.TikaSafeRandomizerBumper;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.asset.model.AssetEntry;
-import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
-import com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata;
-import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
-import com.liferay.portlet.documentlibrary.model.DLFileVersion;
-import com.liferay.portlet.documentlibrary.model.DLFolder;
-import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.documentlibrary.util.test.DLTestUtil;
-import com.liferay.portlet.dynamicdatamapping.DDMForm;
-import com.liferay.portlet.dynamicdatamapping.DDMFormField;
-import com.liferay.portlet.dynamicdatamapping.DDMFormFieldValue;
-import com.liferay.portlet.dynamicdatamapping.DDMFormValues;
-import com.liferay.portlet.dynamicdatamapping.DDMStructure;
-import com.liferay.portlet.dynamicdatamapping.LocalizedValue;
-import com.liferay.portlet.dynamicdatamapping.StorageEngineManagerUtil;
-import com.liferay.portlet.dynamicdatamapping.UnlocalizedValue;
-import com.liferay.portlet.dynamicdatamapping.Value;
 import com.liferay.portlet.dynamicdatamapping.util.test.DDMStructureTestUtil;
-import com.liferay.portlet.expando.model.ExpandoBridge;
-import com.liferay.portlet.expando.model.ExpandoColumnConstants;
-import com.liferay.portlet.expando.model.ExpandoTable;
-import com.liferay.portlet.expando.service.ExpandoColumnLocalServiceUtil;
-import com.liferay.portlet.expando.service.ExpandoTableLocalServiceUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +100,7 @@ public class DLFileEntryLocalServiceTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
+			new LiferayIntegrationTestRule(),
 			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
@@ -211,7 +222,7 @@ public class DLFileEntryLocalServiceTest {
 				RepositoryProviderUtil.getFileEntryLocalRepository(
 					fileEntry.getFileEntryId());
 
-			RepositoryTrashUtil.moveFileEntryToTrash(
+			DLTrashLocalServiceUtil.moveFileEntryToTrash(
 				TestPropsValues.getUserId(), localRepository.getRepositoryId(),
 				fileEntry.getFileEntryId());
 		}
@@ -232,6 +243,59 @@ public class DLFileEntryLocalServiceTest {
 			_group.getGroupId(), folder.getFolderId());
 
 		Assert.assertEquals(20, fileEntriesCount);
+	}
+
+	@Test
+	public void testDuplicateFileIsIgnored() throws Exception {
+		DLFolder dlFolder = DLTestUtil.addDLFolder(_group.getGroupId());
+		Map<String, DDMFormValues> ddmFormValuesMap = Collections.emptyMap();
+		InputStream inputStream = new ByteArrayInputStream(new byte[0]);
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
+
+		DLFileEntry dlFileEntry = addAndApproveFileEntry(
+			dlFolder, ddmFormValuesMap, inputStream, serviceContext);
+
+		DLStoreUtil.updateFile(
+			dlFileEntry.getCompanyId(), dlFileEntry.getRepositoryId(),
+			dlFileEntry.getName(), dlFileEntry.getExtension(), false, "2.0",
+			StringUtil.randomString(), inputStream);
+
+		dlFileEntry = updateAndApproveDLFileEntry(
+			dlFileEntry, inputStream, ddmFormValuesMap, serviceContext);
+
+		dlFileEntry = DLFileEntryLocalServiceUtil.getFileEntry(
+			dlFileEntry.getFileEntryId());
+
+		Assert.assertEquals("2.0", dlFileEntry.getVersion());
+	}
+
+	@Test(expected = DuplicateFileEntryException.class)
+	public void testDuplicateTitleFileEntry() throws Exception {
+		DLFolder dlFolder = DLTestUtil.addDLFolder(_group.getGroupId());
+		String title = StringUtil.randomString();
+		Map<String, DDMFormValues> ddmFormValuesMap = Collections.emptyMap();
+		InputStream inputStream = new ByteArrayInputStream(new byte[0]);
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
+
+		DLFileEntryLocalServiceUtil.addFileEntry(
+			TestPropsValues.getUserId(), dlFolder.getGroupId(),
+			dlFolder.getRepositoryId(), dlFolder.getFolderId(),
+			StringUtil.randomString(), ContentTypes.TEXT_PLAIN, title,
+			StringPool.BLANK, StringPool.BLANK,
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT,
+			ddmFormValuesMap, null, inputStream, 0, serviceContext);
+
+		DLFileEntryLocalServiceUtil.addFileEntry(
+			TestPropsValues.getUserId(), dlFolder.getGroupId(),
+			dlFolder.getRepositoryId(), dlFolder.getFolderId(),
+			StringUtil.randomString(), ContentTypes.TEXT_PLAIN, title,
+			StringPool.BLANK, StringPool.BLANK,
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT,
+			ddmFormValuesMap, null, inputStream, 0, serviceContext);
 	}
 
 	@Test
@@ -351,12 +415,12 @@ public class DLFileEntryLocalServiceTest {
 			StringPool.BLANK, StringPool.BLANK, is, bytes.length,
 			serviceContext);
 
-		boolean indexReadOnly = SearchEngineUtil.isIndexReadOnly();
+		boolean indexReadOnly = IndexWriterHelperUtil.isIndexReadOnly();
 
 		DLFileEntry dlFileEntry = null;
 
 		try {
-			SearchEngineUtil.setIndexReadOnly(true);
+			IndexWriterHelperUtil.setIndexReadOnly(true);
 
 			dlFileEntry = DLFileEntryLocalServiceUtil.getFileEntry(
 				fileEntry.getFileEntryId());
@@ -377,8 +441,29 @@ public class DLFileEntryLocalServiceTest {
 					dlFileEntry.getFileEntryId());
 			}
 
-			SearchEngineUtil.setIndexReadOnly(indexReadOnly);
+			IndexWriterHelperUtil.setIndexReadOnly(indexReadOnly);
 		}
+	}
+
+	protected DLFileEntry addAndApproveFileEntry(
+			DLFolder dlFolder, Map<String, DDMFormValues> ddmFormValuesMap,
+			InputStream inputStream, ServiceContext serviceContext)
+		throws Exception {
+
+		DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.addFileEntry(
+			TestPropsValues.getUserId(), dlFolder.getGroupId(),
+			dlFolder.getRepositoryId(), dlFolder.getFolderId(),
+			StringUtil.randomString(), ContentTypes.TEXT_PLAIN,
+			StringUtil.randomString(), StringPool.BLANK, StringPool.BLANK,
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT,
+			ddmFormValuesMap, null, inputStream, 0, serviceContext);
+
+		DLFileVersion dlFileVersion = dlFileEntry.getLatestFileVersion(true);
+
+		return DLFileEntryLocalServiceUtil.updateStatus(
+			TestPropsValues.getUserId(), dlFileVersion.getFileVersionId(),
+			WorkflowConstants.STATUS_APPROVED, serviceContext,
+			new HashMap<String, Serializable>());
 	}
 
 	protected DDMForm createDDMForm() {
@@ -448,6 +533,27 @@ public class DLFileEntryLocalServiceTest {
 			ddmFormValues);
 
 		return dlFileEntryType.getFileEntryTypeId();
+	}
+
+	protected DLFileEntry updateAndApproveDLFileEntry(
+			DLFileEntry dlFileEntry, InputStream inputStream,
+			Map<String, DDMFormValues> ddmFormValuesMap,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		dlFileEntry = DLFileEntryLocalServiceUtil.updateFileEntry(
+			TestPropsValues.getUserId(), dlFileEntry.getFileEntryId(),
+			StringUtil.randomString(), ContentTypes.TEXT_PLAIN,
+			StringUtil.randomString(), StringPool.BLANK, StringPool.BLANK, true,
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT,
+			ddmFormValuesMap, null, inputStream, 0, serviceContext);
+
+		DLFileVersion dlFileVersion = dlFileEntry.getLatestFileVersion(true);
+
+		return DLFileEntryLocalServiceUtil.updateStatus(
+			TestPropsValues.getUserId(), dlFileVersion.getFileVersionId(),
+			WorkflowConstants.STATUS_APPROVED, serviceContext,
+			new HashMap<String, Serializable>());
 	}
 
 	@DeleteAfterTestRun

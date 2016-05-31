@@ -16,11 +16,11 @@ package com.liferay.counter.service.persistence.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.counter.NoSuchCounterException;
-import com.liferay.counter.model.Counter;
+import com.liferay.counter.kernel.exception.NoSuchCounterException;
+import com.liferay.counter.kernel.model.Counter;
+import com.liferay.counter.kernel.service.persistence.CounterPersistence;
 import com.liferay.counter.model.impl.CounterImpl;
 import com.liferay.counter.model.impl.CounterModelImpl;
-import com.liferay.counter.service.persistence.CounterPersistence;
 
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
@@ -32,11 +32,11 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
 import java.io.Serializable;
 
@@ -57,7 +57,7 @@ import java.util.Set;
  *
  * @author Brian Wing Shun Chan
  * @see CounterPersistence
- * @see com.liferay.counter.service.persistence.CounterUtil
+ * @see com.liferay.counter.kernel.service.persistence.CounterUtil
  * @generated
  */
 @ProviderType
@@ -207,8 +207,8 @@ public class CounterPersistenceImpl extends BasePersistenceImpl<Counter>
 			Counter counter = (Counter)session.get(CounterImpl.class, primaryKey);
 
 			if (counter == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				if (_log.isDebugEnabled()) {
+					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
 				throw new NoSuchCounterException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -318,7 +318,7 @@ public class CounterPersistenceImpl extends BasePersistenceImpl<Counter>
 	}
 
 	/**
-	 * Returns the counter with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the counter with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the counter
 	 * @return the counter
@@ -330,8 +330,8 @@ public class CounterPersistenceImpl extends BasePersistenceImpl<Counter>
 		Counter counter = fetchByPrimaryKey(primaryKey);
 
 		if (counter == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+			if (_log.isDebugEnabled()) {
+				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			throw new NoSuchCounterException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -591,7 +591,7 @@ public class CounterPersistenceImpl extends BasePersistenceImpl<Counter>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(2 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 
 				query.append(_SQL_SELECT_COUNTER);
 

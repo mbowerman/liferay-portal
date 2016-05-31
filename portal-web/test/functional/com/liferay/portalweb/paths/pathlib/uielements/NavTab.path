@@ -9,23 +9,28 @@
 </thead>
 <tbody>
 <tr>
+	<td>ACTIVE_TAB_LINK</td>
+	<td>//ul[contains(@class,'nav-tabs')]/li[contains(.,'${key_tab}') and contains(@class,'active')]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TAB_LINK</td>
+	<td>//ul[contains(@class,'nav-tabs')]//li[contains(.,'${key_tab}')]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
 	<td>ACCOUNT_CREATED_NOTIFICATION</td>
 	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'Account Created Notification')]</td>
 	<td></td>
 </tr>
 <tr>
-	<td>ADD_CATEGORY</td>
-	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'Add Category')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>ALL_ORGANIZATIONS</td>
 	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'All Organizations')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>ALL_USERS</td>
-	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'All Users')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -89,11 +94,6 @@
 	<td></td>
 </tr>
 <tr>
-	<td>EXTERNAL_SERVICES</td>
-	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'External Services')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>FACEBOOK</td>
 	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'Facebook')]</td>
 	<td></td>
@@ -104,8 +104,8 @@
 	<td></td>
 </tr>
 <tr>
-	<td>FILE_UPLOADS</td>
-	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'File Uploads')]</td>
+	<td>FILE_INFO</td>
+	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'File Info')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -124,13 +124,8 @@
 	<td></td>
 </tr>
 <tr>
-	<td>LOG_LEVELS</td>
-	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'Log Levels')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>MAIL</td>
-	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'Mail')]</td>
+	<td>MENTIONS</td>
+	<td>//li[contains(@id,'microblogs')]/a[contains(.,'Mentions')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -145,7 +140,7 @@
 </tr>
 <tr>
 	<td>OPEN_SSO</td>
-	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'Open SSO')]</td>
+	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'OpenSSO')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -174,8 +169,8 @@
 	<td></td>
 </tr>
 <tr>
-	<td>PORTLET_CONFIGURATION</td>
-	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'Portlet Configuration')]</td>
+	<td>LOOK_AND_FEEL_GENERAL</td>
+	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'General')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -191,11 +186,6 @@
 <tr>
 	<td>RESERVED_CREDENTIALS</td>
 	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'Reserved Credentials')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>RESOURCES</td>
-	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'Resources')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -239,6 +229,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>TIMELINE</td>
+	<td>//li[contains(@id,'microblogs')]/a[contains(.,'Timeline')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>UPDATE_CATEGORIES</td>
 	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'Update Categories')]</td>
 	<td></td>
@@ -251,6 +246,11 @@
 <tr>
 	<td>USER_GROUPS</td>
 	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'User Groups')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>VERSION</td>
+	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'Version')]</td>
 	<td></td>
 </tr>
 <tr>

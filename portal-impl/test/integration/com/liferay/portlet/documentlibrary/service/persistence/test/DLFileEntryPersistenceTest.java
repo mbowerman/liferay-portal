@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.documentlibrary.service.persistence.test;
 
+import com.liferay.document.library.kernel.exception.NoSuchFileEntryException;
+import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.document.library.kernel.service.DLFileEntryLocalServiceUtil;
+import com.liferay.document.library.kernel.service.persistence.DLFileEntryPersistence;
+import com.liferay.document.library.kernel.service.persistence.DLFileEntryUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -30,15 +36,8 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-
-import com.liferay.portlet.documentlibrary.NoSuchFileEntryException;
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
-import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryPersistence;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryUtil;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -54,6 +53,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -556,11 +556,9 @@ public class DLFileEntryPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = DLFileEntryLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<DLFileEntry>() {
 				@Override
-				public void performAction(Object object) {
-					DLFileEntry dlFileEntry = (DLFileEntry)object;
-
+				public void performAction(DLFileEntry dlFileEntry) {
 					Assert.assertNotNull(dlFileEntry);
 
 					count.increment();
@@ -652,7 +650,7 @@ public class DLFileEntryPersistenceTest {
 
 		DLFileEntry existingDLFileEntry = _persistence.findByPrimaryKey(newDLFileEntry.getPrimaryKey());
 
-		Assert.assertTrue(Validator.equals(existingDLFileEntry.getUuid(),
+		Assert.assertTrue(Objects.equals(existingDLFileEntry.getUuid(),
 				ReflectionTestUtil.invoke(existingDLFileEntry,
 					"getOriginalUuid", new Class<?>[0])));
 		Assert.assertEquals(Long.valueOf(existingDLFileEntry.getGroupId()),
@@ -665,7 +663,7 @@ public class DLFileEntryPersistenceTest {
 		Assert.assertEquals(Long.valueOf(existingDLFileEntry.getFolderId()),
 			ReflectionTestUtil.<Long>invoke(existingDLFileEntry,
 				"getOriginalFolderId", new Class<?>[0]));
-		Assert.assertTrue(Validator.equals(existingDLFileEntry.getName(),
+		Assert.assertTrue(Objects.equals(existingDLFileEntry.getName(),
 				ReflectionTestUtil.invoke(existingDLFileEntry,
 					"getOriginalName", new Class<?>[0])));
 
@@ -675,7 +673,7 @@ public class DLFileEntryPersistenceTest {
 		Assert.assertEquals(Long.valueOf(existingDLFileEntry.getFolderId()),
 			ReflectionTestUtil.<Long>invoke(existingDLFileEntry,
 				"getOriginalFolderId", new Class<?>[0]));
-		Assert.assertTrue(Validator.equals(existingDLFileEntry.getFileName(),
+		Assert.assertTrue(Objects.equals(existingDLFileEntry.getFileName(),
 				ReflectionTestUtil.invoke(existingDLFileEntry,
 					"getOriginalFileName", new Class<?>[0])));
 
@@ -685,7 +683,7 @@ public class DLFileEntryPersistenceTest {
 		Assert.assertEquals(Long.valueOf(existingDLFileEntry.getFolderId()),
 			ReflectionTestUtil.<Long>invoke(existingDLFileEntry,
 				"getOriginalFolderId", new Class<?>[0]));
-		Assert.assertTrue(Validator.equals(existingDLFileEntry.getTitle(),
+		Assert.assertTrue(Objects.equals(existingDLFileEntry.getTitle(),
 				ReflectionTestUtil.invoke(existingDLFileEntry,
 					"getOriginalTitle", new Class<?>[0])));
 	}

@@ -14,15 +14,15 @@
 
 package com.liferay.portlet.asset.bundle.assetrendererfactoryregistryutil;
 
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.model.AssetRenderer;
+import com.liferay.asset.kernel.model.AssetRendererFactory;
+import com.liferay.asset.kernel.model.ClassTypeReader;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Tuple;
-import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portlet.asset.model.AssetEntry;
-import com.liferay.portlet.asset.model.AssetRenderer;
-import com.liferay.portlet.asset.model.AssetRendererFactory;
-import com.liferay.portlet.asset.model.ClassTypeReader;
 
 import java.util.List;
 import java.util.Locale;
@@ -123,6 +123,10 @@ public class TestAssetRendererFactory
 		return null;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0
+	 */
+	@Deprecated
 	@Override
 	public String getIconPath(PortletRequest portletRequest) {
 		return null;
@@ -221,11 +225,6 @@ public class TestAssetRendererFactory
 
 	@Override
 	public boolean isLinkable() {
-		return false;
-	}
-
-	@Override
-	public boolean isListable(long classPK) {
 		return false;
 	}
 

@@ -14,18 +14,37 @@
 
 package com.liferay.portal.security.permission;
 
-import com.liferay.portal.NoSuchResourceActionException;
-import com.liferay.portal.ResourceActionsException;
 import com.liferay.portal.kernel.bean.BeanReference;
+import com.liferay.portal.kernel.exception.NoSuchResourceActionException;
+import com.liferay.portal.kernel.exception.ResourceActionsException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.Portlet;
+import com.liferay.portal.kernel.model.PortletConstants;
+import com.liferay.portal.kernel.model.ResourceAction;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.ModelResourceActionsBag;
+import com.liferay.portal.kernel.security.permission.PortletResourceActionsBag;
+import com.liferay.portal.kernel.security.permission.ResourceActions;
+import com.liferay.portal.kernel.service.GroupServiceUtil;
+import com.liferay.portal.kernel.service.PortletLocalService;
+import com.liferay.portal.kernel.service.ResourceActionLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.PortletKeys;
+import com.liferay.portal.kernel.util.ResourceBundleLoader;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -34,22 +53,9 @@ import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.DocumentType;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.UnsecureSAXReaderUtil;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.Organization;
-import com.liferay.portal.model.Portlet;
-import com.liferay.portal.model.PortletConstants;
-import com.liferay.portal.model.ResourceAction;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.GroupServiceUtil;
-import com.liferay.portal.service.PortletLocalService;
-import com.liferay.portal.service.ResourceActionLocalService;
-import com.liferay.portal.service.RoleLocalService;
-import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.registry.collections.ServiceTrackerCollections;
-import com.liferay.registry.collections.ServiceTrackerMap;
+import com.liferay.registry.collections.ServiceTrackerList;
 import com.liferay.util.JS;
 
 import java.io.InputStream;
@@ -79,10 +85,8 @@ import org.apache.struts.util.RequestUtils;
 public class ResourceActionsImpl implements ResourceActions {
 
 	public ResourceActionsImpl() {
-		_resourceBundles = ServiceTrackerCollections.multiValueMap(
-			ResourceBundle.class, "language.id");
-
-		_resourceBundles.open();
+		_resourceBundleLoaders = ServiceTrackerCollections.openList(
+			ResourceBundleLoader.class);
 	}
 
 	public void afterPropertiesSet() {
@@ -90,7 +94,9 @@ public class ResourceActionsImpl implements ResourceActions {
 		_modelResourceActionsBags = new HashMap<>();
 
 		try {
-			ClassLoader classLoader = getClass().getClassLoader();
+			Class<?> clazz = getClass();
+
+			ClassLoader classLoader = clazz.getClassLoader();
 
 			for (String config : PropsValues.RESOURCE_ACTIONS_CONFIGS) {
 				read(null, classLoader, config);
@@ -114,7 +120,7 @@ public class ResourceActionsImpl implements ResourceActions {
 	}
 
 	public void destroy() {
-		_resourceBundles.close();
+		_resourceBundleLoaders.close();
 	}
 
 	@Override
@@ -558,18 +564,6 @@ public class ResourceActionsImpl implements ResourceActions {
 		return actions;
 	}
 
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getRoles(long, Group,
-	 *             String, int[])}
-	 */
-	@Deprecated
-	@Override
-	public List<Role> getRoles(
-		long companyId, Group group, String modelResource) {
-
-		return getRoles(companyId, group, modelResource, null);
-	}
-
 	@Override
 	public List<Role> getRoles(
 		long companyId, Group group, String modelResource, int[] roleTypes) {
@@ -579,6 +573,12 @@ public class ResourceActionsImpl implements ResourceActions {
 		}
 
 		return roleLocalService.getRoles(companyId, roleTypes);
+	}
+
+	@Override
+	public String[] getRootModelResources() {
+		return _rootModelResources.toArray(
+			new String[_rootModelResources.size()]);
 	}
 
 	@Override
@@ -617,6 +617,16 @@ public class ResourceActionsImpl implements ResourceActions {
 	}
 
 	@Override
+	public boolean isRootModelResource(String modelResource) {
+		if (_rootModelResources.contains(modelResource)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	@Override
 	public void read(
 			String servletContextName, ClassLoader classLoader, String source)
 		throws Exception {
@@ -624,10 +634,10 @@ public class ResourceActionsImpl implements ResourceActions {
 		InputStream inputStream = classLoader.getResourceAsStream(source);
 
 		if (inputStream == null) {
-			if (_log.isWarnEnabled() && !source.endsWith("-ext.xml") &&
+			if (_log.isInfoEnabled() && !source.endsWith("-ext.xml") &&
 				!source.startsWith("META-INF/")) {
 
-				_log.warn("Cannot load " + source);
+				_log.info("Cannot load " + source);
 			}
 
 			return;
@@ -784,19 +794,16 @@ public class ResourceActionsImpl implements ResourceActions {
 			return modelResourceActionsBag;
 		}
 
-		synchronized(_modelResourceActionsBags) {
-			modelResourceActionsBag = _modelResourceActionsBags.get(modelName);
+		modelResourceActionsBag = new ModelResourceActionsBagImpl();
 
-			if (modelResourceActionsBag != null) {
-				return modelResourceActionsBag;
-			}
-
-			modelResourceActionsBag = new ModelResourceActionsBagImpl();
-
+		ModelResourceActionsBag oldModelResourceActionsBag =
 			_modelResourceActionsBags.put(modelName, modelResourceActionsBag);
+
+		if (oldModelResourceActionsBag == null) {
+			return modelResourceActionsBag;
 		}
 
-		return modelResourceActionsBag;
+		return oldModelResourceActionsBag;
 	}
 
 	protected Element getPermissionsChildElement(
@@ -860,21 +867,17 @@ public class ResourceActionsImpl implements ResourceActions {
 			return portletResourceActionsBag;
 		}
 
-		synchronized(_portletResourceActionsBags) {
-			portletResourceActionsBag = _portletResourceActionsBags.get(
-				portletName);
+		portletResourceActionsBag = new PortletResourceActionsBagImpl();
 
-			if (portletResourceActionsBag != null) {
-				return portletResourceActionsBag;
-			}
-
-			portletResourceActionsBag = new PortletResourceActionsBagImpl();
-
+		PortletResourceActionsBag oldPortletResourceActionsBag =
 			_portletResourceActionsBags.put(
 				portletName, portletResourceActionsBag);
+
+		if (oldPortletResourceActionsBag == null) {
+			return portletResourceActionsBag;
 		}
 
-		return portletResourceActionsBag;
+		return oldPortletResourceActionsBag;
 	}
 
 	protected String getResourceBundlesString(
@@ -890,22 +893,20 @@ public class ResourceActionsImpl implements ResourceActions {
 			return null;
 		}
 
-		List<ResourceBundle> resourceBundles = null;
+		String languageId = LocaleUtil.toLanguageId(locale);
 
-		try {
-			String languageId = LocaleUtil.toLanguageId(locale);
+		for (ResourceBundleLoader resourceBundleLoader :
+				_resourceBundleLoaders) {
 
-			resourceBundles = _resourceBundles.getService(languageId);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
+			ResourceBundle resourceBundle =
+				resourceBundleLoader.loadResourceBundle(languageId);
 
-			return null;
-		}
+			if (resourceBundle == null) {
+				continue;
+			}
 
-		for (ResourceBundle resourceBundle : resourceBundles) {
 			if (resourceBundle.containsKey(key)) {
-				return resourceBundle.getString(key);
+				return ResourceBundleUtil.getString(resourceBundle, key);
 			}
 		}
 
@@ -1107,6 +1108,8 @@ public class ResourceActionsImpl implements ResourceActions {
 				modelResourceElement.elementText("root"));
 
 			if (root) {
+				_rootModelResources.add(name);
+
 				Map<String, String> portletRootModelResource =
 					portletResourceActionsBag.getPortletRootModelResources();
 
@@ -1122,8 +1125,7 @@ public class ResourceActionsImpl implements ResourceActions {
 
 		modelResourceWeights.put(name, weight);
 
-		Set<String> modelResourceActions =
-			modelResourceActionsBag.getResourceActions();
+		Set<String> modelResourceActions = new HashSet<>();
 
 		readSupportsActions(modelResourceElement, modelResourceActions);
 
@@ -1158,6 +1160,14 @@ public class ResourceActionsImpl implements ResourceActions {
 
 		readOwnerDefaultActions(
 			modelResourceElement, modelResourceOwnerDefaultActions);
+
+		ModelResourceActionsBag newResourceActionsBag =
+			new ModelResourceActionsBagImpl(
+				modelResourceActions, resourceGroupDefaultActions,
+				resourceGuestDefaultActions, resourceGuestUnsupportedActions,
+				resources, resourceOwnerDefaultActions, resourceWeights);
+
+		_modelResourceActionsBags.put(name, newResourceActionsBag);
 	}
 
 	protected void readOwnerDefaultActions(
@@ -1191,6 +1201,8 @@ public class ResourceActionsImpl implements ResourceActions {
 
 		Set<String> portletResourceActions =
 			portletResourceActionsBag.getResourceActions();
+
+		portletResourceActions.clear();
 
 		readSupportsActions(portletResourceElement, portletResourceActions);
 
@@ -1266,7 +1278,8 @@ public class ResourceActionsImpl implements ResourceActions {
 	private final Set<String> _organizationModelResources = new HashSet<>();
 	private final Set<String> _portalModelResources = new HashSet<>();
 	private Map<String, PortletResourceActionsBag> _portletResourceActionsBags;
-	private final ServiceTrackerMap<String, List<ResourceBundle>>
-		_resourceBundles;
+	private final ServiceTrackerList<ResourceBundleLoader>
+		_resourceBundleLoaders;
+	private final Set<String> _rootModelResources = new HashSet<>();
 
 }

@@ -276,12 +276,15 @@ String signature = ParamUtil.getString(request, "signature");
 					<liferay-ui:section>
 						<pre class="lfr-code-block" id="serviceOutput"></pre>
 					</liferay-ui:section>
+
 					<liferay-ui:section>
 						<pre class="lfr-code-block" id="jsExample"></pre>
 					</liferay-ui:section>
+
 					<liferay-ui:section>
 						<pre class="lfr-code-block" id="curlExample"></pre>
 					</liferay-ui:section>
+
 					<liferay-ui:section>
 						<pre class="lfr-code-block" id="urlExample"></pre>
 					</liferay-ui:section>
@@ -338,9 +341,9 @@ String signature = ParamUtil.getString(request, "signature");
 					%>
 
 						<aui:field-wrapper label="<%= methodParameterName %>">
-							<aui:input checked="<%= true %>" id='<%= "fieldTrue" + i %>' inlineField="<%= true %>" label="true" name="<%= methodParameterName %>" type="radio" value="<%= true %>" />
+							<aui:input checked="<%= true %>" id='<%= "fieldTrue" + i %>' inlineField="<%= true %>" label="<%= Boolean.TRUE.toString() %>" name="<%= methodParameterName %>" type="radio" value="<%= true %>" />
 
-							<aui:input id='<%= "fieldFalse" + i %>' inlineField="<%= true %>" label="false" name="<%= methodParameterName %>" type="radio" value="<%= false %>" />
+							<aui:input id='<%= "fieldFalse" + i %>' inlineField="<%= true %>" label="<%= Boolean.FALSE.toString() %>" name="<%= methodParameterName %>" type="radio" value="<%= false %>" />
 
 							<span class="suffix"><%= methodParameterTypeClassName %></span>
 						</aui:field-wrapper>

@@ -36,7 +36,6 @@ import com.liferay.portal.kernel.util.PortalLifecycleUtil;
 import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.Validator;
 
 import java.io.File;
 
@@ -44,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
@@ -139,7 +139,7 @@ public class HotDeployImpl implements HotDeploy {
 		String servletContextName, PortalLifecycle portalLifecycle) {
 
 		for (HotDeployEvent hotDeployEvent : _dependentHotDeployEvents) {
-			if (Validator.equals(
+			if (Objects.equals(
 					servletContextName,
 					hotDeployEvent.getServletContextName())) {
 
@@ -258,7 +258,9 @@ public class HotDeployImpl implements HotDeploy {
 
 					doFireDeployEvent(dependentEvent);
 
-					dependentEvent.flushInits();
+					if (!_dependentHotDeployEvents.contains(dependentEvent)) {
+						dependentEvent.flushInits();
+					}
 				}
 			}
 			finally {
@@ -337,21 +339,7 @@ public class HotDeployImpl implements HotDeploy {
 	private final Set<String> _deployedServletContextNames;
 	private final List<HotDeployListener> _hotDeployListeners;
 
-	private static class NoPACL implements PACL {
-
-		@Override
-		public void initPolicy(
-			String contextName, URLContainer urlContainer,
-			ClassLoader classLoader, Properties properties) {
-		}
-
-		@Override
-		public void unregister(ClassLoader classLoader) {
-		}
-
-	}
-
-	private class HotDeployPortalLifecycle extends BasePortalLifecycle {
+	private static class HotDeployPortalLifecycle extends BasePortalLifecycle {
 
 		public HotDeployPortalLifecycle(HotDeployEvent hotDeployEvent) {
 			_servletContext = hotDeployEvent.getServletContext();
@@ -395,6 +383,20 @@ public class HotDeployImpl implements HotDeploy {
 
 		private final ClassLoader _classLoader;
 		private final ServletContext _servletContext;
+
+	}
+
+	private static class NoPACL implements PACL {
+
+		@Override
+		public void initPolicy(
+			String contextName, URLContainer urlContainer,
+			ClassLoader classLoader, Properties properties) {
+		}
+
+		@Override
+		public void unregister(ClassLoader classLoader) {
+		}
 
 	}
 

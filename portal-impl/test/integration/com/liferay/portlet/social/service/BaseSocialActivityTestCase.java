@@ -14,17 +14,17 @@
 
 package com.liferay.portlet.social.service;
 
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.FileUtil;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.User;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.asset.model.AssetEntry;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portlet.social.util.SocialActivityHierarchyEntryThreadLocal;
-import com.liferay.portlet.social.util.SocialConfigurationUtil;
 import com.liferay.portlet.social.util.test.SocialActivityTestUtil;
+import com.liferay.social.kernel.util.SocialConfigurationUtil;
 
 import org.junit.After;
 import org.junit.Before;

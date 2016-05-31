@@ -16,7 +16,7 @@ package com.liferay.portal.service.persistence.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.NoSuchContactException;
+import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -26,19 +26,23 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.exception.NoSuchContactException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.Contact;
+import com.liferay.portal.kernel.model.MVCCModel;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.service.persistence.CompanyProvider;
+import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
+import com.liferay.portal.kernel.service.persistence.ContactPersistence;
+import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.Contact;
-import com.liferay.portal.model.MVCCModel;
 import com.liferay.portal.model.impl.ContactImpl;
 import com.liferay.portal.model.impl.ContactModelImpl;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.ServiceContextThreadLocal;
-import com.liferay.portal.service.persistence.ContactPersistence;
 
 import java.io.Serializable;
 
@@ -60,7 +64,7 @@ import java.util.Set;
  *
  * @author Brian Wing Shun Chan
  * @see ContactPersistence
- * @see com.liferay.portal.service.persistence.ContactUtil
+ * @see com.liferay.portal.kernel.service.persistence.ContactUtil
  * @generated
  */
 @ProviderType
@@ -208,7 +212,7 @@ public class ContactPersistenceImpl extends BasePersistenceImpl<Contact>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -421,8 +425,9 @@ public class ContactPersistenceImpl extends BasePersistenceImpl<Contact>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -708,7 +713,7 @@ public class ContactPersistenceImpl extends BasePersistenceImpl<Contact>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -921,8 +926,9 @@ public class ContactPersistenceImpl extends BasePersistenceImpl<Contact>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -1219,7 +1225,7 @@ public class ContactPersistenceImpl extends BasePersistenceImpl<Contact>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -1450,11 +1456,12 @@ public class ContactPersistenceImpl extends BasePersistenceImpl<Contact>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_CONTACT_WHERE);
@@ -1717,6 +1724,8 @@ public class ContactPersistenceImpl extends BasePersistenceImpl<Contact>
 		contact.setNew(true);
 		contact.setPrimaryKey(contactId);
 
+		contact.setCompanyId(companyProvider.getCompanyId());
+
 		return contact;
 	}
 
@@ -1750,8 +1759,8 @@ public class ContactPersistenceImpl extends BasePersistenceImpl<Contact>
 			Contact contact = (Contact)session.get(ContactImpl.class, primaryKey);
 
 			if (contact == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				if (_log.isDebugEnabled()) {
+					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
 				throw new NoSuchContactException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -1955,15 +1964,10 @@ public class ContactPersistenceImpl extends BasePersistenceImpl<Contact>
 		contactImpl.setMale(contact.isMale());
 		contactImpl.setBirthday(contact.getBirthday());
 		contactImpl.setSmsSn(contact.getSmsSn());
-		contactImpl.setAimSn(contact.getAimSn());
 		contactImpl.setFacebookSn(contact.getFacebookSn());
-		contactImpl.setIcqSn(contact.getIcqSn());
 		contactImpl.setJabberSn(contact.getJabberSn());
-		contactImpl.setMsnSn(contact.getMsnSn());
-		contactImpl.setMySpaceSn(contact.getMySpaceSn());
 		contactImpl.setSkypeSn(contact.getSkypeSn());
 		contactImpl.setTwitterSn(contact.getTwitterSn());
-		contactImpl.setYmSn(contact.getYmSn());
 		contactImpl.setEmployeeStatusId(contact.getEmployeeStatusId());
 		contactImpl.setEmployeeNumber(contact.getEmployeeNumber());
 		contactImpl.setJobTitle(contact.getJobTitle());
@@ -1974,7 +1978,7 @@ public class ContactPersistenceImpl extends BasePersistenceImpl<Contact>
 	}
 
 	/**
-	 * Returns the contact with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the contact with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the contact
 	 * @return the contact
@@ -1986,8 +1990,8 @@ public class ContactPersistenceImpl extends BasePersistenceImpl<Contact>
 		Contact contact = fetchByPrimaryKey(primaryKey);
 
 		if (contact == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+			if (_log.isDebugEnabled()) {
+				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			throw new NoSuchContactException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -2246,7 +2250,7 @@ public class ContactPersistenceImpl extends BasePersistenceImpl<Contact>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(2 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 
 				query.append(_SQL_SELECT_CONTACT);
 
@@ -2366,6 +2370,8 @@ public class ContactPersistenceImpl extends BasePersistenceImpl<Contact>
 		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
+	@BeanReference(type = CompanyProviderWrapper.class)
+	protected CompanyProvider companyProvider;
 	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
 	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();
 	private static final String _SQL_SELECT_CONTACT = "SELECT contact FROM Contact contact";

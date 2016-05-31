@@ -16,7 +16,6 @@ package com.liferay.portal.service.persistence.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.NoSuchClusterGroupException;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -25,17 +24,19 @@ import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.exception.NoSuchClusterGroupException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.ClusterGroup;
+import com.liferay.portal.kernel.model.MVCCModel;
+import com.liferay.portal.kernel.service.persistence.ClusterGroupPersistence;
+import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.ClusterGroup;
-import com.liferay.portal.model.MVCCModel;
 import com.liferay.portal.model.impl.ClusterGroupImpl;
 import com.liferay.portal.model.impl.ClusterGroupModelImpl;
-import com.liferay.portal.service.persistence.ClusterGroupPersistence;
 
 import java.io.Serializable;
 
@@ -56,7 +57,7 @@ import java.util.Set;
  *
  * @author Brian Wing Shun Chan
  * @see ClusterGroupPersistence
- * @see com.liferay.portal.service.persistence.ClusterGroupUtil
+ * @see com.liferay.portal.kernel.service.persistence.ClusterGroupUtil
  * @generated
  */
 @ProviderType
@@ -209,8 +210,8 @@ public class ClusterGroupPersistenceImpl extends BasePersistenceImpl<ClusterGrou
 					primaryKey);
 
 			if (clusterGroup == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				if (_log.isDebugEnabled()) {
+					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
 				throw new NoSuchClusterGroupException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -324,7 +325,7 @@ public class ClusterGroupPersistenceImpl extends BasePersistenceImpl<ClusterGrou
 	}
 
 	/**
-	 * Returns the cluster group with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the cluster group with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the cluster group
 	 * @return the cluster group
@@ -336,8 +337,8 @@ public class ClusterGroupPersistenceImpl extends BasePersistenceImpl<ClusterGrou
 		ClusterGroup clusterGroup = fetchByPrimaryKey(primaryKey);
 
 		if (clusterGroup == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+			if (_log.isDebugEnabled()) {
+				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			throw new NoSuchClusterGroupException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -598,7 +599,7 @@ public class ClusterGroupPersistenceImpl extends BasePersistenceImpl<ClusterGrou
 
 			if (orderByComparator != null) {
 				query = new StringBundler(2 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 
 				query.append(_SQL_SELECT_CLUSTERGROUP);
 

@@ -1,4 +1,10 @@
 <definition>
+	<command name="gotoAbstractField">
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Configuration" />
+		</execute>
+	</command>
+
 	<command name="gotoAddEntry">
 		<if>
 			<condition function="IsElementPresent" locator1="Blogs#ADD_BLOGS_ENTRY" />
@@ -9,23 +15,20 @@
 				<execute function="Click" locator1="Button#PLUS" />
 			</else>
 		</if>
+
+		<execute function="AssertVisible" locator1="BlogsEntry#ENTRY_COVER_IMAGE_SELECT_FILE" />
 	</command>
 
-	<command name="gotoCommentPG">
-		<execute macro="BlogsNavigator#gotoEntryPG">
-			<var name="entryContent" value="${entryContent}" />
-			<var name="entryTitle" value="${entryTitle}" />
-		</execute>
-
-		<execute function="Click" locator1="Comments#COMMENT_FIELD" />
+	<command name="gotoBrowseImage">
+		<execute function="Click" locator1="Button#BROWSE_IMAGE" />
 	</command>
 
 	<command name="gotoConfigurationPermissionsPG">
-		<execute function="AssertClick" locator1="BasePortletConfiguration#NAVIGATION_PERMISSIONS" value1="Permissions" />
+		<execute function="AssertClick" locator1="NavBar#PERMISSIONS" value1="Permissions" />
 	</command>
 
 	<command name="gotoConfigurationScopePG">
-		<execute function="AssertClick" locator1="BasePortletConfiguration#NAVIGATION_SCOPE" value1="Scope" />
+		<execute function="AssertClick" locator1="NavBar#SCOPE" value1="Scope" />
 	</command>
 
 	<command name="gotoConfigurationSetupPG">
@@ -39,7 +42,6 @@
 			</then>
 			<else>
 				<execute macro="Portlet#gotoPortletOptions">
-					<var name="portletNameBorderless" value="${portletNameBorderless}" />
 					<var name="portletOption" value="Configuration" />
 				</execute>
 			</else>
@@ -49,7 +51,7 @@
 	</command>
 
 	<command name="gotoConfigurationSetupRSSPG">
-		<execute function="AssertClick" locator1="Configuration#SETUP_RSS" value1="RSS" />
+		<execute function="AssertClick" locator1="Configuration#NAVIGATION_RSS" value1="RSS" />
 	</command>
 
 	<command name="gotoContentTab">
@@ -62,7 +64,7 @@
 		<execute function="AssertTextEquals" locator1="Blogs#ICON_VIEW_ENTRY_TITLE" value1="${entryTitle}" />
 		<execute function="AssertTextEquals" locator1="Blogs#ICON_VIEW_ENTRY_STATUS" value1="Draft" />
 
-		<execute function="AssertClick" locator1="Blogs#ICON_VIEW_ENTRY_TITLE" value1="${entryTitle}" />
+		<execute function="AssertClick" locator1="Blogs#ICON_VIEW_ENTRY_TITLE_LINK" value1="${entryTitle}" />
 	</command>
 
 	<command name="gotoDraftEditPG">
@@ -81,6 +83,9 @@
 		<execute function="Click" locator1="Blogs#ICON_VIEW_ENTRY_OPTIONS_DROPDOWN" />
 
 		<execute function="AssertClick" locator1="MenuItem#EDIT" value1="Edit" />
+
+		<execute function="AssertElementPresent" locator1="Icon#BACK" />
+		<execute function="AssertVisible" locator1="AlloyEditor#TITLE_FIELD" />
 	</command>
 
 	<command name="gotoEditPG">
@@ -88,9 +93,9 @@
 
 		<execute function="AssertTextEquals" locator1="BlogsEntry#TITLE" value1="${entryTitle}" />
 
-		<execute function="Click" locator1="Icon#BODY_VERTICAL_ELLIPSIS" />
+		<execute macro="PortletEntry#clickEditFromEllipsis" />
 
-		<execute function="AssertClick" locator1="MenuItem#EDIT" value1="Edit" />
+		<execute function="AssertVisible" locator1="BlogsEntry#ENTRY_COVER_IMAGE_SELECT_FILE" />
 	</command>
 
 	<command name="gotoEntryCP">
@@ -102,7 +107,16 @@
 
 		<execute function="AssertTextEquals" locator1="Blogs#ICON_VIEW_ENTRY_TITLE" value1="${entryTitle}" />
 
-		<execute function="AssertClick" locator1="Blogs#ICON_VIEW_ENTRY_TITLE" value1="${entryTitle}" />
+		<if>
+			<isset var="entryStatus" />
+			<then>
+				<execute function="AssertTextEquals" locator1="Blogs#ICON_VIEW_ENTRY_STATUS" value1="${entryStatus}" />
+			</then>
+		</if>
+
+		<var name="key_entryTitle" value="${entryTitle}" />
+
+		<execute function="AssertClick" locator1="Blogs#ICON_VIEW_ENTRY_TITLE_LINK" value1="${entryTitle}" />
 	</command>
 
 	<command name="gotoEntryPG">
@@ -115,16 +129,6 @@
 		<execute function="AssertClick#assertTextClickAtAndWait" locator1="BlogsEntry#TITLE_LINK" value1="${entryTitle}" />
 	</command>
 
-	<command name="gotoEntryTitleSpecialCharacter">
-		<var name="key_entryContent" value="${entryContent}" />
-		<var name="key_entryTitle" value="${entryTitle}" />
-
-		<execute function="AssertTextEquals" locator1="BlogsEntry#TITLE_GENERIC" value1="${entryTitle}" />
-		<execute function="AssertTextEquals" locator1="BlogsEntry#CONTENT_GENERIC" value1="${entryContent}" />
-
-		<execute function="AssertClick" locator1="BlogsEntry#TITLE_GENERIC" value1="${entryTitle}" />
-	</command>
-
 	<command name="gotoEntryWithAbstractPG">
 		<var name="key_entryAbstractDescription" value="${entryAbstractDescription}" />
 		<var name="key_entryTitle" value="${entryTitle}" />
@@ -135,24 +139,13 @@
 		<execute function="AssertClick" locator1="BlogsEntry#TITLE_LINK" value1="${entryTitle}" />
 	</command>
 
-	<command name="gotoItemSelector">
-		<execute function="Click" locator1="AlloyEditor#CONTENT_ADD_BUTTON" />
-
-		<execute function="Click" locator1="AlloyEditor#CONTENT_ADD_MENUBAR_IMAGE" />
-	</command>
-
 	<command name="gotoPG">
 		<var name="key_entryTitle" value="${entryTitle}" />
 
 		<if>
 			<isset var="blogEntryURL" />
 			<then>
-				<var method="selenium#getLocation()" name="currentURL" />
-
-				<execute macro="TestUtils#assertEquals">
-					<var name="actual" value="${currentURL}" />
-					<var name="expected" value="${blogEntryURL}" />
-				</execute>
+				<execute function="AssertLocation" value1="http://localhost:8080/web/guest/blogs/-/${blogEntryURL}" />
 			</then>
 			<else>
 				<execute function="Click" locator1="BlogsEntry#TITLE_LINK" value1="${entryTitle}" />
@@ -162,25 +155,19 @@
 		<execute function="AssertTextEquals" locator1="BlogsEntry#TITLE" value1="${entryTitle}" />
 	</command>
 
-	<command name="gotoSettings">
-		<execute function="Click" locator1="Button#COG" />
-	</command>
-
 	<command name="moveToRecycleBinCP">
-		<var name="key_assetType" value="${assetType}" />
 		<var name="key_entryTitle" value="${entryTitle}" />
 
-		<execute function="AssertTextEquals" locator1="Blogs#ICON_VIEW_ENTRY_TITLE" value1="${entryTitle}" />
+		<execute function="AssertTextEquals" locator1="Blogs#ICON_VIEW_ENTRY_TITLE_LINK" value1="${entryTitle}" />
 
 		<execute function="Click" locator1="Blogs#ICON_VIEW_ENTRY_OPTIONS_DROPDOWN" />
 
-		<execute function="AssertClick" locator1="MenuItem#MOVE_TO_THE_RECYCLE_BIN" value1="Move to the Recycle Bin" />
+		<execute macro="PortletEntry#clickMoveToRecycleBin" />
 
-		<execute function="AssertTextEquals#assertPartialText" locator1="Message#RECYCLE_BIN_SUCCESS" value1="The ${assetType} ${entryTitle} was moved to the Recycle Bin. Undo" />
+		<execute function="AssertElementPresent" locator1="Message#SUCCESS" />
 	</command>
 
 	<command name="moveToRecycleBinDraftCP">
-		<var name="key_assetType" value="${assetType}" />
 		<var name="key_entryTitle" value="${entryTitle}" />
 
 		<execute function="AssertTextEquals" locator1="Blogs#ENTRY_TABLE_TITLE" value1="${entryTitle}" />
@@ -188,26 +175,9 @@
 
 		<execute function="Click" locator1="Blogs#ENTRY_TABLE_ACTIONS" />
 
-		<execute function="AssertClick" locator1="MenuItem#MOVE_TO_THE_RECYCLE_BIN" value1="Move to the Recycle Bin" />
+		<execute macro="PortletEntry#clickMoveToRecycleBin" />
 
-		<execute function="AssertTextEquals#assertPartialText" locator1="Message#RECYCLE_BIN_SUCCESS" value1="The ${assetType} ${entryTitle} was moved to the Recycle Bin. Undo" />
-	</command>
-
-	<command name="moveToRecycleBinPG">
-		<var name="key_assetType" value="${assetType}" />
-		<var name="key_entryTitle" value="${entryTitle}" />
-
-		<execute function="AssertTextEquals" locator1="BlogsEntry#TITLE" value1="${entryTitle}" />
-
-		<var name="key_entryContent" value="${entryContent}" />
-
-		<execute function="AssertTextEquals" locator1="BlogsEntry#CONTENT" value1="${entryContent}" />
-
-		<execute function="AssertClick" locator1="Link#MOVE_TO_THE_RECYCLING_BIN" value1="Move to the Recycle Bin" />
-
-		<execute function="AssertTextEquals#assertPartialText" locator1="Message#RECYCLE_BIN_SUCCESS" value1="The ${assetType} ${entryTitle} was moved to the Recycle Bin. Undo" />
-		<execute function="AssertElementNotPresent" locator1="BlogsEntry#TITLE" />
-		<execute function="AssertElementNotPresent" locator1="BlogsEntry#CONTENT" />
+		<execute function="AssertElementPresent" locator1="Message#SUCCESS" />
 	</command>
 
 	<command name="viewEditLinkPG">

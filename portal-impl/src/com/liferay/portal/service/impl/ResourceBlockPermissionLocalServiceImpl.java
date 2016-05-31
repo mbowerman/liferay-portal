@@ -15,12 +15,13 @@
 package com.liferay.portal.service.impl;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.model.ResourceBlock;
-import com.liferay.portal.model.ResourceBlockConstants;
-import com.liferay.portal.model.ResourceBlockPermission;
-import com.liferay.portal.model.ResourceBlockPermissionsContainer;
+import com.liferay.portal.kernel.model.ResourceBlock;
+import com.liferay.portal.kernel.model.ResourceBlockConstants;
+import com.liferay.portal.kernel.model.ResourceBlockPermission;
+import com.liferay.portal.kernel.model.ResourceBlockPermissionsContainer;
 import com.liferay.portal.service.base.ResourceBlockPermissionLocalServiceBaseImpl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -129,7 +130,7 @@ public class ResourceBlockPermissionLocalServiceImpl
 
 	@Override
 	public ResourceBlockPermissionsContainer
-			getResourceBlockPermissionsContainer(long resourceBlockId) {
+		getResourceBlockPermissionsContainer(long resourceBlockId) {
 
 		List<ResourceBlockPermission> resourceBlockPermissions =
 			resourceBlockPermissionPersistence.findByResourceBlockId(
@@ -155,6 +156,25 @@ public class ResourceBlockPermissionLocalServiceImpl
 
 		return resourceBlockPermissionPersistence.countByR_R(
 			resourceBlockId, roleId);
+	}
+
+	@Override
+	public List<ResourceBlockPermission> getResourceResourceBlockPermissions(
+		String name) {
+
+		List<ResourceBlock> resourceBlocks =
+			resourceBlockPersistence.findByName(name);
+
+		List<ResourceBlockPermission> resourceBlockPermissions =
+			new ArrayList<>();
+
+		for (ResourceBlock resourceBlock : resourceBlocks) {
+			resourceBlockPermissions.addAll(
+				resourceBlockPermissionPersistence.findByResourceBlockId(
+					resourceBlock.getResourceBlockId()));
+		}
+
+		return resourceBlockPermissions;
 	}
 
 	@Override

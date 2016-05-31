@@ -14,21 +14,20 @@
 
 package com.liferay.portal.upgrade.v7_0_0;
 
-import com.liferay.counter.service.CounterLocalServiceUtil;
+import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
 import com.liferay.portal.kernel.cache.CacheRegistryUtil;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.ResourcePermission;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.model.ResourceConstants;
-import com.liferay.portal.model.ResourcePermission;
-import com.liferay.portal.model.User;
 import com.liferay.portal.model.impl.ResourcePermissionImpl;
-import com.liferay.portal.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +49,7 @@ public class UpgradeResourcePermissionTest extends UpgradeResourcePermission {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
+			new LiferayIntegrationTestRule(),
 			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
@@ -99,7 +98,7 @@ public class UpgradeResourcePermissionTest extends UpgradeResourcePermission {
 
 		Assert.assertEquals(
 			(actionIds2 % 2 == 1), resourcePermission2.getViewActionId());
-		Assert.assertEquals(resourcePermission2.getPrimKeyId(), 0);
+		Assert.assertEquals(0, resourcePermission2.getPrimKeyId());
 	}
 
 	protected long addResourcePermission(String primKey, long actionIds) {

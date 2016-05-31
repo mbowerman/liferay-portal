@@ -30,7 +30,7 @@
 
 		<execute macro="SOSite#tearDownCP" />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Calendar Test Page" />
 		</execute>
 
@@ -54,8 +54,8 @@
 	<command name="AssertPageTemplatePreviewWithSOUserBar" priority="4">
 		<var name="pageTemplateName" value="Page Template Name" />
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Page Templates" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Page Templates" />
 		</execute>
 
 		<execute macro="PageTemplate#addCP">
@@ -78,8 +78,8 @@
 
 		<execute function="Close#closeWindow" locator1="SOPage#PAGE_TITLE" />
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Page Templates" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Page Templates" />
 		</execute>
 
 		<execute macro="PageTemplate#editCP">
@@ -98,15 +98,15 @@
 
 		<execute function="AssertVisible" locator1="SOUserBar#USER_BAR" />
 
-		<execute function="Click#clickAtSidebarClickAtWaitForScript" locator1="Icon#ADD" />
+		<execute function="Click#clickAtSidebarClickAtWaitForScript" locator1="ControlMenu#ADD" />
 
-		<execute function="AssertElementPresent" locator1="NavPill#CONTENT" />
+		<execute function="AssertElementPresent" locator1="ControlMenuAddPanel#CONTENT_ACCORDION_PANEL_TITLE" />
 
-		<execute function="Click#clickAtSidebarClickAt" locator1="Icon#EDIT" />
+		<execute macro="SitePageNavigator#gotoEditPage">
+			<var name="page" value="${page}" />
+		</execute>
 
-		<execute function="AssertElementPresent" locator1="SitePagesEditPage#DETAILS_PANEL_TOGGLE" />
-
-		<execute function="Click#clickAtSidebarClickAt" locator1="Icon#PREVIEW" />
+		<execute function="Click#clickAtSidebarClickAt" locator1="ControlMenu#SIMULATION" />
 
 		<execute function="AssertElementPresent" locator1="ControlMenuPreviewPanel#PREVIEW_AUTOSIZE" />
 
@@ -215,7 +215,7 @@
 			<var name="userLoginFullName" value="${adminName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Microblogs" />
 			<var name="soDashboard" value="true" />
 		</execute>
@@ -231,7 +231,7 @@
 			<var name="statusUpdateEntryContent" value="${microblogsEntryContent1}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Microblogs" />
 			<var name="soDashboard" value="true" />
 		</execute>
@@ -299,7 +299,7 @@
 			<var name="userLoginFullName" value="${adminName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Messages" />
 			<var name="soDashboard" value="true" />
 		</execute>
@@ -321,7 +321,7 @@
 			<var name="senderName" value="${adminName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Messages" />
 			<var name="soDashboard" value="true" />
 		</execute>
@@ -337,7 +337,7 @@
 			<var name="messageReplyBody" value="${messageReplyBody}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Messages" />
 			<var name="soDashboard" value="true" />
 		</execute>
@@ -356,7 +356,7 @@
 			<var name="userLoginFullName" value="${adminName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Messages" />
 			<var name="soDashboard" value="true" />
 		</execute>
@@ -377,7 +377,7 @@
 			<var name="senderName" value="${userName1}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Messages" />
 			<var name="soDashboard" value="true" />
 		</execute>
@@ -387,7 +387,7 @@
 		<execute function="Confirm" value1="Are you sure you want to delete the selected messages?" />
 		<execute function="AssertTextEquals" locator1="SOMessages#INFO_MESSAGE" value1="No messages found." />
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="My Documents" />
 			<var name="soDashboard" value="true" />
 		</execute>
@@ -397,14 +397,14 @@
 			<var name="dmFolderName" value="${dmFolderName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="My Documents" />
 			<var name="soDashboard" value="true" />
 		</execute>
 
 		<execute function="AssertTextEquals" locator1="DocumentsAndMedia#BREADCRUMB_HOME" value1="Home" />
 
-		<execute macro="DMFolder#gotoPG">
+		<execute macro="DMNavigator#gotoFolder">
 			<var name="dmFolderName" value="${dmFolderName}" />
 		</execute>
 
@@ -414,12 +414,12 @@
 			<var name="dmDocumentTitle" value="${dmDocumentTitle}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="My Documents" />
 			<var name="soDashboard" value="true" />
 		</execute>
 
-		<execute macro="DMFolder#gotoPG">
+		<execute macro="DMNavigator#gotoFolder">
 			<var name="dmFolderName" value="${dmFolderName}" />
 		</execute>
 
@@ -435,7 +435,7 @@
 			<var name="dmDocumentVersionNumber" value="${dmDocumentVersionNumber}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Tasks" />
 			<var name="soDashboard" value="true" />
 		</execute>
@@ -446,7 +446,7 @@
 			<var name="taskReporter" value="${adminName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Tasks" />
 			<var name="soDashboard" value="true" />
 		</execute>
@@ -458,7 +458,7 @@
 			<var name="taskReporter" value="${adminName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Tasks" />
 			<var name="soDashboard" value="true" />
 		</execute>
@@ -470,7 +470,7 @@
 			<var name="taskReporter" value="${adminName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Tasks" />
 			<var name="soDashboard" value="true" />
 		</execute>
@@ -482,7 +482,7 @@
 			<var name="taskReporter" value="${adminName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Tasks" />
 			<var name="soDashboard" value="true" />
 		</execute>
@@ -510,7 +510,7 @@
 			<var name="taskReporter" value="${adminName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Tasks" />
 			<var name="soDashboard" value="true" />
 		</execute>
@@ -521,7 +521,7 @@
 			<var name="taskReporter" value="${adminName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Tasks" />
 			<var name="soDashboard" value="true" />
 		</execute>
@@ -543,7 +543,7 @@
 			<var name="taskDescription" value="${taskDescription2}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Tasks" />
 			<var name="soDashboard" value="true" />
 		</execute>
@@ -696,12 +696,12 @@
 		<execute function="Open" locator1="http://localhost:8080/" />
 		<execute function="AssertLocation" value1="http://localhost:8080/" />
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Portal Settings" />
+		<execute macro="ProductMenu#gotoControlPanelConfiguration">
+			<var name="portlet" value="Instance Settings" />
 		</execute>
 
 		<execute function="Type" locator1="PortalSettings#HOME_URL_FIELD" value1="/user" />
-		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
+		<execute macro="Button#clickSave" />
 
 		<execute function="Open" locator1="http://localhost:8080/" />
 		<execute function="AssertLocation" value1="http://localhost:8080/user/test/so/dashboard" />
@@ -782,8 +782,8 @@
 			<var name="userScreenName" value="${userScreenName2}" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Users and Organizations" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
 		<execute macro="User#addCP">
@@ -794,8 +794,8 @@
 			<var name="userScreenName" value="${userScreenName3}" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Users and Organizations" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
 		<execute macro="User#editPasswordCP">
@@ -809,7 +809,7 @@
 			<var name="siteType" value="${siteType}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Calendar" />
 			<var name="siteName" value="${siteName1}" />
 			<var name="siteURL" value="true" />
@@ -825,7 +825,7 @@
 			<var name="soPage" value="true" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Calendar" />
 			<var name="siteName" value="${siteName1}" />
 			<var name="siteURL" value="true" />
@@ -839,7 +839,7 @@
 			<var name="site" value="${siteName1}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Documents" />
 			<var name="siteName" value="${siteName1}" />
 			<var name="siteURL" value="true" />
@@ -851,7 +851,7 @@
 			<var name="dmFolderName" value="${dmFolderName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Documents" />
 			<var name="siteName" value="${siteName1}" />
 			<var name="siteURL" value="true" />
@@ -860,7 +860,7 @@
 
 		<execute function="AssertTextEquals" locator1="DocumentsAndMedia#BREADCRUMB_HOME" value1="Home" />
 
-		<execute macro="DMFolder#gotoPG">
+		<execute macro="DMNavigator#gotoFolder">
 			<var name="dmFolderName" value="${dmFolderName}" />
 		</execute>
 
@@ -871,14 +871,14 @@
 			<var name="dmDocumentTitle" value="${dmDocumentTitle}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Documents" />
 			<var name="siteName" value="${siteName1}" />
 			<var name="siteURL" value="true" />
 			<var name="soPage" value="true" />
 		</execute>
 
-		<execute macro="DMFolder#gotoPG">
+		<execute macro="DMNavigator#gotoFolder">
 			<var name="dmFolderName" value="${dmFolderName}" />
 		</execute>
 
@@ -894,7 +894,7 @@
 			<var name="dmDocumentVersionNumber" value="${dmDocumentVersionNumber}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Forums" />
 			<var name="siteName" value="${siteName1}" />
 			<var name="siteURL" value="true" />
@@ -905,7 +905,7 @@
 			<var name="categoryName" value="${categoryName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Forums" />
 			<var name="siteName" value="${siteName1}" />
 			<var name="siteURL" value="true" />
@@ -921,7 +921,7 @@
 			<var name="threadSubject" value="${threadSubject}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Forums" />
 			<var name="siteName" value="${siteName1}" />
 			<var name="siteURL" value="true" />
@@ -938,7 +938,7 @@
 			<var name="userName" value="${adminName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blogs" />
 			<var name="siteName" value="${siteName1}" />
 			<var name="siteURL" value="true" />
@@ -951,7 +951,7 @@
 			<var name="entryTitle" value="${entryTitle}" />
 		</execute>
 
-		<execute macro="BlogsEntry#gotoPG">
+		<execute macro="BlogsNavigator#gotoEntryPG">
 			<var name="entryContent" value="${entryContent}" />
 			<var name="entryTitle" value="${entryTitle}" />
 		</execute>
@@ -961,7 +961,7 @@
 			<var name="entryTitle" value="${entryTitle}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blogs" />
 			<var name="siteName" value="${siteName1}" />
 			<var name="siteURL" value="true" />
@@ -974,7 +974,7 @@
 			<var name="pageName" value="Blogs" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Wiki" />
 			<var name="siteName" value="${siteName1}" />
 			<var name="siteURL" value="true" />
@@ -985,7 +985,7 @@
 			<var name="wikiPageContent" value="${wikiPageContent}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Members" />
 			<var name="siteName" value="${siteName1}" />
 			<var name="siteURL" value="true" />
@@ -1025,7 +1025,7 @@
 			<var name="userLoginFullName" value="${adminName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Members" />
 			<var name="siteName" value="${siteName1}" />
 			<var name="siteURL" value="true" />
@@ -1041,7 +1041,7 @@
 			<var name="userName" value="${userName1}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Members" />
 			<var name="siteName" value="${siteName1}" />
 			<var name="siteURL" value="true" />
@@ -1082,7 +1082,7 @@
 			<var name="userLoginFullName" value="${adminName}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Members" />
 			<var name="siteName" value="${siteName1}" />
 			<var name="siteURL" value="true" />
@@ -1099,10 +1099,8 @@
 			<var name="userName" value="${userName2}" />
 		</execute>
 
-		<execute macro="Page#openURL">
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="${siteName1}" />
-			<var name="siteURL" value="true" />
-			<var name="soPage" value="true" />
 		</execute>
 
 		<execute macro="SOEvents#viewTodaysEventSiteEvent">
@@ -1115,7 +1113,7 @@
 			<var name="siteType" value="${siteType}" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Calendar" />
 			<var name="siteName" value="${siteName2}" />
 			<var name="siteURL" value="true" />
@@ -1131,10 +1129,8 @@
 			<var name="soPage" value="true" />
 		</execute>
 
-		<execute macro="Page#openURL">
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="${siteName2}" />
-			<var name="siteURL" value="true" />
-			<var name="soPage" value="true" />
 		</execute>
 
 		<execute function="AssertTextNotPresent" value1="${eventTitle1}" />
@@ -1143,15 +1139,13 @@
 			<var name="eventTitle" value="${eventTitle2}" />
 		</execute>
 
-		<execute macro="Page#openURL">
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="${siteName1}" />
-			<var name="siteURL" value="true" />
-			<var name="soPage" value="true" />
 		</execute>
 
 		<execute function="AssertTextNotPresent" value1="${eventTitle2}" />
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="Calendar Test Page" />
 		</execute>
 
@@ -1160,7 +1154,7 @@
 			<var name="portletName" value="Calendar" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Calendar Test Page" />
 		</execute>
 
@@ -1170,17 +1164,14 @@
 			<var name="pageName" value="Calendar Test Page" />
 		</execute>
 
-		<execute macro="Page#openURL">
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="${siteName1}" />
-			<var name="siteURL" value="true" />
-			<var name="soPage" value="true" />
 		</execute>
 
 		<execute function="AssertTextNotPresent" value1="${eventTitle3}" />
 
-		<execute macro="Page#openURL">
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="${siteName1}" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute macro="SOBookmarks#addBookmarksEntry">
@@ -1189,9 +1180,8 @@
 			<var name="bookmarksEntryUrl" value="${bookmarksEntryUrl}" />
 		</execute>
 
-		<execute macro="Page#openURL">
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="${siteName1}" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute macro="SOBookmarks#viewBookmarksEntry">
@@ -1200,9 +1190,8 @@
 			<var name="bookmarksEntryUrl" value="${bookmarksEntryUrl}" />
 		</execute>
 
-		<execute macro="Page#openURL">
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="${siteName1}" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute macro="SOActivities#viewSiteContent">
@@ -1234,9 +1223,8 @@
 			<var name="wikiPageTitle" value="FrontPage" />
 		</execute>
 
-		<execute macro="Page#openURL">
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="${siteName1}" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute macro="SORss#addRssFeed">
@@ -1246,9 +1234,8 @@
 			<var name="feedUrl" value="${feedUrl}" />
 		</execute>
 
-		<execute macro="Page#openURL">
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="${siteName1}" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute macro="SORss#viewRssFeed">
@@ -1281,9 +1268,8 @@
 			<var name="userLoginFullName" value="${userName3}" />
 		</execute>
 
-		<execute macro="Page#openURL">
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="${siteName1}" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute function="AssertTextEquals" locator1="SOSite#SITE_NAME" value1="${siteName1}" />

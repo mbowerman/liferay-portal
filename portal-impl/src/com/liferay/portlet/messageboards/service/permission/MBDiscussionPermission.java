@@ -14,26 +14,26 @@
 
 package com.liferay.portlet.messageboards.service.permission;
 
+import com.liferay.exportimport.kernel.staging.permission.StagingPermissionUtil;
+import com.liferay.message.boards.kernel.model.MBDiscussion;
+import com.liferay.message.boards.kernel.model.MBMessage;
+import com.liferay.message.boards.kernel.service.MBBanLocalServiceUtil;
+import com.liferay.message.boards.kernel.service.MBDiscussionLocalServiceUtil;
+import com.liferay.message.boards.kernel.service.MBMessageLocalServiceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.portlet.PortletProviderUtil;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.BaseModelPermissionChecker;
+import com.liferay.portal.kernel.security.permission.BaseModelPermissionCheckerUtil;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
+import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.workflow.WorkflowInstance;
 import com.liferay.portal.kernel.workflow.permission.WorkflowPermissionUtil;
-import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.security.permission.BaseModelPermissionChecker;
-import com.liferay.portal.security.permission.BaseModelPermissionCheckerUtil;
-import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.security.permission.ResourceActionsUtil;
-import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portlet.exportimport.staging.permission.StagingPermissionUtil;
-import com.liferay.portlet.messageboards.model.MBDiscussion;
-import com.liferay.portlet.messageboards.model.MBMessage;
-import com.liferay.portlet.messageboards.service.MBBanLocalServiceUtil;
-import com.liferay.portlet.messageboards.service.MBDiscussionLocalServiceUtil;
-import com.liferay.portlet.messageboards.service.MBMessageLocalServiceUtil;
 
 import java.util.List;
 
@@ -44,7 +44,7 @@ import java.util.List;
  */
 @OSGiBeanProperties(
 	property = {
-		"model.class.name=com.liferay.portlet.messageboards.model.MBDiscussion"
+		"model.class.name=com.liferay.message.boards.kernel.model.MBDiscussion"
 	}
 )
 public class MBDiscussionPermission implements BaseModelPermissionChecker {
@@ -96,18 +96,18 @@ public class MBDiscussionPermission implements BaseModelPermissionChecker {
 			return hasPermission.booleanValue();
 		}
 
-		List<String> resourceActions = ResourceActionsUtil.getResourceActions(
-			className);
-
-		if (!resourceActions.contains(actionId)) {
-			return true;
-		}
-
 		MBDiscussion mbDiscussion =
 			MBDiscussionLocalServiceUtil.fetchDiscussion(className, classPK);
 
 		if (mbDiscussion == null) {
 			return false;
+		}
+
+		List<String> resourceActions = ResourceActionsUtil.getResourceActions(
+			className);
+
+		if (!resourceActions.contains(actionId)) {
+			return true;
 		}
 
 		if ((mbDiscussion.getUserId() > 0) &&

@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.documentlibrary.service.persistence.test;
 
+import com.liferay.document.library.kernel.exception.NoSuchFileRankException;
+import com.liferay.document.library.kernel.model.DLFileRank;
+import com.liferay.document.library.kernel.service.DLFileRankLocalServiceUtil;
+import com.liferay.document.library.kernel.service.persistence.DLFileRankPersistence;
+import com.liferay.document.library.kernel.service.persistence.DLFileRankUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -31,12 +37,6 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-
-import com.liferay.portlet.documentlibrary.NoSuchFileRankException;
-import com.liferay.portlet.documentlibrary.model.DLFileRank;
-import com.liferay.portlet.documentlibrary.service.DLFileRankLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileRankPersistence;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileRankUtil;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -322,11 +322,9 @@ public class DLFileRankPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = DLFileRankLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<DLFileRank>() {
 				@Override
-				public void performAction(Object object) {
-					DLFileRank dlFileRank = (DLFileRank)object;
-
+				public void performAction(DLFileRank dlFileRank) {
 					Assert.assertNotNull(dlFileRank);
 
 					count.increment();

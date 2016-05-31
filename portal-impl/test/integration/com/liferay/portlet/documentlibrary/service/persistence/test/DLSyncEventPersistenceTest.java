@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.documentlibrary.service.persistence.test;
 
+import com.liferay.document.library.kernel.exception.NoSuchSyncEventException;
+import com.liferay.document.library.kernel.model.DLSyncEvent;
+import com.liferay.document.library.kernel.service.DLSyncEventLocalServiceUtil;
+import com.liferay.document.library.kernel.service.persistence.DLSyncEventPersistence;
+import com.liferay.document.library.kernel.service.persistence.DLSyncEventUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -30,12 +36,6 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-
-import com.liferay.portlet.documentlibrary.NoSuchSyncEventException;
-import com.liferay.portlet.documentlibrary.model.DLSyncEvent;
-import com.liferay.portlet.documentlibrary.service.DLSyncEventLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.service.persistence.DLSyncEventPersistence;
-import com.liferay.portlet.documentlibrary.service.persistence.DLSyncEventUtil;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -116,6 +116,8 @@ public class DLSyncEventPersistenceTest {
 
 		DLSyncEvent newDLSyncEvent = _persistence.create(pk);
 
+		newDLSyncEvent.setCompanyId(RandomTestUtil.nextLong());
+
 		newDLSyncEvent.setModifiedTime(RandomTestUtil.nextLong());
 
 		newDLSyncEvent.setEvent(RandomTestUtil.randomString());
@@ -130,6 +132,8 @@ public class DLSyncEventPersistenceTest {
 
 		Assert.assertEquals(existingDLSyncEvent.getSyncEventId(),
 			newDLSyncEvent.getSyncEventId());
+		Assert.assertEquals(existingDLSyncEvent.getCompanyId(),
+			newDLSyncEvent.getCompanyId());
 		Assert.assertEquals(existingDLSyncEvent.getModifiedTime(),
 			newDLSyncEvent.getModifiedTime());
 		Assert.assertEquals(existingDLSyncEvent.getEvent(),
@@ -178,8 +182,8 @@ public class DLSyncEventPersistenceTest {
 
 	protected OrderByComparator<DLSyncEvent> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("DLSyncEvent",
-			"syncEventId", true, "modifiedTime", true, "event", true, "type",
-			true, "typePK", true);
+			"syncEventId", true, "companyId", true, "modifiedTime", true,
+			"event", true, "type", true, "typePK", true);
 	}
 
 	@Test
@@ -288,11 +292,9 @@ public class DLSyncEventPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = DLSyncEventLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<DLSyncEvent>() {
 				@Override
-				public void performAction(Object object) {
-					DLSyncEvent dlSyncEvent = (DLSyncEvent)object;
-
+				public void performAction(DLSyncEvent dlSyncEvent) {
 					Assert.assertNotNull(dlSyncEvent);
 
 					count.increment();
@@ -393,6 +395,8 @@ public class DLSyncEventPersistenceTest {
 		long pk = RandomTestUtil.nextLong();
 
 		DLSyncEvent dlSyncEvent = _persistence.create(pk);
+
+		dlSyncEvent.setCompanyId(RandomTestUtil.nextLong());
 
 		dlSyncEvent.setModifiedTime(RandomTestUtil.nextLong());
 

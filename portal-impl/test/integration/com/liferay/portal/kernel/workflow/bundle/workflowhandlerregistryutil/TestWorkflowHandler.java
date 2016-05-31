@@ -14,14 +14,14 @@
 
 package com.liferay.portal.kernel.workflow.bundle.workflowhandlerregistryutil;
 
+import com.liferay.asset.kernel.model.AssetRenderer;
+import com.liferay.asset.kernel.model.AssetRendererFactory;
+import com.liferay.portal.kernel.model.WorkflowDefinitionLink;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.StackTraceUtil;
 import com.liferay.portal.kernel.workflow.WorkflowHandler;
-import com.liferay.portal.model.WorkflowDefinitionLink;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portlet.asset.model.AssetRenderer;
-import com.liferay.portlet.asset.model.AssetRendererFactory;
 
 import java.io.Serializable;
 
@@ -70,6 +70,10 @@ public class TestWorkflowHandler implements WorkflowHandler<Object> {
 		return null;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0
+	 */
+	@Deprecated
 	@Override
 	public String getIconPath(LiferayPortletRequest liferayPortletRequest) {
 		return null;

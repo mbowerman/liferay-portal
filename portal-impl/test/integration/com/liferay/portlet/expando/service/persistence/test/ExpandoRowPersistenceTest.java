@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.expando.service.persistence.test;
 
+import com.liferay.expando.kernel.exception.NoSuchRowException;
+import com.liferay.expando.kernel.model.ExpandoRow;
+import com.liferay.expando.kernel.service.ExpandoRowLocalServiceUtil;
+import com.liferay.expando.kernel.service.persistence.ExpandoRowPersistence;
+import com.liferay.expando.kernel.service.persistence.ExpandoRowUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -31,12 +37,6 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-
-import com.liferay.portlet.expando.NoSuchRowException;
-import com.liferay.portlet.expando.model.ExpandoRow;
-import com.liferay.portlet.expando.service.ExpandoRowLocalServiceUtil;
-import com.liferay.portlet.expando.service.persistence.ExpandoRowPersistence;
-import com.liferay.portlet.expando.service.persistence.ExpandoRowUtil;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -298,11 +298,9 @@ public class ExpandoRowPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ExpandoRowLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ExpandoRow>() {
 				@Override
-				public void performAction(Object object) {
-					ExpandoRow expandoRow = (ExpandoRow)object;
-
+				public void performAction(ExpandoRow expandoRow) {
 					Assert.assertNotNull(expandoRow);
 
 					count.increment();

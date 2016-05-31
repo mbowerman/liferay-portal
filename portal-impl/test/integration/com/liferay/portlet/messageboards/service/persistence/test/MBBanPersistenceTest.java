@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.messageboards.service.persistence.test;
 
+import com.liferay.message.boards.kernel.exception.NoSuchBanException;
+import com.liferay.message.boards.kernel.model.MBBan;
+import com.liferay.message.boards.kernel.service.MBBanLocalServiceUtil;
+import com.liferay.message.boards.kernel.service.persistence.MBBanPersistence;
+import com.liferay.message.boards.kernel.service.persistence.MBBanUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -30,15 +36,8 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-
-import com.liferay.portlet.messageboards.NoSuchBanException;
-import com.liferay.portlet.messageboards.model.MBBan;
-import com.liferay.portlet.messageboards.service.MBBanLocalServiceUtil;
-import com.liferay.portlet.messageboards.service.persistence.MBBanPersistence;
-import com.liferay.portlet.messageboards.service.persistence.MBBanUtil;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -54,6 +53,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -348,11 +348,9 @@ public class MBBanPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = MBBanLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<MBBan>() {
 				@Override
-				public void performAction(Object object) {
-					MBBan mbBan = (MBBan)object;
-
+				public void performAction(MBBan mbBan) {
 					Assert.assertNotNull(mbBan);
 
 					count.increment();
@@ -443,7 +441,7 @@ public class MBBanPersistenceTest {
 
 		MBBan existingMBBan = _persistence.findByPrimaryKey(newMBBan.getPrimaryKey());
 
-		Assert.assertTrue(Validator.equals(existingMBBan.getUuid(),
+		Assert.assertTrue(Objects.equals(existingMBBan.getUuid(),
 				ReflectionTestUtil.invoke(existingMBBan, "getOriginalUuid",
 					new Class<?>[0])));
 		Assert.assertEquals(Long.valueOf(existingMBBan.getGroupId()),

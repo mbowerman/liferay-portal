@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchRoleException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchRoleException;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.RolePersistence;
+import com.liferay.portal.kernel.service.persistence.RoleUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -31,11 +35,6 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.service.RoleLocalServiceUtil;
-import com.liferay.portal.service.persistence.RolePersistence;
-import com.liferay.portal.service.persistence.RoleUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
@@ -53,6 +52,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -146,8 +146,6 @@ public class RolePersistenceTest {
 
 		newRole.setSubtype(RandomTestUtil.randomString());
 
-		newRole.setLastPublishDate(RandomTestUtil.nextDate());
-
 		_roles.add(_persistence.update(newRole));
 
 		Role existingRole = _persistence.findByPrimaryKey(newRole.getPrimaryKey());
@@ -173,9 +171,6 @@ public class RolePersistenceTest {
 			newRole.getDescription());
 		Assert.assertEquals(existingRole.getType(), newRole.getType());
 		Assert.assertEquals(existingRole.getSubtype(), newRole.getSubtype());
-		Assert.assertEquals(Time.getShortTimestamp(
-				existingRole.getLastPublishDate()),
-			Time.getShortTimestamp(newRole.getLastPublishDate()));
 	}
 
 	@Test
@@ -295,8 +290,7 @@ public class RolePersistenceTest {
 			true, "uuid", true, "roleId", true, "companyId", true, "userId",
 			true, "userName", true, "createDate", true, "modifiedDate", true,
 			"classNameId", true, "classPK", true, "name", true, "title", true,
-			"description", true, "type", true, "subtype", true,
-			"lastPublishDate", true);
+			"description", true, "type", true, "subtype", true);
 	}
 
 	@Test
@@ -401,11 +395,9 @@ public class RolePersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = RoleLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<Role>() {
 				@Override
-				public void performAction(Object object) {
-					Role role = (Role)object;
-
+				public void performAction(Role role) {
 					Assert.assertNotNull(role);
 
 					count.increment();
@@ -500,7 +492,7 @@ public class RolePersistenceTest {
 		Assert.assertEquals(Long.valueOf(existingRole.getCompanyId()),
 			ReflectionTestUtil.<Long>invoke(existingRole,
 				"getOriginalCompanyId", new Class<?>[0]));
-		Assert.assertTrue(Validator.equals(existingRole.getName(),
+		Assert.assertTrue(Objects.equals(existingRole.getName(),
 				ReflectionTestUtil.invoke(existingRole, "getOriginalName",
 					new Class<?>[0])));
 
@@ -547,8 +539,6 @@ public class RolePersistenceTest {
 		role.setType(RandomTestUtil.nextInt());
 
 		role.setSubtype(RandomTestUtil.randomString());
-
-		role.setLastPublishDate(RandomTestUtil.nextDate());
 
 		_roles.add(_persistence.update(role));
 

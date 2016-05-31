@@ -15,8 +15,9 @@
 package com.liferay.portal.service.persistence.impl;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.model.UserGroupRole;
-import com.liferay.portal.service.persistence.UserGroupRolePersistence;
+import com.liferay.portal.kernel.model.UserGroupRole;
+import com.liferay.portal.kernel.service.persistence.UserGroupRolePersistence;
+import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 
 /**
  * @author Brian Wing Shun Chan

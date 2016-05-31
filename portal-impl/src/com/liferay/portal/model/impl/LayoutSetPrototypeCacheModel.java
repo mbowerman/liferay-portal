@@ -16,12 +16,12 @@ package com.liferay.portal.model.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.LayoutSetPrototype;
+import com.liferay.portal.kernel.model.MVCCModel;
 import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.LayoutSetPrototype;
-import com.liferay.portal.model.MVCCModel;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -79,7 +79,7 @@ public class LayoutSetPrototypeCacheModel implements CacheModel<LayoutSetPrototy
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(27);
+		StringBundler sb = new StringBundler(25);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -105,8 +105,6 @@ public class LayoutSetPrototypeCacheModel implements CacheModel<LayoutSetPrototy
 		sb.append(settings);
 		sb.append(", active=");
 		sb.append(active);
-		sb.append(", lastPublishDate=");
-		sb.append(lastPublishDate);
 		sb.append("}");
 
 		return sb.toString();
@@ -173,13 +171,6 @@ public class LayoutSetPrototypeCacheModel implements CacheModel<LayoutSetPrototy
 
 		layoutSetPrototypeImpl.setActive(active);
 
-		if (lastPublishDate == Long.MIN_VALUE) {
-			layoutSetPrototypeImpl.setLastPublishDate(null);
-		}
-		else {
-			layoutSetPrototypeImpl.setLastPublishDate(new Date(lastPublishDate));
-		}
-
 		layoutSetPrototypeImpl.resetOriginalValues();
 
 		return layoutSetPrototypeImpl;
@@ -189,8 +180,11 @@ public class LayoutSetPrototypeCacheModel implements CacheModel<LayoutSetPrototy
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		mvccVersion = objectInput.readLong();
 		uuid = objectInput.readUTF();
+
 		layoutSetPrototypeId = objectInput.readLong();
+
 		companyId = objectInput.readLong();
+
 		userId = objectInput.readLong();
 		userName = objectInput.readUTF();
 		createDate = objectInput.readLong();
@@ -198,8 +192,8 @@ public class LayoutSetPrototypeCacheModel implements CacheModel<LayoutSetPrototy
 		name = objectInput.readUTF();
 		description = objectInput.readUTF();
 		settings = objectInput.readUTF();
+
 		active = objectInput.readBoolean();
-		lastPublishDate = objectInput.readLong();
 	}
 
 	@Override
@@ -215,7 +209,9 @@ public class LayoutSetPrototypeCacheModel implements CacheModel<LayoutSetPrototy
 		}
 
 		objectOutput.writeLong(layoutSetPrototypeId);
+
 		objectOutput.writeLong(companyId);
+
 		objectOutput.writeLong(userId);
 
 		if (userName == null) {
@@ -250,7 +246,6 @@ public class LayoutSetPrototypeCacheModel implements CacheModel<LayoutSetPrototy
 		}
 
 		objectOutput.writeBoolean(active);
-		objectOutput.writeLong(lastPublishDate);
 	}
 
 	public long mvccVersion;
@@ -265,5 +260,4 @@ public class LayoutSetPrototypeCacheModel implements CacheModel<LayoutSetPrototy
 	public String description;
 	public String settings;
 	public boolean active;
-	public long lastPublishDate;
 }

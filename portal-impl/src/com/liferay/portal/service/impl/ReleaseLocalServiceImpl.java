@@ -14,15 +14,17 @@
 
 package com.liferay.portal.service.impl;
 
-import com.liferay.portal.NoSuchReleaseException;
 import com.liferay.portal.events.StartupHelperUtil;
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.exception.NoSuchReleaseException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Release;
+import com.liferay.portal.kernel.model.ReleaseConstants;
 import com.liferay.portal.kernel.upgrade.OlderVersionException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
@@ -31,8 +33,6 @@ import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Release;
-import com.liferay.portal.model.ReleaseConstants;
 import com.liferay.portal.service.base.ReleaseLocalServiceBaseImpl;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
@@ -124,7 +124,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 				_log.info("Create tables and populate with default data");
 			}
 
-			DB db = DBFactoryUtil.getDB();
+			DB db = DBManagerUtil.getDB();
 
 			db.runSQLTemplate("portal-tables.sql", false);
 			db.runSQLTemplate("portal-data-common.sql", false);
@@ -169,7 +169,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 
 		// Gracefully add version column
 
-		DB db = DBFactoryUtil.getDB();
+		DB db = DBManagerUtil.getDB();
 
 		try {
 			db.runSQL(
@@ -252,12 +252,14 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 
 	@Override
 	public Release updateRelease(
-			long releaseId, int buildNumber, Date buildDate, boolean verified)
+			long releaseId, String schemaVersion, int buildNumber,
+			Date buildDate, boolean verified)
 		throws PortalException {
 
 		Release release = releasePersistence.findByPrimaryKey(releaseId);
 
 		release.setModifiedDate(new Date());
+		release.setSchemaVersion(schemaVersion);
 		release.setBuildNumber(buildNumber);
 		release.setBuildDate(buildDate);
 		release.setVerified(verified);
@@ -306,7 +308,8 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 		}
 
 		releaseLocalService.updateRelease(
-			release.getReleaseId(), buildNumber, null, true);
+			release.getReleaseId(), release.getSchemaVersion(), buildNumber,
+			null, true);
 	}
 
 	@Override
@@ -380,7 +383,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 	}
 
 	protected void testSupportsStringCaseSensitiveQuery() {
-		DB db = DBFactoryUtil.getDB();
+		DB db = DBManagerUtil.getDB();
 
 		int count = testSupportsStringCaseSensitiveQuery(
 			ReleaseConstants.TEST_STRING);

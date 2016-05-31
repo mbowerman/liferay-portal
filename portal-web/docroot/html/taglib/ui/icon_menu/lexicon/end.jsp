@@ -13,9 +13,12 @@
  * details.
  */
 --%>
+
 <%@ include file="/html/taglib/init.jsp" %>
 
 <%
+String direction = (String)request.getAttribute("liferay-ui:icon-menu:direction");
+String id = GetterUtil.getString((String)request.getAttribute("liferay-ui:icon-menu:id"));
 boolean scroll = GetterUtil.getBoolean(request.getAttribute("liferay-ui:icon-menu:scroll"));
 %>
 
@@ -24,3 +27,7 @@ boolean scroll = GetterUtil.getBoolean(request.getAttribute("liferay-ui:icon-men
 		</div>
 	</c:if>
 </div>
+
+<aui:script use="liferay-menu">
+	Liferay.Menu.handleFocus('#<%= id %>menu');
+</aui:script>

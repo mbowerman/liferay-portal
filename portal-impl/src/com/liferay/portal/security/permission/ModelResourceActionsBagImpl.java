@@ -14,6 +14,9 @@
 
 package com.liferay.portal.security.permission;
 
+import com.liferay.portal.kernel.security.permission.ModelResourceActionsBag;
+
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -25,7 +28,22 @@ import java.util.Set;
 public class ModelResourceActionsBagImpl
 	extends ResourceActionsBagImpl implements ModelResourceActionsBag {
 
-	public ModelResourceActionsBagImpl() {
+	public ModelResourceActionsBagImpl(
+		Set<String> resourceActions, Set<String> resourceGroupDefaultActions,
+		Set<String> resourceGuestDefaultActions,
+		Set<String> resourceGuestUnsupportedActions, Set<String> resources,
+		Set<String> resourceOwnerDefaultActions,
+		Map<String, Double> resourceWeights) {
+
+		super(
+			resourceActions, resourceGroupDefaultActions,
+			resourceGuestDefaultActions, resourceGuestUnsupportedActions,
+			resources);
+
+		_resourceOwnerDefaultActions = Collections.unmodifiableSet(
+			new HashSet<>(resourceOwnerDefaultActions));
+		_resourceWeights = Collections.unmodifiableMap(
+			new HashMap<>(resourceWeights));
 	}
 
 	public ModelResourceActionsBagImpl(
@@ -33,9 +51,9 @@ public class ModelResourceActionsBagImpl
 
 		super(modelResourceActionsBag);
 
-		_resourceOwnerDefaultActions.addAll(
-			modelResourceActionsBag.getResourceOwnerDefaultActions());
-		_resourceWeights.putAll(modelResourceActionsBag.getResourceWeights());
+		_resourceOwnerDefaultActions =
+			modelResourceActionsBag.getResourceOwnerDefaultActions();
+		_resourceWeights = modelResourceActionsBag.getResourceWeights();
 	}
 
 	@Override
@@ -53,7 +71,7 @@ public class ModelResourceActionsBagImpl
 		return _resourceWeights;
 	}
 
-	private final Set<String> _resourceOwnerDefaultActions = new HashSet<>();
-	private final Map<String, Double> _resourceWeights = new HashMap<>();
+	private final Set<String> _resourceOwnerDefaultActions;
+	private final Map<String, Double> _resourceWeights;
 
 }

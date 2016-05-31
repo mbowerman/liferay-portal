@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.documentlibrary.service.persistence.test;
 
+import com.liferay.document.library.kernel.exception.NoSuchFileEntryTypeException;
+import com.liferay.document.library.kernel.model.DLFileEntryType;
+import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalServiceUtil;
+import com.liferay.document.library.kernel.service.persistence.DLFileEntryTypePersistence;
+import com.liferay.document.library.kernel.service.persistence.DLFileEntryTypeUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -30,15 +36,8 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-
-import com.liferay.portlet.documentlibrary.NoSuchFileEntryTypeException;
-import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
-import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryTypePersistence;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryTypeUtil;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -54,6 +53,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -364,11 +364,9 @@ public class DLFileEntryTypePersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = DLFileEntryTypeLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<DLFileEntryType>() {
 				@Override
-				public void performAction(Object object) {
-					DLFileEntryType dlFileEntryType = (DLFileEntryType)object;
-
+				public void performAction(DLFileEntryType dlFileEntryType) {
 					Assert.assertNotNull(dlFileEntryType);
 
 					count.increment();
@@ -462,7 +460,7 @@ public class DLFileEntryTypePersistenceTest {
 
 		DLFileEntryType existingDLFileEntryType = _persistence.findByPrimaryKey(newDLFileEntryType.getPrimaryKey());
 
-		Assert.assertTrue(Validator.equals(existingDLFileEntryType.getUuid(),
+		Assert.assertTrue(Objects.equals(existingDLFileEntryType.getUuid(),
 				ReflectionTestUtil.invoke(existingDLFileEntryType,
 					"getOriginalUuid", new Class<?>[0])));
 		Assert.assertEquals(Long.valueOf(existingDLFileEntryType.getGroupId()),
@@ -472,7 +470,7 @@ public class DLFileEntryTypePersistenceTest {
 		Assert.assertEquals(Long.valueOf(existingDLFileEntryType.getGroupId()),
 			ReflectionTestUtil.<Long>invoke(existingDLFileEntryType,
 				"getOriginalGroupId", new Class<?>[0]));
-		Assert.assertTrue(Validator.equals(
+		Assert.assertTrue(Objects.equals(
 				existingDLFileEntryType.getFileEntryTypeKey(),
 				ReflectionTestUtil.invoke(existingDLFileEntryType,
 					"getOriginalFileEntryTypeKey", new Class<?>[0])));

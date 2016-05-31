@@ -1,0 +1,15 @@
+dependencies {
+	classpath group: "com.liferay", name: "com.liferay.gradle.plugins", version: "1.0.318"
+	classpath group: "com.liferay", name: "com.liferay.gradle.plugins.lang.merger", version: "1.0.1"
+	classpath group: "com.liferay", name: "com.liferay.gradle.plugins.maven.plugin.builder", version: "1.0.10"
+}
+
+repositories {
+	if (!Boolean.getBoolean("maven.local.ignore")) {
+		mavenLocal()
+	}
+
+	maven {
+		url System.properties["repository.url"] ?: "https://cdn.lfrs.sl/repository.liferay.com/nexus/content/groups/public"
+	}
+}

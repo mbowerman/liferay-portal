@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchResourceBlockPermissionException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchResourceBlockPermissionException;
+import com.liferay.portal.kernel.model.ResourceBlockPermission;
+import com.liferay.portal.kernel.service.ResourceBlockPermissionLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.ResourceBlockPermissionPersistence;
+import com.liferay.portal.kernel.service.persistence.ResourceBlockPermissionUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -29,10 +33,6 @@ import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
-import com.liferay.portal.model.ResourceBlockPermission;
-import com.liferay.portal.service.ResourceBlockPermissionLocalServiceUtil;
-import com.liferay.portal.service.persistence.ResourceBlockPermissionPersistence;
-import com.liferay.portal.service.persistence.ResourceBlockPermissionUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
@@ -117,6 +117,8 @@ public class ResourceBlockPermissionPersistenceTest {
 
 		newResourceBlockPermission.setMvccVersion(RandomTestUtil.nextLong());
 
+		newResourceBlockPermission.setCompanyId(RandomTestUtil.nextLong());
+
 		newResourceBlockPermission.setResourceBlockId(RandomTestUtil.nextLong());
 
 		newResourceBlockPermission.setRoleId(RandomTestUtil.nextLong());
@@ -132,6 +134,8 @@ public class ResourceBlockPermissionPersistenceTest {
 			newResourceBlockPermission.getMvccVersion());
 		Assert.assertEquals(existingResourceBlockPermission.getResourceBlockPermissionId(),
 			newResourceBlockPermission.getResourceBlockPermissionId());
+		Assert.assertEquals(existingResourceBlockPermission.getCompanyId(),
+			newResourceBlockPermission.getCompanyId());
 		Assert.assertEquals(existingResourceBlockPermission.getResourceBlockId(),
 			newResourceBlockPermission.getResourceBlockId());
 		Assert.assertEquals(existingResourceBlockPermission.getRoleId(),
@@ -188,7 +192,8 @@ public class ResourceBlockPermissionPersistenceTest {
 	protected OrderByComparator<ResourceBlockPermission> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("ResourceBlockPermission",
 			"mvccVersion", true, "resourceBlockPermissionId", true,
-			"resourceBlockId", true, "roleId", true, "actionIds", true);
+			"companyId", true, "resourceBlockId", true, "roleId", true,
+			"actionIds", true);
 	}
 
 	@Test
@@ -302,11 +307,10 @@ public class ResourceBlockPermissionPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ResourceBlockPermissionLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ResourceBlockPermission>() {
 				@Override
-				public void performAction(Object object) {
-					ResourceBlockPermission resourceBlockPermission = (ResourceBlockPermission)object;
-
+				public void performAction(
+					ResourceBlockPermission resourceBlockPermission) {
 					Assert.assertNotNull(resourceBlockPermission);
 
 					count.increment();
@@ -422,6 +426,8 @@ public class ResourceBlockPermissionPersistenceTest {
 		ResourceBlockPermission resourceBlockPermission = _persistence.create(pk);
 
 		resourceBlockPermission.setMvccVersion(RandomTestUtil.nextLong());
+
+		resourceBlockPermission.setCompanyId(RandomTestUtil.nextLong());
 
 		resourceBlockPermission.setResourceBlockId(RandomTestUtil.nextLong());
 

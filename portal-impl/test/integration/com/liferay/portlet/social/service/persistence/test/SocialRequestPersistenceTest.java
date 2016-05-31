@@ -29,15 +29,14 @@ import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.social.NoSuchRequestException;
-import com.liferay.portlet.social.model.SocialRequest;
-import com.liferay.portlet.social.service.SocialRequestLocalServiceUtil;
-import com.liferay.portlet.social.service.persistence.SocialRequestPersistence;
-import com.liferay.portlet.social.service.persistence.SocialRequestUtil;
+import com.liferay.social.kernel.exception.NoSuchRequestException;
+import com.liferay.social.kernel.model.SocialRequest;
+import com.liferay.social.kernel.service.SocialRequestLocalServiceUtil;
+import com.liferay.social.kernel.service.persistence.SocialRequestPersistence;
+import com.liferay.social.kernel.service.persistence.SocialRequestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -53,6 +52,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -409,11 +409,9 @@ public class SocialRequestPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = SocialRequestLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<SocialRequest>() {
 				@Override
-				public void performAction(Object object) {
-					SocialRequest socialRequest = (SocialRequest)object;
-
+				public void performAction(SocialRequest socialRequest) {
 					Assert.assertNotNull(socialRequest);
 
 					count.increment();
@@ -505,7 +503,7 @@ public class SocialRequestPersistenceTest {
 
 		SocialRequest existingSocialRequest = _persistence.findByPrimaryKey(newSocialRequest.getPrimaryKey());
 
-		Assert.assertTrue(Validator.equals(existingSocialRequest.getUuid(),
+		Assert.assertTrue(Objects.equals(existingSocialRequest.getUuid(),
 				ReflectionTestUtil.invoke(existingSocialRequest,
 					"getOriginalUuid", new Class<?>[0])));
 		Assert.assertEquals(Long.valueOf(existingSocialRequest.getGroupId()),

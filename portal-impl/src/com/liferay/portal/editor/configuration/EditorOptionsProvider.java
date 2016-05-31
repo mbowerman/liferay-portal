@@ -16,9 +16,9 @@ package com.liferay.portal.editor.configuration;
 
 import com.liferay.portal.kernel.editor.configuration.EditorOptions;
 import com.liferay.portal.kernel.editor.configuration.EditorOptionsContributor;
+import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactory;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portlet.RequestBackedPortletURLFactory;
 import com.liferay.registry.collections.ServiceReferenceMapper;
 import com.liferay.registry.collections.ServiceTrackerCollections;
 import com.liferay.registry.collections.ServiceTrackerMap;
@@ -67,15 +67,11 @@ public class EditorOptionsProvider
 			_serviceReferenceMapper = new EditorServiceReferenceMapper<>();
 	private static final ServiceTrackerMap
 		<String, List<EditorOptionsContributor>> _serviceTrackerMap =
-			ServiceTrackerCollections.multiValueMap(
+			ServiceTrackerCollections.openMultiValueMap(
 				EditorOptionsContributor.class,
 				"(|(editor.config.key=*)(editor.name=*)(javax.portlet.name=*)" +
 					"(objectClass=" + EditorOptionsContributor.class.getName() +
 						"))",
 				_serviceReferenceMapper);
-
-	static {
-		_serviceTrackerMap.open();
-	}
 
 }

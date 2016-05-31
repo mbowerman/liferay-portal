@@ -29,15 +29,14 @@ import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.social.NoSuchActivityLimitException;
-import com.liferay.portlet.social.model.SocialActivityLimit;
-import com.liferay.portlet.social.service.SocialActivityLimitLocalServiceUtil;
-import com.liferay.portlet.social.service.persistence.SocialActivityLimitPersistence;
-import com.liferay.portlet.social.service.persistence.SocialActivityLimitUtil;
+import com.liferay.social.kernel.exception.NoSuchActivityLimitException;
+import com.liferay.social.kernel.model.SocialActivityLimit;
+import com.liferay.social.kernel.service.SocialActivityLimitLocalServiceUtil;
+import com.liferay.social.kernel.service.persistence.SocialActivityLimitPersistence;
+import com.liferay.social.kernel.service.persistence.SocialActivityLimitUtil;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -53,6 +52,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -327,11 +327,10 @@ public class SocialActivityLimitPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = SocialActivityLimitLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<SocialActivityLimit>() {
 				@Override
-				public void performAction(Object object) {
-					SocialActivityLimit socialActivityLimit = (SocialActivityLimit)object;
-
+				public void performAction(
+					SocialActivityLimit socialActivityLimit) {
 					Assert.assertNotNull(socialActivityLimit);
 
 					count.increment();
@@ -445,7 +444,7 @@ public class SocialActivityLimitPersistenceTest {
 				existingSocialActivityLimit.getActivityType()),
 			ReflectionTestUtil.<Integer>invoke(existingSocialActivityLimit,
 				"getOriginalActivityType", new Class<?>[0]));
-		Assert.assertTrue(Validator.equals(
+		Assert.assertTrue(Objects.equals(
 				existingSocialActivityLimit.getActivityCounterName(),
 				ReflectionTestUtil.invoke(existingSocialActivityLimit,
 					"getOriginalActivityCounterName", new Class<?>[0])));

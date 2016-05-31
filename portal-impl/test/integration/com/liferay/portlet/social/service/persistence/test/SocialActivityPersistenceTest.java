@@ -31,11 +31,11 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.social.NoSuchActivityException;
-import com.liferay.portlet.social.model.SocialActivity;
-import com.liferay.portlet.social.service.SocialActivityLocalServiceUtil;
-import com.liferay.portlet.social.service.persistence.SocialActivityPersistence;
-import com.liferay.portlet.social.service.persistence.SocialActivityUtil;
+import com.liferay.social.kernel.exception.NoSuchActivityException;
+import com.liferay.social.kernel.model.SocialActivity;
+import com.liferay.social.kernel.service.SocialActivityLocalServiceUtil;
+import com.liferay.social.kernel.service.persistence.SocialActivityPersistence;
+import com.liferay.social.kernel.service.persistence.SocialActivityUtil;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -406,11 +406,9 @@ public class SocialActivityPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = SocialActivityLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<SocialActivity>() {
 				@Override
-				public void performAction(Object object) {
-					SocialActivity socialActivity = (SocialActivity)object;
-
+				public void performAction(SocialActivity socialActivity) {
 					Assert.assertNotNull(socialActivity);
 
 					count.increment();

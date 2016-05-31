@@ -14,32 +14,32 @@
 
 package com.liferay.portal.service.persistence.impl;
 
-import com.liferay.portal.NoSuchGroupException;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.SQLQuery;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.Type;
+import com.liferay.portal.kernel.exception.NoSuchGroupException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.ResourceAction;
+import com.liferay.portal.kernel.security.permission.RolePermissions;
+import com.liferay.portal.kernel.service.ClassNameLocalServiceUtil;
+import com.liferay.portal.kernel.service.ResourceActionLocalServiceUtil;
+import com.liferay.portal.kernel.service.ResourceBlockLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.GroupFinder;
+import com.liferay.portal.kernel.service.persistence.GroupUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.GroupConstants;
-import com.liferay.portal.model.Organization;
-import com.liferay.portal.model.ResourceAction;
+import com.liferay.portal.kernel.util.comparator.GroupNameComparator;
 import com.liferay.portal.model.impl.GroupImpl;
-import com.liferay.portal.security.permission.RolePermissions;
-import com.liferay.portal.service.ClassNameLocalServiceUtil;
-import com.liferay.portal.service.ResourceActionLocalServiceUtil;
-import com.liferay.portal.service.ResourceBlockLocalServiceUtil;
 import com.liferay.portal.service.impl.GroupLocalServiceImpl;
-import com.liferay.portal.service.persistence.GroupFinder;
-import com.liferay.portal.service.persistence.GroupUtil;
-import com.liferay.portal.util.comparator.GroupNameComparator;
 import com.liferay.util.dao.orm.CustomSQLUtil;
 
 import java.util.ArrayList;
@@ -91,6 +91,9 @@ public class GroupFinderImpl
 
 	public static final String FIND_BY_C_GK =
 		GroupFinder.class.getName() + ".findByC_GK";
+
+	public static final String FIND_BY_L_TS_S_RSGC =
+		GroupFinder.class.getName() + ".findByL_TS_S_RSGC";
 
 	public static final String FIND_BY_C_C_PG_N_D =
 		GroupFinder.class.getName() + ".findByC_C_PG_N_D";
@@ -686,6 +689,42 @@ public class GroupFinderImpl
 	}
 
 	@Override
+	public List<Group> findByL_TS_S_RSGC(
+		long liveGroupId, String typeSettings, boolean site,
+		int remoteStagingGroupCount) {
+
+		String sql = CustomSQLUtil.get(FIND_BY_L_TS_S_RSGC);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+			q.addEntity("Group_", GroupImpl.class);
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(liveGroupId);
+			qPos.add(StringUtil.quote(typeSettings, StringPool.PERCENT));
+			qPos.add(site);
+			qPos.add(remoteStagingGroupCount);
+
+			List<Group> groups = (List<Group>)QueryUtil.list(
+				q, getDialect(), QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+
+			return groups;
+		}
+		catch (Exception e) {
+			throw new SystemException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	@Override
 	public List<Group> findByC_C_PG_N_D(
 		long companyId, long[] classNameIds, long parentGroupId, String[] names,
 		String[] descriptions, LinkedHashMap<String, Object> params,
@@ -1083,9 +1122,7 @@ public class GroupFinderImpl
 		String sql, LinkedHashMap<String, Object> params) {
 
 		if (params.isEmpty()) {
-			return StringUtil.replace(
-				sql, new String[] {"[$JOIN$]", "[$WHERE$]"},
-				new String[] {StringPool.BLANK, StringPool.BLANK});
+			return StringUtil.removeSubstrings(sql, "[$JOIN$]", "[$WHERE$]");
 		}
 
 		String cacheKey = _getCacheKey(sql, params);

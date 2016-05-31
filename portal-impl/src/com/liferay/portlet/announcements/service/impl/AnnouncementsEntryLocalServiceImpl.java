@@ -14,38 +14,38 @@
 
 package com.liferay.portlet.announcements.service.impl;
 
+import com.liferay.announcements.kernel.exception.EntryContentException;
+import com.liferay.announcements.kernel.exception.EntryDisplayDateException;
+import com.liferay.announcements.kernel.exception.EntryExpirationDateException;
+import com.liferay.announcements.kernel.exception.EntryTitleException;
+import com.liferay.announcements.kernel.exception.EntryURLException;
+import com.liferay.announcements.kernel.model.AnnouncementsDelivery;
+import com.liferay.announcements.kernel.model.AnnouncementsEntry;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.interval.IntervalActionProcessor;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.SubscriptionSender;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.model.Company;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.Organization;
-import com.liferay.portal.model.ResourceConstants;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.model.User;
-import com.liferay.portal.model.UserGroup;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.SubscriptionSender;
-import com.liferay.portlet.announcements.EntryContentException;
-import com.liferay.portlet.announcements.EntryDisplayDateException;
-import com.liferay.portlet.announcements.EntryExpirationDateException;
-import com.liferay.portlet.announcements.EntryTitleException;
-import com.liferay.portlet.announcements.EntryURLException;
-import com.liferay.portlet.announcements.model.AnnouncementsDelivery;
-import com.liferay.portlet.announcements.model.AnnouncementsEntry;
 import com.liferay.portlet.announcements.service.base.AnnouncementsEntryLocalServiceBaseImpl;
 import com.liferay.util.ContentUtil;
 
@@ -90,7 +90,7 @@ public class AnnouncementsEntryLocalServiceImpl
 			expirationDateHour, expirationDateMinute, user.getTimeZone(),
 			EntryExpirationDateException.class);
 
-		validate(title, content, url);
+		validate(title, content, url, displayDate, expirationDate);
 
 		long entryId = counterLocalService.increment();
 
@@ -121,31 +121,6 @@ public class AnnouncementsEntryLocalServiceImpl
 			false, false);
 
 		return entry;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #addEntry(long, long, long,
-	 *             String, String, String, String, int, int, int, int, int,
-	 *             boolean, int, int, int, int, int, int, boolean)}
-	 */
-	@Deprecated
-	@Override
-	public AnnouncementsEntry addEntry(
-			long userId, long classNameId, long classPK, String title,
-			String content, String url, String type, int displayDateMonth,
-			int displayDateDay, int displayDateYear, int displayDateHour,
-			int displayDateMinute, int expirationDateMonth,
-			int expirationDateDay, int expirationDateYear,
-			int expirationDateHour, int expirationDateMinute, int priority,
-			boolean alert)
-		throws PortalException {
-
-		return addEntry(
-			userId, classNameId, classPK, title, content, url, type,
-			displayDateMonth, displayDateDay, displayDateYear, displayDateHour,
-			displayDateMinute, false, expirationDateMonth, expirationDateDay,
-			expirationDateYear, expirationDateHour, expirationDateMinute,
-			priority, alert);
 	}
 
 	@Override
@@ -348,7 +323,7 @@ public class AnnouncementsEntryLocalServiceImpl
 			expirationDateHour, expirationDateMinute, user.getTimeZone(),
 			EntryExpirationDateException.class);
 
-		validate(title, content, url);
+		validate(title, content, url, displayDate, expirationDate);
 
 		AnnouncementsEntry entry =
 			announcementsEntryPersistence.findByPrimaryKey(entryId);
@@ -581,7 +556,9 @@ public class AnnouncementsEntryLocalServiceImpl
 		subscriptionSender.flushNotificationsAsync();
 	}
 
-	protected void validate(String title, String content, String url)
+	protected void validate(
+			String title, String content, String url, Date displayDate,
+			Date expirationDate)
 		throws PortalException {
 
 		if (Validator.isNull(title)) {
@@ -594,6 +571,14 @@ public class AnnouncementsEntryLocalServiceImpl
 
 		if (Validator.isNotNull(url) && !Validator.isUrl(url)) {
 			throw new EntryURLException();
+		}
+
+		if ((expirationDate != null) &&
+			(expirationDate.before(new Date()) ||
+			 ((displayDate != null) && expirationDate.before(displayDate)))) {
+
+			throw new EntryExpirationDateException(
+				"Expiration date " + expirationDate + " is in the past");
 		}
 	}
 

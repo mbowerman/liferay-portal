@@ -16,25 +16,27 @@ package com.liferay.portal.model.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.expando.kernel.model.ExpandoBridge;
+import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
+
+import com.liferay.exportimport.kernel.lar.StagedModelType;
+
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSON;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.OrganizationModel;
+import com.liferay.portal.kernel.model.OrganizationSoap;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.impl.BaseModelImpl;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.Organization;
-import com.liferay.portal.model.OrganizationModel;
-import com.liferay.portal.model.OrganizationSoap;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
-
-import com.liferay.portlet.expando.model.ExpandoBridge;
-import com.liferay.portlet.expando.util.ExpandoBridgeFactoryUtil;
-import com.liferay.portlet.exportimport.lar.StagedModelType;
 
 import java.io.Serializable;
 
@@ -87,8 +89,7 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 			{ "countryId", Types.BIGINT },
 			{ "statusId", Types.BIGINT },
 			{ "comments", Types.VARCHAR },
-			{ "logoId", Types.BIGINT },
-			{ "lastPublishDate", Types.TIMESTAMP }
+			{ "logoId", Types.BIGINT }
 		};
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP = new HashMap<String, Integer>();
 
@@ -111,10 +112,9 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 		TABLE_COLUMNS_MAP.put("statusId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("comments", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("logoId", Types.BIGINT);
-		TABLE_COLUMNS_MAP.put("lastPublishDate", Types.TIMESTAMP);
 	}
 
-	public static final String TABLE_SQL_CREATE = "create table Organization_ (mvccVersion LONG default 0,uuid_ VARCHAR(75) null,organizationId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,parentOrganizationId LONG,treePath STRING null,name VARCHAR(100) null,type_ VARCHAR(75) null,recursable BOOLEAN,regionId LONG,countryId LONG,statusId LONG,comments STRING null,logoId LONG,lastPublishDate DATE null)";
+	public static final String TABLE_SQL_CREATE = "create table Organization_ (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,organizationId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,parentOrganizationId LONG,treePath STRING null,name VARCHAR(100) null,type_ VARCHAR(75) null,recursable BOOLEAN,regionId LONG,countryId LONG,statusId LONG,comments STRING null,logoId LONG)";
 	public static final String TABLE_SQL_DROP = "drop table Organization_";
 	public static final String ORDER_BY_JPQL = " ORDER BY organization.name ASC";
 	public static final String ORDER_BY_SQL = " ORDER BY Organization_.name ASC";
@@ -122,13 +122,13 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 	public static final String SESSION_FACTORY = "liferaySessionFactory";
 	public static final String TX_MANAGER = "liferayTransactionManager";
 	public static final boolean ENTITY_CACHE_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
-				"value.object.entity.cache.enabled.com.liferay.portal.model.Organization"),
+				"value.object.entity.cache.enabled.com.liferay.portal.kernel.model.Organization"),
 			true);
 	public static final boolean FINDER_CACHE_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
-				"value.object.finder.cache.enabled.com.liferay.portal.model.Organization"),
+				"value.object.finder.cache.enabled.com.liferay.portal.kernel.model.Organization"),
 			true);
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
-				"value.object.column.bitmask.enabled.com.liferay.portal.model.Organization"),
+				"value.object.column.bitmask.enabled.com.liferay.portal.kernel.model.Organization"),
 			true);
 	public static final long COMPANYID_COLUMN_BITMASK = 1L;
 	public static final long NAME_COLUMN_BITMASK = 2L;
@@ -168,7 +168,6 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 		model.setStatusId(soapModel.getStatusId());
 		model.setComments(soapModel.getComments());
 		model.setLogoId(soapModel.getLogoId());
-		model.setLastPublishDate(soapModel.getLastPublishDate());
 
 		return model;
 	}
@@ -199,7 +198,7 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 			{ "groupId", Types.BIGINT },
 			{ "organizationId", Types.BIGINT }
 		};
-	public static final String MAPPING_TABLE_GROUPS_ORGS_SQL_CREATE = "create table Groups_Orgs (companyId LONG not null,groupId LONG not null,organizationId LONG not null,primary key (companyId, groupId, organizationId))";
+	public static final String MAPPING_TABLE_GROUPS_ORGS_SQL_CREATE = "create table Groups_Orgs (companyId LONG not null,groupId LONG not null,organizationId LONG not null,primary key (groupId, organizationId))";
 	public static final boolean FINDER_CACHE_ENABLED_GROUPS_ORGS = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
 				"value.object.finder.cache.enabled.Groups_Orgs"), true);
 	public static final String MAPPING_TABLE_USERS_ORGS_NAME = "Users_Orgs";
@@ -208,11 +207,11 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 			{ "organizationId", Types.BIGINT },
 			{ "userId", Types.BIGINT }
 		};
-	public static final String MAPPING_TABLE_USERS_ORGS_SQL_CREATE = "create table Users_Orgs (companyId LONG not null,organizationId LONG not null,userId LONG not null,primary key (companyId, organizationId, userId))";
+	public static final String MAPPING_TABLE_USERS_ORGS_SQL_CREATE = "create table Users_Orgs (companyId LONG not null,organizationId LONG not null,userId LONG not null,primary key (organizationId, userId))";
 	public static final boolean FINDER_CACHE_ENABLED_USERS_ORGS = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
 				"value.object.finder.cache.enabled.Users_Orgs"), true);
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(com.liferay.portal.util.PropsUtil.get(
-				"lock.expiration.time.com.liferay.portal.model.Organization"));
+				"lock.expiration.time.com.liferay.portal.kernel.model.Organization"));
 
 	public OrganizationModelImpl() {
 	}
@@ -269,7 +268,6 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 		attributes.put("statusId", getStatusId());
 		attributes.put("comments", getComments());
 		attributes.put("logoId", getLogoId());
-		attributes.put("lastPublishDate", getLastPublishDate());
 
 		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
 		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
@@ -385,12 +383,6 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 
 		if (logoId != null) {
 			setLogoId(logoId);
-		}
-
-		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
-
-		if (lastPublishDate != null) {
-			setLastPublishDate(lastPublishDate);
 		}
 	}
 
@@ -713,17 +705,6 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 		_logoId = logoId;
 	}
 
-	@JSON
-	@Override
-	public Date getLastPublishDate() {
-		return _lastPublishDate;
-	}
-
-	@Override
-	public void setLastPublishDate(Date lastPublishDate) {
-		_lastPublishDate = lastPublishDate;
-	}
-
 	@Override
 	public StagedModelType getStagedModelType() {
 		return new StagedModelType(PortalUtil.getClassNameId(
@@ -779,7 +760,6 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 		organizationImpl.setStatusId(getStatusId());
 		organizationImpl.setComments(getComments());
 		organizationImpl.setLogoId(getLogoId());
-		organizationImpl.setLastPublishDate(getLastPublishDate());
 
 		organizationImpl.resetOriginalValues();
 
@@ -953,21 +933,12 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 
 		organizationCacheModel.logoId = getLogoId();
 
-		Date lastPublishDate = getLastPublishDate();
-
-		if (lastPublishDate != null) {
-			organizationCacheModel.lastPublishDate = lastPublishDate.getTime();
-		}
-		else {
-			organizationCacheModel.lastPublishDate = Long.MIN_VALUE;
-		}
-
 		return organizationCacheModel;
 	}
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(39);
+		StringBundler sb = new StringBundler(37);
 
 		sb.append("{mvccVersion=");
 		sb.append(getMvccVersion());
@@ -1005,8 +976,6 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 		sb.append(getComments());
 		sb.append(", logoId=");
 		sb.append(getLogoId());
-		sb.append(", lastPublishDate=");
-		sb.append(getLastPublishDate());
 		sb.append("}");
 
 		return sb.toString();
@@ -1014,10 +983,10 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 
 	@Override
 	public String toXmlString() {
-		StringBundler sb = new StringBundler(61);
+		StringBundler sb = new StringBundler(58);
 
 		sb.append("<model><model-name>");
-		sb.append("com.liferay.portal.model.Organization");
+		sb.append("com.liferay.portal.kernel.model.Organization");
 		sb.append("</model-name>");
 
 		sb.append(
@@ -1092,10 +1061,6 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 			"<column><column-name>logoId</column-name><column-value><![CDATA[");
 		sb.append(getLogoId());
 		sb.append("]]></column-value></column>");
-		sb.append(
-			"<column><column-name>lastPublishDate</column-name><column-value><![CDATA[");
-		sb.append(getLastPublishDate());
-		sb.append("]]></column-value></column>");
 
 		sb.append("</model>");
 
@@ -1134,7 +1099,6 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 	private long _statusId;
 	private String _comments;
 	private long _logoId;
-	private Date _lastPublishDate;
 	private long _columnBitmask;
 	private Organization _escapedModel;
 }

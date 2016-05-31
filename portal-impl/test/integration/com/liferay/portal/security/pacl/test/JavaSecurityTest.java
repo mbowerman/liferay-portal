@@ -14,8 +14,8 @@
 
 package com.liferay.portal.security.pacl.test;
 
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.test.rule.PACLTestRule;
-import com.liferay.portal.util.PortalUtil;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -81,8 +81,7 @@ public class JavaSecurityTest {
 					}
 
 				},
-				accessControlContext
-			);
+				accessControlContext);
 
 			Assert.fail();
 		}
@@ -132,15 +131,13 @@ public class JavaSecurityTest {
 								}
 
 							},
-							accessControlContext
-						);
+							accessControlContext);
 
 						return null;
 					}
 
 				},
-				accessControlContext
-			);
+				accessControlContext);
 
 			Assert.fail();
 		}
@@ -173,8 +170,8 @@ public class JavaSecurityTest {
 
 						return assignedDomains;
 					}
-				}
-			);
+
+				});
 
 			AccessController.doPrivileged(
 				new PrivilegedAction<Void>() {
@@ -187,8 +184,7 @@ public class JavaSecurityTest {
 					}
 
 				},
-				accessControlContext
-			);
+				accessControlContext);
 
 			Assert.fail();
 		}
@@ -301,6 +297,7 @@ public class JavaSecurityTest {
 
 					return null;
 				}
+
 			};
 
 			callable.call();
@@ -325,7 +322,9 @@ public class JavaSecurityTest {
 	@Test
 	public void testProtectionDomain2() throws Exception {
 		try {
-			getClass().getProtectionDomain();
+			Class<?> clazz = getClass();
+
+			clazz.getProtectionDomain();
 
 			Assert.fail();
 		}

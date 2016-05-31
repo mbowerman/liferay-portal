@@ -14,9 +14,13 @@
 
 package com.liferay.portal.repository.capabilities;
 
+import com.liferay.document.library.kernel.model.DLSyncConstants;
+import com.liferay.document.library.kernel.model.DLSyncEvent;
+import com.liferay.document.library.kernel.service.DLSyncEventLocalService;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.repository.capabilities.SyncCapability;
 import com.liferay.portal.kernel.repository.event.RepositoryEventAware;
 import com.liferay.portal.kernel.repository.event.RepositoryEventListener;
@@ -27,13 +31,9 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.repository.registry.RepositoryEventRegistry;
 import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
-import com.liferay.portal.model.Group;
 import com.liferay.portal.repository.capabilities.util.GroupServiceAdapter;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileEntry;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFolder;
-import com.liferay.portlet.documentlibrary.model.DLSyncConstants;
-import com.liferay.portlet.documentlibrary.model.DLSyncEvent;
-import com.liferay.portlet.documentlibrary.service.DLSyncEventLocalService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -164,8 +164,7 @@ public class LiferaySyncCapability
 					return null;
 				}
 
-			}
-		);
+			});
 	}
 
 	private final RepositoryEventListener
@@ -243,8 +242,8 @@ public class LiferaySyncCapability
 	private final GroupServiceAdapter _groupServiceAdapter;
 
 	private class SyncFileEntryRepositoryEventListener
-			<S extends RepositoryEventType>
-		implements RepositoryEventListener<S, FileEntry> {
+		<S extends RepositoryEventType>
+			implements RepositoryEventListener<S, FileEntry> {
 
 		public SyncFileEntryRepositoryEventListener(String syncEvent) {
 			_syncEvent = syncEvent;
@@ -260,8 +259,8 @@ public class LiferaySyncCapability
 	}
 
 	private class SyncFolderRepositoryEventListener
-			<S extends RepositoryEventType>
-		implements RepositoryEventListener<S, Folder> {
+		<S extends RepositoryEventType>
+			implements RepositoryEventListener<S, Folder> {
 
 		public SyncFolderRepositoryEventListener(String syncEvent) {
 			_syncEvent = syncEvent;
