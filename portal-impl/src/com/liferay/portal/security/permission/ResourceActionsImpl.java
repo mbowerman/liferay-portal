@@ -1125,10 +1125,7 @@ public class ResourceActionsImpl implements ResourceActions {
 
 		modelResourceWeights.put(name, weight);
 
-		Set<String> modelResourceActions =
-			modelResourceActionsBag.getResourceActions();
-
-		modelResourceActions.clear();
+		Set<String> modelResourceActions = new HashSet<>();
 
 		readSupportsActions(modelResourceElement, modelResourceActions);
 
@@ -1163,6 +1160,14 @@ public class ResourceActionsImpl implements ResourceActions {
 
 		readOwnerDefaultActions(
 			modelResourceElement, modelResourceOwnerDefaultActions);
+
+		ModelResourceActionsBag newResourceActionsBag =
+			new ModelResourceActionsBagImpl(
+				modelResourceActions, resourceGroupDefaultActions,
+				resourceGuestDefaultActions, resourceGuestUnsupportedActions,
+				resources, resourceOwnerDefaultActions, resourceWeights);
+
+		_modelResourceActionsBags.put(name, newResourceActionsBag);
 	}
 
 	protected void readOwnerDefaultActions(
