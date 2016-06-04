@@ -29,15 +29,14 @@ import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.social.NoSuchActivitySettingException;
-import com.liferay.portlet.social.model.SocialActivitySetting;
-import com.liferay.portlet.social.service.SocialActivitySettingLocalServiceUtil;
-import com.liferay.portlet.social.service.persistence.SocialActivitySettingPersistence;
-import com.liferay.portlet.social.service.persistence.SocialActivitySettingUtil;
+import com.liferay.social.kernel.exception.NoSuchActivitySettingException;
+import com.liferay.social.kernel.model.SocialActivitySetting;
+import com.liferay.social.kernel.service.SocialActivitySettingLocalServiceUtil;
+import com.liferay.social.kernel.service.persistence.SocialActivitySettingPersistence;
+import com.liferay.social.kernel.service.persistence.SocialActivitySettingUtil;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -53,6 +52,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -332,11 +332,10 @@ public class SocialActivitySettingPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = SocialActivitySettingLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<SocialActivitySetting>() {
 				@Override
-				public void performAction(Object object) {
-					SocialActivitySetting socialActivitySetting = (SocialActivitySetting)object;
-
+				public void performAction(
+					SocialActivitySetting socialActivitySetting) {
 					Assert.assertNotNull(socialActivitySetting);
 
 					count.increment();
@@ -443,7 +442,7 @@ public class SocialActivitySettingPersistenceTest {
 				existingSocialActivitySetting.getActivityType()),
 			ReflectionTestUtil.<Integer>invoke(existingSocialActivitySetting,
 				"getOriginalActivityType", new Class<?>[0]));
-		Assert.assertTrue(Validator.equals(
+		Assert.assertTrue(Objects.equals(
 				existingSocialActivitySetting.getName(),
 				ReflectionTestUtil.invoke(existingSocialActivitySetting,
 					"getOriginalName", new Class<?>[0])));

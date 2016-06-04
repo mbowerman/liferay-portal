@@ -16,25 +16,27 @@ package com.liferay.portal.model.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.expando.kernel.model.ExpandoBridge;
+import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
+
+import com.liferay.exportimport.kernel.lar.StagedModelType;
+
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSON;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.PasswordPolicy;
+import com.liferay.portal.kernel.model.PasswordPolicyModel;
+import com.liferay.portal.kernel.model.PasswordPolicySoap;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.impl.BaseModelImpl;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.PasswordPolicy;
-import com.liferay.portal.model.PasswordPolicyModel;
-import com.liferay.portal.model.PasswordPolicySoap;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
-
-import com.liferay.portlet.expando.model.ExpandoBridge;
-import com.liferay.portlet.expando.util.ExpandoBridgeFactoryUtil;
-import com.liferay.portlet.exportimport.lar.StagedModelType;
 
 import java.io.Serializable;
 
@@ -104,8 +106,7 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 			{ "lockoutDuration", Types.BIGINT },
 			{ "requireUnlock", Types.BOOLEAN },
 			{ "resetFailureCount", Types.BIGINT },
-			{ "resetTicketMaxAge", Types.BIGINT },
-			{ "lastPublishDate", Types.TIMESTAMP }
+			{ "resetTicketMaxAge", Types.BIGINT }
 		};
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP = new HashMap<String, Integer>();
 
@@ -145,10 +146,9 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 		TABLE_COLUMNS_MAP.put("requireUnlock", Types.BOOLEAN);
 		TABLE_COLUMNS_MAP.put("resetFailureCount", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("resetTicketMaxAge", Types.BIGINT);
-		TABLE_COLUMNS_MAP.put("lastPublishDate", Types.TIMESTAMP);
 	}
 
-	public static final String TABLE_SQL_CREATE = "create table PasswordPolicy (mvccVersion LONG default 0,uuid_ VARCHAR(75) null,passwordPolicyId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,defaultPolicy BOOLEAN,name VARCHAR(75) null,description STRING null,changeable BOOLEAN,changeRequired BOOLEAN,minAge LONG,checkSyntax BOOLEAN,allowDictionaryWords BOOLEAN,minAlphanumeric INTEGER,minLength INTEGER,minLowerCase INTEGER,minNumbers INTEGER,minSymbols INTEGER,minUpperCase INTEGER,regex VARCHAR(75) null,history BOOLEAN,historyCount INTEGER,expireable BOOLEAN,maxAge LONG,warningTime LONG,graceLimit INTEGER,lockout BOOLEAN,maxFailure INTEGER,lockoutDuration LONG,requireUnlock BOOLEAN,resetFailureCount LONG,resetTicketMaxAge LONG,lastPublishDate DATE null)";
+	public static final String TABLE_SQL_CREATE = "create table PasswordPolicy (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,passwordPolicyId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,defaultPolicy BOOLEAN,name VARCHAR(75) null,description STRING null,changeable BOOLEAN,changeRequired BOOLEAN,minAge LONG,checkSyntax BOOLEAN,allowDictionaryWords BOOLEAN,minAlphanumeric INTEGER,minLength INTEGER,minLowerCase INTEGER,minNumbers INTEGER,minSymbols INTEGER,minUpperCase INTEGER,regex VARCHAR(75) null,history BOOLEAN,historyCount INTEGER,expireable BOOLEAN,maxAge LONG,warningTime LONG,graceLimit INTEGER,lockout BOOLEAN,maxFailure INTEGER,lockoutDuration LONG,requireUnlock BOOLEAN,resetFailureCount LONG,resetTicketMaxAge LONG)";
 	public static final String TABLE_SQL_DROP = "drop table PasswordPolicy";
 	public static final String ORDER_BY_JPQL = " ORDER BY passwordPolicy.passwordPolicyId ASC";
 	public static final String ORDER_BY_SQL = " ORDER BY PasswordPolicy.passwordPolicyId ASC";
@@ -156,13 +156,13 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 	public static final String SESSION_FACTORY = "liferaySessionFactory";
 	public static final String TX_MANAGER = "liferayTransactionManager";
 	public static final boolean ENTITY_CACHE_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
-				"value.object.entity.cache.enabled.com.liferay.portal.model.PasswordPolicy"),
+				"value.object.entity.cache.enabled.com.liferay.portal.kernel.model.PasswordPolicy"),
 			true);
 	public static final boolean FINDER_CACHE_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
-				"value.object.finder.cache.enabled.com.liferay.portal.model.PasswordPolicy"),
+				"value.object.finder.cache.enabled.com.liferay.portal.kernel.model.PasswordPolicy"),
 			true);
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
-				"value.object.column.bitmask.enabled.com.liferay.portal.model.PasswordPolicy"),
+				"value.object.column.bitmask.enabled.com.liferay.portal.kernel.model.PasswordPolicy"),
 			true);
 	public static final long COMPANYID_COLUMN_BITMASK = 1L;
 	public static final long DEFAULTPOLICY_COLUMN_BITMASK = 2L;
@@ -218,7 +218,6 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 		model.setRequireUnlock(soapModel.getRequireUnlock());
 		model.setResetFailureCount(soapModel.getResetFailureCount());
 		model.setResetTicketMaxAge(soapModel.getResetTicketMaxAge());
-		model.setLastPublishDate(soapModel.getLastPublishDate());
 
 		return model;
 	}
@@ -244,7 +243,7 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 	}
 
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(com.liferay.portal.util.PropsUtil.get(
-				"lock.expiration.time.com.liferay.portal.model.PasswordPolicy"));
+				"lock.expiration.time.com.liferay.portal.kernel.model.PasswordPolicy"));
 
 	public PasswordPolicyModelImpl() {
 	}
@@ -318,7 +317,6 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 		attributes.put("requireUnlock", getRequireUnlock());
 		attributes.put("resetFailureCount", getResetFailureCount());
 		attributes.put("resetTicketMaxAge", getResetTicketMaxAge());
-		attributes.put("lastPublishDate", getLastPublishDate());
 
 		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
 		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
@@ -538,12 +536,6 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 		if (resetTicketMaxAge != null) {
 			setResetTicketMaxAge(resetTicketMaxAge);
 		}
-
-		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
-
-		if (lastPublishDate != null) {
-			setLastPublishDate(lastPublishDate);
-		}
 	}
 
 	@JSON
@@ -692,6 +684,7 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 		return _defaultPolicy;
 	}
 
+	@JSON
 	@Override
 	public boolean isDefaultPolicy() {
 		return _defaultPolicy;
@@ -762,6 +755,7 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 		return _changeable;
 	}
 
+	@JSON
 	@Override
 	public boolean isChangeable() {
 		return _changeable;
@@ -778,6 +772,7 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 		return _changeRequired;
 	}
 
+	@JSON
 	@Override
 	public boolean isChangeRequired() {
 		return _changeRequired;
@@ -805,6 +800,7 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 		return _checkSyntax;
 	}
 
+	@JSON
 	@Override
 	public boolean isCheckSyntax() {
 		return _checkSyntax;
@@ -821,6 +817,7 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 		return _allowDictionaryWords;
 	}
 
+	@JSON
 	@Override
 	public boolean isAllowDictionaryWords() {
 		return _allowDictionaryWords;
@@ -919,6 +916,7 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 		return _history;
 	}
 
+	@JSON
 	@Override
 	public boolean isHistory() {
 		return _history;
@@ -946,6 +944,7 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 		return _expireable;
 	}
 
+	@JSON
 	@Override
 	public boolean isExpireable() {
 		return _expireable;
@@ -995,6 +994,7 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 		return _lockout;
 	}
 
+	@JSON
 	@Override
 	public boolean isLockout() {
 		return _lockout;
@@ -1033,6 +1033,7 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 		return _requireUnlock;
 	}
 
+	@JSON
 	@Override
 	public boolean isRequireUnlock() {
 		return _requireUnlock;
@@ -1063,17 +1064,6 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 	@Override
 	public void setResetTicketMaxAge(long resetTicketMaxAge) {
 		_resetTicketMaxAge = resetTicketMaxAge;
-	}
-
-	@JSON
-	@Override
-	public Date getLastPublishDate() {
-		return _lastPublishDate;
-	}
-
-	@Override
-	public void setLastPublishDate(Date lastPublishDate) {
-		_lastPublishDate = lastPublishDate;
 	}
 
 	@Override
@@ -1148,7 +1138,6 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 		passwordPolicyImpl.setRequireUnlock(getRequireUnlock());
 		passwordPolicyImpl.setResetFailureCount(getResetFailureCount());
 		passwordPolicyImpl.setResetTicketMaxAge(getResetTicketMaxAge());
-		passwordPolicyImpl.setLastPublishDate(getLastPublishDate());
 
 		passwordPolicyImpl.resetOriginalValues();
 
@@ -1346,21 +1335,12 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 
 		passwordPolicyCacheModel.resetTicketMaxAge = getResetTicketMaxAge();
 
-		Date lastPublishDate = getLastPublishDate();
-
-		if (lastPublishDate != null) {
-			passwordPolicyCacheModel.lastPublishDate = lastPublishDate.getTime();
-		}
-		else {
-			passwordPolicyCacheModel.lastPublishDate = Long.MIN_VALUE;
-		}
-
 		return passwordPolicyCacheModel;
 	}
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(73);
+		StringBundler sb = new StringBundler(71);
 
 		sb.append("{mvccVersion=");
 		sb.append(getMvccVersion());
@@ -1432,8 +1412,6 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 		sb.append(getResetFailureCount());
 		sb.append(", resetTicketMaxAge=");
 		sb.append(getResetTicketMaxAge());
-		sb.append(", lastPublishDate=");
-		sb.append(getLastPublishDate());
 		sb.append("}");
 
 		return sb.toString();
@@ -1441,10 +1419,10 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 
 	@Override
 	public String toXmlString() {
-		StringBundler sb = new StringBundler(112);
+		StringBundler sb = new StringBundler(109);
 
 		sb.append("<model><model-name>");
-		sb.append("com.liferay.portal.model.PasswordPolicy");
+		sb.append("com.liferay.portal.kernel.model.PasswordPolicy");
 		sb.append("</model-name>");
 
 		sb.append(
@@ -1587,10 +1565,6 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 			"<column><column-name>resetTicketMaxAge</column-name><column-value><![CDATA[");
 		sb.append(getResetTicketMaxAge());
 		sb.append("]]></column-value></column>");
-		sb.append(
-			"<column><column-name>lastPublishDate</column-name><column-value><![CDATA[");
-		sb.append(getLastPublishDate());
-		sb.append("]]></column-value></column>");
 
 		sb.append("</model>");
 
@@ -1643,7 +1617,6 @@ public class PasswordPolicyModelImpl extends BaseModelImpl<PasswordPolicy>
 	private boolean _requireUnlock;
 	private long _resetFailureCount;
 	private long _resetTicketMaxAge;
-	private Date _lastPublishDate;
 	private long _columnBitmask;
 	private PasswordPolicy _escapedModel;
 }

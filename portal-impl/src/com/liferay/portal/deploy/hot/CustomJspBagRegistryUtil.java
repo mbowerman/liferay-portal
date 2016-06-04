@@ -19,14 +19,14 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.log.SanitizerLogWrapper;
 import com.liferay.portal.kernel.url.URLContainer;
 import com.liferay.portal.kernel.util.CharPool;
+import com.liferay.portal.kernel.util.CustomJspRegistryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.util.CustomJspRegistryUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.registry.Filter;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
@@ -299,7 +299,7 @@ public class CustomJspBagRegistryUtil {
 				sb.append("Custom JSP files:\n");
 
 				for (int i = 0; i < customJsps.size(); i++) {
-					String customJsp = customJsps.get(0);
+					String customJsp = customJsps.get(i);
 
 					sb.append(customJsp);
 
@@ -322,12 +322,16 @@ public class CustomJspBagRegistryUtil {
 				try {
 					verifyCustomJsps(contextId, customJspBag);
 				}
-				catch (DuplicateCustomJspException e) {
+				catch (DuplicateCustomJspException dcje) {
+					if (_log.isDebugEnabled()) {
+						_log.debug(dcje.getMessage(), dcje);
+					}
+
+					registry.ungetService(serviceReference);
+
 					return null;
 				}
 			}
-
-			_customJspBagsMap.put(serviceReference, customJspBag);
 
 			String contextName = GetterUtil.getString(
 				serviceReference.getProperty("context.name"));
@@ -336,8 +340,16 @@ public class CustomJspBagRegistryUtil {
 				initCustomJspBag(contextId, contextName, customJspBag);
 			}
 			catch (Exception e) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(e.getMessage(), e);
+				}
+
+				registry.ungetService(serviceReference);
+
 				return null;
 			}
+
+			_customJspBagsMap.put(serviceReference, customJspBag);
 
 			return customJspBag;
 		}
@@ -383,7 +395,7 @@ public class CustomJspBagRegistryUtil {
 							FileUtil.copyFile(
 								portalJspBackupFile, portalJspFile);
 						}
-						catch (IOException e) {
+						catch (IOException ioe) {
 							return;
 						}
 

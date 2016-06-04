@@ -14,7 +14,6 @@
 
 package com.liferay.taglib.ui;
 
-import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.taglib.util.IncludeTag;
@@ -82,7 +81,7 @@ public class AppViewEntryTag extends IncludeTag {
 	}
 
 	public void setDescription(String description) {
-		_description = HtmlUtil.unescape(description);
+		_description = description;
 	}
 
 	public void setDisplayDate(Date displayDate) {
@@ -172,7 +171,7 @@ public class AppViewEntryTag extends IncludeTag {
 	}
 
 	public void setTitle(String title) {
-		_title = HtmlUtil.unescape(title);
+		_title = title;
 	}
 
 	public void setUrl(String url) {
@@ -342,9 +341,9 @@ public class AppViewEntryTag extends IncludeTag {
 	private String _rowCheckerId;
 	private String _rowCheckerName;
 	private boolean _shortcut;
-	private boolean _showCheckbox = false;
+	private boolean _showCheckbox;
 	private boolean _showLinkTitle = true;
-	private int _status = 0;
+	private int _status;
 	private String _thumbnailDivStyle = StringPool.BLANK;
 	private String _thumbnailSrc;
 	private String _thumbnailStyle;

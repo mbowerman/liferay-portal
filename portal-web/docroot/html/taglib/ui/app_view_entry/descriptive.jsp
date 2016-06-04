@@ -22,7 +22,7 @@
 			<span class="entry-link" data-folder="<%= folder ? Boolean.TRUE.toString() : Boolean.FALSE.toString() %>" data-folder-id="<%= rowCheckerId %>" title="<%= linkTitle %>">
 		</c:when>
 		<c:otherwise>
-			<a class="entry-link" data-folder="<%= folder ? Boolean.TRUE.toString() : Boolean.FALSE.toString() %>" data-folder-id="<%= rowCheckerId %>" href="<%= url %>" title="<%= linkTitle %>">
+			<a class="entry-link" data-folder="<%= folder ? Boolean.TRUE.toString() : Boolean.FALSE.toString() %>" data-folder-id="<%= rowCheckerId %>" href="<%= HtmlUtil.escapeAttribute(url) %>" title="<%= linkTitle %>">
 		</c:otherwise>
 	</c:choose>
 
@@ -157,9 +157,7 @@
 						<liferay-ui:message key="display-date" />:
 					</dt>
 					<dd>
-
 						<%= HtmlUtil.escape(dateFormatDateTime.format(displayDate)) %>
-
 					</dd>
 				</c:if>
 
@@ -168,9 +166,7 @@
 						<liferay-ui:message key="expiration-date" />:
 					</dt>
 					<dd>
-
 						<%= HtmlUtil.escape(dateFormatDateTime.format(expirationDate)) %>
-
 					</dd>
 				</c:if>
 
@@ -179,9 +175,7 @@
 						<liferay-ui:message key="review-date" />:
 					</dt>
 					<dd>
-
 						<%= HtmlUtil.escape(dateFormatDateTime.format(reviewDate)) %>
-
 					</dd>
 				</c:if>
 			</dl>
@@ -210,18 +204,14 @@
 						<liferay-ui:message key="latest-aproved-version" />
 					</dt>
 					<dd>
-
 						<%= HtmlUtil.escape(latestApprovedVersion) %>
-
 					</dd>
 
 					<dt>
 						<liferay-ui:message key="latest-aproved-version-author" />:
 					</dt>
 					<dd>
-
 						<%= HtmlUtil.escape(latestApprovedVersionAuthor) %>
-
 					</dd>
 				</dl>
 			</c:if>
@@ -245,6 +235,6 @@
 	<liferay-util:include page="<%= actionJsp %>" servletContext="<%= actionJspServletContext %>" />
 
 	<c:if test="<%= showCheckbox %>">
-		<aui:input cssClass="entry-selector overlay" id="<%= rowCheckerId %>" label="" name="<%= RowChecker.ROW_IDS + rowCheckerName %>" title='<%= LanguageUtil.format(request, "select-x", HtmlUtil.escape(shortTitle)) %>' type="checkbox" value="<%= rowCheckerId %>" />
+		<aui:input cssClass="entry-selector overlay" id="<%= rowCheckerId %>" label="" name="<%= RowChecker.ROW_IDS + rowCheckerName %>" title='<%= LanguageUtil.format(request, "select-x", HtmlUtil.escapeAttribute(shortTitle)) %>' type="checkbox" value="<%= rowCheckerId %>" />
 	</c:if>
 </div>

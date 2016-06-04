@@ -109,81 +109,15 @@ public class HtmlImpl implements Html {
 		// http://www.owasp.org/index.php/Cross_Site_Scripting
 		// #How_to_Protect_Yourself
 
-		StringBundler sb = null;
-
-		int lastReplacementIndex = 0;
-
-		for (int i = 0; i < text.length(); i++) {
-			char c = text.charAt(i);
-
-			String replacement = null;
-
-			switch (c) {
-				case '<':
-					replacement = "&lt;";
-
-					break;
-
-				case '>':
-					replacement = "&gt;";
-
-					break;
-
-				case '&':
-					replacement = "&amp;";
-
-					break;
-
-				case '"':
-					replacement = "&#034;";
-
-					break;
-
-				case '\'':
-					replacement = "&#039;";
-
-					break;
-
-				case '\u00bb': // '�'
-					replacement = "&#187;";
-
-					break;
-
-				case '\u2013':
-					replacement = "&#x2013;";
-
-					break;
-
-				case '\u2014':
-					replacement = "&#x2014;";
-
-					break;
-			}
-
-			if (replacement != null) {
-				if (sb == null) {
-					sb = new StringBundler();
-				}
-
-				if (i > lastReplacementIndex) {
-					sb.append(text.substring(lastReplacementIndex, i));
-				}
-
-				sb.append(replacement);
-
-				lastReplacementIndex = i + 1;
-			}
-		}
-
-		if (sb == null) {
-			return text;
-		}
-
-		if (lastReplacementIndex < text.length()) {
-			sb.append(text.substring(lastReplacementIndex));
-		}
-
-		return sb.toString();
+		return StringUtil.replace(
+			text,
+			new char[] {
+				'<', '>', '&', '"', '\'', '\u00bb', '\u2013', '\u2014', '\u2028'
+			},
+			new String[] {
+				"&lt;", "&gt;", "&amp;", "&#034;", "&#039;", "&#187;",
+				"&#x2013;", "&#x2014;", "&#x2028;"
+			});
 	}
 
 	/**
@@ -232,13 +166,13 @@ public class HtmlImpl implements Html {
 			return escape(text);
 		}
 
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(text.length());
 
 		for (int i = 0; i < text.length(); i++) {
 			char c = text.charAt(i);
 
-			if ((c > 255) || Character.isLetterOrDigit(c) ||
-				(c == CharPool.DASH) || (c == CharPool.UNDERLINE)) {
+			if ((c > 255) || (c == CharPool.DASH) ||
+				(c == CharPool.UNDERLINE) || Character.isLetterOrDigit(c)) {
 
 				sb.append(c);
 			}
@@ -259,9 +193,8 @@ public class HtmlImpl implements Html {
 		if (sb.length() == text.length()) {
 			return text;
 		}
-		else {
-			return sb.toString();
-		}
+
+		return sb.toString();
 	}
 
 	/**
@@ -313,14 +246,14 @@ public class HtmlImpl implements Html {
 			String protocol = StringUtil.toLowerCase(href.substring(0, 4));
 
 			if (protocol.equals("data")) {
-				href = StringUtil.replaceFirst(href, StringPool.COLON, "%3a");
+				href = StringUtil.replaceFirst(href, CharPool.COLON, "%3a");
 			}
 		}
 		else if (index == 10) {
 			String protocol = StringUtil.toLowerCase(href.substring(0, 10));
 
 			if (protocol.equals("javascript")) {
-				href = StringUtil.replaceFirst(href, StringPool.COLON, "%3a");
+				href = StringUtil.replaceFirst(href, CharPool.COLON, "%3a");
 			}
 		}
 
@@ -350,7 +283,7 @@ public class HtmlImpl implements Html {
 			String protocol = StringUtil.toLowerCase(link.substring(0, 10));
 
 			if (protocol.equals("javascript")) {
-				link = StringUtil.replaceFirst(link, StringPool.COLON, "%3a");
+				link = StringUtil.replaceFirst(link, CharPool.COLON, "%3a");
 			}
 		}
 
@@ -563,7 +496,7 @@ public class HtmlImpl implements Html {
 
 		html = StringUtil.replace(html, StringPool.RETURN_NEW_LINE, "<br />");
 
-		return StringUtil.replace(html, StringPool.NEW_LINE, "<br />");
+		return StringUtil.replace(html, CharPool.NEW_LINE, "<br />");
 	}
 
 	/**
@@ -665,9 +598,7 @@ public class HtmlImpl implements Html {
 	@Override
 	public String toInputSafe(String text) {
 		return StringUtil.replace(
-			text,
-			new String[] {"&", "\""},
-			new String[] {"&amp;", "&quot;"});
+			text, new char[] {'&', '\"'}, new String[] {"&amp;", "&quot;"});
 	}
 
 	@Override
@@ -824,9 +755,8 @@ public class HtmlImpl implements Html {
 		"&reg;", StringPool.APOSTROPHE, StringPool.QUOTE, StringPool.QUOTE
 	};
 
-	private static final String[] _MS_WORD_UNICODE = new String[] {
-		"\u00ae", "\u2019", "\u201c", "\u201d"
-	};
+	private static final String[] _MS_WORD_UNICODE =
+		new String[] {"\u00ae", "\u2019", "\u201c", "\u201d"};
 
 	private static final char[] _TAG_SCRIPT = {'s', 'c', 'r', 'i', 'p', 't'};
 

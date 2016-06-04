@@ -1,0 +1,10 @@
+;
+; Do not manually edit this file. See
+; https://github.com/git-commands/git-subrepo#readme for more information.
+;
+[subrepo]
+	cmdver = liferay
+	commit = ef92b82c71064d02ce2ec893991b741a766d427e
+	mode = push
+	parent = d76daa40df924d261beea43fa669d4c30ea58f9f
+	remote = git@github.com:liferay/com-liferay-iframe.git

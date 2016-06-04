@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchSystemEventException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchSystemEventException;
+import com.liferay.portal.kernel.model.SystemEvent;
+import com.liferay.portal.kernel.service.SystemEventLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.SystemEventPersistence;
+import com.liferay.portal.kernel.service.persistence.SystemEventUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -29,10 +33,6 @@ import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.model.SystemEvent;
-import com.liferay.portal.service.SystemEventLocalServiceUtil;
-import com.liferay.portal.service.persistence.SystemEventPersistence;
-import com.liferay.portal.service.persistence.SystemEventUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
@@ -349,11 +349,9 @@ public class SystemEventPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = SystemEventLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<SystemEvent>() {
 				@Override
-				public void performAction(Object object) {
-					SystemEvent systemEvent = (SystemEvent)object;
-
+				public void performAction(SystemEvent systemEvent) {
 					Assert.assertNotNull(systemEvent);
 
 					count.increment();

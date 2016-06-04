@@ -14,10 +14,38 @@
 
 package com.liferay.portal.service;
 
-import com.liferay.portal.GroupParentException;
-import com.liferay.portal.LocaleException;
+import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
+import com.liferay.blogs.kernel.model.BlogsEntry;
+import com.liferay.blogs.kernel.service.BlogsEntryLocalServiceUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.exception.GroupParentException;
+import com.liferay.portal.kernel.exception.LocaleException;
+import com.liferay.portal.kernel.exception.NoSuchResourcePermissionException;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutPrototype;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserGroupRole;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.GroupServiceUtil;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
+import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserGroupRoleLocalServiceUtil;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
@@ -30,31 +58,12 @@ import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.Company;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.GroupConstants;
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.model.LayoutPrototype;
-import com.liferay.portal.model.Organization;
-import com.liferay.portal.model.ResourceConstants;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.model.User;
-import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.security.permission.PermissionCheckerFactoryUtil;
-import com.liferay.portal.security.permission.PermissionThreadLocal;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
-import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.test.LayoutTestUtil;
-import com.liferay.portlet.asset.service.AssetTagLocalServiceUtil;
-import com.liferay.portlet.blogs.model.BlogsEntry;
-import com.liferay.portlet.blogs.service.BlogsEntryLocalServiceUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,7 +94,7 @@ public class GroupServiceTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
+			new LiferayIntegrationTestRule(),
 			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
@@ -183,6 +192,60 @@ public class GroupServiceTest {
 		testGroup(
 			user, group1, group11, null, true, false, false, true, false, true,
 			true);
+	}
+
+	@Test(expected = NoSuchResourcePermissionException.class)
+	public void testDeleteGroupWithStagingGroupRemovesStagingResource()
+		throws Exception {
+
+		Group group = GroupTestUtil.addGroup();
+
+		GroupTestUtil.enableLocalStaging(group);
+
+		Assert.assertTrue(group.hasStagingGroup());
+
+		Group stagingGroup = group.getStagingGroup();
+
+		GroupServiceUtil.deleteGroup(group.getGroupId());
+
+		Role role = RoleLocalServiceUtil.getRole(
+			stagingGroup.getCompanyId(), RoleConstants.OWNER);
+
+		ResourcePermissionLocalServiceUtil.getResourcePermission(
+			stagingGroup.getCompanyId(), Group.class.getName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(stagingGroup.getGroupId()), role.getRoleId());
+	}
+
+	@Test
+	public void testDeleteGroupWithStagingGroupRemovesStagingUserGroupRoles()
+		throws Exception {
+
+		Group group = GroupTestUtil.addGroup();
+
+		GroupTestUtil.enableLocalStaging(group);
+
+		Assert.assertTrue(group.hasStagingGroup());
+
+		Group stagingGroup = group.getStagingGroup();
+
+		List<UserGroupRole> stagingUserGroupRoles =
+			UserGroupRoleLocalServiceUtil.getUserGroupRolesByGroup(
+				stagingGroup.getGroupId());
+
+		int stagingUserGroupRolesCount = stagingUserGroupRoles.size();
+
+		Assert.assertEquals(1, stagingUserGroupRolesCount);
+
+		GroupServiceUtil.deleteGroup(group.getGroupId());
+
+		stagingUserGroupRoles =
+			UserGroupRoleLocalServiceUtil.getUserGroupRolesByGroup(
+				stagingGroup.getGroupId());
+
+		stagingUserGroupRolesCount = stagingUserGroupRoles.size();
+
+		Assert.assertEquals(0, stagingUserGroupRolesCount);
 	}
 
 	@Test
@@ -407,39 +470,6 @@ public class GroupServiceTest {
 	}
 
 	@Test
-	public void testGetUserSitesGroups() throws Exception {
-		Organization parentOrganization = OrganizationTestUtil.addOrganization(
-			true);
-
-		Group parentOrganizationGroup = parentOrganization.getGroup();
-
-		LayoutTestUtil.addLayout(parentOrganizationGroup);
-
-		Organization organization = OrganizationTestUtil.addOrganization(
-			parentOrganization.getOrganizationId(),
-			RandomTestUtil.randomString(), false);
-
-		_organizations.add(organization);
-		_organizations.add(parentOrganization);
-
-		UserLocalServiceUtil.addOrganizationUsers(
-			organization.getOrganizationId(),
-			new long[] {TestPropsValues.getUserId()});
-
-		try {
-			List<Group> groups = GroupServiceUtil.getUserSitesGroups(
-				TestPropsValues.getUserId(), null, QueryUtil.ALL_POS);
-
-			Assert.assertTrue(groups.contains(parentOrganizationGroup));
-		}
-		finally {
-			UserLocalServiceUtil.unsetOrganizationUsers(
-				organization.getOrganizationId(),
-				new long[] {TestPropsValues.getUserId()});
-		}
-	}
-
-	@Test
 	public void testGroupHasCurrentPageScopeDescriptiveName() throws Exception {
 		ThemeDisplay themeDisplay = new ThemeDisplay();
 
@@ -522,7 +552,7 @@ public class GroupServiceTest {
 
 		String scopeLabel = group.getScopeLabel(themeDisplay);
 
-		Assert.assertEquals(scopeLabel, "current-site");
+		Assert.assertEquals("current-site", scopeLabel);
 	}
 
 	@Test
@@ -594,7 +624,7 @@ public class GroupServiceTest {
 				ResourceConstants.SCOPE_INDIVIDUAL,
 				String.valueOf(_group.getGroupId()));
 
-		Assert.assertEquals(resourcePermissionsCount, 1);
+		Assert.assertEquals(1, resourcePermissionsCount);
 	}
 
 	@Test
@@ -1111,8 +1141,5 @@ public class GroupServiceTest {
 
 	@DeleteAfterTestRun
 	private Group _group;
-
-	@DeleteAfterTestRun
-	private final List<Organization> _organizations = new ArrayList<>();
 
 }

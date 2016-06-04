@@ -32,11 +32,11 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.trash.NoSuchEntryException;
-import com.liferay.portlet.trash.model.TrashEntry;
-import com.liferay.portlet.trash.service.TrashEntryLocalServiceUtil;
-import com.liferay.portlet.trash.service.persistence.TrashEntryPersistence;
-import com.liferay.portlet.trash.service.persistence.TrashEntryUtil;
+import com.liferay.trash.kernel.exception.NoSuchEntryException;
+import com.liferay.trash.kernel.model.TrashEntry;
+import com.liferay.trash.kernel.service.TrashEntryLocalServiceUtil;
+import com.liferay.trash.kernel.service.persistence.TrashEntryPersistence;
+import com.liferay.trash.kernel.service.persistence.TrashEntryUtil;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -339,11 +339,9 @@ public class TrashEntryPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = TrashEntryLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<TrashEntry>() {
 				@Override
-				public void performAction(Object object) {
-					TrashEntry trashEntry = (TrashEntry)object;
-
+				public void performAction(TrashEntry trashEntry) {
 					Assert.assertNotNull(trashEntry);
 
 					count.increment();

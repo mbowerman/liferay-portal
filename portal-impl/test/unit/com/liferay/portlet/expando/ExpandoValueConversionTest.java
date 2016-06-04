@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.expando;
 
-import com.liferay.portlet.expando.model.ExpandoColumnConstants;
+import com.liferay.expando.kernel.model.ExpandoColumnConstants;
 import com.liferay.portlet.expando.service.impl.ExpandoValueLocalServiceImpl;
 
 import java.math.BigDecimal;
@@ -969,7 +969,7 @@ public class ExpandoValueConversionTest {
 
 	private final Converter _converter = new Converter();
 
-	private class Converter extends ExpandoValueLocalServiceImpl {
+	private static class Converter extends ExpandoValueLocalServiceImpl {
 
 		@Override
 		public <T> T convertType(int type, Object data) {

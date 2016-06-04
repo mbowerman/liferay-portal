@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.documentlibrary.service.persistence.test;
 
+import com.liferay.document.library.kernel.exception.NoSuchFileShortcutException;
+import com.liferay.document.library.kernel.model.DLFileShortcut;
+import com.liferay.document.library.kernel.service.DLFileShortcutLocalServiceUtil;
+import com.liferay.document.library.kernel.service.persistence.DLFileShortcutPersistence;
+import com.liferay.document.library.kernel.service.persistence.DLFileShortcutUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -30,15 +36,8 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-
-import com.liferay.portlet.documentlibrary.NoSuchFileShortcutException;
-import com.liferay.portlet.documentlibrary.model.DLFileShortcut;
-import com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileShortcutPersistence;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileShortcutUtil;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -54,6 +53,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -411,11 +411,9 @@ public class DLFileShortcutPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = DLFileShortcutLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<DLFileShortcut>() {
 				@Override
-				public void performAction(Object object) {
-					DLFileShortcut dlFileShortcut = (DLFileShortcut)object;
-
+				public void performAction(DLFileShortcut dlFileShortcut) {
 					Assert.assertNotNull(dlFileShortcut);
 
 					count.increment();
@@ -509,7 +507,7 @@ public class DLFileShortcutPersistenceTest {
 
 		DLFileShortcut existingDLFileShortcut = _persistence.findByPrimaryKey(newDLFileShortcut.getPrimaryKey());
 
-		Assert.assertTrue(Validator.equals(existingDLFileShortcut.getUuid(),
+		Assert.assertTrue(Objects.equals(existingDLFileShortcut.getUuid(),
 				ReflectionTestUtil.invoke(existingDLFileShortcut,
 					"getOriginalUuid", new Class<?>[0])));
 		Assert.assertEquals(Long.valueOf(existingDLFileShortcut.getGroupId()),

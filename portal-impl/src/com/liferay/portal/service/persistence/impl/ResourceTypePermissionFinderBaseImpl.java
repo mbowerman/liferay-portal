@@ -15,8 +15,9 @@
 package com.liferay.portal.service.persistence.impl;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.model.ResourceTypePermission;
-import com.liferay.portal.service.persistence.ResourceTypePermissionPersistence;
+import com.liferay.portal.kernel.model.ResourceTypePermission;
+import com.liferay.portal.kernel.service.persistence.ResourceTypePermissionPersistence;
+import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 
 /**
  * @author Brian Wing Shun Chan

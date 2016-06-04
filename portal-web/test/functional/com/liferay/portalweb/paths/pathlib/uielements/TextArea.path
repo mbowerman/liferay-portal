@@ -9,6 +9,16 @@
 </thead>
 <tbody>
 <tr>
+	<td>ACE_EDITOR</td>
+	<td>//textarea[contains(@class,'ace_text')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CHANGE_LOG</td>
+	<td>//textarea[contains(@id,'ChangeLog')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>COMMENTS</td>
 	<td>//textarea[contains(@id,'comments')]</td>
 	<td></td>
@@ -34,8 +44,13 @@
 	<td></td>
 </tr>
 <tr>
+	<td>URL</td>
+	<td>//textarea[contains(@id,'url')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>WEB_EDITOR</td>
-	<td>//textarea[contains(@id,'web_editor')]</td>
+	<td>//textarea[contains(@id,'editor')]</td>
 	<td></td>
 </tr>
 </tbody>

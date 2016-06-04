@@ -16,36 +16,39 @@ package com.liferay.portlet.blogs.model.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.NoSuchModelException;
+import com.liferay.blogs.kernel.model.BlogsEntry;
+import com.liferay.blogs.kernel.model.BlogsEntryModel;
+import com.liferay.blogs.kernel.model.BlogsEntrySoap;
+
+import com.liferay.expando.kernel.model.ExpandoBridge;
+import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
+
+import com.liferay.exportimport.kernel.lar.StagedModelType;
+
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSON;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.ContainerModel;
+import com.liferay.portal.kernel.model.TrashedModel;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.impl.BaseModelImpl;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.ContainerModel;
-import com.liferay.portal.model.TrashedModel;
-import com.liferay.portal.model.User;
-import com.liferay.portal.model.impl.BaseModelImpl;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
 
-import com.liferay.portlet.blogs.model.BlogsEntry;
-import com.liferay.portlet.blogs.model.BlogsEntryModel;
-import com.liferay.portlet.blogs.model.BlogsEntrySoap;
-import com.liferay.portlet.expando.model.ExpandoBridge;
-import com.liferay.portlet.expando.util.ExpandoBridgeFactoryUtil;
-import com.liferay.portlet.exportimport.lar.StagedModelType;
-import com.liferay.portlet.trash.model.TrashEntry;
-import com.liferay.portlet.trash.service.TrashEntryLocalServiceUtil;
+import com.liferay.trash.kernel.model.TrashEntry;
+import com.liferay.trash.kernel.service.TrashEntryLocalServiceUtil;
 
 import java.io.Serializable;
 
@@ -153,13 +156,13 @@ public class BlogsEntryModelImpl extends BaseModelImpl<BlogsEntry>
 	public static final String SESSION_FACTORY = "liferaySessionFactory";
 	public static final String TX_MANAGER = "liferayTransactionManager";
 	public static final boolean ENTITY_CACHE_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
-				"value.object.entity.cache.enabled.com.liferay.portlet.blogs.model.BlogsEntry"),
+				"value.object.entity.cache.enabled.com.liferay.blogs.kernel.model.BlogsEntry"),
 			true);
 	public static final boolean FINDER_CACHE_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
-				"value.object.finder.cache.enabled.com.liferay.portlet.blogs.model.BlogsEntry"),
+				"value.object.finder.cache.enabled.com.liferay.blogs.kernel.model.BlogsEntry"),
 			true);
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
-				"value.object.column.bitmask.enabled.com.liferay.portlet.blogs.model.BlogsEntry"),
+				"value.object.column.bitmask.enabled.com.liferay.blogs.kernel.model.BlogsEntry"),
 			true);
 	public static final long COMPANYID_COLUMN_BITMASK = 1L;
 	public static final long DISPLAYDATE_COLUMN_BITMASK = 2L;
@@ -237,7 +240,7 @@ public class BlogsEntryModelImpl extends BaseModelImpl<BlogsEntry>
 	}
 
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(com.liferay.portal.util.PropsUtil.get(
-				"lock.expiration.time.com.liferay.portlet.blogs.model.BlogsEntry"));
+				"lock.expiration.time.com.liferay.blogs.kernel.model.BlogsEntry"));
 
 	public BlogsEntryModelImpl() {
 	}
@@ -774,6 +777,7 @@ public class BlogsEntryModelImpl extends BaseModelImpl<BlogsEntry>
 		return _allowPingbacks;
 	}
 
+	@JSON
 	@Override
 	public boolean isAllowPingbacks() {
 		return _allowPingbacks;
@@ -790,6 +794,7 @@ public class BlogsEntryModelImpl extends BaseModelImpl<BlogsEntry>
 		return _allowTrackbacks;
 	}
 
+	@JSON
 	@Override
 	public boolean isAllowTrackbacks() {
 		return _allowTrackbacks;
@@ -865,6 +870,7 @@ public class BlogsEntryModelImpl extends BaseModelImpl<BlogsEntry>
 		return _smallImage;
 	}
 
+	@JSON
 	@Override
 	public boolean isSmallImage() {
 		return _smallImage;
@@ -1131,15 +1137,6 @@ public class BlogsEntryModelImpl extends BaseModelImpl<BlogsEntry>
 		}
 
 		return true;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #isApproved}
-	 */
-	@Deprecated
-	@Override
-	public boolean getApproved() {
-		return isApproved();
 	}
 
 	@Override
@@ -1623,7 +1620,7 @@ public class BlogsEntryModelImpl extends BaseModelImpl<BlogsEntry>
 		StringBundler sb = new StringBundler(91);
 
 		sb.append("<model><model-name>");
-		sb.append("com.liferay.portlet.blogs.model.BlogsEntry");
+		sb.append("com.liferay.blogs.kernel.model.BlogsEntry");
 		sb.append("</model-name>");
 
 		sb.append(

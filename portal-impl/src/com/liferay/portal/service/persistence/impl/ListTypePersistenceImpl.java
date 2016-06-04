@@ -16,7 +16,6 @@ package com.liferay.portal.service.persistence.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.NoSuchListTypeException;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -26,20 +25,21 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.exception.NoSuchListTypeException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.ListType;
+import com.liferay.portal.kernel.model.MVCCModel;
+import com.liferay.portal.kernel.service.persistence.ListTypePersistence;
+import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.ListType;
-import com.liferay.portal.model.MVCCModel;
 import com.liferay.portal.model.impl.ListTypeImpl;
 import com.liferay.portal.model.impl.ListTypeModelImpl;
-import com.liferay.portal.service.persistence.ListTypePersistence;
 
 import java.io.Serializable;
 
@@ -49,6 +49,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -60,7 +61,7 @@ import java.util.Set;
  *
  * @author Brian Wing Shun Chan
  * @see ListTypePersistence
- * @see com.liferay.portal.service.persistence.ListTypeUtil
+ * @see com.liferay.portal.kernel.service.persistence.ListTypeUtil
  * @generated
  */
 @ProviderType
@@ -192,7 +193,7 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 
 			if ((list != null) && !list.isEmpty()) {
 				for (ListType listType : list) {
-					if (!Validator.equals(type, listType.getType())) {
+					if (!Objects.equals(type, listType.getType())) {
 						list = null;
 
 						break;
@@ -206,7 +207,7 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -433,8 +434,9 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -664,8 +666,8 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 
 			msg.append(StringPool.CLOSE_CURLY_BRACE);
 
-			if (_log.isWarnEnabled()) {
-				_log.warn(msg.toString());
+			if (_log.isDebugEnabled()) {
+				_log.debug(msg.toString());
 			}
 
 			throw new NoSuchListTypeException(msg.toString());
@@ -709,8 +711,8 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 		if (result instanceof ListType) {
 			ListType listType = (ListType)result;
 
-			if (!Validator.equals(name, listType.getName()) ||
-					!Validator.equals(type, listType.getType())) {
+			if (!Objects.equals(name, listType.getName()) ||
+					!Objects.equals(type, listType.getType())) {
 				result = null;
 			}
 		}
@@ -1099,8 +1101,8 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 					primaryKey);
 
 			if (listType == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				if (_log.isDebugEnabled()) {
+					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
 				throw new NoSuchListTypeException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -1234,7 +1236,7 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	}
 
 	/**
-	 * Returns the list type with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the list type with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the list type
 	 * @return the list type
@@ -1246,8 +1248,8 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 		ListType listType = fetchByPrimaryKey(primaryKey);
 
 		if (listType == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+			if (_log.isDebugEnabled()) {
+				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			throw new NoSuchListTypeException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -1506,7 +1508,7 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(2 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 
 				query.append(_SQL_SELECT_LISTTYPE);
 

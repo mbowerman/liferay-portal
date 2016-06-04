@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -150,32 +152,66 @@ public class ToolsUtil {
 
 	public static String getPackagePath(File file) {
 		String fileName = StringUtil.replace(
-			file.toString(), StringPool.BACK_SLASH, StringPool.SLASH);
+			file.toString(), CharPool.BACK_SLASH, CharPool.SLASH);
 
-		int x = fileName.lastIndexOf("/com/liferay/");
-		int y = fileName.lastIndexOf(StringPool.SLASH);
+		return getPackagePath(fileName);
+	}
+
+	public static String getPackagePath(String fileName) {
+		int x = Math.max(
+			fileName.lastIndexOf("/com/"), fileName.lastIndexOf("/org/"));
+		int y = fileName.lastIndexOf(CharPool.SLASH);
 
 		String packagePath = fileName.substring(x + 1, y);
 
-		return StringUtil.replace(
-			packagePath, StringPool.SLASH, StringPool.PERIOD);
+		return StringUtil.replace(packagePath, CharPool.SLASH, CharPool.PERIOD);
 	}
 
 	public static boolean isInsideQuotes(String s, int pos) {
+		int start = s.lastIndexOf(CharPool.NEW_LINE, pos);
+
+		if (start == -1) {
+			start = 0;
+		}
+
+		int end = s.indexOf(CharPool.NEW_LINE, pos);
+
+		if (end == -1) {
+			end = s.length();
+		}
+
+		String line = s.substring(start, end);
+
+		pos -= start;
+
+		char delimeter = CharPool.SPACE;
 		boolean insideQuotes = false;
 
-		for (int i = 0; i < s.length(); i++) {
-			char c = s.charAt(i);
+		for (int i = 0; i < line.length(); i++) {
+			char c = line.charAt(i);
 
 			if (insideQuotes) {
-				if ((c == CharPool.QUOTE) &&
-					((c <= 1) || (s.charAt(i - 1) != CharPool.BACK_SLASH) ||
-					 (s.charAt(i - 2) == CharPool.BACK_SLASH))) {
+				if (c == delimeter) {
+					int precedingBackSlashCount = 0;
 
-					insideQuotes = false;
+					for (int j = (i - 1); j >= 0; j--) {
+						if (line.charAt(j) == CharPool.BACK_SLASH) {
+							precedingBackSlashCount += 1;
+						}
+						else {
+							break;
+						}
+					}
+
+					if ((precedingBackSlashCount == 0) ||
+						((precedingBackSlashCount % 2) == 0)) {
+
+						insideQuotes = false;
+					}
 				}
 			}
-			else if (c == CharPool.QUOTE) {
+			else if ((c == CharPool.APOSTROPHE) || (c == CharPool.QUOTE)) {
+				delimeter = c;
 				insideQuotes = true;
 			}
 
@@ -187,20 +223,71 @@ public class ToolsUtil {
 		return false;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #stripFullyQualifiedClassNames(String, String)}
+	 */
+	@Deprecated
 	public static String stripFullyQualifiedClassNames(String content)
+		throws IOException {
+
+		return stripFullyQualifiedClassNames(content, null);
+	}
+
+	public static String stripFullyQualifiedClassNames(
+			String content, String packagePath)
 		throws IOException {
 
 		String imports = JavaImportsFormatter.getImports(content);
 
-		return stripFullyQualifiedClassNames(content, imports);
+		return stripFullyQualifiedClassNames(content, imports, packagePath);
 	}
 
 	public static String stripFullyQualifiedClassNames(
-			String content, String imports)
+			String content, String imports, String packagePath)
 		throws IOException {
 
 		if (Validator.isNull(content) || Validator.isNull(imports)) {
 			return content;
+		}
+
+		Pattern pattern1 = Pattern.compile(
+			"\n(.*)" + StringUtil.replace(packagePath, CharPool.PERIOD, "\\.") +
+				"\\.([A-Z]\\w+)\\W");
+
+		outerLoop:
+		while (true) {
+			Matcher matcher1 = pattern1.matcher(content);
+
+			while (matcher1.find()) {
+				String lineStart = StringUtil.trimLeading(matcher1.group(1));
+
+				if (lineStart.startsWith("import ") ||
+					lineStart.contains("//") ||
+					isInsideQuotes(content, matcher1.start(2))) {
+
+					continue;
+				}
+
+				String className = matcher1.group(2);
+
+				Pattern pattern2 = Pattern.compile(
+					"import [\\w.]+\\." + className + ";");
+
+				Matcher matcher2 = pattern2.matcher(imports);
+
+				if (matcher2.find()) {
+					continue;
+				}
+
+				content = StringUtil.replaceFirst(
+					content, packagePath + ".", StringPool.BLANK,
+					matcher1.start());
+
+				continue outerLoop;
+			}
+
+			break;
 		}
 
 		UnsyncBufferedReader unsyncBufferedReader = new UnsyncBufferedReader(
@@ -218,51 +305,43 @@ public class ToolsUtil {
 			String importPackageAndClassName = line.substring(
 				x + 7, line.lastIndexOf(StringPool.SEMICOLON));
 
-			x = -1;
+			if (importPackageAndClassName.contains(StringPool.STAR)) {
+				continue;
+			}
 
+			Pattern pattern3 = Pattern.compile(
+				"\n(.*)(" +
+					StringUtil.replace(importPackageAndClassName, ".", "\\.") +
+						")\\W");
+
+			outerLoop:
 			while (true) {
-				x = content.indexOf(importPackageAndClassName, x + 1);
+				Matcher matcher3 = pattern3.matcher(content);
 
-				if (x == -1) {
-					break;
-				}
+				while (matcher3.find()) {
+					String lineStart = StringUtil.trimLeading(
+						matcher3.group(1));
 
-				if (isInsideQuotes(content, x)) {
-					continue;
-				}
-
-				if (content.length() >
-						(x + importPackageAndClassName.length())) {
-
-					char nextChar = content.charAt(
-						x + importPackageAndClassName.length());
-
-					if (Character.isAlphabetic(nextChar) ||
-						Character.isDigit(nextChar) ||
-						(nextChar == CharPool.PERIOD) ||
-						(nextChar == CharPool.SEMICOLON) ||
-						(nextChar == CharPool.UNDERLINE)) {
+					if (lineStart.startsWith("import ") ||
+						lineStart.contains("//") ||
+						isInsideQuotes(content, matcher3.start(2))) {
 
 						continue;
 					}
 
-					if (x > 0) {
-						char previousChar = content.charAt(x - 1);
+					String importClassName =
+						importPackageAndClassName.substring(
+							importPackageAndClassName.lastIndexOf(
+								StringPool.PERIOD) + 1);
 
-						if ((previousChar == CharPool.QUOTE) &&
-							(nextChar == CharPool.QUOTE)) {
+					content = StringUtil.replaceFirst(
+						content, importPackageAndClassName, importClassName,
+						matcher3.start());
 
-							continue;
-						}
-					}
+					continue outerLoop;
 				}
 
-				String importClassName = importPackageAndClassName.substring(
-					importPackageAndClassName.lastIndexOf(StringPool.PERIOD) +
-						1);
-
-				content = StringUtil.replaceFirst(
-					content, importPackageAndClassName, importClassName, x);
+				break;
 			}
 		}
 
@@ -287,10 +366,9 @@ public class ToolsUtil {
 
 		className = className.substring(0, className.length() - 5);
 
-		content = JavaImportsFormatter.stripJavaImports(
-			content, packagePath, className);
+		ImportsFormatter importsFormatter = new JavaImportsFormatter();
 
-		content = stripFullyQualifiedClassNames(content);
+		content = importsFormatter.format(content, packagePath, className);
 
 		File tempFile = new File(_TMP_DIR, "ServiceBuilder.temp");
 

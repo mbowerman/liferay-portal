@@ -54,8 +54,8 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 		_deltaParam = SearchContainer.DEFAULT_DELTA_PARAM;
 		_displayTerms = null;
 		_emptyResultsMessage = null;
+		_emptyResultsMessageCssClass = null;
 		_headerNames = null;
-		_hover = false;
 		_id = null;
 		_iteratorURL = null;
 		_orderByCol = null;
@@ -94,18 +94,28 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 					getDelta(), _iteratorURL, null, _emptyResultsMessage);
 			}
 
+			if (Validator.isNotNull(_cssClass)) {
+				_searchContainer.setCssClass(_cssClass);
+			}
+
 			_searchContainer.setDeltaConfigurable(_deltaConfigurable);
 
 			if (Validator.isNotNull(_emptyResultsMessage)) {
 				_searchContainer.setEmptyResultsMessage(_emptyResultsMessage);
 			}
 
+			if (Validator.isNotNull(_emptyResultsMessageCssClass)) {
+				_searchContainer.setEmptyResultsMessageCssClass(
+					_emptyResultsMessageCssClass);
+			}
+
 			if (_headerNames != null) {
 				_searchContainer.setHeaderNames(_headerNames);
 			}
 
-			_searchContainer.setHover(_hover);
-			_searchContainer.setId(_id);
+			if (Validator.isNotNull(_id)) {
+				_searchContainer.setId(_id);
+			}
 
 			if (Validator.isNotNull(_orderByColParam)) {
 				_searchContainer.setOrderByColParam(_orderByColParam);
@@ -200,6 +210,10 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 		return _emptyResultsMessage;
 	}
 
+	public String getEmptyResultsMessageCssClass() {
+		return _emptyResultsMessageCssClass;
+	}
+
 	public PortletURL getIteratorURL() {
 		return _iteratorURL;
 	}
@@ -248,20 +262,18 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 		return _var;
 	}
 
+	public boolean isCompactEmptyResultsMessage() {
+		return _compactEmptyResultsMessage;
+	}
+
 	public boolean isDeltaConfigurable() {
 		return _deltaConfigurable;
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, with no direct replacement. See LPS-41307.
-	 */
-	@Deprecated
-	public boolean isHasResults() {
-		return true;
-	}
+	public void setCompactEmptyResultsMessage(
+		boolean compactEmptyResultsMessage) {
 
-	public boolean isHover() {
-		return _hover;
+		_compactEmptyResultsMessage = compactEmptyResultsMessage;
 	}
 
 	public void setCssClass(String cssClass) {
@@ -292,19 +304,14 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 		_emptyResultsMessage = emptyResultsMessage;
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, see LPS-41307
-	 */
-	@Deprecated
-	public void setHasResults(boolean hasResults) {
+	public void setEmptyResultsMessageCssClass(
+		String emptyResultsMessageCssClass) {
+
+		_emptyResultsMessageCssClass = emptyResultsMessageCssClass;
 	}
 
 	public void setHeaderNames(String headerNames) {
 		_headerNames = ListUtil.toList(StringUtil.split(headerNames));
-	}
-
-	public void setHover(boolean hover) {
-		_hover = hover;
 	}
 
 	public void setId(String id) {
@@ -359,6 +366,7 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 		_var = var;
 	}
 
+	private boolean _compactEmptyResultsMessage;
 	private String _cssClass = StringPool.BLANK;
 	private String _curParam = SearchContainer.DEFAULT_CUR_PARAM;
 	private int _delta = SearchContainer.DEFAULT_DELTA;
@@ -367,8 +375,8 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 	private String _deltaParam = SearchContainer.DEFAULT_DELTA_PARAM;
 	private DisplayTerms _displayTerms;
 	private String _emptyResultsMessage;
+	private String _emptyResultsMessageCssClass;
 	private List<String> _headerNames;
-	private boolean _hover = true;
 	private String _id;
 	private PortletURL _iteratorURL;
 	private String _orderByCol;

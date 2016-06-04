@@ -14,46 +14,46 @@
 
 package com.liferay.portlet.documentlibrary.service.impl;
 
+import com.liferay.document.library.kernel.exception.DuplicateFileEntryTypeException;
+import com.liferay.document.library.kernel.exception.NoSuchFolderException;
+import com.liferay.document.library.kernel.exception.NoSuchMetadataSetException;
+import com.liferay.document.library.kernel.exception.RequiredFileEntryTypeException;
+import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.document.library.kernel.model.DLFileEntryMetadata;
+import com.liferay.document.library.kernel.model.DLFileEntryType;
+import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
+import com.liferay.document.library.kernel.model.DLFileVersion;
+import com.liferay.document.library.kernel.model.DLFolder;
+import com.liferay.document.library.kernel.model.DLFolderConstants;
+import com.liferay.document.library.kernel.util.DLUtil;
+import com.liferay.dynamic.data.mapping.kernel.DDMForm;
+import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
+import com.liferay.dynamic.data.mapping.kernel.DDMStructureLink;
+import com.liferay.dynamic.data.mapping.kernel.DDMStructureLinkManagerUtil;
+import com.liferay.dynamic.data.mapping.kernel.DDMStructureManager;
+import com.liferay.dynamic.data.mapping.kernel.DDMStructureManagerUtil;
+import com.liferay.dynamic.data.mapping.kernel.StorageEngineManager;
+import com.liferay.dynamic.data.mapping.kernel.StructureDefinitionException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.SystemEventConstants;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.SortedArrayList;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
-import com.liferay.portal.model.SystemEventConstants;
-import com.liferay.portal.model.User;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileEntry;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileVersion;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.permission.ModelPermissions;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.documentlibrary.DuplicateFileEntryTypeException;
-import com.liferay.portlet.documentlibrary.NoSuchFolderException;
-import com.liferay.portlet.documentlibrary.NoSuchMetadataSetException;
-import com.liferay.portlet.documentlibrary.RequiredFileEntryTypeException;
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
-import com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata;
-import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
-import com.liferay.portlet.documentlibrary.model.DLFileEntryTypeConstants;
-import com.liferay.portlet.documentlibrary.model.DLFileVersion;
-import com.liferay.portlet.documentlibrary.model.DLFolder;
-import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.documentlibrary.service.base.DLFileEntryTypeLocalServiceBaseImpl;
-import com.liferay.portlet.documentlibrary.util.DLUtil;
-import com.liferay.portlet.dynamicdatamapping.DDMForm;
-import com.liferay.portlet.dynamicdatamapping.DDMStructure;
-import com.liferay.portlet.dynamicdatamapping.DDMStructureLink;
-import com.liferay.portlet.dynamicdatamapping.DDMStructureLinkManagerUtil;
-import com.liferay.portlet.dynamicdatamapping.DDMStructureManager;
-import com.liferay.portlet.dynamicdatamapping.DDMStructureManagerUtil;
-import com.liferay.portlet.dynamicdatamapping.StorageEngineManager;
-import com.liferay.portlet.dynamicdatamapping.StructureDefinitionException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -208,7 +208,9 @@ public class DLFileEntryTypeLocalServiceImpl
 		if (dlFileEntryPersistence.countByFileEntryTypeId(
 				dlFileEntryType.getFileEntryTypeId()) > 0) {
 
-			throw new RequiredFileEntryTypeException();
+			throw new RequiredFileEntryTypeException(
+				"There are file entries of file entry type " +
+					dlFileEntryType.getFileEntryTypeId());
 		}
 
 		DDMStructure ddmStructure = DDMStructureManagerUtil.fetchStructure(
@@ -224,6 +226,13 @@ public class DLFileEntryTypeLocalServiceImpl
 		}
 
 		if (ddmStructure != null) {
+			long classNameId = classNameLocalService.getClassNameId(
+				DLFileEntryType.class);
+
+			DDMStructureLinkManagerUtil.deleteStructureLink(
+				classNameId, dlFileEntryType.getFileEntryTypeId(),
+				ddmStructure.getStructureId());
+
 			DDMStructureManagerUtil.deleteStructure(
 				ddmStructure.getStructureId());
 		}
@@ -790,7 +799,7 @@ public class DLFileEntryTypeLocalServiceImpl
 		}
 
 		if (ddmStructureIds.length == 0) {
-			throw new NoSuchMetadataSetException();
+			throw new NoSuchMetadataSetException("DDM structure IDs is empty");
 		}
 
 		for (long ddmStructureId : ddmStructureIds) {

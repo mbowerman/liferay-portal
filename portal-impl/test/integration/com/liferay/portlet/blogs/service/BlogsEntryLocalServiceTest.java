@@ -14,8 +14,28 @@
 
 package com.liferay.portlet.blogs.service;
 
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
+import com.liferay.blogs.kernel.exception.EntryContentException;
+import com.liferay.blogs.kernel.exception.EntryTitleException;
+import com.liferay.blogs.kernel.exception.NoSuchEntryException;
+import com.liferay.blogs.kernel.model.BlogsEntry;
+import com.liferay.blogs.kernel.service.BlogsEntryLocalServiceUtil;
+import com.liferay.message.boards.kernel.service.MBMessageLocalServiceUtil;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.ModelHintsUtil;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
+import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.SubscriptionLocalServiceUtil;
+import com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
@@ -27,25 +47,17 @@ import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
+import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.StringBundler;
+import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.TempFileEntryUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.ModelHintsUtil;
-import com.liferay.portal.model.Organization;
-import com.liferay.portal.model.User;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.SubscriptionLocalServiceUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
-import com.liferay.portlet.asset.model.AssetEntry;
-import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
-import com.liferay.portlet.blogs.EntryContentException;
-import com.liferay.portlet.blogs.EntryTitleException;
-import com.liferay.portlet.blogs.NoSuchEntryException;
-import com.liferay.portlet.blogs.model.BlogsEntry;
+import com.liferay.portlet.blogs.constants.BlogsConstants;
 import com.liferay.portlet.blogs.util.test.BlogsTestUtil;
-import com.liferay.portlet.messageboards.service.MBMessageLocalServiceUtil;
+
+import java.io.InputStream;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -68,7 +80,7 @@ public class BlogsEntryLocalServiceTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
+			new LiferayIntegrationTestRule(),
 			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
@@ -95,7 +107,7 @@ public class BlogsEntryLocalServiceTest {
 		int maxLength = ModelHintsUtil.getMaxLength(
 			BlogsEntry.class.getName(), "content");
 
-		String content = repeat("0", maxLength + 1);
+		String content = _repeat("0", maxLength + 1);
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(_group, _user.getUserId());
@@ -110,7 +122,7 @@ public class BlogsEntryLocalServiceTest {
 		int maxLength = ModelHintsUtil.getMaxLength(
 			BlogsEntry.class.getName(), "title");
 
-		String title = repeat("0", maxLength + 1);
+		String title = _repeat("0", maxLength + 1);
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(_group, _user.getUserId());
@@ -118,6 +130,38 @@ public class BlogsEntryLocalServiceTest {
 		BlogsEntryLocalServiceUtil.addEntry(
 			_user.getUserId(), title, RandomTestUtil.randomString(), new Date(),
 			serviceContext);
+	}
+
+	@Test
+	public void testAddOriginalImageInVisibleImageFolder() throws Exception {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), _user.getUserId());
+
+		BlogsEntry blogsEntry = BlogsEntryLocalServiceUtil.addEntry(
+			_user.getUserId(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(), new Date(), serviceContext);
+
+		FileEntry tempFileEntry = getTempFileEntry(
+			_user.getUserId(), _group.getGroupId(), "image.jpg");
+
+		ImageSelector imageSelector = new ImageSelector(
+			FileUtil.getBytes(tempFileEntry.getContentStream()),
+			tempFileEntry.getTitle(), tempFileEntry.getMimeType(),
+			StringPool.BLANK);
+
+		long originalImageFileEntryId =
+			BlogsEntryLocalServiceUtil.addOriginalImageFileEntry(
+				_user.getUserId(), _group.getGroupId(), blogsEntry.getEntryId(),
+				imageSelector);
+
+		FileEntry portletFileEntry =
+			PortletFileRepositoryUtil.getPortletFileEntry(
+				originalImageFileEntryId);
+
+		Folder folder = portletFileEntry.getFolder();
+
+		Assert.assertEquals(BlogsConstants.SERVICE_NAME, folder.getName());
 	}
 
 	@Test(expected = NoSuchEntryException.class)
@@ -185,8 +229,8 @@ public class BlogsEntryLocalServiceTest {
 				" should be " + nextEntry.getEntryId() + " but is null",
 			entries[2]);
 		Assert.assertEquals(
-			"The previous entry relative to entry" +
-				currentEntry.getEntryId() + " should be " +
+			"The previous entry relative to entry" + currentEntry.getEntryId() +
+				" should be " +
 					previousEntry.getEntryId(),
 			entries[0].getEntryId(), previousEntry.getEntryId());
 		Assert.assertEquals(
@@ -510,6 +554,22 @@ public class BlogsEntryLocalServiceTest {
 		}
 	}
 
+	protected FileEntry getTempFileEntry(
+			long userId, long groupId, String title)
+		throws PortalException {
+
+		Class<?> clazz = getClass();
+
+		ClassLoader classLoader = clazz.getClassLoader();
+
+		InputStream inputStream = classLoader.getResourceAsStream(
+			"com/liferay/portal/util/dependencies/test.jpg");
+
+		return TempFileEntryUtil.addTempFileEntry(
+			groupId, userId, BlogsEntry.class.getName(), title, inputStream,
+			MimeTypesUtil.getContentType(title));
+	}
+
 	protected void testGetCompanyEntries(boolean statusInTrash)
 		throws Exception {
 
@@ -756,8 +816,8 @@ public class BlogsEntryLocalServiceTest {
 		Assert.assertEquals(initialCount + 1, actualCount);
 	}
 
-	private static String repeat(String string, int times) {
-		StringBundler sb = new StringBundler(string.length() * times);
+	private static String _repeat(String string, int times) {
+		StringBundler sb = new StringBundler(times);
 
 		for (int i = 0; i < times; i++) {
 			sb.append(string);

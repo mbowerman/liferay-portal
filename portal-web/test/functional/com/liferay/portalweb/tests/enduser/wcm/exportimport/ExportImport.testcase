@@ -1,29 +1,42 @@
 <definition component-name="portal-staging">
+	<property name="portal.release" value="true" />
 	<property name="testray.main.component.name" value="Export/Import Framework" />
 
 	<set-up>
+		<execute macro="TestCase#setUpPortalInstance" />
+
 		<execute macro="User#firstLoginPG" />
 	</set-up>
 
 	<tear-down>
-		<execute macro="User#logoutAndLoginPG">
-			<var name="userLoginEmailAddress" value="test@liferay.com" />
-			<var name="userLoginFullName" value="Test Test" />
-		</execute>
+		<var method="TestPropsUtil#get('test.portal.instance')" name="testPortalInstance" />
 
-		<execute macro="Page#tearDownPG" />
+		<if>
+			<equals arg1="${testPortalInstance}" arg2="true" />
+			<then>
+				<execute macro="PortalInstances#tearDownCP" />
+			</then>
+			<else>
+				<execute macro="User#logoutAndLoginPG">
+					<var name="userLoginEmailAddress" value="test@liferay.com" />
+					<var name="userLoginFullName" value="Test Test" />
+				</execute>
 
-		<execute macro="Role#tearDownCP" />
+				<execute macro="Page#tearDownPG" />
 
-		<execute macro="Site#tearDownCP" />
+				<execute macro="Role#tearDownCP" />
+
+				<execute macro="Site#tearDownCP" />
+			</else>
+		</if>
 	</tear-down>
 
 	<command name="DeleteExportTemplate" priority="4">
-		<execute macro="Page#gotoPublishingTools">
-			<var name="portletName" value="Export/Import" />
-		</execute>
+		<execute macro="Navigator#openURL" />
 
-		<execute macro="LAR#gotoExportTemplateCP" />
+		<execute macro="ProductMenu#gotoSitesPublishing">
+			<var name="portlet" value="Export" />
+		</execute>
 
 		<execute macro="LAR#addExportTemplateCP">
 			<var name="exportTemplateDescription" value="Export Template Description" />
@@ -44,8 +57,10 @@
 			<var name="exportTemplateName" value="Export Template Name" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Recycle Bin" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Recycle Bin" />
 		</execute>
 
 		<execute macro="RecycleBin#viewCP">
@@ -58,8 +73,10 @@
 			<var name="assetName" value="Export Template Name" />
 		</execute>
 
-		<execute macro="Page#gotoPublishingTools">
-			<var name="portletName" value="Export/Import" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesPublishing">
+			<var name="portlet" value="Export" />
 		</execute>
 
 		<execute macro="LAR#gotoExportTemplateCP" />
@@ -71,8 +88,10 @@
 	</command>
 
 	<command name="EditExportTemplate" priority="4">
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Blogs" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Blogs" />
 		</execute>
 
 		<execute macro="Blogs#addEntry">
@@ -80,8 +99,10 @@
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Web Content" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Web Content" />
 		</execute>
 
 		<execute macro="WebContentNavigator#gotoAddCP" />
@@ -91,17 +112,17 @@
 			<var name="webContentTitle" value="Web Content Title" />
 		</execute>
 
-		<execute macro="WebContent#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="WebContent#viewTitle">
 			<var name="webContentTitle" value="Web Content Title" />
 		</execute>
 
-		<execute macro="Page#gotoPublishingTools">
-			<var name="portletName" value="Export/Import" />
-		</execute>
+		<execute macro="Navigator#openURL" />
 
-		<execute macro="LAR#gotoExportTemplateCP" />
+		<execute macro="ProductMenu#gotoSitesPublishing">
+			<var name="portlet" value="Export" />
+		</execute>
 
 		<execute macro="LAR#addExportTemplateCP">
 			<var name="exportTemplateDescription" value="Export Template Description" />
@@ -120,24 +141,15 @@
 		<execute macro="LAR#exportExportTemplateCP">
 			<var name="exportTemplateDescription" value="Export Template Description" />
 			<var name="exportTemplateName" value="Export Template Name" />
+			<var name="larFileName" value="Export.Template.lar" />
 		</execute>
 
-		<var method="selenium#getText('//div[@id=\'_200_exportProcesses\']//table//tr/td[5]/span/a/span')" name="valueName" />
-
-		<echo message="value name ${valueName}" />
-
-		<var group="1" input="${valueName}" name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9k)]*" />
-
-		<echo message="import file name ${larFileName}" />
-
 		<execute function="Click" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_DOWNLOAD" />
+
 		<execute function="DownloadTempFile" />
 
-		<execute function="Click" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_DOWNLOAD" />
-		<execute function="DownloadTempFile" />
-
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
@@ -145,17 +157,20 @@
 		</execute>
 
 		<execute macro="LAR#importSiteCP">
-			<var name="larFileName" value="${larFileName}" />
+			<var name="larFileName" value="Export.Template.lar" />
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Web Content" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Web Content" />
 		</execute>
 
 		<execute macro="WebContentNavigator#gotoEditCP">
-			<var name="webContentTitle" value="WC WebContent Title" />
+			<var name="webContentTitle" value="Web Content Title" />
 		</execute>
 
 		<execute macro="WebContent#viewCP">
@@ -163,8 +178,10 @@
 			<var name="webContentTitle" value="Web Content Title" />
 		</execute>
 
-		<execute macro="Page#gotoPublishingTools">
-			<var name="portletName" value="Export/Import" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesPublishing">
+			<var name="portlet" value="Export" />
 		</execute>
 
 		<execute macro="LAR#gotoExportTemplateCP" />
@@ -191,15 +208,8 @@
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
 
-		<var method="selenium#getText('//div[@id=\'_200_exportProcesses\']//table//tr/td[5]/span/a/span')" name="valueName" />
-
-		<echo message="value name ${valueName}" />
-
-		<var group="1" input="${valueName}" name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9k)]*" />
-
-		<echo message="import file name ${larFileName}" />
-
 		<execute function="Click" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_DOWNLOAD" />
+
 		<execute function="DownloadTempFile" />
 
 		<execute macro="LAR#importSiteCP">
@@ -207,9 +217,12 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Blogs" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Blogs" />
 		</execute>
 
 		<execute macro="BlogsEntry#viewEntry">
@@ -219,27 +232,29 @@
 	</command>
 
 	<command name="ExportImportDDLViaGlobal" priority="5">
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
-		<execute macro="SitePage#addCP">
+		<execute macro="Page#add">
+			<var name="pageName" value="Test Page" />
 			<var name="siteName" value="Site Name" />
-			<var name="sitePageName" value="Test Page" />
-			<var name="sitePagePrivacy" value="Public" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Dynamic Data Lists" />
-			<var name="siteScopeName" value="Global" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Global" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Dynamic Data Lists" />
 		</execute>
 
 		<execute macro="DDLDataDefinition#addCP">
@@ -253,11 +268,14 @@
 			<var name="fieldName" value="TextName" />
 		</execute>
 
-		<execute macro="DDLDataDefinition#saveCP" />
+		<execute macro="DDLDataDefinition#save" />
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Dynamic Data Lists" />
-			<var name="siteScopeName" value="Global" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Global" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Dynamic Data Lists" />
 		</execute>
 
 		<execute macro="DDLList#addCP">
@@ -269,7 +287,7 @@
 			<var name="ddlDataDefinitionName" value="DDL Definition" />
 		</execute>
 
-		<execute macro="DDLList#saveCP" />
+		<execute macro="DDLList#save" />
 
 		<execute macro="DDLRecord#addCP">
 			<var name="ddlDataDefinitionName" value="DDL Definition" />
@@ -283,15 +301,18 @@
 			<var name="fieldName" value="TextName" />
 		</execute>
 
-		<execute macro="DDLRecord#publishCP" />
+		<execute macro="PortletEntry#publish" />
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Dynamic Data Lists" />
-			<var name="siteScopeName" value="Global" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Global" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Dynamic Data Lists" />
 		</execute>
 
 		<execute macro="LAR#exportPortlet">
@@ -299,9 +320,12 @@
 			<var name="siteScopeName" value="Global" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Dynamic Data Lists" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Dynamic Data Lists" />
 		</execute>
 
 		<execute macro="LAR#importPortlet">
@@ -309,12 +333,15 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Dynamic Data Lists" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
 		</execute>
 
-		<execute macro="DDLRecord#viewCP">
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Dynamic Data Lists" />
+		</execute>
+
+		<execute macro="DDLNavigator#gotoListRecords">
 			<var name="ddlListName" value="DDL List" />
 		</execute>
 
@@ -326,8 +353,10 @@
 	</command>
 
 	<command name="ExportImportDMRootFolder" priority="3">
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Documents and Media" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Documents and Media" />
 		</execute>
 
 		<execute macro="DMFolder#addCP">
@@ -341,19 +370,19 @@
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
 
-		<var method="selenium#getText('//tr/td[5]/span/a')" name="valueName" />
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
 
 		<echo message="value name ${valueName}" />
 
-		<var group="1" input="${valueName}" name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9k)]*" />
+		<var group="1" input="${valueName}" name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9KB)]*" />
 
-		<echo message="import file name ${larFileName}" />
+		<echo message="file name ${larFileName}" />
 
 		<execute function="Click" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_DOWNLOAD" />
 		<execute function="DownloadTempFile" />
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
@@ -365,19 +394,18 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="Test Page Name" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="Test Page Name" />
+			<var name="siteName" value="Site Name" />
 		</execute>
 
 		<execute macro="Portlet#addPG">
 			<var name="portletName" value="Documents and Media" />
 		</execute>
-
-		<execute function="Refresh" />
 
 		<execute macro="DMPortlet#configureRootFolderPG">
 			<var name="dmFolderName" value="DM Folder Name" />
@@ -389,13 +417,13 @@
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
 
-		<var method="selenium#getText('//tr/td[5]/span/a')" name="valueName" />
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
 
 		<echo message="value name ${valueName}" />
 
-		<var group="1" input="${valueName}" name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9k)]*" />
+		<var group="1" input="${valueName}" name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9KB)]*" />
 
-		<echo message="import file name ${larFileName}" />
+		<echo message="file name ${larFileName}" />
 
 		<execute function="Click" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_DOWNLOAD" />
 		<execute function="DownloadTempFile" />
@@ -405,10 +433,9 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="Test Page Name" />
 			<var name="siteName" value="Site Name" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute macro="DMPortlet#viewRootFolderPG">
@@ -417,8 +444,10 @@
 	</command>
 
 	<command name="ExportImportPortletWithADT" priority="3">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Application Display Templates" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Application Display Templates" />
 		</execute>
 
 		<execute macro="ApplicationDisplayTemplates#addCP">
@@ -426,7 +455,7 @@
 			<var name="adtType" value="Blogs" />
 		</execute>
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="Test Page Name" />
 		</execute>
 
@@ -439,7 +468,7 @@
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Test Page Name" />
 		</execute>
 
@@ -447,15 +476,14 @@
 			<var name="adtType" value="Blogs" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Test Page Name" />
 		</execute>
 
 		<var name="key_entryTitle" value="Blogs Entry Title" />
 
-		<execute function="AssertElementNotPresent" locator1="PGBlogs#ENTRY_EDIT" value1="Edit" />
-		<execute function="AssertElementNotPresent" locator1="PGBlogs#ENTRY_PERMISSIONS" value1="Permissions" />
-		<execute function="AssertElementNotPresent" locator1="PGBlogs#ENTRY_RECYCLE_BIN" value1="Move to the Recycle Bin" />
+		<execute function="AssertElementNotPresent" locator1="Link#EDIT" value1="Edit" />
+		<execute function="AssertElementNotPresent" locator1="Link#MOVE_TO_THE_RECYCLING_BIN" value1="Move to the Recycle Bin" />
 
 		<execute macro="LAR#configureExportSiteCP" />
 
@@ -463,19 +491,19 @@
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
 
-		<var method="selenium#getText('//tr/td[5]/span/a')" name="valueName" />
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
 
 		<echo message="value name ${valueName}" />
 
-		<var group="1" input="${valueName}" name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9k)]*" />
+		<var group="1" input="${valueName}" name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9KB)]*" />
 
-		<echo message="import file name ${larFileName}" />
+		<echo message="file name ${larFileName}" />
 
 		<execute function="Click" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_DOWNLOAD" />
 		<execute function="DownloadTempFile" />
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
@@ -487,35 +515,82 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="Test Page Name" />
 			<var name="siteName" value="Site Name" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<var name="key_entryTitle" value="Blogs Entry Title" />
 
-		<execute function="AssertElementNotPresent" locator1="PGBlogs#ENTRY_EDIT" value1="Edit" />
-		<execute function="AssertElementNotPresent" locator1="PGBlogs#ENTRY_PERMISSIONS" value1="Permissions" />
-		<execute function="AssertElementNotPresent" locator1="PGBlogs#ENTRY_RECYCLE_BIN" value1="Move to the Recycle Bin" />
+		<execute function="AssertElementNotPresent" locator1="Link#EDIT" value1="Edit" />
+		<execute function="AssertElementNotPresent" locator1="Link#MOVE_TO_THE_RECYCLING_BIN" value1="Move to the Recycle Bin" />
+	</command>
+
+	<command name="ExportImportPrivatePage" priority="5">
+		<execute macro="Page#add">
+			<var name="pageName" value="Private Page" />
+			<var name="sitePagePrivacy" value="Private" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesPublishing">
+			<var name="portlet" value="Export" />
+		</execute>
+
+		<execute macro="LAR#exportSiteCP">
+			<var name="larFileName" value="ExportPrivatePage" />
+			<var name="privateLayout" value="true" />
+		</execute>
+
+		<var name="key_larFileName" value="${larFileName}" />
+
+		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
+
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
+
+		<echo message="value name ${valueName}" />
+
+		<var group="1" input="${valueName}"  name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9k)]*" />
+
+		<echo message="lar file name ${larFileName}" />
+
+		<execute function="Click" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_DOWNLOAD" />
+		<execute function="DownloadTempFile" />
+
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
+		</execute>
+
+		<execute macro="Site#addBlankCP">
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="LAR#importSiteCP">
+			<var name="larFileName" value="${larFileName}" />
+			<var name="privateLayout" value="true" />
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Private Page" />
+			<var name="sitePagePrivacy" value="true" />
+		</execute>
 	</command>
 
 	<command name="ExportImportSampleLARPortlet" priority="5">
+		<property name="portal.acceptance" value="true" />
 		<property name="portlet.plugins.includes" value="sample-lar-portlet" />
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="Test Page Name" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Test Page Name" />
 		</execute>
 
 		<execute macro="Portlet#addPG">
 			<var name="portletName" value="Sample LAR" />
 		</execute>
-
-		<execute function="Refresh" />
 
 		<execute macro="SampleLARPortlet#addSampleBooking" />
 
@@ -532,44 +607,39 @@
 			<var name="larFileName" value="SampleLARPortlet.lar" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
 			<var name="siteName" value="Test Site Name" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
-		<execute macro="SitePage#addCP">
-			<var name="siteName" value="Test Site Name" />
-			<var name="sitePageName" value="Test Site Page" />
-			<var name="sitePagePrivacy" value="Public" />
-		</execute>
-
-		<execute macro="Page#gotoPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="Test Site Page" />
 			<var name="siteName" value="Test Site Name" />
-			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="Navigator#gotoSitePage">
+			<var name="pageName" value="Test Site Page" />
+			<var name="siteName" value="Test Site Name" />
 		</execute>
 
 		<execute macro="Portlet#addPG">
 			<var name="portletName" value="Sample LAR" />
 		</execute>
 
-		<execute function="Refresh" />
-
 		<execute macro="LAR#importPortlet">
 			<var name="larFileName" value="SampleLARPortlet.lar" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="Test Site Page" />
 			<var name="siteName" value="Test Site Name" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute macro="SampleLARPortlet#viewSampleBookingNumber">
@@ -579,9 +649,14 @@
 	</command>
 
 	<command name="ExportImportSiteWithChangedSiteDefaultLanguage" priority="5">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Site Settings" />
+		<property name="portal.acceptance" value="true" />
+
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Site Settings" />
 		</execute>
 
 		<execute macro="Site#configureCurrentLanguagesCP">
@@ -590,8 +665,10 @@
 			<var name="displaySettings" value="Display Settings" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Polls" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Polls" />
 		</execute>
 
 		<execute macro="Polls#addPollCP">
@@ -601,16 +678,20 @@
 			<var name="pollsQuestionTitle" value="Polls Title" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Polls" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Polls" />
 		</execute>
 
 		<execute macro="LAR#exportPortlet">
 			<var name="larFileName" value="PollsExport.lar" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Polls" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Polls" />
 		</execute>
 
 		<execute macro="LAR#importPortlet">
@@ -629,20 +710,19 @@
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
 
-		<var method="selenium#getText('//tr/td[5]/span/a')" name="valueName" />
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
 
 		<echo message="value name ${valueName}" />
 
-		<var group="1" input="${valueName}"  name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9k)]*" />
+		<var group="1" input="${valueName}"  name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9KB)]*" />
 
 		<echo message="lar file name ${larFileName}" />
 
 		<execute function="Click" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_DOWNLOAD" />
 		<execute function="DownloadTempFile" />
-		<execute function="SelectFrame" value1="relative=top" />
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
@@ -656,8 +736,10 @@
 	</command>
 
 	<command name="ExportImportValidation" priority="4">
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Documents and Media" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Documents and Media" />
 		</execute>
 
 		<execute macro="DMDocument#addCP">
@@ -666,8 +748,10 @@
 			<var name="dmDocumentTitle" value="DM Document Title" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Blogs" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Blogs" />
 		</execute>
 
 		<execute macro="Blogs#addEntry">
@@ -675,22 +759,30 @@
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Blogs" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Blogs" />
 		</execute>
 
-		<execute macro="BlogsEntry#gotoEditCP">
+		<execute macro="BlogsNavigator#gotoEditCP">
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
-		<execute macro="DMDocument#linkImage">
-			<var name="documentName" value="DM Document Title" />
-			<var name="siteName" value="Liferay" />
+		<execute function="Click#pauseClickAt" locator1="AlloyEditor#CONTENT_FIELD" />
+
+		<execute function="Click" locator1="AlloyEditor#CONTENT_ADD_BUTTON" />
+
+		<execute function="Click" locator1="AlloyEditor#CONTENT_ADD_MENUBAR_IMAGE" />
+
+		<execute macro="ItemSelector#selectDMImage">
+			<var name="imageFileName" value="DM Document Title" />
 		</execute>
 
-		<execute macro="BlogsEntry#publishCP" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="LAR#configureExportSiteCP">
+			<var name="checkContentNameList" value="Blogs" />
 			<var name="mainContent" value="Blogs" />
 			<var name="uncheckContentNameList" value="Documents and Media" />
 			<var name="uncheckSubContent" value="Referenced Content" />
@@ -700,19 +792,27 @@
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
 
-		<var method="selenium#getText('//tr/td[5]/span/a')" name="valueName" />
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
 
 		<echo message="value name ${valueName}" />
 
-		<var group="1" input="${valueName}" name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9k)]*" />
+		<var group="1" input="${valueName}" name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9KB)]*" />
 
-		<echo message="import file name ${larFileName}" />
+		<echo message="file name ${larFileName}" />
 
 		<execute function="Click" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_DOWNLOAD" />
 		<execute function="DownloadTempFile" />
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Documents and Media" />
+		</execute>
+
+		<execute macro="DMDocument#deleteCP">
+			<var name="dmDocumentTitle" value="DM Document Title" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
@@ -727,11 +827,11 @@
 	</command>
 
 	<command name="ExportImportWithExportTemplate" priority="4">
-		<execute macro="Page#gotoPublishingTools">
-			<var name="portletName" value="Export/Import" />
-		</execute>
+		<execute macro="Navigator#openURL" />
 
-		<execute macro="LAR#gotoExportTemplateCP" />
+		<execute macro="ProductMenu#gotoSitesPublishing">
+			<var name="portlet" value="Export" />
+		</execute>
 
 		<execute macro="LAR#addExportTemplateCP">
 			<var name="exportTemplateDescription" value="Export Template Description" />
@@ -753,19 +853,19 @@
 			<var name="exportTemplateName" value="Export Template Name" />
 		</execute>
 
-		<var method="selenium#getText('//div[@id=\'_200_exportProcesses\']//table//tr/td[5]/span/a/span')" name="valueName" />
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
 
 		<echo message="value name ${valueName}" />
 
-		<var group="1" input="${valueName}" name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9k)]*" />
+		<var group="1" input="${valueName}" name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9KB)]*" />
 
-		<echo message="import file name ${larFileName}" />
+		<echo message="file name ${larFileName}" />
 
 		<execute function="Click" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_DOWNLOAD" />
 		<execute function="DownloadTempFile" />
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
@@ -815,11 +915,11 @@
 		<execute function="AssertTextEquals" locator1="WSRPAdminManagePortlets#PORTLET_TABLE_REMOTE_PORTLET" value1="Unit Converter" />
 		<execute function="AssertElementPresent" locator1="WSRPAdminManagePortlets#PORTLET_TABLE_DELETE" value1="Delete" />
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="WSRP Page" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="WSRP Page" />
 		</execute>
 
@@ -843,17 +943,16 @@
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
 
-		<var method="selenium#getText('//tr/td[5]/span/a')" name="valueName" />
+		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
 
 		<echo message="value name ${valueName}" />
 
-		<var group="1" input="${valueName}"  name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9k)]*" />
+		<var group="1" input="${valueName}"  name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9KB)]*" />
 
 		<echo message="lar file name ${larFileName}" />
 
 		<execute function="Click" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_DOWNLOAD" />
 		<execute function="DownloadTempFile" />
-		<execute function="SelectFrame" value1="relative=top" />
 
 		<execute macro="ProductMenu#gotoControlPanelSites">
 			<var name="portlet" value="Sites" />
@@ -883,9 +982,15 @@
 	</command>
 
 	<command name="ImportCorruptedFile" priority="5">
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Bookmarks" />
+		<property name="portal.acceptance" value="true" />
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Bookmarks" />
 		</execute>
+
+		<execute function="AssertTextEquals" locator1="Portlet#HEADER" value1="Bookmarks" />
 
 		<execute macro="LAR#importPortlet">
 			<var name="cannotImport" value="true" />
@@ -895,11 +1000,11 @@
 	</command>
 
 	<command name="SearchExportTemplate" priority="4">
-		<execute macro="Page#gotoPublishingTools">
-			<var name="portletName" value="Export/Import" />
-		</execute>
+		<execute macro="Navigator#openURL" />
 
-		<execute macro="LAR#gotoExportTemplateCP" />
+		<execute macro="ProductMenu#gotoSitesPublishing">
+			<var name="portlet" value="Export" />
+		</execute>
 
 		<execute macro="LAR#addExportTemplateCP">
 			<var name="exportTemplateDescription" value="Export Template Description" />
@@ -915,8 +1020,10 @@
 			<var name="exportTemplateName" value="Export Template Name" />
 		</execute>
 
-		<execute macro="Page#gotoPublishingTools">
-			<var name="portletName" value="Export/Import" />
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesPublishing">
+			<var name="portlet" value="Export" />
 		</execute>
 
 		<execute macro="LAR#gotoExportTemplateCP" />

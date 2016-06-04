@@ -16,12 +16,12 @@ package com.liferay.portlet.ratings.model.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.model.CacheModel;
 import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.CacheModel;
 
-import com.liferay.portlet.ratings.model.RatingsEntry;
+import com.liferay.ratings.kernel.model.RatingsEntry;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -66,7 +66,7 @@ public class RatingsEntryCacheModel implements CacheModel<RatingsEntry>,
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(23);
+		StringBundler sb = new StringBundler(21);
 
 		sb.append("{uuid=");
 		sb.append(uuid);
@@ -88,8 +88,6 @@ public class RatingsEntryCacheModel implements CacheModel<RatingsEntry>,
 		sb.append(classPK);
 		sb.append(", score=");
 		sb.append(score);
-		sb.append(", lastPublishDate=");
-		sb.append(lastPublishDate);
 		sb.append("}");
 
 		return sb.toString();
@@ -135,13 +133,6 @@ public class RatingsEntryCacheModel implements CacheModel<RatingsEntry>,
 		ratingsEntryImpl.setClassPK(classPK);
 		ratingsEntryImpl.setScore(score);
 
-		if (lastPublishDate == Long.MIN_VALUE) {
-			ratingsEntryImpl.setLastPublishDate(null);
-		}
-		else {
-			ratingsEntryImpl.setLastPublishDate(new Date(lastPublishDate));
-		}
-
 		ratingsEntryImpl.resetOriginalValues();
 
 		return ratingsEntryImpl;
@@ -150,16 +141,21 @@ public class RatingsEntryCacheModel implements CacheModel<RatingsEntry>,
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		uuid = objectInput.readUTF();
+
 		entryId = objectInput.readLong();
+
 		companyId = objectInput.readLong();
+
 		userId = objectInput.readLong();
 		userName = objectInput.readUTF();
 		createDate = objectInput.readLong();
 		modifiedDate = objectInput.readLong();
+
 		classNameId = objectInput.readLong();
+
 		classPK = objectInput.readLong();
+
 		score = objectInput.readDouble();
-		lastPublishDate = objectInput.readLong();
 	}
 
 	@Override
@@ -173,7 +169,9 @@ public class RatingsEntryCacheModel implements CacheModel<RatingsEntry>,
 		}
 
 		objectOutput.writeLong(entryId);
+
 		objectOutput.writeLong(companyId);
+
 		objectOutput.writeLong(userId);
 
 		if (userName == null) {
@@ -185,10 +183,12 @@ public class RatingsEntryCacheModel implements CacheModel<RatingsEntry>,
 
 		objectOutput.writeLong(createDate);
 		objectOutput.writeLong(modifiedDate);
+
 		objectOutput.writeLong(classNameId);
+
 		objectOutput.writeLong(classPK);
+
 		objectOutput.writeDouble(score);
-		objectOutput.writeLong(lastPublishDate);
 	}
 
 	public String uuid;
@@ -201,5 +201,4 @@ public class RatingsEntryCacheModel implements CacheModel<RatingsEntry>,
 	public long classNameId;
 	public long classPK;
 	public double score;
-	public long lastPublishDate;
 }

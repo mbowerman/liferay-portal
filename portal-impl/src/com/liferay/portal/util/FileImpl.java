@@ -88,19 +88,43 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 
 	@Override
 	public String appendParentheticalSuffix(String fileName, String suffix) {
-		StringBundler sb = new StringBundler(3);
-
 		String fileNameWithoutExtension = stripExtension(fileName);
 
-		sb.append(
+		String fileNameWithParentheticalSuffix =
 			StringUtil.appendParentheticalSuffix(
-				fileNameWithoutExtension, suffix));
-
-		sb.append(StringPool.PERIOD);
+				fileNameWithoutExtension, suffix);
 
 		String extension = getExtension(fileName);
 
+		if (Validator.isNull(extension)) {
+			return fileNameWithParentheticalSuffix;
+		}
+
+		StringBundler sb = new StringBundler(3);
+
+		sb.append(fileNameWithParentheticalSuffix);
+		sb.append(StringPool.PERIOD);
 		sb.append(extension);
+
+		return sb.toString();
+	}
+
+	@Override
+	public String appendSuffix(String fileName, String suffix) {
+		StringBundler sb = new StringBundler(4);
+
+		String fileNameWithoutExtension = stripExtension(fileName);
+
+		sb.append(fileNameWithoutExtension);
+
+		sb.append(suffix);
+
+		String extension = getExtension(fileName);
+
+		if (Validator.isNotNull(extension)) {
+			sb.append(StringPool.PERIOD);
+			sb.append(extension);
+		}
 
 		return sb.toString();
 	}
@@ -405,8 +429,8 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 				text = tika.parseToString(is);
 			}
 		}
-		catch (Exception e) {
-			Throwable throwable = ExceptionUtils.getRootCause(e);
+		catch (Throwable t) {
+			Throwable throwable = ExceptionUtils.getRootCause(t);
 
 			if ((throwable instanceof CryptographyException) ||
 				(throwable instanceof EncryptedDocumentException) ||
@@ -418,13 +442,13 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 							fileName);
 				}
 			}
-			else if (e instanceof TikaException) {
+			else if (t instanceof TikaException) {
 				if (_log.isWarnEnabled()) {
 					_log.warn("Unable to extract text from " + fileName);
 				}
 			}
 			else {
-				_log.error(e, e);
+				_log.error(t, t);
 			}
 		}
 		finally {

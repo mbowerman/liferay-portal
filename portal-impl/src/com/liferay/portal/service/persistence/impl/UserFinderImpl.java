@@ -15,6 +15,7 @@
 package com.liferay.portal.service.persistence.impl;
 
 import com.liferay.portal.kernel.dao.db.DB;
+import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.orm.CustomSQLParam;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -23,6 +24,14 @@ import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.Type;
 import com.liferay.portal.kernel.dao.orm.WildcardMode;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.OrganizationUtil;
+import com.liferay.portal.kernel.service.persistence.RoleUtil;
+import com.liferay.portal.kernel.service.persistence.UserFinder;
+import com.liferay.portal.kernel.service.persistence.UserUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -31,15 +40,7 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.Organization;
-import com.liferay.portal.model.User;
 import com.liferay.portal.model.impl.UserImpl;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.persistence.OrganizationUtil;
-import com.liferay.portal.service.persistence.RoleUtil;
-import com.liferay.portal.service.persistence.UserFinder;
-import com.liferay.portal.service.persistence.UserUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.util.dao.orm.CustomSQLUtil;
 
@@ -87,6 +88,9 @@ public class UserFinderImpl extends UserFinderBaseImpl implements UserFinder {
 
 	public static final String FIND_BY_USERS_ORGS =
 		UserFinder.class.getName() + ".findByUsersOrgs";
+
+	public static final String FIND_BY_USERS_ORGS_GROUP =
+		UserFinder.class.getName() + ".findByUsersOrgsGroup";
 
 	public static final String FIND_BY_USERS_USER_GROUPS =
 		UserFinder.class.getName() + ".findByUsersUserGroups";
@@ -166,15 +170,17 @@ public class UserFinderImpl extends UserFinderBaseImpl implements UserFinder {
 
 			DB db = getDB();
 
-			String dbType = db.getType();
+			boolean sybase = false;
 
-			boolean sybase = dbType.equals(DB.TYPE_SYBASE);
+			if (db.getDBType() == DBType.SYBASE) {
+				sybase = true;
+			}
 
 			if (sybase) {
-				sb = new StringBundler(19);
+				sb = new StringBundler(25);
 			}
 			else {
-				sb = new StringBundler(13);
+				sb = new StringBundler(17);
 			}
 
 			sb.append("SELECT groupId, COUNT(DISTINCT userId) FROM (");
@@ -212,6 +218,20 @@ public class UserFinderImpl extends UserFinderBaseImpl implements UserFinder {
 			}
 
 			sb.append(StringPool.OPEN_PARENTHESIS);
+			sb.append(CustomSQLUtil.get(FIND_BY_USERS_ORGS_GROUP));
+			sb.append(StringPool.CLOSE_PARENTHESIS);
+
+			if (sybase) {
+				sb.append(" USERS_ORGS_GROUP");
+			}
+
+			sb.append(" UNION ALL ");
+
+			if (sybase) {
+				sb.append("SELECT userId, groupId FROM ");
+			}
+
+			sb.append(StringPool.OPEN_PARENTHESIS);
 			sb.append(CustomSQLUtil.get(FIND_BY_USERS_USER_GROUPS));
 			sb.append(StringPool.CLOSE_PARENTHESIS);
 
@@ -234,7 +254,7 @@ public class UserFinderImpl extends UserFinderBaseImpl implements UserFinder {
 
 			QueryPos qPos = QueryPos.getInstance(q);
 
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < 4; i++) {
 				qPos.add(companyId);
 				qPos.add(false);
 
@@ -885,7 +905,7 @@ public class UserFinderImpl extends UserFinderBaseImpl implements UserFinder {
 				sql = StringUtil.replace(sql, _STATUS_SQL, StringPool.BLANK);
 			}
 
-			StringBundler sb = new StringBundler(14);
+			StringBundler sb = new StringBundler(20);
 
 			sb.append(StringPool.OPEN_PARENTHESIS);
 			sb.append(replaceJoinAndWhere(sql, params1));
@@ -1310,8 +1330,8 @@ public class UserFinderImpl extends UserFinderBaseImpl implements UserFinder {
 				for (Organization organization : organizationsTree) {
 					sb.append("(Organization_.treePath LIKE '%/");
 					sb.append(organization.getOrganizationId());
-					sb.append("/%')");
-					sb.append(" OR ");
+					sb.append("/%') ");
+					sb.append("OR ");
 				}
 
 				sb.setIndex(sb.index() - 1);

@@ -16,27 +16,29 @@ package com.liferay.portal.model.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.expando.kernel.model.ExpandoBridge;
+import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
+
+import com.liferay.exportimport.kernel.lar.StagedModelType;
+
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSON;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.Phone;
+import com.liferay.portal.kernel.model.PhoneModel;
+import com.liferay.portal.kernel.model.PhoneSoap;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.impl.BaseModelImpl;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.Phone;
-import com.liferay.portal.model.PhoneModel;
-import com.liferay.portal.model.PhoneSoap;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
-
-import com.liferay.portlet.expando.model.ExpandoBridge;
-import com.liferay.portlet.expando.util.ExpandoBridgeFactoryUtil;
-import com.liferay.portlet.exportimport.lar.StagedModelType;
 
 import java.io.Serializable;
 
@@ -84,8 +86,7 @@ public class PhoneModelImpl extends BaseModelImpl<Phone> implements PhoneModel {
 			{ "number_", Types.VARCHAR },
 			{ "extension", Types.VARCHAR },
 			{ "typeId", Types.BIGINT },
-			{ "primary_", Types.BOOLEAN },
-			{ "lastPublishDate", Types.TIMESTAMP }
+			{ "primary_", Types.BOOLEAN }
 		};
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP = new HashMap<String, Integer>();
 
@@ -104,10 +105,9 @@ public class PhoneModelImpl extends BaseModelImpl<Phone> implements PhoneModel {
 		TABLE_COLUMNS_MAP.put("extension", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("typeId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("primary_", Types.BOOLEAN);
-		TABLE_COLUMNS_MAP.put("lastPublishDate", Types.TIMESTAMP);
 	}
 
-	public static final String TABLE_SQL_CREATE = "create table Phone (mvccVersion LONG default 0,uuid_ VARCHAR(75) null,phoneId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,classNameId LONG,classPK LONG,number_ VARCHAR(75) null,extension VARCHAR(75) null,typeId LONG,primary_ BOOLEAN,lastPublishDate DATE null)";
+	public static final String TABLE_SQL_CREATE = "create table Phone (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,phoneId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,classNameId LONG,classPK LONG,number_ VARCHAR(75) null,extension VARCHAR(75) null,typeId LONG,primary_ BOOLEAN)";
 	public static final String TABLE_SQL_DROP = "drop table Phone";
 	public static final String ORDER_BY_JPQL = " ORDER BY phone.createDate ASC";
 	public static final String ORDER_BY_SQL = " ORDER BY Phone.createDate ASC";
@@ -115,13 +115,13 @@ public class PhoneModelImpl extends BaseModelImpl<Phone> implements PhoneModel {
 	public static final String SESSION_FACTORY = "liferaySessionFactory";
 	public static final String TX_MANAGER = "liferayTransactionManager";
 	public static final boolean ENTITY_CACHE_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
-				"value.object.entity.cache.enabled.com.liferay.portal.model.Phone"),
+				"value.object.entity.cache.enabled.com.liferay.portal.kernel.model.Phone"),
 			true);
 	public static final boolean FINDER_CACHE_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
-				"value.object.finder.cache.enabled.com.liferay.portal.model.Phone"),
+				"value.object.finder.cache.enabled.com.liferay.portal.kernel.model.Phone"),
 			true);
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
-				"value.object.column.bitmask.enabled.com.liferay.portal.model.Phone"),
+				"value.object.column.bitmask.enabled.com.liferay.portal.kernel.model.Phone"),
 			true);
 	public static final long CLASSNAMEID_COLUMN_BITMASK = 1L;
 	public static final long CLASSPK_COLUMN_BITMASK = 2L;
@@ -158,7 +158,6 @@ public class PhoneModelImpl extends BaseModelImpl<Phone> implements PhoneModel {
 		model.setExtension(soapModel.getExtension());
 		model.setTypeId(soapModel.getTypeId());
 		model.setPrimary(soapModel.getPrimary());
-		model.setLastPublishDate(soapModel.getLastPublishDate());
 
 		return model;
 	}
@@ -184,7 +183,7 @@ public class PhoneModelImpl extends BaseModelImpl<Phone> implements PhoneModel {
 	}
 
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(com.liferay.portal.util.PropsUtil.get(
-				"lock.expiration.time.com.liferay.portal.model.Phone"));
+				"lock.expiration.time.com.liferay.portal.kernel.model.Phone"));
 
 	public PhoneModelImpl() {
 	}
@@ -237,7 +236,6 @@ public class PhoneModelImpl extends BaseModelImpl<Phone> implements PhoneModel {
 		attributes.put("extension", getExtension());
 		attributes.put("typeId", getTypeId());
 		attributes.put("primary", getPrimary());
-		attributes.put("lastPublishDate", getLastPublishDate());
 
 		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
 		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
@@ -329,12 +327,6 @@ public class PhoneModelImpl extends BaseModelImpl<Phone> implements PhoneModel {
 
 		if (primary != null) {
 			setPrimary(primary);
-		}
-
-		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
-
-		if (lastPublishDate != null) {
-			setLastPublishDate(lastPublishDate);
 		}
 	}
 
@@ -607,6 +599,7 @@ public class PhoneModelImpl extends BaseModelImpl<Phone> implements PhoneModel {
 		return _primary;
 	}
 
+	@JSON
 	@Override
 	public boolean isPrimary() {
 		return _primary;
@@ -627,17 +620,6 @@ public class PhoneModelImpl extends BaseModelImpl<Phone> implements PhoneModel {
 
 	public boolean getOriginalPrimary() {
 		return _originalPrimary;
-	}
-
-	@JSON
-	@Override
-	public Date getLastPublishDate() {
-		return _lastPublishDate;
-	}
-
-	@Override
-	public void setLastPublishDate(Date lastPublishDate) {
-		_lastPublishDate = lastPublishDate;
 	}
 
 	@Override
@@ -691,7 +673,6 @@ public class PhoneModelImpl extends BaseModelImpl<Phone> implements PhoneModel {
 		phoneImpl.setExtension(getExtension());
 		phoneImpl.setTypeId(getTypeId());
 		phoneImpl.setPrimary(getPrimary());
-		phoneImpl.setLastPublishDate(getLastPublishDate());
 
 		phoneImpl.resetOriginalValues();
 
@@ -849,21 +830,12 @@ public class PhoneModelImpl extends BaseModelImpl<Phone> implements PhoneModel {
 
 		phoneCacheModel.primary = getPrimary();
 
-		Date lastPublishDate = getLastPublishDate();
-
-		if (lastPublishDate != null) {
-			phoneCacheModel.lastPublishDate = lastPublishDate.getTime();
-		}
-		else {
-			phoneCacheModel.lastPublishDate = Long.MIN_VALUE;
-		}
-
 		return phoneCacheModel;
 	}
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(31);
+		StringBundler sb = new StringBundler(29);
 
 		sb.append("{mvccVersion=");
 		sb.append(getMvccVersion());
@@ -893,8 +865,6 @@ public class PhoneModelImpl extends BaseModelImpl<Phone> implements PhoneModel {
 		sb.append(getTypeId());
 		sb.append(", primary=");
 		sb.append(getPrimary());
-		sb.append(", lastPublishDate=");
-		sb.append(getLastPublishDate());
 		sb.append("}");
 
 		return sb.toString();
@@ -902,10 +872,10 @@ public class PhoneModelImpl extends BaseModelImpl<Phone> implements PhoneModel {
 
 	@Override
 	public String toXmlString() {
-		StringBundler sb = new StringBundler(49);
+		StringBundler sb = new StringBundler(46);
 
 		sb.append("<model><model-name>");
-		sb.append("com.liferay.portal.model.Phone");
+		sb.append("com.liferay.portal.kernel.model.Phone");
 		sb.append("</model-name>");
 
 		sb.append(
@@ -964,10 +934,6 @@ public class PhoneModelImpl extends BaseModelImpl<Phone> implements PhoneModel {
 			"<column><column-name>primary</column-name><column-value><![CDATA[");
 		sb.append(getPrimary());
 		sb.append("]]></column-value></column>");
-		sb.append(
-			"<column><column-name>lastPublishDate</column-name><column-value><![CDATA[");
-		sb.append(getLastPublishDate());
-		sb.append("]]></column-value></column>");
 
 		sb.append("</model>");
 
@@ -1004,7 +970,6 @@ public class PhoneModelImpl extends BaseModelImpl<Phone> implements PhoneModel {
 	private boolean _primary;
 	private boolean _originalPrimary;
 	private boolean _setOriginalPrimary;
-	private Date _lastPublishDate;
 	private long _columnBitmask;
 	private Phone _escapedModel;
 }

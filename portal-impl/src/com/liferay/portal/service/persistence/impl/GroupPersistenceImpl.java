@@ -16,7 +16,6 @@ package com.liferay.portal.service.persistence.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.NoSuchGroupException;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
@@ -27,8 +26,24 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.exception.NoSuchGroupException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.MVCCModel;
+import com.liferay.portal.kernel.service.persistence.CompanyProvider;
+import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
+import com.liferay.portal.kernel.service.persistence.GroupPersistence;
+import com.liferay.portal.kernel.service.persistence.OrganizationPersistence;
+import com.liferay.portal.kernel.service.persistence.RolePersistence;
+import com.liferay.portal.kernel.service.persistence.UserGroupPersistence;
+import com.liferay.portal.kernel.service.persistence.UserPersistence;
+import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
+import com.liferay.portal.kernel.service.persistence.impl.TableMapper;
+import com.liferay.portal.kernel.service.persistence.impl.TableMapperFactory;
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -36,16 +51,8 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.MVCCModel;
 import com.liferay.portal.model.impl.GroupImpl;
 import com.liferay.portal.model.impl.GroupModelImpl;
-import com.liferay.portal.service.persistence.GroupPersistence;
-import com.liferay.portal.service.persistence.OrganizationPersistence;
-import com.liferay.portal.service.persistence.RolePersistence;
-import com.liferay.portal.service.persistence.UserGroupPersistence;
-import com.liferay.portal.service.persistence.UserPersistence;
 
 import java.io.Serializable;
 
@@ -55,6 +62,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -66,7 +74,7 @@ import java.util.Set;
  *
  * @author Brian Wing Shun Chan
  * @see GroupPersistence
- * @see com.liferay.portal.service.persistence.GroupUtil
+ * @see com.liferay.portal.kernel.service.persistence.GroupUtil
  * @generated
  */
 @ProviderType
@@ -198,7 +206,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			if ((list != null) && !list.isEmpty()) {
 				for (Group group : list) {
-					if (!Validator.equals(uuid, group.getUuid())) {
+					if (!Objects.equals(uuid, group.getUuid())) {
 						list = null;
 
 						break;
@@ -212,7 +220,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -435,8 +443,9 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -666,8 +675,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			msg.append(StringPool.CLOSE_CURLY_BRACE);
 
-			if (_log.isWarnEnabled()) {
-				_log.warn(msg.toString());
+			if (_log.isDebugEnabled()) {
+				_log.debug(msg.toString());
 			}
 
 			throw new NoSuchGroupException(msg.toString());
@@ -711,7 +720,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 		if (result instanceof Group) {
 			Group group = (Group)result;
 
-			if (!Validator.equals(uuid, group.getUuid()) ||
+			if (!Objects.equals(uuid, group.getUuid()) ||
 					(groupId != group.getGroupId())) {
 				result = null;
 			}
@@ -1003,7 +1012,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			if ((list != null) && !list.isEmpty()) {
 				for (Group group : list) {
-					if (!Validator.equals(uuid, group.getUuid()) ||
+					if (!Objects.equals(uuid, group.getUuid()) ||
 							(companyId != group.getCompanyId())) {
 						list = null;
 
@@ -1018,7 +1027,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -1258,11 +1267,12 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_GROUP__WHERE);
@@ -1587,7 +1597,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -1797,8 +1807,9 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -1993,8 +2004,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			msg.append(StringPool.CLOSE_CURLY_BRACE);
 
-			if (_log.isWarnEnabled()) {
-				_log.warn(msg.toString());
+			if (_log.isDebugEnabled()) {
+				_log.debug(msg.toString());
 			}
 
 			throw new NoSuchGroupException(msg.toString());
@@ -2306,7 +2317,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -2533,11 +2544,12 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_GROUP__WHERE);
@@ -2843,7 +2855,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -3072,11 +3084,12 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_GROUP__WHERE);
@@ -3284,8 +3297,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			msg.append(StringPool.CLOSE_CURLY_BRACE);
 
-			if (_log.isWarnEnabled()) {
-				_log.warn(msg.toString());
+			if (_log.isDebugEnabled()) {
+				_log.debug(msg.toString());
 			}
 
 			throw new NoSuchGroupException(msg.toString());
@@ -3330,7 +3343,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 			Group group = (Group)result;
 
 			if ((companyId != group.getCompanyId()) ||
-					!Validator.equals(groupKey, group.getGroupKey())) {
+					!Objects.equals(groupKey, group.getGroupKey())) {
 				result = null;
 			}
 		}
@@ -3538,8 +3551,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			msg.append(StringPool.CLOSE_CURLY_BRACE);
 
-			if (_log.isWarnEnabled()) {
-				_log.warn(msg.toString());
+			if (_log.isDebugEnabled()) {
+				_log.debug(msg.toString());
 			}
 
 			throw new NoSuchGroupException(msg.toString());
@@ -3584,7 +3597,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 			Group group = (Group)result;
 
 			if ((companyId != group.getCompanyId()) ||
-					!Validator.equals(friendlyURL, group.getFriendlyURL())) {
+					!Objects.equals(friendlyURL, group.getFriendlyURL())) {
 				result = null;
 			}
 		}
@@ -3889,7 +3902,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -4115,11 +4128,12 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_GROUP__WHERE);
@@ -4290,6 +4304,1080 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 	private static final String _FINDER_COLUMN_C_S_COMPANYID_2 = "group_.companyId = ? AND ";
 	private static final String _FINDER_COLUMN_C_S_SITE_2 = "group_.site = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_C_A = new FinderPath(GroupModelImpl.ENTITY_CACHE_ENABLED,
+			GroupModelImpl.FINDER_CACHE_ENABLED, GroupImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_A",
+			new String[] {
+				Long.class.getName(), Boolean.class.getName(),
+				
+			Integer.class.getName(), Integer.class.getName(),
+				OrderByComparator.class.getName()
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_A = new FinderPath(GroupModelImpl.ENTITY_CACHE_ENABLED,
+			GroupModelImpl.FINDER_CACHE_ENABLED, GroupImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByC_A",
+			new String[] { Long.class.getName(), Boolean.class.getName() },
+			GroupModelImpl.COMPANYID_COLUMN_BITMASK |
+			GroupModelImpl.ACTIVE_COLUMN_BITMASK |
+			GroupModelImpl.NAME_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_C_A = new FinderPath(GroupModelImpl.ENTITY_CACHE_ENABLED,
+			GroupModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_A",
+			new String[] { Long.class.getName(), Boolean.class.getName() });
+
+	/**
+	 * Returns all the groups where companyId = &#63; and active = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param active the active
+	 * @return the matching groups
+	 */
+	@Override
+	public List<Group> findByC_A(long companyId, boolean active) {
+		return findByC_A(companyId, active, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, null);
+	}
+
+	/**
+	 * Returns a range of all the groups where companyId = &#63; and active = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link GroupModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param active the active
+	 * @param start the lower bound of the range of groups
+	 * @param end the upper bound of the range of groups (not inclusive)
+	 * @return the range of matching groups
+	 */
+	@Override
+	public List<Group> findByC_A(long companyId, boolean active, int start,
+		int end) {
+		return findByC_A(companyId, active, start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the groups where companyId = &#63; and active = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link GroupModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param active the active
+	 * @param start the lower bound of the range of groups
+	 * @param end the upper bound of the range of groups (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching groups
+	 */
+	@Override
+	public List<Group> findByC_A(long companyId, boolean active, int start,
+		int end, OrderByComparator<Group> orderByComparator) {
+		return findByC_A(companyId, active, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the groups where companyId = &#63; and active = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link GroupModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param active the active
+	 * @param start the lower bound of the range of groups
+	 * @param end the upper bound of the range of groups (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching groups
+	 */
+	@Override
+	public List<Group> findByC_A(long companyId, boolean active, int start,
+		int end, OrderByComparator<Group> orderByComparator,
+		boolean retrieveFromCache) {
+		boolean pagination = true;
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+			pagination = false;
+			finderPath = FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_A;
+			finderArgs = new Object[] { companyId, active };
+		}
+		else {
+			finderPath = FINDER_PATH_WITH_PAGINATION_FIND_BY_C_A;
+			finderArgs = new Object[] {
+					companyId, active,
+					
+					start, end, orderByComparator
+				};
+		}
+
+		List<Group> list = null;
+
+		if (retrieveFromCache) {
+			list = (List<Group>)finderCache.getResult(finderPath, finderArgs,
+					this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (Group group : list) {
+					if ((companyId != group.getCompanyId()) ||
+							(active != group.getActive())) {
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler query = null;
+
+			if (orderByComparator != null) {
+				query = new StringBundler(4 +
+						(orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				query = new StringBundler(4);
+			}
+
+			query.append(_SQL_SELECT_GROUP__WHERE);
+
+			query.append(_FINDER_COLUMN_C_A_COMPANYID_2);
+
+			query.append(_FINDER_COLUMN_C_A_ACTIVE_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(query, _ORDER_BY_ENTITY_ALIAS,
+					orderByComparator);
+			}
+			else
+			 if (pagination) {
+				query.append(GroupModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(companyId);
+
+				qPos.add(active);
+
+				if (!pagination) {
+					list = (List<Group>)QueryUtil.list(q, getDialect(), start,
+							end, false);
+
+					Collections.sort(list);
+
+					list = Collections.unmodifiableList(list);
+				}
+				else {
+					list = (List<Group>)QueryUtil.list(q, getDialect(), start,
+							end);
+				}
+
+				cacheResult(list);
+
+				finderCache.putResult(finderPath, finderArgs, list);
+			}
+			catch (Exception e) {
+				finderCache.removeResult(finderPath, finderArgs);
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
+	}
+
+	/**
+	 * Returns the first group in the ordered set where companyId = &#63; and active = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param active the active
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching group
+	 * @throws NoSuchGroupException if a matching group could not be found
+	 */
+	@Override
+	public Group findByC_A_First(long companyId, boolean active,
+		OrderByComparator<Group> orderByComparator) throws NoSuchGroupException {
+		Group group = fetchByC_A_First(companyId, active, orderByComparator);
+
+		if (group != null) {
+			return group;
+		}
+
+		StringBundler msg = new StringBundler(6);
+
+		msg.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		msg.append("companyId=");
+		msg.append(companyId);
+
+		msg.append(", active=");
+		msg.append(active);
+
+		msg.append(StringPool.CLOSE_CURLY_BRACE);
+
+		throw new NoSuchGroupException(msg.toString());
+	}
+
+	/**
+	 * Returns the first group in the ordered set where companyId = &#63; and active = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param active the active
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching group, or <code>null</code> if a matching group could not be found
+	 */
+	@Override
+	public Group fetchByC_A_First(long companyId, boolean active,
+		OrderByComparator<Group> orderByComparator) {
+		List<Group> list = findByC_A(companyId, active, 0, 1, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the last group in the ordered set where companyId = &#63; and active = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param active the active
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching group
+	 * @throws NoSuchGroupException if a matching group could not be found
+	 */
+	@Override
+	public Group findByC_A_Last(long companyId, boolean active,
+		OrderByComparator<Group> orderByComparator) throws NoSuchGroupException {
+		Group group = fetchByC_A_Last(companyId, active, orderByComparator);
+
+		if (group != null) {
+			return group;
+		}
+
+		StringBundler msg = new StringBundler(6);
+
+		msg.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		msg.append("companyId=");
+		msg.append(companyId);
+
+		msg.append(", active=");
+		msg.append(active);
+
+		msg.append(StringPool.CLOSE_CURLY_BRACE);
+
+		throw new NoSuchGroupException(msg.toString());
+	}
+
+	/**
+	 * Returns the last group in the ordered set where companyId = &#63; and active = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param active the active
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching group, or <code>null</code> if a matching group could not be found
+	 */
+	@Override
+	public Group fetchByC_A_Last(long companyId, boolean active,
+		OrderByComparator<Group> orderByComparator) {
+		int count = countByC_A(companyId, active);
+
+		if (count == 0) {
+			return null;
+		}
+
+		List<Group> list = findByC_A(companyId, active, count - 1, count,
+				orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the groups before and after the current group in the ordered set where companyId = &#63; and active = &#63;.
+	 *
+	 * @param groupId the primary key of the current group
+	 * @param companyId the company ID
+	 * @param active the active
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next group
+	 * @throws NoSuchGroupException if a group with the primary key could not be found
+	 */
+	@Override
+	public Group[] findByC_A_PrevAndNext(long groupId, long companyId,
+		boolean active, OrderByComparator<Group> orderByComparator)
+		throws NoSuchGroupException {
+		Group group = findByPrimaryKey(groupId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Group[] array = new GroupImpl[3];
+
+			array[0] = getByC_A_PrevAndNext(session, group, companyId, active,
+					orderByComparator, true);
+
+			array[1] = group;
+
+			array[2] = getByC_A_PrevAndNext(session, group, companyId, active,
+					orderByComparator, false);
+
+			return array;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected Group getByC_A_PrevAndNext(Session session, Group group,
+		long companyId, boolean active,
+		OrderByComparator<Group> orderByComparator, boolean previous) {
+		StringBundler query = null;
+
+		if (orderByComparator != null) {
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
+		}
+		else {
+			query = new StringBundler(4);
+		}
+
+		query.append(_SQL_SELECT_GROUP__WHERE);
+
+		query.append(_FINDER_COLUMN_C_A_COMPANYID_2);
+
+		query.append(_FINDER_COLUMN_C_A_ACTIVE_2);
+
+		if (orderByComparator != null) {
+			String[] orderByConditionFields = orderByComparator.getOrderByConditionFields();
+
+			if (orderByConditionFields.length > 0) {
+				query.append(WHERE_AND);
+			}
+
+			for (int i = 0; i < orderByConditionFields.length; i++) {
+				query.append(_ORDER_BY_ENTITY_ALIAS);
+				query.append(orderByConditionFields[i]);
+
+				if ((i + 1) < orderByConditionFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN_HAS_NEXT);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN);
+					}
+				}
+			}
+
+			query.append(ORDER_BY_CLAUSE);
+
+			String[] orderByFields = orderByComparator.getOrderByFields();
+
+			for (int i = 0; i < orderByFields.length; i++) {
+				query.append(_ORDER_BY_ENTITY_ALIAS);
+				query.append(orderByFields[i]);
+
+				if ((i + 1) < orderByFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC_HAS_NEXT);
+					}
+					else {
+						query.append(ORDER_BY_DESC_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC);
+					}
+					else {
+						query.append(ORDER_BY_DESC);
+					}
+				}
+			}
+		}
+		else {
+			query.append(GroupModelImpl.ORDER_BY_JPQL);
+		}
+
+		String sql = query.toString();
+
+		Query q = session.createQuery(sql);
+
+		q.setFirstResult(0);
+		q.setMaxResults(2);
+
+		QueryPos qPos = QueryPos.getInstance(q);
+
+		qPos.add(companyId);
+
+		qPos.add(active);
+
+		if (orderByComparator != null) {
+			Object[] values = orderByComparator.getOrderByConditionValues(group);
+
+			for (Object value : values) {
+				qPos.add(value);
+			}
+		}
+
+		List<Group> list = q.list();
+
+		if (list.size() == 2) {
+			return list.get(1);
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
+	 * Removes all the groups where companyId = &#63; and active = &#63; from the database.
+	 *
+	 * @param companyId the company ID
+	 * @param active the active
+	 */
+	@Override
+	public void removeByC_A(long companyId, boolean active) {
+		for (Group group : findByC_A(companyId, active, QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS, null)) {
+			remove(group);
+		}
+	}
+
+	/**
+	 * Returns the number of groups where companyId = &#63; and active = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param active the active
+	 * @return the number of matching groups
+	 */
+	@Override
+	public int countByC_A(long companyId, boolean active) {
+		FinderPath finderPath = FINDER_PATH_COUNT_BY_C_A;
+
+		Object[] finderArgs = new Object[] { companyId, active };
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(3);
+
+			query.append(_SQL_COUNT_GROUP__WHERE);
+
+			query.append(_FINDER_COLUMN_C_A_COMPANYID_2);
+
+			query.append(_FINDER_COLUMN_C_A_ACTIVE_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(companyId);
+
+				qPos.add(active);
+
+				count = (Long)q.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception e) {
+				finderCache.removeResult(finderPath, finderArgs);
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_C_A_COMPANYID_2 = "group_.companyId = ? AND ";
+	private static final String _FINDER_COLUMN_C_A_ACTIVE_2 = "group_.active = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_C_CPK = new FinderPath(GroupModelImpl.ENTITY_CACHE_ENABLED,
+			GroupModelImpl.FINDER_CACHE_ENABLED, GroupImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_CPK",
+			new String[] {
+				Long.class.getName(), Long.class.getName(),
+				
+			Integer.class.getName(), Integer.class.getName(),
+				OrderByComparator.class.getName()
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_CPK = new FinderPath(GroupModelImpl.ENTITY_CACHE_ENABLED,
+			GroupModelImpl.FINDER_CACHE_ENABLED, GroupImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByC_CPK",
+			new String[] { Long.class.getName(), Long.class.getName() },
+			GroupModelImpl.CLASSNAMEID_COLUMN_BITMASK |
+			GroupModelImpl.CLASSPK_COLUMN_BITMASK |
+			GroupModelImpl.NAME_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_C_CPK = new FinderPath(GroupModelImpl.ENTITY_CACHE_ENABLED,
+			GroupModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_CPK",
+			new String[] { Long.class.getName(), Long.class.getName() });
+
+	/**
+	 * Returns all the groups where classNameId = &#63; and classPK = &#63;.
+	 *
+	 * @param classNameId the class name ID
+	 * @param classPK the class p k
+	 * @return the matching groups
+	 */
+	@Override
+	public List<Group> findByC_CPK(long classNameId, long classPK) {
+		return findByC_CPK(classNameId, classPK, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, null);
+	}
+
+	/**
+	 * Returns a range of all the groups where classNameId = &#63; and classPK = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link GroupModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param classNameId the class name ID
+	 * @param classPK the class p k
+	 * @param start the lower bound of the range of groups
+	 * @param end the upper bound of the range of groups (not inclusive)
+	 * @return the range of matching groups
+	 */
+	@Override
+	public List<Group> findByC_CPK(long classNameId, long classPK, int start,
+		int end) {
+		return findByC_CPK(classNameId, classPK, start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the groups where classNameId = &#63; and classPK = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link GroupModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param classNameId the class name ID
+	 * @param classPK the class p k
+	 * @param start the lower bound of the range of groups
+	 * @param end the upper bound of the range of groups (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching groups
+	 */
+	@Override
+	public List<Group> findByC_CPK(long classNameId, long classPK, int start,
+		int end, OrderByComparator<Group> orderByComparator) {
+		return findByC_CPK(classNameId, classPK, start, end, orderByComparator,
+			true);
+	}
+
+	/**
+	 * Returns an ordered range of all the groups where classNameId = &#63; and classPK = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link GroupModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param classNameId the class name ID
+	 * @param classPK the class p k
+	 * @param start the lower bound of the range of groups
+	 * @param end the upper bound of the range of groups (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching groups
+	 */
+	@Override
+	public List<Group> findByC_CPK(long classNameId, long classPK, int start,
+		int end, OrderByComparator<Group> orderByComparator,
+		boolean retrieveFromCache) {
+		boolean pagination = true;
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+			pagination = false;
+			finderPath = FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_CPK;
+			finderArgs = new Object[] { classNameId, classPK };
+		}
+		else {
+			finderPath = FINDER_PATH_WITH_PAGINATION_FIND_BY_C_CPK;
+			finderArgs = new Object[] {
+					classNameId, classPK,
+					
+					start, end, orderByComparator
+				};
+		}
+
+		List<Group> list = null;
+
+		if (retrieveFromCache) {
+			list = (List<Group>)finderCache.getResult(finderPath, finderArgs,
+					this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (Group group : list) {
+					if ((classNameId != group.getClassNameId()) ||
+							(classPK != group.getClassPK())) {
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler query = null;
+
+			if (orderByComparator != null) {
+				query = new StringBundler(4 +
+						(orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				query = new StringBundler(4);
+			}
+
+			query.append(_SQL_SELECT_GROUP__WHERE);
+
+			query.append(_FINDER_COLUMN_C_CPK_CLASSNAMEID_2);
+
+			query.append(_FINDER_COLUMN_C_CPK_CLASSPK_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(query, _ORDER_BY_ENTITY_ALIAS,
+					orderByComparator);
+			}
+			else
+			 if (pagination) {
+				query.append(GroupModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(classNameId);
+
+				qPos.add(classPK);
+
+				if (!pagination) {
+					list = (List<Group>)QueryUtil.list(q, getDialect(), start,
+							end, false);
+
+					Collections.sort(list);
+
+					list = Collections.unmodifiableList(list);
+				}
+				else {
+					list = (List<Group>)QueryUtil.list(q, getDialect(), start,
+							end);
+				}
+
+				cacheResult(list);
+
+				finderCache.putResult(finderPath, finderArgs, list);
+			}
+			catch (Exception e) {
+				finderCache.removeResult(finderPath, finderArgs);
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
+	}
+
+	/**
+	 * Returns the first group in the ordered set where classNameId = &#63; and classPK = &#63;.
+	 *
+	 * @param classNameId the class name ID
+	 * @param classPK the class p k
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching group
+	 * @throws NoSuchGroupException if a matching group could not be found
+	 */
+	@Override
+	public Group findByC_CPK_First(long classNameId, long classPK,
+		OrderByComparator<Group> orderByComparator) throws NoSuchGroupException {
+		Group group = fetchByC_CPK_First(classNameId, classPK, orderByComparator);
+
+		if (group != null) {
+			return group;
+		}
+
+		StringBundler msg = new StringBundler(6);
+
+		msg.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		msg.append("classNameId=");
+		msg.append(classNameId);
+
+		msg.append(", classPK=");
+		msg.append(classPK);
+
+		msg.append(StringPool.CLOSE_CURLY_BRACE);
+
+		throw new NoSuchGroupException(msg.toString());
+	}
+
+	/**
+	 * Returns the first group in the ordered set where classNameId = &#63; and classPK = &#63;.
+	 *
+	 * @param classNameId the class name ID
+	 * @param classPK the class p k
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching group, or <code>null</code> if a matching group could not be found
+	 */
+	@Override
+	public Group fetchByC_CPK_First(long classNameId, long classPK,
+		OrderByComparator<Group> orderByComparator) {
+		List<Group> list = findByC_CPK(classNameId, classPK, 0, 1,
+				orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the last group in the ordered set where classNameId = &#63; and classPK = &#63;.
+	 *
+	 * @param classNameId the class name ID
+	 * @param classPK the class p k
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching group
+	 * @throws NoSuchGroupException if a matching group could not be found
+	 */
+	@Override
+	public Group findByC_CPK_Last(long classNameId, long classPK,
+		OrderByComparator<Group> orderByComparator) throws NoSuchGroupException {
+		Group group = fetchByC_CPK_Last(classNameId, classPK, orderByComparator);
+
+		if (group != null) {
+			return group;
+		}
+
+		StringBundler msg = new StringBundler(6);
+
+		msg.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		msg.append("classNameId=");
+		msg.append(classNameId);
+
+		msg.append(", classPK=");
+		msg.append(classPK);
+
+		msg.append(StringPool.CLOSE_CURLY_BRACE);
+
+		throw new NoSuchGroupException(msg.toString());
+	}
+
+	/**
+	 * Returns the last group in the ordered set where classNameId = &#63; and classPK = &#63;.
+	 *
+	 * @param classNameId the class name ID
+	 * @param classPK the class p k
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching group, or <code>null</code> if a matching group could not be found
+	 */
+	@Override
+	public Group fetchByC_CPK_Last(long classNameId, long classPK,
+		OrderByComparator<Group> orderByComparator) {
+		int count = countByC_CPK(classNameId, classPK);
+
+		if (count == 0) {
+			return null;
+		}
+
+		List<Group> list = findByC_CPK(classNameId, classPK, count - 1, count,
+				orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the groups before and after the current group in the ordered set where classNameId = &#63; and classPK = &#63;.
+	 *
+	 * @param groupId the primary key of the current group
+	 * @param classNameId the class name ID
+	 * @param classPK the class p k
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next group
+	 * @throws NoSuchGroupException if a group with the primary key could not be found
+	 */
+	@Override
+	public Group[] findByC_CPK_PrevAndNext(long groupId, long classNameId,
+		long classPK, OrderByComparator<Group> orderByComparator)
+		throws NoSuchGroupException {
+		Group group = findByPrimaryKey(groupId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Group[] array = new GroupImpl[3];
+
+			array[0] = getByC_CPK_PrevAndNext(session, group, classNameId,
+					classPK, orderByComparator, true);
+
+			array[1] = group;
+
+			array[2] = getByC_CPK_PrevAndNext(session, group, classNameId,
+					classPK, orderByComparator, false);
+
+			return array;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected Group getByC_CPK_PrevAndNext(Session session, Group group,
+		long classNameId, long classPK,
+		OrderByComparator<Group> orderByComparator, boolean previous) {
+		StringBundler query = null;
+
+		if (orderByComparator != null) {
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
+		}
+		else {
+			query = new StringBundler(4);
+		}
+
+		query.append(_SQL_SELECT_GROUP__WHERE);
+
+		query.append(_FINDER_COLUMN_C_CPK_CLASSNAMEID_2);
+
+		query.append(_FINDER_COLUMN_C_CPK_CLASSPK_2);
+
+		if (orderByComparator != null) {
+			String[] orderByConditionFields = orderByComparator.getOrderByConditionFields();
+
+			if (orderByConditionFields.length > 0) {
+				query.append(WHERE_AND);
+			}
+
+			for (int i = 0; i < orderByConditionFields.length; i++) {
+				query.append(_ORDER_BY_ENTITY_ALIAS);
+				query.append(orderByConditionFields[i]);
+
+				if ((i + 1) < orderByConditionFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN_HAS_NEXT);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN);
+					}
+				}
+			}
+
+			query.append(ORDER_BY_CLAUSE);
+
+			String[] orderByFields = orderByComparator.getOrderByFields();
+
+			for (int i = 0; i < orderByFields.length; i++) {
+				query.append(_ORDER_BY_ENTITY_ALIAS);
+				query.append(orderByFields[i]);
+
+				if ((i + 1) < orderByFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC_HAS_NEXT);
+					}
+					else {
+						query.append(ORDER_BY_DESC_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC);
+					}
+					else {
+						query.append(ORDER_BY_DESC);
+					}
+				}
+			}
+		}
+		else {
+			query.append(GroupModelImpl.ORDER_BY_JPQL);
+		}
+
+		String sql = query.toString();
+
+		Query q = session.createQuery(sql);
+
+		q.setFirstResult(0);
+		q.setMaxResults(2);
+
+		QueryPos qPos = QueryPos.getInstance(q);
+
+		qPos.add(classNameId);
+
+		qPos.add(classPK);
+
+		if (orderByComparator != null) {
+			Object[] values = orderByComparator.getOrderByConditionValues(group);
+
+			for (Object value : values) {
+				qPos.add(value);
+			}
+		}
+
+		List<Group> list = q.list();
+
+		if (list.size() == 2) {
+			return list.get(1);
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
+	 * Removes all the groups where classNameId = &#63; and classPK = &#63; from the database.
+	 *
+	 * @param classNameId the class name ID
+	 * @param classPK the class p k
+	 */
+	@Override
+	public void removeByC_CPK(long classNameId, long classPK) {
+		for (Group group : findByC_CPK(classNameId, classPK, QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS, null)) {
+			remove(group);
+		}
+	}
+
+	/**
+	 * Returns the number of groups where classNameId = &#63; and classPK = &#63;.
+	 *
+	 * @param classNameId the class name ID
+	 * @param classPK the class p k
+	 * @return the number of matching groups
+	 */
+	@Override
+	public int countByC_CPK(long classNameId, long classPK) {
+		FinderPath finderPath = FINDER_PATH_COUNT_BY_C_CPK;
+
+		Object[] finderArgs = new Object[] { classNameId, classPK };
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(3);
+
+			query.append(_SQL_COUNT_GROUP__WHERE);
+
+			query.append(_FINDER_COLUMN_C_CPK_CLASSNAMEID_2);
+
+			query.append(_FINDER_COLUMN_C_CPK_CLASSPK_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(classNameId);
+
+				qPos.add(classPK);
+
+				count = (Long)q.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception e) {
+				finderCache.removeResult(finderPath, finderArgs);
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_C_CPK_CLASSNAMEID_2 = "group_.classNameId = ? AND ";
+	private static final String _FINDER_COLUMN_C_CPK_CLASSPK_2 = "group_.classPK = ?";
 	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_T_A = new FinderPath(GroupModelImpl.ENTITY_CACHE_ENABLED,
 			GroupModelImpl.FINDER_CACHE_ENABLED, GroupImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByT_A",
@@ -4422,7 +5510,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -4648,11 +5736,12 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_GROUP__WHERE);
@@ -4952,7 +6041,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(5 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(5);
@@ -5275,8 +6364,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			msg.append(StringPool.CLOSE_CURLY_BRACE);
 
-			if (_log.isWarnEnabled()) {
-				_log.warn(msg.toString());
+			if (_log.isDebugEnabled()) {
+				_log.debug(msg.toString());
 			}
 
 			throw new NoSuchGroupException(msg.toString());
@@ -5624,7 +6713,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(5 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(5);
@@ -5871,10 +6960,11 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(5);
 		}
 
 		query.append(_SQL_SELECT_GROUP__WHERE);
@@ -6207,7 +7297,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(5 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(5);
@@ -6454,10 +7544,11 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(5);
 		}
 
 		query.append(_SQL_SELECT_GROUP__WHERE);
@@ -6687,8 +7778,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			msg.append(StringPool.CLOSE_CURLY_BRACE);
 
-			if (_log.isWarnEnabled()) {
-				_log.warn(msg.toString());
+			if (_log.isDebugEnabled()) {
+				_log.debug(msg.toString());
 			}
 
 			throw new NoSuchGroupException(msg.toString());
@@ -6736,7 +7827,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			if ((companyId != group.getCompanyId()) ||
 					(liveGroupId != group.getLiveGroupId()) ||
-					!Validator.equals(groupKey, group.getGroupKey())) {
+					!Objects.equals(groupKey, group.getGroupKey())) {
 				result = null;
 			}
 		}
@@ -6919,6 +8010,448 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	private static final String _FINDER_COLUMN_C_L_GK_GROUPKEY_1 = "group_.groupKey IS NULL";
 	private static final String _FINDER_COLUMN_C_L_GK_GROUPKEY_2 = "group_.groupKey = ?";
 	private static final String _FINDER_COLUMN_C_L_GK_GROUPKEY_3 = "(group_.groupKey IS NULL OR group_.groupKey = '')";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_G_C_C_P = new FinderPath(GroupModelImpl.ENTITY_CACHE_ENABLED,
+			GroupModelImpl.FINDER_CACHE_ENABLED, GroupImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByG_C_C_P",
+			new String[] {
+				Long.class.getName(), Long.class.getName(), Long.class.getName(),
+				Long.class.getName(),
+				
+			Integer.class.getName(), Integer.class.getName(),
+				OrderByComparator.class.getName()
+			});
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_COUNT_BY_G_C_C_P = new FinderPath(GroupModelImpl.ENTITY_CACHE_ENABLED,
+			GroupModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "countByG_C_C_P",
+			new String[] {
+				Long.class.getName(), Long.class.getName(), Long.class.getName(),
+				Long.class.getName()
+			});
+
+	/**
+	 * Returns all the groups where groupId &gt; &#63; and companyId = &#63; and classNameId = &#63; and parentGroupId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param parentGroupId the parent group ID
+	 * @return the matching groups
+	 */
+	@Override
+	public List<Group> findByG_C_C_P(long groupId, long companyId,
+		long classNameId, long parentGroupId) {
+		return findByG_C_C_P(groupId, companyId, classNameId, parentGroupId,
+			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+	}
+
+	/**
+	 * Returns a range of all the groups where groupId &gt; &#63; and companyId = &#63; and classNameId = &#63; and parentGroupId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link GroupModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param parentGroupId the parent group ID
+	 * @param start the lower bound of the range of groups
+	 * @param end the upper bound of the range of groups (not inclusive)
+	 * @return the range of matching groups
+	 */
+	@Override
+	public List<Group> findByG_C_C_P(long groupId, long companyId,
+		long classNameId, long parentGroupId, int start, int end) {
+		return findByG_C_C_P(groupId, companyId, classNameId, parentGroupId,
+			start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the groups where groupId &gt; &#63; and companyId = &#63; and classNameId = &#63; and parentGroupId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link GroupModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param parentGroupId the parent group ID
+	 * @param start the lower bound of the range of groups
+	 * @param end the upper bound of the range of groups (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching groups
+	 */
+	@Override
+	public List<Group> findByG_C_C_P(long groupId, long companyId,
+		long classNameId, long parentGroupId, int start, int end,
+		OrderByComparator<Group> orderByComparator) {
+		return findByG_C_C_P(groupId, companyId, classNameId, parentGroupId,
+			start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the groups where groupId &gt; &#63; and companyId = &#63; and classNameId = &#63; and parentGroupId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link GroupModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param parentGroupId the parent group ID
+	 * @param start the lower bound of the range of groups
+	 * @param end the upper bound of the range of groups (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching groups
+	 */
+	@Override
+	public List<Group> findByG_C_C_P(long groupId, long companyId,
+		long classNameId, long parentGroupId, int start, int end,
+		OrderByComparator<Group> orderByComparator, boolean retrieveFromCache) {
+		boolean pagination = true;
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		finderPath = FINDER_PATH_WITH_PAGINATION_FIND_BY_G_C_C_P;
+		finderArgs = new Object[] {
+				groupId, companyId, classNameId, parentGroupId,
+				
+				start, end, orderByComparator
+			};
+
+		List<Group> list = null;
+
+		if (retrieveFromCache) {
+			list = (List<Group>)finderCache.getResult(finderPath, finderArgs,
+					this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (Group group : list) {
+					if ((groupId >= group.getGroupId()) ||
+							(companyId != group.getCompanyId()) ||
+							(classNameId != group.getClassNameId()) ||
+							(parentGroupId != group.getParentGroupId())) {
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler query = null;
+
+			if (orderByComparator != null) {
+				query = new StringBundler(6 +
+						(orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				query = new StringBundler(6);
+			}
+
+			query.append(_SQL_SELECT_GROUP__WHERE);
+
+			query.append(_FINDER_COLUMN_G_C_C_P_GROUPID_2);
+
+			query.append(_FINDER_COLUMN_G_C_C_P_COMPANYID_2);
+
+			query.append(_FINDER_COLUMN_G_C_C_P_CLASSNAMEID_2);
+
+			query.append(_FINDER_COLUMN_G_C_C_P_PARENTGROUPID_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(query, _ORDER_BY_ENTITY_ALIAS,
+					orderByComparator);
+			}
+			else
+			 if (pagination) {
+				query.append(GroupModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(groupId);
+
+				qPos.add(companyId);
+
+				qPos.add(classNameId);
+
+				qPos.add(parentGroupId);
+
+				if (!pagination) {
+					list = (List<Group>)QueryUtil.list(q, getDialect(), start,
+							end, false);
+
+					Collections.sort(list);
+
+					list = Collections.unmodifiableList(list);
+				}
+				else {
+					list = (List<Group>)QueryUtil.list(q, getDialect(), start,
+							end);
+				}
+
+				cacheResult(list);
+
+				finderCache.putResult(finderPath, finderArgs, list);
+			}
+			catch (Exception e) {
+				finderCache.removeResult(finderPath, finderArgs);
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
+	}
+
+	/**
+	 * Returns the first group in the ordered set where groupId &gt; &#63; and companyId = &#63; and classNameId = &#63; and parentGroupId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param parentGroupId the parent group ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching group
+	 * @throws NoSuchGroupException if a matching group could not be found
+	 */
+	@Override
+	public Group findByG_C_C_P_First(long groupId, long companyId,
+		long classNameId, long parentGroupId,
+		OrderByComparator<Group> orderByComparator) throws NoSuchGroupException {
+		Group group = fetchByG_C_C_P_First(groupId, companyId, classNameId,
+				parentGroupId, orderByComparator);
+
+		if (group != null) {
+			return group;
+		}
+
+		StringBundler msg = new StringBundler(10);
+
+		msg.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		msg.append("groupId=");
+		msg.append(groupId);
+
+		msg.append(", companyId=");
+		msg.append(companyId);
+
+		msg.append(", classNameId=");
+		msg.append(classNameId);
+
+		msg.append(", parentGroupId=");
+		msg.append(parentGroupId);
+
+		msg.append(StringPool.CLOSE_CURLY_BRACE);
+
+		throw new NoSuchGroupException(msg.toString());
+	}
+
+	/**
+	 * Returns the first group in the ordered set where groupId &gt; &#63; and companyId = &#63; and classNameId = &#63; and parentGroupId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param parentGroupId the parent group ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching group, or <code>null</code> if a matching group could not be found
+	 */
+	@Override
+	public Group fetchByG_C_C_P_First(long groupId, long companyId,
+		long classNameId, long parentGroupId,
+		OrderByComparator<Group> orderByComparator) {
+		List<Group> list = findByG_C_C_P(groupId, companyId, classNameId,
+				parentGroupId, 0, 1, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the last group in the ordered set where groupId &gt; &#63; and companyId = &#63; and classNameId = &#63; and parentGroupId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param parentGroupId the parent group ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching group
+	 * @throws NoSuchGroupException if a matching group could not be found
+	 */
+	@Override
+	public Group findByG_C_C_P_Last(long groupId, long companyId,
+		long classNameId, long parentGroupId,
+		OrderByComparator<Group> orderByComparator) throws NoSuchGroupException {
+		Group group = fetchByG_C_C_P_Last(groupId, companyId, classNameId,
+				parentGroupId, orderByComparator);
+
+		if (group != null) {
+			return group;
+		}
+
+		StringBundler msg = new StringBundler(10);
+
+		msg.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		msg.append("groupId=");
+		msg.append(groupId);
+
+		msg.append(", companyId=");
+		msg.append(companyId);
+
+		msg.append(", classNameId=");
+		msg.append(classNameId);
+
+		msg.append(", parentGroupId=");
+		msg.append(parentGroupId);
+
+		msg.append(StringPool.CLOSE_CURLY_BRACE);
+
+		throw new NoSuchGroupException(msg.toString());
+	}
+
+	/**
+	 * Returns the last group in the ordered set where groupId &gt; &#63; and companyId = &#63; and classNameId = &#63; and parentGroupId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param parentGroupId the parent group ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching group, or <code>null</code> if a matching group could not be found
+	 */
+	@Override
+	public Group fetchByG_C_C_P_Last(long groupId, long companyId,
+		long classNameId, long parentGroupId,
+		OrderByComparator<Group> orderByComparator) {
+		int count = countByG_C_C_P(groupId, companyId, classNameId,
+				parentGroupId);
+
+		if (count == 0) {
+			return null;
+		}
+
+		List<Group> list = findByG_C_C_P(groupId, companyId, classNameId,
+				parentGroupId, count - 1, count, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Removes all the groups where groupId &gt; &#63; and companyId = &#63; and classNameId = &#63; and parentGroupId = &#63; from the database.
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param parentGroupId the parent group ID
+	 */
+	@Override
+	public void removeByG_C_C_P(long groupId, long companyId, long classNameId,
+		long parentGroupId) {
+		for (Group group : findByG_C_C_P(groupId, companyId, classNameId,
+				parentGroupId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
+			remove(group);
+		}
+	}
+
+	/**
+	 * Returns the number of groups where groupId &gt; &#63; and companyId = &#63; and classNameId = &#63; and parentGroupId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param parentGroupId the parent group ID
+	 * @return the number of matching groups
+	 */
+	@Override
+	public int countByG_C_C_P(long groupId, long companyId, long classNameId,
+		long parentGroupId) {
+		FinderPath finderPath = FINDER_PATH_WITH_PAGINATION_COUNT_BY_G_C_C_P;
+
+		Object[] finderArgs = new Object[] {
+				groupId, companyId, classNameId, parentGroupId
+			};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(5);
+
+			query.append(_SQL_COUNT_GROUP__WHERE);
+
+			query.append(_FINDER_COLUMN_G_C_C_P_GROUPID_2);
+
+			query.append(_FINDER_COLUMN_G_C_C_P_COMPANYID_2);
+
+			query.append(_FINDER_COLUMN_G_C_C_P_CLASSNAMEID_2);
+
+			query.append(_FINDER_COLUMN_G_C_C_P_PARENTGROUPID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(groupId);
+
+				qPos.add(companyId);
+
+				qPos.add(classNameId);
+
+				qPos.add(parentGroupId);
+
+				count = (Long)q.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception e) {
+				finderCache.removeResult(finderPath, finderArgs);
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_G_C_C_P_GROUPID_2 = "group_.groupId > ? AND ";
+	private static final String _FINDER_COLUMN_G_C_C_P_COMPANYID_2 = "group_.companyId = ? AND ";
+	private static final String _FINDER_COLUMN_G_C_C_P_CLASSNAMEID_2 = "group_.classNameId = ? AND ";
+	private static final String _FINDER_COLUMN_G_C_C_P_PARENTGROUPID_2 = "group_.parentGroupId = ?";
 	public static final FinderPath FINDER_PATH_FETCH_BY_C_C_L_GK = new FinderPath(GroupModelImpl.ENTITY_CACHE_ENABLED,
 			GroupModelImpl.FINDER_CACHE_ENABLED, GroupImpl.class,
 			FINDER_CLASS_NAME_ENTITY, "fetchByC_C_L_GK",
@@ -6973,8 +8506,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			msg.append(StringPool.CLOSE_CURLY_BRACE);
 
-			if (_log.isWarnEnabled()) {
-				_log.warn(msg.toString());
+			if (_log.isDebugEnabled()) {
+				_log.debug(msg.toString());
 			}
 
 			throw new NoSuchGroupException(msg.toString());
@@ -7029,7 +8562,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 			if ((companyId != group.getCompanyId()) ||
 					(classNameId != group.getClassNameId()) ||
 					(liveGroupId != group.getLiveGroupId()) ||
-					!Validator.equals(groupKey, group.getGroupKey())) {
+					!Objects.equals(groupKey, group.getGroupKey())) {
 				result = null;
 			}
 		}
@@ -7389,7 +8922,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(6 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(6);
@@ -7655,11 +9188,12 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(7 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(6);
 		}
 
 		query.append(_SQL_SELECT_GROUP__WHERE);
@@ -8279,6 +9813,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 		group.setUuid(uuid);
 
+		group.setCompanyId(companyProvider.getCompanyId());
+
 		return group;
 	}
 
@@ -8311,8 +9847,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 			Group group = (Group)session.get(GroupImpl.class, primaryKey);
 
 			if (group == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				if (_log.isDebugEnabled()) {
+					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
 				throw new NoSuchGroupException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -8336,17 +9872,13 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	protected Group removeImpl(Group group) {
 		group = toUnwrappedModel(group);
 
-		groupToOrganizationTableMapper.deleteLeftPrimaryKeyTableMappings(0,
-			group.getPrimaryKey());
+		groupToOrganizationTableMapper.deleteLeftPrimaryKeyTableMappings(group.getPrimaryKey());
 
-		groupToRoleTableMapper.deleteLeftPrimaryKeyTableMappings(0,
-			group.getPrimaryKey());
+		groupToRoleTableMapper.deleteLeftPrimaryKeyTableMappings(group.getPrimaryKey());
 
-		groupToUserGroupTableMapper.deleteLeftPrimaryKeyTableMappings(0,
-			group.getPrimaryKey());
+		groupToUserGroupTableMapper.deleteLeftPrimaryKeyTableMappings(group.getPrimaryKey());
 
-		groupToUserTableMapper.deleteLeftPrimaryKeyTableMappings(0,
-			group.getPrimaryKey());
+		groupToUserTableMapper.deleteLeftPrimaryKeyTableMappings(group.getPrimaryKey());
 
 		Session session = null;
 
@@ -8533,6 +10065,48 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 			}
 
 			if ((groupModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_A.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						groupModelImpl.getOriginalCompanyId(),
+						groupModelImpl.getOriginalActive()
+					};
+
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_C_A, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_A,
+					args);
+
+				args = new Object[] {
+						groupModelImpl.getCompanyId(),
+						groupModelImpl.getActive()
+					};
+
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_C_A, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_A,
+					args);
+			}
+
+			if ((groupModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_CPK.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						groupModelImpl.getOriginalClassNameId(),
+						groupModelImpl.getOriginalClassPK()
+					};
+
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_C_CPK, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_CPK,
+					args);
+
+				args = new Object[] {
+						groupModelImpl.getClassNameId(),
+						groupModelImpl.getClassPK()
+					};
+
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_C_CPK, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_CPK,
+					args);
+			}
+
+			if ((groupModelImpl.getColumnBitmask() &
 					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_T_A.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] {
 						groupModelImpl.getOriginalType(),
@@ -8672,7 +10246,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	}
 
 	/**
-	 * Returns the group with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the group with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the group
 	 * @return the group
@@ -8684,8 +10258,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 		Group group = fetchByPrimaryKey(primaryKey);
 
 		if (group == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+			if (_log.isDebugEnabled()) {
+				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			throw new NoSuchGroupException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -8943,7 +10517,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(2 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 
 				query.append(_SQL_SELECT_GROUP_);
 
@@ -9053,7 +10627,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public long[] getOrganizationPrimaryKeys(long pk) {
-		long[] pks = groupToOrganizationTableMapper.getRightPrimaryKeys(0, pk);
+		long[] pks = groupToOrganizationTableMapper.getRightPrimaryKeys(pk);
 
 		return pks.clone();
 	}
@@ -9065,7 +10639,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @return the organizations associated with the group
 	 */
 	@Override
-	public List<com.liferay.portal.model.Organization> getOrganizations(long pk) {
+	public List<com.liferay.portal.kernel.model.Organization> getOrganizations(
+		long pk) {
 		return getOrganizations(pk, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 	}
 
@@ -9082,7 +10657,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @return the range of organizations associated with the group
 	 */
 	@Override
-	public List<com.liferay.portal.model.Organization> getOrganizations(
+	public List<com.liferay.portal.kernel.model.Organization> getOrganizations(
 		long pk, int start, int end) {
 		return getOrganizations(pk, start, end, null);
 	}
@@ -9101,10 +10676,10 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @return the ordered range of organizations associated with the group
 	 */
 	@Override
-	public List<com.liferay.portal.model.Organization> getOrganizations(
+	public List<com.liferay.portal.kernel.model.Organization> getOrganizations(
 		long pk, int start, int end,
-		OrderByComparator<com.liferay.portal.model.Organization> orderByComparator) {
-		return groupToOrganizationTableMapper.getRightBaseModels(0, pk, start,
+		OrderByComparator<com.liferay.portal.kernel.model.Organization> orderByComparator) {
+		return groupToOrganizationTableMapper.getRightBaseModels(pk, start,
 			end, orderByComparator);
 	}
 
@@ -9116,7 +10691,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public int getOrganizationsSize(long pk) {
-		long[] pks = groupToOrganizationTableMapper.getRightPrimaryKeys(0, pk);
+		long[] pks = groupToOrganizationTableMapper.getRightPrimaryKeys(pk);
 
 		return pks.length;
 	}
@@ -9130,7 +10705,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public boolean containsOrganization(long pk, long organizationPK) {
-		return groupToOrganizationTableMapper.containsTableMapping(0, pk,
+		return groupToOrganizationTableMapper.containsTableMapping(pk,
 			organizationPK);
 	}
 
@@ -9158,7 +10733,16 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void addOrganization(long pk, long organizationPK) {
-		groupToOrganizationTableMapper.addTableMapping(0, pk, organizationPK);
+		Group group = fetchByPrimaryKey(pk);
+
+		if (group == null) {
+			groupToOrganizationTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, organizationPK);
+		}
+		else {
+			groupToOrganizationTableMapper.addTableMapping(group.getCompanyId(),
+				pk, organizationPK);
+		}
 	}
 
 	/**
@@ -9169,9 +10753,17 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void addOrganization(long pk,
-		com.liferay.portal.model.Organization organization) {
-		groupToOrganizationTableMapper.addTableMapping(0, pk,
-			organization.getPrimaryKey());
+		com.liferay.portal.kernel.model.Organization organization) {
+		Group group = fetchByPrimaryKey(pk);
+
+		if (group == null) {
+			groupToOrganizationTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, organization.getPrimaryKey());
+		}
+		else {
+			groupToOrganizationTableMapper.addTableMapping(group.getCompanyId(),
+				pk, organization.getPrimaryKey());
+		}
 	}
 
 	/**
@@ -9182,9 +10774,19 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void addOrganizations(long pk, long[] organizationPKs) {
-		for (long organizationPK : organizationPKs) {
-			groupToOrganizationTableMapper.addTableMapping(0, pk, organizationPK);
+		long companyId = 0;
+
+		Group group = fetchByPrimaryKey(pk);
+
+		if (group == null) {
+			companyId = companyProvider.getCompanyId();
 		}
+		else {
+			companyId = group.getCompanyId();
+		}
+
+		groupToOrganizationTableMapper.addTableMappings(companyId, pk,
+			organizationPKs);
 	}
 
 	/**
@@ -9195,11 +10797,10 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void addOrganizations(long pk,
-		List<com.liferay.portal.model.Organization> organizations) {
-		for (com.liferay.portal.model.Organization organization : organizations) {
-			groupToOrganizationTableMapper.addTableMapping(0, pk,
-				organization.getPrimaryKey());
-		}
+		List<com.liferay.portal.kernel.model.Organization> organizations) {
+		addOrganizations(pk,
+			ListUtil.toLongArray(organizations,
+				com.liferay.portal.kernel.model.Organization.ORGANIZATION_ID_ACCESSOR));
 	}
 
 	/**
@@ -9209,7 +10810,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void clearOrganizations(long pk) {
-		groupToOrganizationTableMapper.deleteLeftPrimaryKeyTableMappings(0, pk);
+		groupToOrganizationTableMapper.deleteLeftPrimaryKeyTableMappings(pk);
 	}
 
 	/**
@@ -9220,7 +10821,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void removeOrganization(long pk, long organizationPK) {
-		groupToOrganizationTableMapper.deleteTableMapping(0, pk, organizationPK);
+		groupToOrganizationTableMapper.deleteTableMapping(pk, organizationPK);
 	}
 
 	/**
@@ -9231,8 +10832,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void removeOrganization(long pk,
-		com.liferay.portal.model.Organization organization) {
-		groupToOrganizationTableMapper.deleteTableMapping(0, pk,
+		com.liferay.portal.kernel.model.Organization organization) {
+		groupToOrganizationTableMapper.deleteTableMapping(pk,
 			organization.getPrimaryKey());
 	}
 
@@ -9244,10 +10845,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void removeOrganizations(long pk, long[] organizationPKs) {
-		for (long organizationPK : organizationPKs) {
-			groupToOrganizationTableMapper.deleteTableMapping(0, pk,
-				organizationPK);
-		}
+		groupToOrganizationTableMapper.deleteTableMappings(pk, organizationPKs);
 	}
 
 	/**
@@ -9258,11 +10856,10 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void removeOrganizations(long pk,
-		List<com.liferay.portal.model.Organization> organizations) {
-		for (com.liferay.portal.model.Organization organization : organizations) {
-			groupToOrganizationTableMapper.deleteTableMapping(0, pk,
-				organization.getPrimaryKey());
-		}
+		List<com.liferay.portal.kernel.model.Organization> organizations) {
+		removeOrganizations(pk,
+			ListUtil.toLongArray(organizations,
+				com.liferay.portal.kernel.model.Organization.ORGANIZATION_ID_ACCESSOR));
 	}
 
 	/**
@@ -9275,23 +10872,30 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	public void setOrganizations(long pk, long[] organizationPKs) {
 		Set<Long> newOrganizationPKsSet = SetUtil.fromArray(organizationPKs);
 		Set<Long> oldOrganizationPKsSet = SetUtil.fromArray(groupToOrganizationTableMapper.getRightPrimaryKeys(
-					0, pk));
+					pk));
 
 		Set<Long> removeOrganizationPKsSet = new HashSet<Long>(oldOrganizationPKsSet);
 
 		removeOrganizationPKsSet.removeAll(newOrganizationPKsSet);
 
-		for (long removeOrganizationPK : removeOrganizationPKsSet) {
-			groupToOrganizationTableMapper.deleteTableMapping(0, pk,
-				removeOrganizationPK);
-		}
+		groupToOrganizationTableMapper.deleteTableMappings(pk,
+			ArrayUtil.toLongArray(removeOrganizationPKsSet));
 
 		newOrganizationPKsSet.removeAll(oldOrganizationPKsSet);
 
-		for (long newOrganizationPK : newOrganizationPKsSet) {
-			groupToOrganizationTableMapper.addTableMapping(0, pk,
-				newOrganizationPK);
+		long companyId = 0;
+
+		Group group = fetchByPrimaryKey(pk);
+
+		if (group == null) {
+			companyId = companyProvider.getCompanyId();
 		}
+		else {
+			companyId = group.getCompanyId();
+		}
+
+		groupToOrganizationTableMapper.addTableMappings(companyId, pk,
+			ArrayUtil.toLongArray(newOrganizationPKsSet));
 	}
 
 	/**
@@ -9302,12 +10906,12 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void setOrganizations(long pk,
-		List<com.liferay.portal.model.Organization> organizations) {
+		List<com.liferay.portal.kernel.model.Organization> organizations) {
 		try {
 			long[] organizationPKs = new long[organizations.size()];
 
 			for (int i = 0; i < organizations.size(); i++) {
-				com.liferay.portal.model.Organization organization = organizations.get(i);
+				com.liferay.portal.kernel.model.Organization organization = organizations.get(i);
 
 				organizationPKs[i] = organization.getPrimaryKey();
 			}
@@ -9327,7 +10931,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public long[] getRolePrimaryKeys(long pk) {
-		long[] pks = groupToRoleTableMapper.getRightPrimaryKeys(0, pk);
+		long[] pks = groupToRoleTableMapper.getRightPrimaryKeys(pk);
 
 		return pks.clone();
 	}
@@ -9339,7 +10943,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @return the roles associated with the group
 	 */
 	@Override
-	public List<com.liferay.portal.model.Role> getRoles(long pk) {
+	public List<com.liferay.portal.kernel.model.Role> getRoles(long pk) {
 		return getRoles(pk, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 	}
 
@@ -9356,8 +10960,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @return the range of roles associated with the group
 	 */
 	@Override
-	public List<com.liferay.portal.model.Role> getRoles(long pk, int start,
-		int end) {
+	public List<com.liferay.portal.kernel.model.Role> getRoles(long pk,
+		int start, int end) {
 		return getRoles(pk, start, end, null);
 	}
 
@@ -9375,10 +10979,10 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @return the ordered range of roles associated with the group
 	 */
 	@Override
-	public List<com.liferay.portal.model.Role> getRoles(long pk, int start,
-		int end,
-		OrderByComparator<com.liferay.portal.model.Role> orderByComparator) {
-		return groupToRoleTableMapper.getRightBaseModels(0, pk, start, end,
+	public List<com.liferay.portal.kernel.model.Role> getRoles(long pk,
+		int start, int end,
+		OrderByComparator<com.liferay.portal.kernel.model.Role> orderByComparator) {
+		return groupToRoleTableMapper.getRightBaseModels(pk, start, end,
 			orderByComparator);
 	}
 
@@ -9390,7 +10994,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public int getRolesSize(long pk) {
-		long[] pks = groupToRoleTableMapper.getRightPrimaryKeys(0, pk);
+		long[] pks = groupToRoleTableMapper.getRightPrimaryKeys(pk);
 
 		return pks.length;
 	}
@@ -9404,7 +11008,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public boolean containsRole(long pk, long rolePK) {
-		return groupToRoleTableMapper.containsTableMapping(0, pk, rolePK);
+		return groupToRoleTableMapper.containsTableMapping(pk, rolePK);
 	}
 
 	/**
@@ -9431,7 +11035,16 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void addRole(long pk, long rolePK) {
-		groupToRoleTableMapper.addTableMapping(0, pk, rolePK);
+		Group group = fetchByPrimaryKey(pk);
+
+		if (group == null) {
+			groupToRoleTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, rolePK);
+		}
+		else {
+			groupToRoleTableMapper.addTableMapping(group.getCompanyId(), pk,
+				rolePK);
+		}
 	}
 
 	/**
@@ -9441,8 +11054,17 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @param role the role
 	 */
 	@Override
-	public void addRole(long pk, com.liferay.portal.model.Role role) {
-		groupToRoleTableMapper.addTableMapping(0, pk, role.getPrimaryKey());
+	public void addRole(long pk, com.liferay.portal.kernel.model.Role role) {
+		Group group = fetchByPrimaryKey(pk);
+
+		if (group == null) {
+			groupToRoleTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, role.getPrimaryKey());
+		}
+		else {
+			groupToRoleTableMapper.addTableMapping(group.getCompanyId(), pk,
+				role.getPrimaryKey());
+		}
 	}
 
 	/**
@@ -9453,9 +11075,18 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void addRoles(long pk, long[] rolePKs) {
-		for (long rolePK : rolePKs) {
-			groupToRoleTableMapper.addTableMapping(0, pk, rolePK);
+		long companyId = 0;
+
+		Group group = fetchByPrimaryKey(pk);
+
+		if (group == null) {
+			companyId = companyProvider.getCompanyId();
 		}
+		else {
+			companyId = group.getCompanyId();
+		}
+
+		groupToRoleTableMapper.addTableMappings(companyId, pk, rolePKs);
 	}
 
 	/**
@@ -9465,10 +11096,11 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @param roles the roles
 	 */
 	@Override
-	public void addRoles(long pk, List<com.liferay.portal.model.Role> roles) {
-		for (com.liferay.portal.model.Role role : roles) {
-			groupToRoleTableMapper.addTableMapping(0, pk, role.getPrimaryKey());
-		}
+	public void addRoles(long pk,
+		List<com.liferay.portal.kernel.model.Role> roles) {
+		addRoles(pk,
+			ListUtil.toLongArray(roles,
+				com.liferay.portal.kernel.model.Role.ROLE_ID_ACCESSOR));
 	}
 
 	/**
@@ -9478,7 +11110,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void clearRoles(long pk) {
-		groupToRoleTableMapper.deleteLeftPrimaryKeyTableMappings(0, pk);
+		groupToRoleTableMapper.deleteLeftPrimaryKeyTableMappings(pk);
 	}
 
 	/**
@@ -9489,7 +11121,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void removeRole(long pk, long rolePK) {
-		groupToRoleTableMapper.deleteTableMapping(0, pk, rolePK);
+		groupToRoleTableMapper.deleteTableMapping(pk, rolePK);
 	}
 
 	/**
@@ -9499,8 +11131,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @param role the role
 	 */
 	@Override
-	public void removeRole(long pk, com.liferay.portal.model.Role role) {
-		groupToRoleTableMapper.deleteTableMapping(0, pk, role.getPrimaryKey());
+	public void removeRole(long pk, com.liferay.portal.kernel.model.Role role) {
+		groupToRoleTableMapper.deleteTableMapping(pk, role.getPrimaryKey());
 	}
 
 	/**
@@ -9511,9 +11143,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void removeRoles(long pk, long[] rolePKs) {
-		for (long rolePK : rolePKs) {
-			groupToRoleTableMapper.deleteTableMapping(0, pk, rolePK);
-		}
+		groupToRoleTableMapper.deleteTableMappings(pk, rolePKs);
 	}
 
 	/**
@@ -9523,11 +11153,11 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @param roles the roles
 	 */
 	@Override
-	public void removeRoles(long pk, List<com.liferay.portal.model.Role> roles) {
-		for (com.liferay.portal.model.Role role : roles) {
-			groupToRoleTableMapper.deleteTableMapping(0, pk,
-				role.getPrimaryKey());
-		}
+	public void removeRoles(long pk,
+		List<com.liferay.portal.kernel.model.Role> roles) {
+		removeRoles(pk,
+			ListUtil.toLongArray(roles,
+				com.liferay.portal.kernel.model.Role.ROLE_ID_ACCESSOR));
 	}
 
 	/**
@@ -9540,21 +11170,30 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	public void setRoles(long pk, long[] rolePKs) {
 		Set<Long> newRolePKsSet = SetUtil.fromArray(rolePKs);
 		Set<Long> oldRolePKsSet = SetUtil.fromArray(groupToRoleTableMapper.getRightPrimaryKeys(
-					0, pk));
+					pk));
 
 		Set<Long> removeRolePKsSet = new HashSet<Long>(oldRolePKsSet);
 
 		removeRolePKsSet.removeAll(newRolePKsSet);
 
-		for (long removeRolePK : removeRolePKsSet) {
-			groupToRoleTableMapper.deleteTableMapping(0, pk, removeRolePK);
-		}
+		groupToRoleTableMapper.deleteTableMappings(pk,
+			ArrayUtil.toLongArray(removeRolePKsSet));
 
 		newRolePKsSet.removeAll(oldRolePKsSet);
 
-		for (long newRolePK : newRolePKsSet) {
-			groupToRoleTableMapper.addTableMapping(0, pk, newRolePK);
+		long companyId = 0;
+
+		Group group = fetchByPrimaryKey(pk);
+
+		if (group == null) {
+			companyId = companyProvider.getCompanyId();
 		}
+		else {
+			companyId = group.getCompanyId();
+		}
+
+		groupToRoleTableMapper.addTableMappings(companyId, pk,
+			ArrayUtil.toLongArray(newRolePKsSet));
 	}
 
 	/**
@@ -9564,12 +11203,13 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @param roles the roles to be associated with the group
 	 */
 	@Override
-	public void setRoles(long pk, List<com.liferay.portal.model.Role> roles) {
+	public void setRoles(long pk,
+		List<com.liferay.portal.kernel.model.Role> roles) {
 		try {
 			long[] rolePKs = new long[roles.size()];
 
 			for (int i = 0; i < roles.size(); i++) {
-				com.liferay.portal.model.Role role = roles.get(i);
+				com.liferay.portal.kernel.model.Role role = roles.get(i);
 
 				rolePKs[i] = role.getPrimaryKey();
 			}
@@ -9589,7 +11229,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public long[] getUserGroupPrimaryKeys(long pk) {
-		long[] pks = groupToUserGroupTableMapper.getRightPrimaryKeys(0, pk);
+		long[] pks = groupToUserGroupTableMapper.getRightPrimaryKeys(pk);
 
 		return pks.clone();
 	}
@@ -9601,7 +11241,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @return the user groups associated with the group
 	 */
 	@Override
-	public List<com.liferay.portal.model.UserGroup> getUserGroups(long pk) {
+	public List<com.liferay.portal.kernel.model.UserGroup> getUserGroups(
+		long pk) {
 		return getUserGroups(pk, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 	}
 
@@ -9618,8 +11259,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @return the range of user groups associated with the group
 	 */
 	@Override
-	public List<com.liferay.portal.model.UserGroup> getUserGroups(long pk,
-		int start, int end) {
+	public List<com.liferay.portal.kernel.model.UserGroup> getUserGroups(
+		long pk, int start, int end) {
 		return getUserGroups(pk, start, end, null);
 	}
 
@@ -9637,11 +11278,11 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @return the ordered range of user groups associated with the group
 	 */
 	@Override
-	public List<com.liferay.portal.model.UserGroup> getUserGroups(long pk,
-		int start, int end,
-		OrderByComparator<com.liferay.portal.model.UserGroup> orderByComparator) {
-		return groupToUserGroupTableMapper.getRightBaseModels(0, pk, start,
-			end, orderByComparator);
+	public List<com.liferay.portal.kernel.model.UserGroup> getUserGroups(
+		long pk, int start, int end,
+		OrderByComparator<com.liferay.portal.kernel.model.UserGroup> orderByComparator) {
+		return groupToUserGroupTableMapper.getRightBaseModels(pk, start, end,
+			orderByComparator);
 	}
 
 	/**
@@ -9652,7 +11293,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public int getUserGroupsSize(long pk) {
-		long[] pks = groupToUserGroupTableMapper.getRightPrimaryKeys(0, pk);
+		long[] pks = groupToUserGroupTableMapper.getRightPrimaryKeys(pk);
 
 		return pks.length;
 	}
@@ -9666,8 +11307,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public boolean containsUserGroup(long pk, long userGroupPK) {
-		return groupToUserGroupTableMapper.containsTableMapping(0, pk,
-			userGroupPK);
+		return groupToUserGroupTableMapper.containsTableMapping(pk, userGroupPK);
 	}
 
 	/**
@@ -9694,7 +11334,16 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void addUserGroup(long pk, long userGroupPK) {
-		groupToUserGroupTableMapper.addTableMapping(0, pk, userGroupPK);
+		Group group = fetchByPrimaryKey(pk);
+
+		if (group == null) {
+			groupToUserGroupTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, userGroupPK);
+		}
+		else {
+			groupToUserGroupTableMapper.addTableMapping(group.getCompanyId(),
+				pk, userGroupPK);
+		}
 	}
 
 	/**
@@ -9705,9 +11354,17 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void addUserGroup(long pk,
-		com.liferay.portal.model.UserGroup userGroup) {
-		groupToUserGroupTableMapper.addTableMapping(0, pk,
-			userGroup.getPrimaryKey());
+		com.liferay.portal.kernel.model.UserGroup userGroup) {
+		Group group = fetchByPrimaryKey(pk);
+
+		if (group == null) {
+			groupToUserGroupTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, userGroup.getPrimaryKey());
+		}
+		else {
+			groupToUserGroupTableMapper.addTableMapping(group.getCompanyId(),
+				pk, userGroup.getPrimaryKey());
+		}
 	}
 
 	/**
@@ -9718,9 +11375,18 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void addUserGroups(long pk, long[] userGroupPKs) {
-		for (long userGroupPK : userGroupPKs) {
-			groupToUserGroupTableMapper.addTableMapping(0, pk, userGroupPK);
+		long companyId = 0;
+
+		Group group = fetchByPrimaryKey(pk);
+
+		if (group == null) {
+			companyId = companyProvider.getCompanyId();
 		}
+		else {
+			companyId = group.getCompanyId();
+		}
+
+		groupToUserGroupTableMapper.addTableMappings(companyId, pk, userGroupPKs);
 	}
 
 	/**
@@ -9731,11 +11397,10 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void addUserGroups(long pk,
-		List<com.liferay.portal.model.UserGroup> userGroups) {
-		for (com.liferay.portal.model.UserGroup userGroup : userGroups) {
-			groupToUserGroupTableMapper.addTableMapping(0, pk,
-				userGroup.getPrimaryKey());
-		}
+		List<com.liferay.portal.kernel.model.UserGroup> userGroups) {
+		addUserGroups(pk,
+			ListUtil.toLongArray(userGroups,
+				com.liferay.portal.kernel.model.UserGroup.USER_GROUP_ID_ACCESSOR));
 	}
 
 	/**
@@ -9745,7 +11410,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void clearUserGroups(long pk) {
-		groupToUserGroupTableMapper.deleteLeftPrimaryKeyTableMappings(0, pk);
+		groupToUserGroupTableMapper.deleteLeftPrimaryKeyTableMappings(pk);
 	}
 
 	/**
@@ -9756,7 +11421,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void removeUserGroup(long pk, long userGroupPK) {
-		groupToUserGroupTableMapper.deleteTableMapping(0, pk, userGroupPK);
+		groupToUserGroupTableMapper.deleteTableMapping(pk, userGroupPK);
 	}
 
 	/**
@@ -9767,8 +11432,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void removeUserGroup(long pk,
-		com.liferay.portal.model.UserGroup userGroup) {
-		groupToUserGroupTableMapper.deleteTableMapping(0, pk,
+		com.liferay.portal.kernel.model.UserGroup userGroup) {
+		groupToUserGroupTableMapper.deleteTableMapping(pk,
 			userGroup.getPrimaryKey());
 	}
 
@@ -9780,9 +11445,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void removeUserGroups(long pk, long[] userGroupPKs) {
-		for (long userGroupPK : userGroupPKs) {
-			groupToUserGroupTableMapper.deleteTableMapping(0, pk, userGroupPK);
-		}
+		groupToUserGroupTableMapper.deleteTableMappings(pk, userGroupPKs);
 	}
 
 	/**
@@ -9793,11 +11456,10 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void removeUserGroups(long pk,
-		List<com.liferay.portal.model.UserGroup> userGroups) {
-		for (com.liferay.portal.model.UserGroup userGroup : userGroups) {
-			groupToUserGroupTableMapper.deleteTableMapping(0, pk,
-				userGroup.getPrimaryKey());
-		}
+		List<com.liferay.portal.kernel.model.UserGroup> userGroups) {
+		removeUserGroups(pk,
+			ListUtil.toLongArray(userGroups,
+				com.liferay.portal.kernel.model.UserGroup.USER_GROUP_ID_ACCESSOR));
 	}
 
 	/**
@@ -9810,22 +11472,30 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	public void setUserGroups(long pk, long[] userGroupPKs) {
 		Set<Long> newUserGroupPKsSet = SetUtil.fromArray(userGroupPKs);
 		Set<Long> oldUserGroupPKsSet = SetUtil.fromArray(groupToUserGroupTableMapper.getRightPrimaryKeys(
-					0, pk));
+					pk));
 
 		Set<Long> removeUserGroupPKsSet = new HashSet<Long>(oldUserGroupPKsSet);
 
 		removeUserGroupPKsSet.removeAll(newUserGroupPKsSet);
 
-		for (long removeUserGroupPK : removeUserGroupPKsSet) {
-			groupToUserGroupTableMapper.deleteTableMapping(0, pk,
-				removeUserGroupPK);
-		}
+		groupToUserGroupTableMapper.deleteTableMappings(pk,
+			ArrayUtil.toLongArray(removeUserGroupPKsSet));
 
 		newUserGroupPKsSet.removeAll(oldUserGroupPKsSet);
 
-		for (long newUserGroupPK : newUserGroupPKsSet) {
-			groupToUserGroupTableMapper.addTableMapping(0, pk, newUserGroupPK);
+		long companyId = 0;
+
+		Group group = fetchByPrimaryKey(pk);
+
+		if (group == null) {
+			companyId = companyProvider.getCompanyId();
 		}
+		else {
+			companyId = group.getCompanyId();
+		}
+
+		groupToUserGroupTableMapper.addTableMappings(companyId, pk,
+			ArrayUtil.toLongArray(newUserGroupPKsSet));
 	}
 
 	/**
@@ -9836,12 +11506,12 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void setUserGroups(long pk,
-		List<com.liferay.portal.model.UserGroup> userGroups) {
+		List<com.liferay.portal.kernel.model.UserGroup> userGroups) {
 		try {
 			long[] userGroupPKs = new long[userGroups.size()];
 
 			for (int i = 0; i < userGroups.size(); i++) {
-				com.liferay.portal.model.UserGroup userGroup = userGroups.get(i);
+				com.liferay.portal.kernel.model.UserGroup userGroup = userGroups.get(i);
 
 				userGroupPKs[i] = userGroup.getPrimaryKey();
 			}
@@ -9861,7 +11531,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public long[] getUserPrimaryKeys(long pk) {
-		long[] pks = groupToUserTableMapper.getRightPrimaryKeys(0, pk);
+		long[] pks = groupToUserTableMapper.getRightPrimaryKeys(pk);
 
 		return pks.clone();
 	}
@@ -9873,7 +11543,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @return the users associated with the group
 	 */
 	@Override
-	public List<com.liferay.portal.model.User> getUsers(long pk) {
+	public List<com.liferay.portal.kernel.model.User> getUsers(long pk) {
 		return getUsers(pk, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 	}
 
@@ -9890,8 +11560,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @return the range of users associated with the group
 	 */
 	@Override
-	public List<com.liferay.portal.model.User> getUsers(long pk, int start,
-		int end) {
+	public List<com.liferay.portal.kernel.model.User> getUsers(long pk,
+		int start, int end) {
 		return getUsers(pk, start, end, null);
 	}
 
@@ -9909,10 +11579,10 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @return the ordered range of users associated with the group
 	 */
 	@Override
-	public List<com.liferay.portal.model.User> getUsers(long pk, int start,
-		int end,
-		OrderByComparator<com.liferay.portal.model.User> orderByComparator) {
-		return groupToUserTableMapper.getRightBaseModels(0, pk, start, end,
+	public List<com.liferay.portal.kernel.model.User> getUsers(long pk,
+		int start, int end,
+		OrderByComparator<com.liferay.portal.kernel.model.User> orderByComparator) {
+		return groupToUserTableMapper.getRightBaseModels(pk, start, end,
 			orderByComparator);
 	}
 
@@ -9924,7 +11594,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public int getUsersSize(long pk) {
-		long[] pks = groupToUserTableMapper.getRightPrimaryKeys(0, pk);
+		long[] pks = groupToUserTableMapper.getRightPrimaryKeys(pk);
 
 		return pks.length;
 	}
@@ -9938,7 +11608,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public boolean containsUser(long pk, long userPK) {
-		return groupToUserTableMapper.containsTableMapping(0, pk, userPK);
+		return groupToUserTableMapper.containsTableMapping(pk, userPK);
 	}
 
 	/**
@@ -9965,7 +11635,16 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void addUser(long pk, long userPK) {
-		groupToUserTableMapper.addTableMapping(0, pk, userPK);
+		Group group = fetchByPrimaryKey(pk);
+
+		if (group == null) {
+			groupToUserTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, userPK);
+		}
+		else {
+			groupToUserTableMapper.addTableMapping(group.getCompanyId(), pk,
+				userPK);
+		}
 	}
 
 	/**
@@ -9975,8 +11654,17 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @param user the user
 	 */
 	@Override
-	public void addUser(long pk, com.liferay.portal.model.User user) {
-		groupToUserTableMapper.addTableMapping(0, pk, user.getPrimaryKey());
+	public void addUser(long pk, com.liferay.portal.kernel.model.User user) {
+		Group group = fetchByPrimaryKey(pk);
+
+		if (group == null) {
+			groupToUserTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, user.getPrimaryKey());
+		}
+		else {
+			groupToUserTableMapper.addTableMapping(group.getCompanyId(), pk,
+				user.getPrimaryKey());
+		}
 	}
 
 	/**
@@ -9987,9 +11675,18 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void addUsers(long pk, long[] userPKs) {
-		for (long userPK : userPKs) {
-			groupToUserTableMapper.addTableMapping(0, pk, userPK);
+		long companyId = 0;
+
+		Group group = fetchByPrimaryKey(pk);
+
+		if (group == null) {
+			companyId = companyProvider.getCompanyId();
 		}
+		else {
+			companyId = group.getCompanyId();
+		}
+
+		groupToUserTableMapper.addTableMappings(companyId, pk, userPKs);
 	}
 
 	/**
@@ -9999,10 +11696,11 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @param users the users
 	 */
 	@Override
-	public void addUsers(long pk, List<com.liferay.portal.model.User> users) {
-		for (com.liferay.portal.model.User user : users) {
-			groupToUserTableMapper.addTableMapping(0, pk, user.getPrimaryKey());
-		}
+	public void addUsers(long pk,
+		List<com.liferay.portal.kernel.model.User> users) {
+		addUsers(pk,
+			ListUtil.toLongArray(users,
+				com.liferay.portal.kernel.model.User.USER_ID_ACCESSOR));
 	}
 
 	/**
@@ -10012,7 +11710,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void clearUsers(long pk) {
-		groupToUserTableMapper.deleteLeftPrimaryKeyTableMappings(0, pk);
+		groupToUserTableMapper.deleteLeftPrimaryKeyTableMappings(pk);
 	}
 
 	/**
@@ -10023,7 +11721,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void removeUser(long pk, long userPK) {
-		groupToUserTableMapper.deleteTableMapping(0, pk, userPK);
+		groupToUserTableMapper.deleteTableMapping(pk, userPK);
 	}
 
 	/**
@@ -10033,8 +11731,8 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @param user the user
 	 */
 	@Override
-	public void removeUser(long pk, com.liferay.portal.model.User user) {
-		groupToUserTableMapper.deleteTableMapping(0, pk, user.getPrimaryKey());
+	public void removeUser(long pk, com.liferay.portal.kernel.model.User user) {
+		groupToUserTableMapper.deleteTableMapping(pk, user.getPrimaryKey());
 	}
 
 	/**
@@ -10045,9 +11743,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 */
 	@Override
 	public void removeUsers(long pk, long[] userPKs) {
-		for (long userPK : userPKs) {
-			groupToUserTableMapper.deleteTableMapping(0, pk, userPK);
-		}
+		groupToUserTableMapper.deleteTableMappings(pk, userPKs);
 	}
 
 	/**
@@ -10057,11 +11753,11 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @param users the users
 	 */
 	@Override
-	public void removeUsers(long pk, List<com.liferay.portal.model.User> users) {
-		for (com.liferay.portal.model.User user : users) {
-			groupToUserTableMapper.deleteTableMapping(0, pk,
-				user.getPrimaryKey());
-		}
+	public void removeUsers(long pk,
+		List<com.liferay.portal.kernel.model.User> users) {
+		removeUsers(pk,
+			ListUtil.toLongArray(users,
+				com.liferay.portal.kernel.model.User.USER_ID_ACCESSOR));
 	}
 
 	/**
@@ -10074,21 +11770,30 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	public void setUsers(long pk, long[] userPKs) {
 		Set<Long> newUserPKsSet = SetUtil.fromArray(userPKs);
 		Set<Long> oldUserPKsSet = SetUtil.fromArray(groupToUserTableMapper.getRightPrimaryKeys(
-					0, pk));
+					pk));
 
 		Set<Long> removeUserPKsSet = new HashSet<Long>(oldUserPKsSet);
 
 		removeUserPKsSet.removeAll(newUserPKsSet);
 
-		for (long removeUserPK : removeUserPKsSet) {
-			groupToUserTableMapper.deleteTableMapping(0, pk, removeUserPK);
-		}
+		groupToUserTableMapper.deleteTableMappings(pk,
+			ArrayUtil.toLongArray(removeUserPKsSet));
 
 		newUserPKsSet.removeAll(oldUserPKsSet);
 
-		for (long newUserPK : newUserPKsSet) {
-			groupToUserTableMapper.addTableMapping(0, pk, newUserPK);
+		long companyId = 0;
+
+		Group group = fetchByPrimaryKey(pk);
+
+		if (group == null) {
+			companyId = companyProvider.getCompanyId();
 		}
+		else {
+			companyId = group.getCompanyId();
+		}
+
+		groupToUserTableMapper.addTableMappings(companyId, pk,
+			ArrayUtil.toLongArray(newUserPKsSet));
 	}
 
 	/**
@@ -10098,12 +11803,13 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	 * @param users the users to be associated with the group
 	 */
 	@Override
-	public void setUsers(long pk, List<com.liferay.portal.model.User> users) {
+	public void setUsers(long pk,
+		List<com.liferay.portal.kernel.model.User> users) {
 		try {
 			long[] userPKs = new long[users.size()];
 
 			for (int i = 0; i < users.size(); i++) {
-				com.liferay.portal.model.User user = users.get(i);
+				com.liferay.portal.kernel.model.User user = users.get(i);
 
 				userPKs[i] = user.getPrimaryKey();
 			}
@@ -10156,20 +11862,22 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 		TableMapperFactory.removeTableMapper("Users_Groups");
 	}
 
+	@BeanReference(type = CompanyProviderWrapper.class)
+	protected CompanyProvider companyProvider;
 	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
 	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();
 	@BeanReference(type = OrganizationPersistence.class)
 	protected OrganizationPersistence organizationPersistence;
-	protected TableMapper<Group, com.liferay.portal.model.Organization> groupToOrganizationTableMapper;
+	protected TableMapper<Group, com.liferay.portal.kernel.model.Organization> groupToOrganizationTableMapper;
 	@BeanReference(type = RolePersistence.class)
 	protected RolePersistence rolePersistence;
-	protected TableMapper<Group, com.liferay.portal.model.Role> groupToRoleTableMapper;
+	protected TableMapper<Group, com.liferay.portal.kernel.model.Role> groupToRoleTableMapper;
 	@BeanReference(type = UserGroupPersistence.class)
 	protected UserGroupPersistence userGroupPersistence;
-	protected TableMapper<Group, com.liferay.portal.model.UserGroup> groupToUserGroupTableMapper;
+	protected TableMapper<Group, com.liferay.portal.kernel.model.UserGroup> groupToUserGroupTableMapper;
 	@BeanReference(type = UserPersistence.class)
 	protected UserPersistence userPersistence;
-	protected TableMapper<Group, com.liferay.portal.model.User> groupToUserTableMapper;
+	protected TableMapper<Group, com.liferay.portal.kernel.model.User> groupToUserTableMapper;
 	private static final String _SQL_SELECT_GROUP_ = "SELECT group_ FROM Group group_";
 	private static final String _SQL_SELECT_GROUP__WHERE_PKS_IN = "SELECT group_ FROM Group group_ WHERE groupId IN (";
 	private static final String _SQL_SELECT_GROUP__WHERE = "SELECT group_ FROM Group group_ WHERE ";

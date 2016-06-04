@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.documentlibrary.service.persistence.test;
 
+import com.liferay.document.library.kernel.exception.NoSuchFileVersionException;
+import com.liferay.document.library.kernel.model.DLFileVersion;
+import com.liferay.document.library.kernel.service.DLFileVersionLocalServiceUtil;
+import com.liferay.document.library.kernel.service.persistence.DLFileVersionPersistence;
+import com.liferay.document.library.kernel.service.persistence.DLFileVersionUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -30,15 +36,8 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-
-import com.liferay.portlet.documentlibrary.NoSuchFileVersionException;
-import com.liferay.portlet.documentlibrary.model.DLFileVersion;
-import com.liferay.portlet.documentlibrary.service.DLFileVersionLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileVersionPersistence;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileVersionUtil;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -54,6 +53,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -473,11 +473,9 @@ public class DLFileVersionPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = DLFileVersionLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<DLFileVersion>() {
 				@Override
-				public void performAction(Object object) {
-					DLFileVersion dlFileVersion = (DLFileVersion)object;
-
+				public void performAction(DLFileVersion dlFileVersion) {
 					Assert.assertNotNull(dlFileVersion);
 
 					count.increment();
@@ -571,7 +569,7 @@ public class DLFileVersionPersistenceTest {
 
 		DLFileVersion existingDLFileVersion = _persistence.findByPrimaryKey(newDLFileVersion.getPrimaryKey());
 
-		Assert.assertTrue(Validator.equals(existingDLFileVersion.getUuid(),
+		Assert.assertTrue(Objects.equals(existingDLFileVersion.getUuid(),
 				ReflectionTestUtil.invoke(existingDLFileVersion,
 					"getOriginalUuid", new Class<?>[0])));
 		Assert.assertEquals(Long.valueOf(existingDLFileVersion.getGroupId()),
@@ -581,7 +579,7 @@ public class DLFileVersionPersistenceTest {
 		Assert.assertEquals(Long.valueOf(existingDLFileVersion.getFileEntryId()),
 			ReflectionTestUtil.<Long>invoke(existingDLFileVersion,
 				"getOriginalFileEntryId", new Class<?>[0]));
-		Assert.assertTrue(Validator.equals(existingDLFileVersion.getVersion(),
+		Assert.assertTrue(Objects.equals(existingDLFileVersion.getVersion(),
 				ReflectionTestUtil.invoke(existingDLFileVersion,
 					"getOriginalVersion", new Class<?>[0])));
 	}

@@ -16,7 +16,6 @@ package com.liferay.portal.service.persistence.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.NoSuchServiceComponentException;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -26,19 +25,20 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.exception.NoSuchServiceComponentException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.MVCCModel;
+import com.liferay.portal.kernel.model.ServiceComponent;
+import com.liferay.portal.kernel.service.persistence.ServiceComponentPersistence;
+import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.MVCCModel;
-import com.liferay.portal.model.ServiceComponent;
 import com.liferay.portal.model.impl.ServiceComponentImpl;
 import com.liferay.portal.model.impl.ServiceComponentModelImpl;
-import com.liferay.portal.service.persistence.ServiceComponentPersistence;
 
 import java.io.Serializable;
 
@@ -48,6 +48,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -59,7 +60,7 @@ import java.util.Set;
  *
  * @author Brian Wing Shun Chan
  * @see ServiceComponentPersistence
- * @see com.liferay.portal.service.persistence.ServiceComponentUtil
+ * @see com.liferay.portal.kernel.service.persistence.ServiceComponentUtil
  * @generated
  */
 @ProviderType
@@ -207,7 +208,7 @@ public class ServiceComponentPersistenceImpl extends BasePersistenceImpl<Service
 
 			if ((list != null) && !list.isEmpty()) {
 				for (ServiceComponent serviceComponent : list) {
-					if (!Validator.equals(buildNamespace,
+					if (!Objects.equals(buildNamespace,
 								serviceComponent.getBuildNamespace())) {
 						list = null;
 
@@ -222,7 +223,7 @@ public class ServiceComponentPersistenceImpl extends BasePersistenceImpl<Service
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -454,8 +455,9 @@ public class ServiceComponentPersistenceImpl extends BasePersistenceImpl<Service
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -687,8 +689,8 @@ public class ServiceComponentPersistenceImpl extends BasePersistenceImpl<Service
 
 			msg.append(StringPool.CLOSE_CURLY_BRACE);
 
-			if (_log.isWarnEnabled()) {
-				_log.warn(msg.toString());
+			if (_log.isDebugEnabled()) {
+				_log.debug(msg.toString());
 			}
 
 			throw new NoSuchServiceComponentException(msg.toString());
@@ -733,7 +735,7 @@ public class ServiceComponentPersistenceImpl extends BasePersistenceImpl<Service
 		if (result instanceof ServiceComponent) {
 			ServiceComponent serviceComponent = (ServiceComponent)result;
 
-			if (!Validator.equals(buildNamespace,
+			if (!Objects.equals(buildNamespace,
 						serviceComponent.getBuildNamespace()) ||
 					(buildNumber != serviceComponent.getBuildNumber())) {
 				result = null;
@@ -1100,8 +1102,8 @@ public class ServiceComponentPersistenceImpl extends BasePersistenceImpl<Service
 					primaryKey);
 
 			if (serviceComponent == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				if (_log.isDebugEnabled()) {
+					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
 				throw new NoSuchServiceComponentException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -1245,7 +1247,7 @@ public class ServiceComponentPersistenceImpl extends BasePersistenceImpl<Service
 	}
 
 	/**
-	 * Returns the service component with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the service component with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the service component
 	 * @return the service component
@@ -1257,8 +1259,8 @@ public class ServiceComponentPersistenceImpl extends BasePersistenceImpl<Service
 		ServiceComponent serviceComponent = fetchByPrimaryKey(primaryKey);
 
 		if (serviceComponent == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+			if (_log.isDebugEnabled()) {
+				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			throw new NoSuchServiceComponentException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -1521,7 +1523,7 @@ public class ServiceComponentPersistenceImpl extends BasePersistenceImpl<Service
 
 			if (orderByComparator != null) {
 				query = new StringBundler(2 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 
 				query.append(_SQL_SELECT_SERVICECOMPONENT);
 

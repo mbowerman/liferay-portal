@@ -15,6 +15,16 @@
 package com.liferay.portal.service.persistence;
 
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserGroup;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
+import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
+import com.liferay.portal.kernel.service.UserGroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.UserFinderUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -24,17 +34,7 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserGroupTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.Organization;
-import com.liferay.portal.model.User;
-import com.liferay.portal.model.UserGroup;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.OrganizationLocalServiceUtil;
-import com.liferay.portal.service.RoleLocalServiceUtil;
-import com.liferay.portal.service.UserGroupLocalServiceUtil;
-import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -58,8 +58,7 @@ public class UserFinderTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
-			TransactionalTestRule.INSTANCE);
+			new LiferayIntegrationTestRule(), TransactionalTestRule.INSTANCE);
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
@@ -68,7 +67,7 @@ public class UserFinderTest {
 
 		GroupLocalServiceUtil.addUserGroup(_groupUser.getUserId(), _group);
 
-		_organization = OrganizationTestUtil.addOrganization();
+		_organization = OrganizationTestUtil.addOrganization(true);
 		_organizationUser = UserTestUtil.addUser();
 
 		OrganizationLocalServiceUtil.addUserOrganization(
@@ -158,6 +157,15 @@ public class UserFinderTest {
 
 		Assert.assertEquals(1, counts.size());
 		Assert.assertEquals(4, (int)counts.get(groupId));
+
+		long organizationGroupId = _organization.getGroupId();
+
+		counts = UserFinderUtil.countByGroups(
+			TestPropsValues.getCompanyId(), WorkflowConstants.STATUS_APPROVED,
+			new long[] {groupId, organizationGroupId});
+
+		Assert.assertEquals(2, counts.size());
+		Assert.assertEquals(1, (int)counts.get(organizationGroupId));
 	}
 
 	@Test

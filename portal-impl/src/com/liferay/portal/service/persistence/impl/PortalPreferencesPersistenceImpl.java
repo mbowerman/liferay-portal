@@ -16,7 +16,6 @@ package com.liferay.portal.service.persistence.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.NoSuchPreferencesException;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -26,18 +25,20 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.exception.NoSuchPreferencesException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.MVCCModel;
+import com.liferay.portal.kernel.model.PortalPreferences;
+import com.liferay.portal.kernel.service.persistence.PortalPreferencesPersistence;
+import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.MVCCModel;
-import com.liferay.portal.model.PortalPreferences;
 import com.liferay.portal.model.impl.PortalPreferencesImpl;
 import com.liferay.portal.model.impl.PortalPreferencesModelImpl;
-import com.liferay.portal.service.persistence.PortalPreferencesPersistence;
 
 import java.io.Serializable;
 
@@ -58,7 +59,7 @@ import java.util.Set;
  *
  * @author Brian Wing Shun Chan
  * @see PortalPreferencesPersistence
- * @see com.liferay.portal.service.persistence.PortalPreferencesUtil
+ * @see com.liferay.portal.kernel.service.persistence.PortalPreferencesUtil
  * @generated
  */
 @ProviderType
@@ -123,8 +124,8 @@ public class PortalPreferencesPersistenceImpl extends BasePersistenceImpl<Portal
 
 			msg.append(StringPool.CLOSE_CURLY_BRACE);
 
-			if (_log.isWarnEnabled()) {
-				_log.warn(msg.toString());
+			if (_log.isDebugEnabled()) {
+				_log.debug(msg.toString());
 			}
 
 			throw new NoSuchPreferencesException(msg.toString());
@@ -506,8 +507,8 @@ public class PortalPreferencesPersistenceImpl extends BasePersistenceImpl<Portal
 					primaryKey);
 
 			if (portalPreferences == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				if (_log.isDebugEnabled()) {
+					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
 				throw new NoSuchPreferencesException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -627,7 +628,7 @@ public class PortalPreferencesPersistenceImpl extends BasePersistenceImpl<Portal
 	}
 
 	/**
-	 * Returns the portal preferences with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the portal preferences with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the portal preferences
 	 * @return the portal preferences
@@ -639,8 +640,8 @@ public class PortalPreferencesPersistenceImpl extends BasePersistenceImpl<Portal
 		PortalPreferences portalPreferences = fetchByPrimaryKey(primaryKey);
 
 		if (portalPreferences == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+			if (_log.isDebugEnabled()) {
+				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			throw new NoSuchPreferencesException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -903,7 +904,7 @@ public class PortalPreferencesPersistenceImpl extends BasePersistenceImpl<Portal
 
 			if (orderByComparator != null) {
 				query = new StringBundler(2 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 
 				query.append(_SQL_SELECT_PORTALPREFERENCES);
 

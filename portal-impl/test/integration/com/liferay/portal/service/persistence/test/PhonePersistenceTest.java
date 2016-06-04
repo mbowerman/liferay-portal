@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchPhoneException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchPhoneException;
+import com.liferay.portal.kernel.model.Phone;
+import com.liferay.portal.kernel.service.PhoneLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.PhonePersistence;
+import com.liferay.portal.kernel.service.persistence.PhoneUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -30,10 +34,6 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.model.Phone;
-import com.liferay.portal.service.PhoneLocalServiceUtil;
-import com.liferay.portal.service.persistence.PhonePersistence;
-import com.liferay.portal.service.persistence.PhoneUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
@@ -142,8 +142,6 @@ public class PhonePersistenceTest {
 
 		newPhone.setPrimary(RandomTestUtil.randomBoolean());
 
-		newPhone.setLastPublishDate(RandomTestUtil.nextDate());
-
 		_phones.add(_persistence.update(newPhone));
 
 		Phone existingPhone = _persistence.findByPrimaryKey(newPhone.getPrimaryKey());
@@ -170,9 +168,6 @@ public class PhonePersistenceTest {
 			newPhone.getExtension());
 		Assert.assertEquals(existingPhone.getTypeId(), newPhone.getTypeId());
 		Assert.assertEquals(existingPhone.getPrimary(), newPhone.getPrimary());
-		Assert.assertEquals(Time.getShortTimestamp(
-				existingPhone.getLastPublishDate()),
-			Time.getShortTimestamp(newPhone.getLastPublishDate()));
 	}
 
 	@Test
@@ -259,7 +254,7 @@ public class PhonePersistenceTest {
 			true, "uuid", true, "phoneId", true, "companyId", true, "userId",
 			true, "userName", true, "createDate", true, "modifiedDate", true,
 			"classNameId", true, "classPK", true, "number", true, "extension",
-			true, "typeId", true, "primary", true, "lastPublishDate", true);
+			true, "typeId", true, "primary", true);
 	}
 
 	@Test
@@ -364,11 +359,9 @@ public class PhonePersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = PhoneLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<Phone>() {
 				@Override
-				public void performAction(Object object) {
-					Phone phone = (Phone)object;
-
+				public void performAction(Phone phone) {
 					Assert.assertNotNull(phone);
 
 					count.increment();
@@ -482,8 +475,6 @@ public class PhonePersistenceTest {
 		phone.setTypeId(RandomTestUtil.nextLong());
 
 		phone.setPrimary(RandomTestUtil.randomBoolean());
-
-		phone.setLastPublishDate(RandomTestUtil.nextDate());
 
 		_phones.add(_persistence.update(phone));
 

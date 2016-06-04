@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.messageboards.service.persistence.test;
 
+import com.liferay.message.boards.kernel.exception.NoSuchThreadException;
+import com.liferay.message.boards.kernel.model.MBThread;
+import com.liferay.message.boards.kernel.service.MBThreadLocalServiceUtil;
+import com.liferay.message.boards.kernel.service.persistence.MBThreadPersistence;
+import com.liferay.message.boards.kernel.service.persistence.MBThreadUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -31,15 +37,8 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-
-import com.liferay.portlet.messageboards.NoSuchThreadException;
-import com.liferay.portlet.messageboards.model.MBThread;
-import com.liferay.portlet.messageboards.service.MBThreadLocalServiceUtil;
-import com.liferay.portlet.messageboards.service.persistence.MBThreadPersistence;
-import com.liferay.portlet.messageboards.service.persistence.MBThreadUtil;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -55,6 +54,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -502,11 +502,9 @@ public class MBThreadPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = MBThreadLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<MBThread>() {
 				@Override
-				public void performAction(Object object) {
-					MBThread mbThread = (MBThread)object;
-
+				public void performAction(MBThread mbThread) {
 					Assert.assertNotNull(mbThread);
 
 					count.increment();
@@ -598,7 +596,7 @@ public class MBThreadPersistenceTest {
 
 		MBThread existingMBThread = _persistence.findByPrimaryKey(newMBThread.getPrimaryKey());
 
-		Assert.assertTrue(Validator.equals(existingMBThread.getUuid(),
+		Assert.assertTrue(Objects.equals(existingMBThread.getUuid(),
 				ReflectionTestUtil.invoke(existingMBThread, "getOriginalUuid",
 					new Class<?>[0])));
 		Assert.assertEquals(Long.valueOf(existingMBThread.getGroupId()),

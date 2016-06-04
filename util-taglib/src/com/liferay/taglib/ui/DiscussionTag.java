@@ -14,9 +14,9 @@
 
 package com.liferay.taglib.ui;
 
+import com.liferay.portal.kernel.theme.PortletDisplay;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.theme.PortletDisplay;
-import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.taglib.util.IncludeTag;
 
 import javax.servlet.http.HttpServletRequest;
@@ -56,13 +56,6 @@ public class DiscussionTag extends IncludeTag {
 
 	public void setRedirect(String redirect) {
 		_redirect = redirect;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, with no direct replacement
-	 */
-	@Deprecated
-	public void setSubject(String subject) {
 	}
 
 	public void setUserId(long userId) {

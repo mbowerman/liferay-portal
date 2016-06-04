@@ -16,29 +16,31 @@ package com.liferay.portal.model.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.LocaleException;
+import com.liferay.expando.kernel.model.ExpandoBridge;
+import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
+
+import com.liferay.exportimport.kernel.lar.StagedModelType;
+
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
+import com.liferay.portal.kernel.exception.LocaleException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSON;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.RoleModel;
+import com.liferay.portal.kernel.model.RoleSoap;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.impl.BaseModelImpl;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.RoleModel;
-import com.liferay.portal.model.RoleSoap;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
-
-import com.liferay.portlet.expando.model.ExpandoBridge;
-import com.liferay.portlet.expando.util.ExpandoBridgeFactoryUtil;
-import com.liferay.portlet.exportimport.lar.StagedModelType;
 
 import java.io.Serializable;
 
@@ -90,8 +92,7 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 			{ "title", Types.VARCHAR },
 			{ "description", Types.VARCHAR },
 			{ "type_", Types.INTEGER },
-			{ "subtype", Types.VARCHAR },
-			{ "lastPublishDate", Types.TIMESTAMP }
+			{ "subtype", Types.VARCHAR }
 		};
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP = new HashMap<String, Integer>();
 
@@ -111,10 +112,9 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 		TABLE_COLUMNS_MAP.put("description", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("type_", Types.INTEGER);
 		TABLE_COLUMNS_MAP.put("subtype", Types.VARCHAR);
-		TABLE_COLUMNS_MAP.put("lastPublishDate", Types.TIMESTAMP);
 	}
 
-	public static final String TABLE_SQL_CREATE = "create table Role_ (mvccVersion LONG default 0,uuid_ VARCHAR(75) null,roleId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,classNameId LONG,classPK LONG,name VARCHAR(75) null,title STRING null,description STRING null,type_ INTEGER,subtype VARCHAR(75) null,lastPublishDate DATE null)";
+	public static final String TABLE_SQL_CREATE = "create table Role_ (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,roleId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,classNameId LONG,classPK LONG,name VARCHAR(75) null,title STRING null,description STRING null,type_ INTEGER,subtype VARCHAR(75) null)";
 	public static final String TABLE_SQL_DROP = "drop table Role_";
 	public static final String ORDER_BY_JPQL = " ORDER BY role.name ASC";
 	public static final String ORDER_BY_SQL = " ORDER BY Role_.name ASC";
@@ -122,13 +122,13 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 	public static final String SESSION_FACTORY = "liferaySessionFactory";
 	public static final String TX_MANAGER = "liferayTransactionManager";
 	public static final boolean ENTITY_CACHE_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
-				"value.object.entity.cache.enabled.com.liferay.portal.model.Role"),
+				"value.object.entity.cache.enabled.com.liferay.portal.kernel.model.Role"),
 			true);
 	public static final boolean FINDER_CACHE_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
-				"value.object.finder.cache.enabled.com.liferay.portal.model.Role"),
+				"value.object.finder.cache.enabled.com.liferay.portal.kernel.model.Role"),
 			true);
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
-				"value.object.column.bitmask.enabled.com.liferay.portal.model.Role"),
+				"value.object.column.bitmask.enabled.com.liferay.portal.kernel.model.Role"),
 			true);
 	public static final long CLASSNAMEID_COLUMN_BITMASK = 1L;
 	public static final long CLASSPK_COLUMN_BITMASK = 2L;
@@ -166,7 +166,6 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 		model.setDescription(soapModel.getDescription());
 		model.setType(soapModel.getType());
 		model.setSubtype(soapModel.getSubtype());
-		model.setLastPublishDate(soapModel.getLastPublishDate());
 
 		return model;
 	}
@@ -197,7 +196,7 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 			{ "groupId", Types.BIGINT },
 			{ "roleId", Types.BIGINT }
 		};
-	public static final String MAPPING_TABLE_GROUPS_ROLES_SQL_CREATE = "create table Groups_Roles (companyId LONG not null,groupId LONG not null,roleId LONG not null,primary key (companyId, groupId, roleId))";
+	public static final String MAPPING_TABLE_GROUPS_ROLES_SQL_CREATE = "create table Groups_Roles (companyId LONG not null,groupId LONG not null,roleId LONG not null,primary key (groupId, roleId))";
 	public static final boolean FINDER_CACHE_ENABLED_GROUPS_ROLES = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
 				"value.object.finder.cache.enabled.Groups_Roles"), true);
 	public static final String MAPPING_TABLE_USERS_ROLES_NAME = "Users_Roles";
@@ -206,11 +205,11 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 			{ "roleId", Types.BIGINT },
 			{ "userId", Types.BIGINT }
 		};
-	public static final String MAPPING_TABLE_USERS_ROLES_SQL_CREATE = "create table Users_Roles (companyId LONG not null,roleId LONG not null,userId LONG not null,primary key (companyId, roleId, userId))";
+	public static final String MAPPING_TABLE_USERS_ROLES_SQL_CREATE = "create table Users_Roles (companyId LONG not null,roleId LONG not null,userId LONG not null,primary key (roleId, userId))";
 	public static final boolean FINDER_CACHE_ENABLED_USERS_ROLES = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
 				"value.object.finder.cache.enabled.Users_Roles"), true);
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(com.liferay.portal.util.PropsUtil.get(
-				"lock.expiration.time.com.liferay.portal.model.Role"));
+				"lock.expiration.time.com.liferay.portal.kernel.model.Role"));
 
 	public RoleModelImpl() {
 	}
@@ -264,7 +263,6 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 		attributes.put("description", getDescription());
 		attributes.put("type", getType());
 		attributes.put("subtype", getSubtype());
-		attributes.put("lastPublishDate", getLastPublishDate());
 
 		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
 		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
@@ -362,12 +360,6 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 
 		if (subtype != null) {
 			setSubtype(subtype);
-		}
-
-		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
-
-		if (lastPublishDate != null) {
-			setLastPublishDate(lastPublishDate);
 		}
 	}
 
@@ -854,17 +846,6 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 		return GetterUtil.getString(_originalSubtype);
 	}
 
-	@JSON
-	@Override
-	public Date getLastPublishDate() {
-		return _lastPublishDate;
-	}
-
-	@Override
-	public void setLastPublishDate(Date lastPublishDate) {
-		_lastPublishDate = lastPublishDate;
-	}
-
 	@Override
 	public StagedModelType getStagedModelType() {
 		return new StagedModelType(PortalUtil.getClassNameId(
@@ -999,7 +980,6 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 		roleImpl.setDescription(getDescription());
 		roleImpl.setType(getType());
 		roleImpl.setSubtype(getSubtype());
-		roleImpl.setLastPublishDate(getLastPublishDate());
 
 		roleImpl.resetOriginalValues();
 
@@ -1171,21 +1151,12 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 			roleCacheModel.subtype = null;
 		}
 
-		Date lastPublishDate = getLastPublishDate();
-
-		if (lastPublishDate != null) {
-			roleCacheModel.lastPublishDate = lastPublishDate.getTime();
-		}
-		else {
-			roleCacheModel.lastPublishDate = Long.MIN_VALUE;
-		}
-
 		return roleCacheModel;
 	}
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(33);
+		StringBundler sb = new StringBundler(31);
 
 		sb.append("{mvccVersion=");
 		sb.append(getMvccVersion());
@@ -1217,8 +1188,6 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 		sb.append(getType());
 		sb.append(", subtype=");
 		sb.append(getSubtype());
-		sb.append(", lastPublishDate=");
-		sb.append(getLastPublishDate());
 		sb.append("}");
 
 		return sb.toString();
@@ -1226,10 +1195,10 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 
 	@Override
 	public String toXmlString() {
-		StringBundler sb = new StringBundler(52);
+		StringBundler sb = new StringBundler(49);
 
 		sb.append("<model><model-name>");
-		sb.append("com.liferay.portal.model.Role");
+		sb.append("com.liferay.portal.kernel.model.Role");
 		sb.append("</model-name>");
 
 		sb.append(
@@ -1292,10 +1261,6 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 			"<column><column-name>subtype</column-name><column-value><![CDATA[");
 		sb.append(getSubtype());
 		sb.append("]]></column-value></column>");
-		sb.append(
-			"<column><column-name>lastPublishDate</column-name><column-value><![CDATA[");
-		sb.append(getLastPublishDate());
-		sb.append("]]></column-value></column>");
 
 		sb.append("</model>");
 
@@ -1335,7 +1300,6 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 	private boolean _setOriginalType;
 	private String _subtype;
 	private String _originalSubtype;
-	private Date _lastPublishDate;
 	private long _columnBitmask;
 	private Role _escapedModel;
 }
