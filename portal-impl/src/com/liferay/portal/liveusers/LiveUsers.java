@@ -36,7 +36,9 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.util.PropsValues;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -77,6 +79,10 @@ public class LiveUsers {
 		return _instance._getLocalClusterUsers();
 	}
 
+	public static List<String> getNodeSessionAttributes(String sessionId) {
+		return _instance._getNodeSessionAttributes(sessionId);
+	}
+
 	public static Map<String, UserTracker> getNodeSessionUsers(long companyId) {
 		return _instance._getNodeSessionUsers(companyId);
 	}
@@ -85,6 +91,10 @@ public class LiveUsers {
 		long companyId, String sessionId) {
 
 		return _instance._getNodeUserTracker(companyId, sessionId);
+	}
+
+	public static List<String> getSessionAttributes(String sessionId) {
+		return _instance._getSessionAttributes(sessionId);
 	}
 
 	public static Map<String, UserTracker> getSessionUsers(long companyId) {
@@ -264,6 +274,24 @@ public class LiveUsers {
 		return _clusterUsers.get(clusterNode.getClusterNodeId());
 	}
 
+	private List<String> _getNodeSessionAttributes(String sessionId) {
+		HttpSession session = PortalSessionContext.get(sessionId);
+
+		if (session != null) {
+			Enumeration<String> enu = session.getAttributeNames();
+
+			if (enu != null) {
+				List<String> sortedAttrNames = Collections.list(enu);
+
+				Collections.sort(sortedAttrNames);
+
+				return sortedAttrNames;
+			}
+		}
+
+		return null;
+	}
+
 	private Map<String, UserTracker> _getNodeSessionUsers(long companyId) {
 		Map<String, UserTracker> sessionUsers = _sessionUsers.get(companyId);
 
@@ -280,6 +308,48 @@ public class LiveUsers {
 		Map<String, UserTracker> sessionUsers = _getNodeSessionUsers(companyId);
 
 		return sessionUsers.get(sessionId);
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<String> _getSessionAttributes(String sessionId) {
+		List<String> attributes = getNodeSessionAttributes(sessionId);
+
+		if (attributes != null) {
+			return attributes;
+		}
+
+		try {
+			ClusterRequest clusterRequest =
+				ClusterRequest.createMulticastRequest(
+					new MethodHandler(_getNodeSessionAttributesKey, sessionId),
+					true);
+
+			FutureClusterResponses futureClusterResponses =
+				ClusterExecutorUtil.execute(clusterRequest);
+
+			if (futureClusterResponses != null) {
+				ClusterNodeResponses clusterNodeResponses =
+					futureClusterResponses.get(20, TimeUnit.SECONDS);
+
+				BlockingQueue<ClusterNodeResponse> clusterNodeResponseQueue =
+					clusterNodeResponses.getClusterResponses();
+
+				for (ClusterNodeResponse clusterNodeResponse :
+						clusterNodeResponseQueue) {
+
+					attributes = (List<String>)clusterNodeResponse.getResult();
+
+					if (attributes != null) {
+						return attributes;
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			_log.error(e);
+		}
+
+		return null;
 	}
 
 	private Map<String, UserTracker> _getSessionUsers(long companyId) {
@@ -605,6 +675,8 @@ public class LiveUsers {
 
 	private static final LiveUsers _instance = new LiveUsers();
 
+	private static final MethodKey _getNodeSessionAttributesKey = new MethodKey(
+		LiveUsers.class, "getNodeSessionAttributes", String.class);
 	private static final MethodKey _getNodeUserTrackerKey = new MethodKey(
 		LiveUsers.class, "getNodeUserTracker", long.class, String.class);
 
