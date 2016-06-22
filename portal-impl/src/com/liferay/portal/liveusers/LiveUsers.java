@@ -16,6 +16,10 @@ package com.liferay.portal.liveusers;
 
 import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
 import com.liferay.portal.kernel.cluster.ClusterNode;
+import com.liferay.portal.kernel.cluster.ClusterNodeResponse;
+import com.liferay.portal.kernel.cluster.ClusterNodeResponses;
+import com.liferay.portal.kernel.cluster.ClusterRequest;
+import com.liferay.portal.kernel.cluster.FutureClusterResponses;
 import com.liferay.portal.kernel.concurrent.ConcurrentHashSet;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -26,6 +30,8 @@ import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserTrackerLocalServiceUtil;
 import com.liferay.portal.kernel.service.persistence.UserTrackerUtil;
 import com.liferay.portal.kernel.servlet.PortalSessionContext;
+import com.liferay.portal.kernel.util.MethodHandler;
+import com.liferay.portal.kernel.util.MethodKey;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.util.PropsValues;
 
@@ -36,7 +42,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpSession;
 
@@ -67,6 +75,16 @@ public class LiveUsers {
 
 	public static Map<Long, Map<Long, Set<String>>> getLocalClusterUsers() {
 		return _instance._getLocalClusterUsers();
+	}
+
+	public static Map<String, UserTracker> getNodeSessionUsers(long companyId) {
+		return _instance._getNodeSessionUsers(companyId);
+	}
+
+	public static UserTracker getNodeUserTracker(
+		long companyId, String sessionId) {
+
+		return _instance._getNodeUserTracker(companyId, sessionId);
 	}
 
 	public static Map<String, UserTracker> getSessionUsers(long companyId) {
@@ -246,6 +264,24 @@ public class LiveUsers {
 		return _clusterUsers.get(clusterNode.getClusterNodeId());
 	}
 
+	private Map<String, UserTracker> _getNodeSessionUsers(long companyId) {
+		Map<String, UserTracker> sessionUsers = _sessionUsers.get(companyId);
+
+		if (sessionUsers == null) {
+			sessionUsers = new ConcurrentHashMap<>();
+
+			_sessionUsers.put(companyId, sessionUsers);
+		}
+
+		return sessionUsers;
+	}
+
+	private UserTracker _getNodeUserTracker(long companyId, String sessionId) {
+		Map<String, UserTracker> sessionUsers = _getNodeSessionUsers(companyId);
+
+		return sessionUsers.get(sessionId);
+	}
+
 	private Map<String, UserTracker> _getSessionUsers(long companyId) {
 		Map<String, UserTracker> sessionUsers = _sessionUsers.get(companyId);
 
@@ -253,6 +289,55 @@ public class LiveUsers {
 			sessionUsers = new ConcurrentHashMap<>();
 
 			_sessionUsers.put(companyId, sessionUsers);
+		}
+
+		for (String sessionId : sessionUsers.keySet()) {
+			UserTracker userTracker = sessionUsers.get(sessionId);
+
+			int maxHits = 0;
+
+			if (userTracker != null) {
+				maxHits = userTracker.getHits();
+			}
+
+			try {
+				ClusterRequest clusterRequest =
+					ClusterRequest.createMulticastRequest(
+						new MethodHandler(
+							_getNodeUserTrackerKey, userTracker.getCompanyId(),
+							userTracker.getSessionId()),
+						true);
+
+				FutureClusterResponses futureClusterResponses =
+					ClusterExecutorUtil.execute(clusterRequest);
+
+				if (futureClusterResponses != null) {
+					ClusterNodeResponses clusterNodeResponses =
+						futureClusterResponses.get(20, TimeUnit.SECONDS);
+
+					BlockingQueue<ClusterNodeResponse>
+						clusterNodeResponseQueue =
+							clusterNodeResponses.getClusterResponses();
+
+					for (ClusterNodeResponse clusterNodeResponse :
+							clusterNodeResponseQueue) {
+
+						UserTracker nodeUserTracker =
+							(UserTracker)clusterNodeResponse.getResult();
+
+						if ((nodeUserTracker != null) &&
+							(nodeUserTracker.getHits() > maxHits)) {
+
+							maxHits = nodeUserTracker.getHits();
+
+							sessionUsers.put(sessionId, nodeUserTracker);
+						}
+					}
+				}
+			}
+			catch (Exception e) {
+				_log.error(e);
+			}
 		}
 
 		return sessionUsers;
@@ -519,6 +604,9 @@ public class LiveUsers {
 	private static final Log _log = LogFactoryUtil.getLog(LiveUsers.class);
 
 	private static final LiveUsers _instance = new LiveUsers();
+
+	private static final MethodKey _getNodeUserTrackerKey = new MethodKey(
+		LiveUsers.class, "getNodeUserTracker", long.class, String.class);
 
 	private final Map<String, Map<Long, Map<Long, Set<String>>>> _clusterUsers =
 		new ConcurrentHashMap<>();
