@@ -1005,9 +1005,32 @@ public class ResourceActionsImpl implements ResourceActions {
 
 		Element rootElement = document.getRootElement();
 
+		Set<String> portletResourceElementNames = new HashSet<>();
+		Set<String> modelResourceElementNames = new HashSet<>();
+
 		if (PropsValues.RESOURCE_ACTIONS_READ_PORTLET_RESOURCES) {
 			for (Element portletResourceElement :
 					rootElement.elements("portlet-resource")) {
+
+				String name = portletResourceElement.elementTextTrim(
+					"portlet-name");
+
+				if (servletContextName != null) {
+					name = name.concat(PortletConstants.WAR_SEPARATOR).concat(
+						servletContextName);
+				}
+
+				name = JS.getSafeName(name);
+
+				if (portletResourceElementNames.add(name)) {
+					PortletResourceActionsBag portletResourceActionsBag =
+						getPortletResourceActionsBag(name);
+
+					Set<String> portletResourceActions =
+						portletResourceActionsBag.getResourceActions();
+
+					portletResourceActions.clear();
+				}
 
 				readPortletResource(servletContextName, portletResourceElement);
 			}
@@ -1015,6 +1038,23 @@ public class ResourceActionsImpl implements ResourceActions {
 
 		for (Element modelResourceElement :
 				rootElement.elements("model-resource")) {
+
+			String name = modelResourceElement.elementTextTrim("model-name");
+
+			if (Validator.isNull(name)) {
+				name = getCompositeModelName(
+					modelResourceElement.element("composite-model-name"));
+			}
+
+			if (modelResourceElementNames.add(name)) {
+				ModelResourceActionsBag modelResourceActionsBag =
+					getModelResourceActionsBag(name);
+
+				Set<String> modelResourceActions =
+					modelResourceActionsBag.getResourceActions();
+
+				modelResourceActions.clear();
+			}
 
 			readModelResource(servletContextName, modelResourceElement);
 		}
@@ -1176,8 +1216,6 @@ public class ResourceActionsImpl implements ResourceActions {
 		Set<String> modelResourceActions =
 			modelResourceActionsBag.getResourceActions();
 
-		modelResourceActions.clear();
-
 		readSupportsActions(modelResourceElement, modelResourceActions);
 
 		checkModelActions(modelResourceActions);
@@ -1244,8 +1282,6 @@ public class ResourceActionsImpl implements ResourceActions {
 
 		Set<String> portletResourceActions =
 			portletResourceActionsBag.getResourceActions();
-
-		portletResourceActions.clear();
 
 		readSupportsActions(portletResourceElement, portletResourceActions);
 
