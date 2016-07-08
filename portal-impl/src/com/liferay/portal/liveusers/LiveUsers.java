@@ -26,6 +26,7 @@ import com.liferay.portal.util.PropsValues;
 
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,15 @@ public class LiveUsers {
 	}
 
 	public static Set<UserTracker> getClusterNodeUsers(String clusterNodeId) {
-		return null;
+		Set<UserTracker> clusterNodeUsers = new ConcurrentSkipListSet<>();
+
+		for (UserTracker userTracker : _userTrackers) {
+			if (clusterNodeId.equals(userTracker.getClusterNodeId())) {
+				clusterNodeUsers.add(userTracker);
+			}
+		}
+
+		return clusterNodeUsers;
 	}
 
 	public static Set<UserTracker> getCompanyUserTrackers(long companyId) {
@@ -150,6 +159,15 @@ public class LiveUsers {
 	}
 
 	public static void removeClusterNodeUsers(String clusterNodeId) {
+		Iterator<UserTracker> iterator = _userTrackers.iterator();
+
+		while (iterator.hasNext()) {
+			UserTracker userTracker = iterator.next();
+
+			if (clusterNodeId.equals(userTracker.getClusterNodeId())) {
+				iterator.remove();
+			}
+		}
 	}
 
 	public static void signIn(
