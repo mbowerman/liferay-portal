@@ -16,7 +16,10 @@ package com.liferay.portal.liveusers;
 
 import com.liferay.portal.kernel.model.UserTracker;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Charles May
@@ -28,6 +31,7 @@ public class LiveUsers {
 	}
 
 	public static void deleteGroup(long groupId) {
+		_groupCounts.remove(groupId);
 	}
 
 	public static Set<UserTracker> getClusterNodeUsers(String clusterNodeId) {
@@ -39,7 +43,9 @@ public class LiveUsers {
 	}
 
 	public static int getGroupUsersCount(long groupId) {
-		return 0;
+		AtomicInteger count = _groupCounts.get(groupId);
+
+		return count.intValue();
 	}
 
 	public static UserTracker getUserTracker(
@@ -55,15 +61,47 @@ public class LiveUsers {
 	}
 
 	public static void joinGroup(long groupId) {
+		AtomicInteger count = _groupCounts.get(groupId);
+
+		if (count == null) {
+			count = new AtomicInteger();
+
+			_groupCounts.put(groupId, count);
+		}
+
+		count.incrementAndGet();
 	}
 
 	public static void joinGroup(long groupId, int numUsers) {
+		AtomicInteger count = _groupCounts.get(groupId);
+
+		if (count == null) {
+			count = new AtomicInteger();
+
+			_groupCounts.put(groupId, count);
+		}
+
+		count.addAndGet(numUsers);
 	}
 
 	public static void leaveGroup(long groupId) {
+		AtomicInteger count = _groupCounts.get(groupId);
+
+		int newCount = count.decrementAndGet();
+
+		if (newCount <= 0) {
+			_groupCounts.remove(groupId);
+		}
 	}
 
 	public static void leaveGroup(long groupId, int numUsers) {
+		AtomicInteger count = _groupCounts.get(groupId);
+
+		int newCount = count.addAndGet(-numUsers);
+
+		if (newCount <= 0) {
+			_groupCounts.remove(groupId);
+		}
 	}
 
 	public static void removeClusterNodeUsers(String clusterNodeId) {
@@ -76,5 +114,8 @@ public class LiveUsers {
 
 	public static void signOut(long companyId, long userId, String sessionId) {
 	}
+
+	private static final Map<Long, AtomicInteger> _groupCounts =
+		new ConcurrentHashMap<>();
 
 }
