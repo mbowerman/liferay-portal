@@ -3064,7 +3064,7 @@
 
 		<!-- Other fields -->
 
-		<column name="sessionId" type="String" />
+		<column convert-null="false" name="sessionId" type="String" />
 		<column name="remoteAddr" type="String" />
 		<column name="remoteHost" type="String" />
 		<column name="userAgent" type="String" />
