@@ -144,7 +144,7 @@ public class SiteMembershipsPortlet extends MVCPortlet {
 
 		_userService.addGroupUsers(groupId, addUserIds, serviceContext);
 
-		LiveUsers.joinGroup(group.getCompanyId(), groupId, addUserIds);
+		LiveUsers.joinGroup(groupId, addUserIds.length);
 	}
 
 	public void changeDisplayStyle(
@@ -235,7 +235,7 @@ public class SiteMembershipsPortlet extends MVCPortlet {
 
 		_userService.unsetGroupUsers(groupId, removeUserIds, serviceContext);
 
-		LiveUsers.leaveGroup(group.getCompanyId(), groupId, removeUserIds);
+		LiveUsers.leaveGroup(groupId, removeUserIds.length);
 	}
 
 	public void editUserGroupGroupRole(
@@ -360,9 +360,7 @@ public class SiteMembershipsPortlet extends MVCPortlet {
 				_membershipRequestService.getMembershipRequest(
 					membershipRequestId);
 
-			LiveUsers.joinGroup(
-				group.getCompanyId(), membershipRequest.getGroupId(),
-				new long[] {membershipRequest.getUserId()});
+			LiveUsers.joinGroup(membershipRequest.getGroupId());
 		}
 
 		SessionMessages.add(actionRequest, "membershipReplySent");

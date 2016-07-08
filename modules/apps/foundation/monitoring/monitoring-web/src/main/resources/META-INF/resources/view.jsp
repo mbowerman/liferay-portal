@@ -60,9 +60,7 @@ portletURL.setParameter("mvcRenderCommandName", "/monitoring/view");
 		<c:when test="<%= PropsValues.LIVE_USERS_ENABLED && PropsValues.SESSION_TRACKER_MEMORY_ENABLED %>">
 
 			<%
-			Map<String, UserTracker> sessionUsers = LiveUsers.getSessionUsers(company.getCompanyId());
-
-			List<UserTracker> userTrackers = new ArrayList<UserTracker>(sessionUsers.values());
+			List<UserTracker> userTrackers = new ArrayList<UserTracker>(LiveUsers.getCompanyUserTrackers(company.getCompanyId()));
 
 			userTrackers = ListUtil.sort(userTrackers, new UserTrackerModifiedDateComparator(orderByType.equals("asc")));
 			%>
@@ -96,6 +94,7 @@ portletURL.setParameter("mvcRenderCommandName", "/monitoring/view");
 						<portlet:param name="mvcRenderCommandName" value="/monitoring/edit_session" />
 						<portlet:param name="redirect" value="<%= currentURL %>" />
 						<portlet:param name="sessionId" value="<%= userTracker.getSessionId() %>" />
+						<portlet:param name="userId" value="<%= String.valueOf(userTracker.getUserId()) %>" />
 					</portlet:renderURL>
 
 					<liferay-ui:search-container-column-text

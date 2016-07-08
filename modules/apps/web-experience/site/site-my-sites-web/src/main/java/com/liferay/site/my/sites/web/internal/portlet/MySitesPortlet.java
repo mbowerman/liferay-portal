@@ -114,9 +114,8 @@ public class MySitesPortlet extends MVCPortlet {
 		_userService.addGroupUsers(groupId, addUserIds, serviceContext);
 		_userService.unsetGroupUsers(groupId, removeUserIds, serviceContext);
 
-		LiveUsers.joinGroup(themeDisplay.getCompanyId(), groupId, addUserIds);
-		LiveUsers.leaveGroup(
-			themeDisplay.getCompanyId(), groupId, removeUserIds);
+		LiveUsers.joinGroup(groupId, addUserIds.length);
+		LiveUsers.leaveGroup(groupId, removeUserIds.length);
 	}
 
 	protected long[] filterAddUserIds(long groupId, long[] userIds)

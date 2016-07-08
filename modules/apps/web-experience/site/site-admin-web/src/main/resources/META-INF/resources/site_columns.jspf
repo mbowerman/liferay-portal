@@ -132,7 +132,7 @@
 <c:if test="<%= PropsValues.LIVE_USERS_ENABLED %>">
 	<liferay-ui:search-container-column-text
 		name="online-now"
-		value="<%= String.valueOf(LiveUsers.getGroupUsersCount(company.getCompanyId(), curGroup.getGroupId())) %>"
+		value="<%= String.valueOf(LiveUsers.getGroupUsersCount(curGroup.getGroupId())) %>"
 	/>
 </c:if>
 

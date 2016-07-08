@@ -21,7 +21,9 @@ String redirect = ParamUtil.getString(request, "redirect");
 
 String sessionId = ParamUtil.getString(request, "sessionId");
 
-UserTracker userTracker = LiveUsers.getUserTracker(company.getCompanyId(), sessionId);
+long userId = ParamUtil.getLong(request, "userId");
+
+UserTracker userTracker = LiveUsers.getUserTracker(company.getCompanyId(), userId, sessionId);
 
 List<UserTrackerPath> paths = userTracker.getPaths();
 int numHits = userTracker.getHits();
@@ -39,6 +41,7 @@ renderResponse.setTitle(LanguageUtil.format(request, "session-id-x", sessionId, 
 <aui:form action="<%= editSessionURL %>" cssClass="container-fluid-1280" method="post" name="fm">
 	<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 	<aui:input name="sessionId" type="hidden" value="<%= sessionId %>" />
+	<aui:input name="userId" type="hidden" value="<%= userId %>" />
 
 	<c:choose>
 		<c:when test="<%= userTracker == null %>">

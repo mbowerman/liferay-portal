@@ -15,8 +15,6 @@
 package com.liferay.portal.security.auth.session;
 
 import com.liferay.portal.events.EventsProcessorUtil;
-import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
-import com.liferay.portal.kernel.cluster.ClusterNode;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -52,6 +50,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -404,23 +403,11 @@ public class AuthenticatedSessionManagerImpl
 	public void signOutSimultaneousLogins(long userId) throws Exception {
 		long companyId = CompanyLocalServiceUtil.getCompanyIdByUserId(userId);
 
-		Map<String, UserTracker> sessionUsers = LiveUsers.getSessionUsers(
-			companyId);
-
-		List<UserTracker> userTrackers = new ArrayList<>(sessionUsers.values());
+		Set<UserTracker> userTrackers = LiveUsers.getUserUserTrackers(
+			companyId, userId);
 
 		for (UserTracker userTracker : userTrackers) {
-			if (userId != userTracker.getUserId()) {
-				continue;
-			}
-
 			JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
-
-			ClusterNode clusterNode = ClusterExecutorUtil.getLocalClusterNode();
-
-			if (clusterNode != null) {
-				jsonObject.put("clusterNodeId", clusterNode.getClusterNodeId());
-			}
 
 			jsonObject.put("command", "signOut");
 			jsonObject.put("companyId", companyId);

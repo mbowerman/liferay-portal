@@ -195,7 +195,7 @@ Map<Long, Integer> groupUsersCounts = UserLocalServiceUtil.searchCounts(company.
 
 						<c:if test='<%= tabs1.equals("my-sites") && PropsValues.LIVE_USERS_ENABLED %>'>
 							<h6 class="text-default">
-								<strong><liferay-ui:message key="online-now" /></strong>: <%= String.valueOf(LiveUsers.getGroupUsersCount(company.getCompanyId(), group.getGroupId())) %>
+								<strong><liferay-ui:message key="online-now" /></strong>: <%= String.valueOf(LiveUsers.getGroupUsersCount(group.getGroupId())) %>
 							</h6>
 						</c:if>
 					</liferay-ui:search-container-column-text>
@@ -277,7 +277,7 @@ Map<Long, Integer> groupUsersCounts = UserLocalServiceUtil.searchCounts(company.
 					<c:if test='<%= tabs1.equals("my-sites") && PropsValues.LIVE_USERS_ENABLED %>'>
 						<liferay-ui:search-container-column-text
 							name="online-now"
-							value="<%= String.valueOf(LiveUsers.getGroupUsersCount(company.getCompanyId(), group.getGroupId())) %>"
+							value="<%= String.valueOf(LiveUsers.getGroupUsersCount(group.getGroupId())) %>"
 						/>
 					</c:if>
 

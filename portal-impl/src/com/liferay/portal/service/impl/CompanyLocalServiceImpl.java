@@ -1662,7 +1662,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 			groupLocalService.deleteGroup(group);
 
-			LiveUsers.deleteGroup(group.getCompanyId(), group.getGroupId());
+			LiveUsers.deleteGroup(group.getGroupId());
 		}
 
 		protected void performActions() throws PortalException {

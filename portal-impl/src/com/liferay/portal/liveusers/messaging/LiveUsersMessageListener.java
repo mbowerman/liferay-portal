@@ -26,11 +26,11 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.BaseMessageListener;
 import com.liferay.portal.kernel.messaging.Message;
+import com.liferay.portal.kernel.model.UserTracker;
 import com.liferay.portal.kernel.util.MethodHandler;
 import com.liferay.portal.kernel.util.MethodKey;
 import com.liferay.portal.liveusers.LiveUsers;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 
@@ -46,7 +46,7 @@ public class LiveUsersMessageListener extends BaseMessageListener {
 		String clusterNodeId = jsonObject.getString("clusterNodeId");
 
 		ClusterRequest clusterRequest = ClusterRequest.createUnicastRequest(
-			_getLocalClusterUsersMethodHandler, clusterNodeId);
+			_getClusterNodeUsersMethodHandler, clusterNodeId);
 
 		FutureClusterResponses futureClusterResponses =
 			ClusterExecutorUtil.execute(clusterRequest);
@@ -60,7 +60,7 @@ public class LiveUsersMessageListener extends BaseMessageListener {
 
 		String clusterNodeId = jsonObject.getString("clusterNodeId");
 
-		LiveUsers.removeClusterNode(clusterNodeId);
+		LiveUsers.removeClusterNodeUsers(clusterNodeId);
 	}
 
 	protected void doCommandSignIn(JSONObject jsonObject) throws Exception {
@@ -78,12 +78,11 @@ public class LiveUsersMessageListener extends BaseMessageListener {
 	}
 
 	protected void doCommandSignOut(JSONObject jsonObject) throws Exception {
-		String clusterNodeId = jsonObject.getString("clusterNodeId");
 		long companyId = jsonObject.getLong("companyId");
 		long userId = jsonObject.getLong("userId");
 		String sessionId = jsonObject.getString("sessionId");
 
-		LiveUsers.signOut(clusterNodeId, companyId, userId, sessionId);
+		LiveUsers.signOut(companyId, userId, sessionId);
 	}
 
 	@Override
@@ -111,9 +110,9 @@ public class LiveUsersMessageListener extends BaseMessageListener {
 	private static final Log _log = LogFactoryUtil.getLog(
 		LiveUsersMessageListener.class);
 
-	private static final MethodHandler _getLocalClusterUsersMethodHandler =
+	private static final MethodHandler _getClusterNodeUsersMethodHandler =
 		new MethodHandler(
-			new MethodKey(LiveUsers.class, "getLocalClusterUsers"));
+			new MethodKey(LiveUsers.class, "getClusterNodeUsers"));
 
 	private static class LiveUsersClusterResponseFutureListener
 		extends BaseFutureListener<ClusterNodeResponses> {
@@ -145,10 +144,9 @@ public class LiveUsersMessageListener extends BaseMessageListener {
 					return;
 				}
 
-				Map<Long, Map<Long, Set<String>>> clusterUsers =
-					(Map<Long, Map<Long, Set<String>>>)result;
+				Set<UserTracker> clusterUsers = (Set<UserTracker>)result;
 
-				LiveUsers.addClusterNode(_clusterNodeId, clusterUsers);
+				LiveUsers.addUserTrackers(clusterUsers);
 			}
 			catch (Exception e) {
 				_log.error("Unable to add cluster node " + _clusterNodeId, e);

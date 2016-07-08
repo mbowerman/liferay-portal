@@ -208,7 +208,7 @@ public class SiteAdminPortlet extends MVCPortlet {
 		for (long deleteGroupId : deleteGroupIds) {
 			groupService.deleteGroup(deleteGroupId);
 
-			LiveUsers.deleteGroup(themeDisplay.getCompanyId(), deleteGroupId);
+			LiveUsers.deleteGroup(deleteGroupId);
 		}
 	}
 
@@ -265,8 +265,7 @@ public class SiteAdminPortlet extends MVCPortlet {
 
 		userService.unsetGroupUsers(groupId, removeUserIds, serviceContext);
 
-		LiveUsers.leaveGroup(
-			themeDisplay.getCompanyId(), groupId, removeUserIds);
+		LiveUsers.leaveGroup(groupId, removeUserIds.length);
 	}
 
 	/**
@@ -652,8 +651,7 @@ public class SiteAdminPortlet extends MVCPortlet {
 				descriptionMap, type, manualMembership, membershipRestriction,
 				friendlyURL, true, inheritContent, active, serviceContext);
 
-			LiveUsers.joinGroup(
-				themeDisplay.getCompanyId(), liveGroup.getGroupId(), userId);
+			LiveUsers.joinGroup(liveGroup.getGroupId());
 		}
 		else {
 
@@ -696,10 +694,7 @@ public class SiteAdminPortlet extends MVCPortlet {
 						MembershipRequestConstants.STATUS_APPROVED,
 						serviceContext);
 
-					LiveUsers.joinGroup(
-						themeDisplay.getCompanyId(),
-						membershipRequest.getGroupId(),
-						new long[] {membershipRequest.getUserId()});
+					LiveUsers.joinGroup(membershipRequest.getGroupId());
 				}
 			}
 		}

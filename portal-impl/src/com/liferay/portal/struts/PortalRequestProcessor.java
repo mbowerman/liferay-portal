@@ -562,7 +562,8 @@ public class PortalRequestProcessor extends TilesRequestProcessor {
 		// Current users
 
 		UserTracker userTracker = LiveUsers.getUserTracker(
-			themeDisplay.getCompanyId(), session.getId());
+			themeDisplay.getCompanyId(), themeDisplay.getUserId(),
+			session.getId());
 
 		if ((userTracker != null) && !path.equals(_PATH_C) &&
 			!path.contains(_PATH_J_SECURITY_CHECK) &&
