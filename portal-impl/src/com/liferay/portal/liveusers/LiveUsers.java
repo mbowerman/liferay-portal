@@ -14,9 +14,67 @@
 
 package com.liferay.portal.liveusers;
 
+import com.liferay.portal.kernel.model.UserTracker;
+
+import java.util.Set;
+
 /**
  * @author Charles May
  * @author Brian Wing Shun Chan
  */
 public class LiveUsers {
+
+	public static void addUserTrackers(Set<UserTracker> userTrackers) {
+	}
+
+	public static void deleteGroup(long groupId) {
+	}
+
+	public static Set<UserTracker> getClusterNodeUsers(String clusterNodeId) {
+		return null;
+	}
+
+	public static Set<UserTracker> getCompanyUserTrackers(long companyId) {
+		return null;
+	}
+
+	public static int getGroupUsersCount(long groupId) {
+		return 0;
+	}
+
+	public static UserTracker getUserTracker(
+		long companyId, long userId, String sessionId) {
+
+		return null;
+	}
+
+	public static Set<UserTracker> getUserUserTrackers(
+		long companyId, long userId) {
+
+		return null;
+	}
+
+	public static void joinGroup(long groupId) {
+	}
+
+	public static void joinGroup(long groupId, int numUsers) {
+	}
+
+	public static void leaveGroup(long groupId) {
+	}
+
+	public static void leaveGroup(long groupId, int numUsers) {
+	}
+
+	public static void removeClusterNodeUsers(String clusterNodeId) {
+	}
+
+	public static void signIn(
+		String clusterNodeId, long companyId, long userId, String sessionId,
+		String remoteAddr, String remoteHost, String userAgent) {
+	}
+
+	public static void signOut(long companyId, long userId, String sessionId) {
+	}
+
 }
