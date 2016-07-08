@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
+import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
+import com.liferay.portal.kernel.cluster.ClusterNode;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
@@ -57,6 +59,20 @@ public class UserTrackerImpl extends UserTrackerBaseImpl {
 		}
 
 		return value;
+	}
+
+	public String getClusterNodeId() {
+		if (_clusterNodeId == null) {
+			ClusterNode clusterNode = ClusterExecutorUtil.getLocalClusterNode();
+
+			if (clusterNode == null) {
+				return null;
+			}
+
+			_clusterNodeId = clusterNode.getClusterNodeId();
+		}
+
+		return _clusterNodeId;
 	}
 
 	@Override
@@ -111,9 +127,14 @@ public class UserTrackerImpl extends UserTrackerBaseImpl {
 		return _paths;
 	}
 
+	public void setClusterNodeId(String clusterNodeId) {
+		_clusterNodeId = clusterNodeId;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		UserTrackerImpl.class);
 
+	private transient String _clusterNodeId;
 	private String _emailAddress;
 	private String _fullName;
 	private final List<UserTrackerPath> _paths = new ArrayList<>();
