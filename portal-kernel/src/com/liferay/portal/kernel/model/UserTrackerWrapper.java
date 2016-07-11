@@ -188,6 +188,11 @@ public class UserTrackerWrapper implements UserTracker,
 	}
 
 	@Override
+	public java.lang.String getClusterNodeId() {
+		return _userTracker.getClusterNodeId();
+	}
+
+	@Override
 	public java.lang.String getEmailAddress() {
 		return _userTracker.getEmailAddress();
 	}
@@ -335,6 +340,11 @@ public class UserTrackerWrapper implements UserTracker,
 	@Override
 	public void setCachedModel(boolean cachedModel) {
 		_userTracker.setCachedModel(cachedModel);
+	}
+
+	@Override
+	public void setClusterNodeId(java.lang.String clusterNodeId) {
+		_userTracker.setClusterNodeId(clusterNodeId);
 	}
 
 	/**

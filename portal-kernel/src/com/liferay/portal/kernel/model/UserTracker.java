@@ -55,6 +55,8 @@ public interface UserTracker extends UserTrackerModel, PersistedModel {
 
 	public void addPath(UserTrackerPath path);
 
+	public java.lang.String getClusterNodeId();
+
 	public java.lang.String getEmailAddress();
 
 	public java.lang.String getFullName();
@@ -62,4 +64,6 @@ public interface UserTracker extends UserTrackerModel, PersistedModel {
 	public int getHits();
 
 	public java.util.List<UserTrackerPath> getPaths();
+
+	public void setClusterNodeId(java.lang.String clusterNodeId);
 }
