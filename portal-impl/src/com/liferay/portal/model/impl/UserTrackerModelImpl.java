@@ -313,12 +313,7 @@ public class UserTrackerModelImpl extends BaseModelImpl<UserTracker>
 
 	@Override
 	public String getSessionId() {
-		if (_sessionId == null) {
-			return StringPool.BLANK;
-		}
-		else {
-			return _sessionId;
-		}
+		return _sessionId;
 	}
 
 	@Override
@@ -333,7 +328,7 @@ public class UserTrackerModelImpl extends BaseModelImpl<UserTracker>
 	}
 
 	public String getOriginalSessionId() {
-		return GetterUtil.getString(_originalSessionId);
+		return _originalSessionId;
 	}
 
 	@Override
