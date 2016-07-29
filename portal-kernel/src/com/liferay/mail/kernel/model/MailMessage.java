@@ -14,6 +14,9 @@
 
 package com.liferay.mail.kernel.model;
 
+import com.liferay.portal.kernel.util.StackTraceUtil;
+import com.liferay.portal.kernel.util.StringBundler;
+
 import java.io.File;
 import java.io.Serializable;
 
@@ -36,6 +39,17 @@ public class MailMessage implements Serializable {
 	public MailMessage(
 		InternetAddress from, InternetAddress to, String subject, String body,
 		boolean htmlFormat) {
+
+		StringBundler sb = new StringBundler();
+
+		sb.append("*************************************************");
+		sb.append("\nCalling MailMessage#MailMessage");
+		sb.append("\nThread = ");
+		sb.append(Thread.currentThread());
+		sb.append("\nStack trace = ");
+		sb.append(StackTraceUtil.getStackTrace(new Exception()));
+
+		System.out.println(sb.toString());
 
 		_from = from;
 

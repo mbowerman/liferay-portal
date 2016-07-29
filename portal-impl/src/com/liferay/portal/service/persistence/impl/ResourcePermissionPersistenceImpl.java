@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.StackTraceUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -6657,6 +6658,19 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 		ResourcePermission resourcePermission) {
 		resourcePermission = toUnwrappedModel(resourcePermission);
 
+		System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+
+		if (resourcePermission != null) {
+			System.out.println(
+				"Removing resource permission " + resourcePermission.toString());
+		}
+		else {
+			System.out.println("Removing resource permission" + null);
+		}
+
+		System.out.println(
+			"Stack Trace is: " + StackTraceUtil.getStackTrace(new Exception()));
+
 		Session session = null;
 
 		try {
@@ -6687,6 +6701,29 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 
 	@Override
 	public ResourcePermission updateImpl(ResourcePermission resourcePermission) {
+		System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+		if (resourcePermission != null) {
+			System.out.println(
+				"Updating resource permission: " +
+					resourcePermission.toString());
+		}
+		else {
+			System.out.println("Updating resource permission NULL");
+		}
+		ResourcePermission oldResourcePermission = fetchByPrimaryKey(
+			resourcePermission.getPrimaryKey());
+
+		if (oldResourcePermission != null) {
+			System.out.println(
+				"Previous resource permission was: " +
+					oldResourcePermission.toString());
+		}
+		else {
+			System.out.println("Previous resource permission was null");
+		}
+		System.out.println(
+			"Stack Trace is: " + StackTraceUtil.getStackTrace(new Exception()));
+
 		resourcePermission = toUnwrappedModel(resourcePermission);
 
 		boolean isNew = resourcePermission.isNew();

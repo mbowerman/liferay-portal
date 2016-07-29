@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.security.auth.EmailAddressGenerator;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
+import com.liferay.portal.kernel.util.StackTraceUtil;
 import com.liferay.portal.security.auth.EmailAddressGeneratorFactory;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.util.mail.MailEngine;
@@ -41,6 +42,13 @@ public class MailMessageListener extends BaseMessageListener {
 
 	protected void doMailMessage(MailMessage mailMessage) throws Exception {
 		InternetAddress from = filterInternetAddress(mailMessage.getFrom());
+
+		System.out.println("*************************************************");
+		System.out.println(
+			"Reached method doMailMessage in MailMessageListener.java");
+		System.out.println("mailMessage=" + mailMessage.toString());
+		System.out.println(
+			"StackTrace is " + StackTraceUtil.getStackTrace(new Exception()));
 
 		if (from == null) {
 			if (_log.isWarnEnabled()) {
