@@ -454,6 +454,16 @@ public class SubscriptionSender implements Serializable {
 		throws Exception {
 
 		if (subscription.getClassName() == null) {
+			System.out.println("#############################################");
+			System.out.println("Unauthorized User " + user);
+			System.out.println(
+				"The user is unauthorized because subscription.getClassName()" +
+					" == null");
+			System.out.println("subscription=" + subscription);
+			System.out.println(
+				"Stack Trace: " +
+					StackTraceUtil.getStackTrace(new Exception()));
+
 			return false;
 		}
 
@@ -469,6 +479,24 @@ public class SubscriptionSender implements Serializable {
 					ActionKeys.VIEW);
 
 			if ((hasPermission == null) || !hasPermission) {
+				System.out.println(
+					"#############################################");
+				System.out.println("Unauthorized User " + user);
+				System.out.println(
+					"The user is unauthorized because " +
+						"BaseModelPermissionCheckerUtil." +
+							"containsBaseModelPermission() returned the " +
+								"wrong value for VIEW action");
+				System.out.println("hasPermission=" + hasPermission);
+				System.out.println("permissionChecker=" + permissionChecker);
+				System.out.println("groupId=" + groupId);
+				System.out.println("className=" + className);
+				System.out.println("classPK=" + classPK);
+				System.out.println("subscription=" + subscription);
+				System.out.println(
+					"Stack Trace: " +
+						StackTraceUtil.getStackTrace(new Exception()));
+
 				return false;
 			}
 		}
@@ -476,6 +504,23 @@ public class SubscriptionSender implements Serializable {
 		hasPermission = hasSubscribePermission(permissionChecker, subscription);
 
 		if ((hasPermission == null) || !hasPermission) {
+			System.out.println("#############################################");
+			System.out.println("Unauthorized User " + user);
+			System.out.println(
+				"The user is unauthorized because " +
+					"BaseModelPermissionCheckerUtil." +
+						"containsBaseModelPermission() returned the " +
+							"wrong value for SUBSCRIBE action");
+			System.out.println("hasPermission=" + hasPermission);
+			System.out.println("permissionChecker=" + permissionChecker);
+			System.out.println("groupId=" + groupId);
+			System.out.println("className=" + subscription.getClassName());
+			System.out.println("classPK=" + subscription.getClassPK());
+			System.out.println("subscription=" + subscription);
+			System.out.println(
+				"Stack Trace: " +
+					StackTraceUtil.getStackTrace(new Exception()));
+
 			return false;
 		}
 
@@ -530,6 +575,15 @@ public class SubscriptionSender implements Serializable {
 
 			deleteSubscription(subscription);
 
+			System.out.println(
+				"***************************************************");
+			System.out.println(
+				"Subscription " + subscription.getSubscriptionId() +
+					" was deleted because it referenced a non-existent user");
+			System.out.println(
+				"Stack Trace is: " +
+					StackTraceUtil.getStackTrace(new Exception()));
+
 			return;
 		}
 
@@ -539,6 +593,14 @@ public class SubscriptionSender implements Serializable {
 			if (_log.isDebugEnabled()) {
 				_log.debug("Do not send a duplicate email to " + emailAddress);
 			}
+
+			System.out.println(
+				"***************************************************");
+			System.out.println(
+				"Do not send a duplicate email to " + emailAddress);
+			System.out.println(
+				"Stack Trace is: " +
+					StackTraceUtil.getStackTrace(new Exception()));
 
 			return;
 		}
@@ -557,6 +619,13 @@ public class SubscriptionSender implements Serializable {
 				_log.debug("Skip inactive user " + user.getUserId());
 			}
 
+			System.out.println(
+				"***************************************************");
+			System.out.println("Skipping inactive user " + user.getUserId());
+			System.out.println(
+				"Stack Trace is: " +
+					StackTraceUtil.getStackTrace(new Exception()));
+
 			return;
 		}
 
@@ -565,6 +634,14 @@ public class SubscriptionSender implements Serializable {
 				if (_log.isDebugEnabled()) {
 					_log.debug("Skip unauthorized user " + user.getUserId());
 				}
+
+				System.out.println(
+					"***************************************************");
+				System.out.println(
+					"Skipping unauthorized user " + user.getUserId());
+				System.out.println(
+					"Stack Trace is: " +
+						StackTraceUtil.getStackTrace(new Exception()));
 
 				return;
 			}

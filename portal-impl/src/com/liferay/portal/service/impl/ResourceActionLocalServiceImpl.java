@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.spring.aop.Skip;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
+import com.liferay.portal.kernel.util.StackTraceUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.security.permission.PermissionCacheUtil;
 import com.liferay.portal.service.base.ResourceActionLocalServiceBaseImpl;
@@ -215,6 +216,17 @@ public class ResourceActionLocalServiceImpl
 	public ResourceAction deleteResourceAction(ResourceAction resourceAction) {
 		final String name = resourceAction.getName();
 		final long bitwiseValue = resourceAction.getBitwiseValue();
+
+		if (resourceAction.getName().equals(ActionKeys.SUBSCRIBE) ||
+				resourceAction.getName().equals(ActionKeys.VIEW)) {
+
+			System.out.println("#############################################");
+			System.out.println(
+				"Deleting Resource Action " + resourceAction.toString());
+			System.out.println(
+				"Stack Trace is " +
+					StackTraceUtil.getStackTrace(new Exception()));
+		}
 
 		ActionableDynamicQuery.AddCriteriaMethod addCriteriaMethod =
 			new ActionableDynamicQuery.AddCriteriaMethod() {
