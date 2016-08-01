@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.model.SubscriptionConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.social.SocialActivityManagerUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.StackTraceUtil;
 import com.liferay.portal.service.base.SubscriptionLocalServiceBaseImpl;
 import com.liferay.social.kernel.model.SocialActivityConstants;
 
@@ -120,6 +121,23 @@ public class SubscriptionLocalServiceImpl
 			subscription.setFrequency(frequency);
 
 			subscriptionPersistence.update(subscription);
+
+			System.out.println(
+				"*************************************************");
+			System.out.println("Added Subscription " + subscription.toString());
+			System.out.println(
+				"\nStack Trace: " +
+					StackTraceUtil.getStackTrace(new Exception()));
+		}
+		else {
+			System.out.println(
+				"*************************************************");
+			System.out.println(
+				"Did Not Add Subscription " + subscription.toString() +
+					" because it already exists.");
+			System.out.println(
+				"\nStack Trace: " +
+					StackTraceUtil.getStackTrace(new Exception()));
 		}
 
 		if (groupId > 0) {
