@@ -228,7 +228,7 @@ public class ResourceActionLocalServiceImpl
 				public void addCriteria(DynamicQuery dynamicQuery) {
 					Property nameProperty = PropertyFactoryUtil.forName("name");
 
-					nameProperty.eq(name);
+					dynamicQuery.add(nameProperty.eq(name));
 				}
 
 			};
