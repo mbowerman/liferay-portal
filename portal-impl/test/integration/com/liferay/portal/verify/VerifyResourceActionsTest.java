@@ -61,6 +61,11 @@ public class VerifyResourceActionsTest extends BaseVerifyProcessTestCase {
 	public void testDeleteDuplicateBitwiseValuesOnResource() throws Throwable {
 		ResourceActionLocalServiceUtil.checkResourceActions();
 
+		System.out.println("RUNNING VerifyResourceActionsTest.java...");
+		System.out.println("Before running the verify process:");
+		System.out.println(
+			ResourceActionLocalServiceUtil.getResourceActions(_NAME_1));
+
 		ResourceAction resourceAction =
 			ResourceActionLocalServiceUtil.fetchResourceAction(
 				_NAME_1, _ACTION_ID_1);
@@ -88,6 +93,10 @@ public class VerifyResourceActionsTest extends BaseVerifyProcessTestCase {
 		Assert.assertNotNull(resourceAction);
 
 		doVerify();
+
+		System.out.println("After running the verify process:");
+		System.out.println(
+			ResourceActionLocalServiceUtil.getResourceActions(_NAME_1));
 
 		resourceAction = ResourceActionLocalServiceUtil.fetchResourceAction(
 			_NAME_1, _ACTION_ID_1);
