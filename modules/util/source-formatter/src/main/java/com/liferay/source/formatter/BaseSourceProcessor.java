@@ -1363,7 +1363,6 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 			String fileName, String absolutePath, String content,
 			String javaClassContent, int javaClassLineCount, String indent,
 			List<String> checkJavaFieldTypesExcludes,
-			List<String> javaTermAccessLevelModifierExcludes,
 			List<String> javaTermSortExcludes,
 			List<String> testAnnotationsExcludes)
 		throws Exception {
@@ -1382,7 +1381,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		JavaClass javaClass = new JavaClass(
 			javaClassName, packagePath, file, fileName, absolutePath, content,
 			javaClassContent, javaClassLineCount, indent + StringPool.TAB, null,
-			javaTermAccessLevelModifierExcludes, javaSourceProcessor);
+			javaSourceProcessor);
 
 		String newJavaClassContent = javaClass.formatJavaTerms(
 			getAnnotationsExclusions(), getImmutableFieldTypes(),
@@ -2088,8 +2087,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 		int pos = releaseVersion.lastIndexOf(CharPool.PERIOD);
 
-		String mainReleaseVersion =
-			releaseVersion.substring(0, pos) + ".0";
+		String mainReleaseVersion = releaseVersion.substring(0, pos) + ".0";
 
 		_mainReleaseComparableVersion = new ComparableVersion(
 			mainReleaseVersion);

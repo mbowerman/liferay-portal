@@ -607,6 +607,40 @@ counter.jdbc.prefix=jdbc.counter.]]></echo>
 		</sequential>
 	</macrodef>
 
+	<macrodef name="get-module-base-dir-from-subrepository-name">
+		<attribute name="subrepository.name" />
+
+		<sequential>
+			<var name="module.base.dir" unset="true" />
+
+			<antelope:stringutil property="subrepository.name" string="@{subrepository.name}">
+				<antelope:replace regex="(.+)-private" replacement="$1" />
+			</antelope:stringutil>
+
+			<for param="gitrepo.file">
+				<fileset dir="${project.dir}/modules" erroronmissingdir="false" id="fileset.id">
+					<include name="**/.gitrepo" />
+				</fileset>
+				<sequential>
+					<if>
+						<resourcecontains resource="@{gitrepo.file}" substring="git@github.com:liferay/${subrepository.name}.git" />
+						<then>
+							<antelope:stringutil property="module.base.dir" string="@{gitrepo.file}">
+								<antelope:replace regex="\\" replacement="/" />
+							</antelope:stringutil>
+
+							<antelope:stringutil property="module.base.dir" string="${module.base.dir}">
+								<antelope:replace regex="(.+)\/\.gitrepo" replacement="$1" />
+							</antelope:stringutil>
+						</then>
+					</if>
+				</sequential>
+			</for>
+
+			<fail message="No module base directory found for '@{subrepository.name}'." unless="module.base.dir" />
+		</sequential>
+	</macrodef>
+
 	<macrodef name="get-test-class">
 		<sequential>
 			<fail message="Please set the property ${test.class}." unless="test.class" />
@@ -1517,6 +1551,8 @@ counter.jdbc.prefix=jdbc.counter.]]></echo>
 				fix.pack.dir="@{bundles.dir}/patching-tool/patches"
 				fix.pack.file.name="${fix.pack.file.name}"
 			/>
+
+			<delete file="@{bundles.dir}/patching-tool/default.properties" />
 
 			<execute dir="@{bundles.dir}/patching-tool">
 				patching-tool${file.suffix.bat} auto-discovery
@@ -2475,6 +2511,79 @@ sprite.root.dir=/tmp/sprite]]></echo>
 		</sequential>
 	</macrodef>
 
+	<macrodef name="set-sybase-charset-utf8">
+		<sequential>
+			<get-database-property property.name="database.password" />
+			<get-database-property property.name="database.schema" />
+			<get-database-property property.name="database.username" />
+
+			<echo>${env.SYBASE}/${env.SYBASE_ASE}/bin/charset -P${database.password} -S${database.schema} -U${database.username} binary.srt utf8</echo>
+
+			<exec executable="${env.SYBASE}/${env.SYBASE_ASE}/bin/charset">
+				<arg value="-P${database.password}" />
+				<arg value="-S${database.schema}" />
+				<arg value="-U${database.username}" />
+				<arg value="binary.srt" />
+				<arg value="utf8" />
+			</exec>
+
+			<echo file="set-charset.sql">sp_configure 'default sortorder id', 50, 'utf8'
+go
+commit
+go</echo>
+
+			<print-file file.name="set-charset.sql" />
+
+			<exec executable="${sybase.executable}">
+				<arg value="-P${database.password}" />
+				<arg value="-S${database.schema}" />
+				<arg value="-U${database.username}" />
+				<arg line="-i set-charset.sql" />
+			</exec>
+
+			<delete file="set-charset.sql" />
+			<echo>service sybase restart</echo>
+
+			<exec executable="service">
+				<arg value="sybase" />
+				<arg value="restart" />
+			</exec>
+
+			<echo>Sleep for 30 seconds.</echo>
+
+			<sleep seconds="30" />
+
+			<echo>service sybase restart</echo>
+
+			<exec executable="service">
+				<arg value="sybase" />
+				<arg value="restart" />
+			</exec>
+
+			<echo>Sleep for 30 seconds.</echo>
+
+			<sleep seconds="30" />
+
+			<waitfor maxwait="60" maxwaitunit="second">
+				<socket port="5000" server="localhost" />
+			</waitfor>
+
+			<echo file="get-charset.sql">sp_helpsort
+go</echo>
+
+			<print-file file.name="get-charset.sql" />
+
+			<exec executable="${sybase.executable}">
+				<arg value="-P${database.password}" />
+				<arg value="-S${database.schema}" />
+				<arg value="-U${database.username}" />
+				<arg line="-i get-charset.sql" />
+			</exec>
+
+			<delete file="get-charset.sql" />
+		</sequential>
+	</macrodef>
+
 	<macrodef name="set-tomcat-version-number">
 		<attribute name="liferay.portal.bundle" />
 
@@ -3240,12 +3349,12 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 			<if>
 				<os family="unix" />
 				<then>
-					<execute>
+					<execute failonerror="false">
 						killall chromedriver
 					</execute>
 				</then>
 				<else>
-					<execute>
+					<execute failonerror="false">
 						taskkill.exe /F /IM chromedriver.exe
 					</execute>
 				</else>
@@ -4321,6 +4430,8 @@ go]]></replacevalue>
 		<if>
 			<isset property="osgi.modules.includes" />
 			<then>
+				<echo file="tools/sdk/build.${user.name}.properties">auto.deploy.dir=${liferay.home}/deploy</echo>
+
 				<for list="${osgi.modules.includes}" param="osgi.module">
 					<sequential>
 						<var name="osgi.module.dir" unset="true" />
@@ -5066,6 +5177,8 @@ ${lcs.portal.bundle.properties}</echo>
 			</fileset>
 		</chmod>
 
+		<delete file="${app.server.parent.dir}/patching-tool/default.properties" />
+
 		<execute dir="${app.server.parent.dir}/patching-tool">
 			patching-tool${file.suffix.bat} auto-discovery
 			patching-tool${file.suffix.bat} setup
@@ -5605,18 +5718,36 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 		<if>
 			<and>
 				<isset property="test.batch.max.group.size" />
-				<isset property="test.batch.property.names" />
-				<isset property="test.batch.property.values" />
+				<isset property="test.batch.property.query" />
 			</and>
 			<then>
+				<antelope:stringutil property="test.batch.property.query" string="${test.batch.property.query}">
+					<antelope:replace regex="&quot;" replacement="\\\\\&quot;" />
+				</antelope:stringutil>
+
 				<echo append="true" file="${test.ext.properties.file}">
+					test.batch.property.query=${test.batch.property.query}
 					test.batch.max.group.size=${test.batch.max.group.size}
 					test.batch.max.subgroup.size=${test.batch.max.subgroup.size}
-					test.batch.property.names=${test.batch.property.names}
-					test.batch.property.values=${test.batch.property.values}
 					test.batch.run.type=${test.batch.run.type}
 				</echo>
 			</then>
+			<elseif>
+				<and>
+					<isset property="test.batch.max.group.size" />
+					<isset property="test.batch.property.names" />
+					<isset property="test.batch.property.values" />
+				</and>
+				<then>
+					<echo append="true" file="${test.ext.properties.file}">
+						test.batch.max.group.size=${test.batch.max.group.size}
+						test.batch.max.subgroup.size=${test.batch.max.subgroup.size}
+						test.batch.property.names=${test.batch.property.names}
+						test.batch.property.values=${test.batch.property.values}
+						test.batch.run.type=${test.batch.run.type}
+					</echo>
+				</then>
+			</elseif>
 		</if>
 
 		<if>
@@ -7103,6 +7234,8 @@ cluster.link.bind.addr["cluster-link-udp"]=127.0.0.1</echo>
 							<get-database-property property.name="database.schema" />
 							<get-database-property property.name="database.username" />
 
+							<echo>${sybase.executable} -i create.sql -P ${database.password} -S ${database.schema} -U ${database.username}</echo>
+
 							<exec executable="${sybase.executable}" failonerror="true">
 								<arg value="-i" />
 								<arg value="create.sql" />
@@ -7281,6 +7414,20 @@ go</echo>
 
 					<delete file="import-sybase.sql" />
 					<delete file="lportal__srv.log" />
+
+					<echo file="get-charset.sql">sp_helpsort
+go</echo>
+
+					<print-file file.name="get-charset.sql" />
+
+					<exec executable="${sybase.executable}">
+						<arg value="-P${database.sybase.password}" />
+						<arg value="-S${database.sybase.schema}" />
+						<arg value="-U${database.sybase.username}" />
+						<arg line="-i get-charset.sql" />
+					</exec>
+
+					<delete file="get-charset.sql" />
 				</then>
 			</elseif>
 		</if>
@@ -7596,55 +7743,52 @@ if (ppstate.equals("normal")) {
 	</target>
 
 	<target name="record-testray-logs">
-		<antcall target="record-testray-logs-jenkins-console" />
-
-		<antcall target="record-testray-logs-poshi-report" />
-
-		<execute>
-			gzip -r testray-logs/
-		</execute>
-
-		<for list="production" param="testray.base.dir.name">
-			<sequential>
-				<rsync rsync.dest="testray-results/@{testray.base.dir.name}/logs" rsync.src="testray-logs/." />
-			</sequential>
-		</for>
-	</target>
-
-	<target name="record-testray-logs-jenkins-console">
 		<if>
 			<isset property="jenkins.testray.results.dir" />
 			<then>
-				<get-testray-logs-dir-name />
+				<antcall target="record-testray-logs-jenkins-console" />
 
-				<mkdir dir="testray-logs/${testray.logs.dir.name}" />
+				<antcall target="record-testray-logs-poshi-report" />
 
-				<propertyregex
-					input="${env.BUILD_URL}"
-					property="jenkins.build.url"
-					regexp="https:\/\/([^\.]+)\.[^\/]+"
-					replace="http://\1"
-				/>
+				<execute>
+					gzip -r testray-logs/
+				</execute>
 
-				<propertyregex
-					input="${jenkins.build.url}"
-					override="true"
-					property="jenkins.build.url"
-					regexp="http:\/\/([^\/]+)\/(\d+)"
-					replace="http://\1-\2/\2"
-				/>
-
-				<get dest="testray-logs/${testray.logs.dir.name}/jenkins-console.txt" ignoreerrors="true" src="${jenkins.build.url}/consoleText" />
+				<for list="production" param="testray.base.dir.name">
+					<sequential>
+						<rsync rsync.dest="testray-results/@{testray.base.dir.name}/logs" rsync.src="testray-logs/." />
+					</sequential>
+				</for>
 			</then>
 		</if>
 	</target>
 
+	<target name="record-testray-logs-jenkins-console">
+		<get-testray-logs-dir-name />
+
+		<mkdir dir="testray-logs/${testray.logs.dir.name}" />
+
+		<propertyregex
+			input="${env.BUILD_URL}"
+			property="jenkins.build.url"
+			regexp="https:\/\/([^\.]+)\.[^\/]+"
+			replace="http://\1"
+		/>
+
+		<propertyregex
+			input="${jenkins.build.url}"
+			override="true"
+			property="jenkins.build.url"
+			regexp="http:\/\/([^\/]+)\/(\d+)"
+			replace="http://\1-\2/\2"
+		/>
+
+		<get dest="testray-logs/${testray.logs.dir.name}/jenkins-console.txt" ignoreerrors="true" src="${jenkins.build.url}/consoleText" />
+	</target>
+
 	<target name="record-testray-logs-poshi-report">
 		<if>
-			<and>
-				<isset property="jenkins.testray.results.dir" />
-				<isset property="test.class" />
-			</and>
+			<isset property="test.class" />
 			<then>
 				<get-poshi-dir-name />
 
@@ -8178,6 +8322,8 @@ jdbc.default.password=${database.mysql.password}</echo>
 				<if>
 					<equals arg1="${cmis.repository.type}" arg2="documentum6" />
 					<then>
+						<echo file="tools/sdk/build.${user.name}.properties">auto.deploy.dir=${liferay.home}/deploy</echo>
+
 						<gradle-execute dir="${project.dir}/modules/private/apps/documentum/documentum-hook" task="deploy">
 							<arg value="clean" />
 						</gradle-execute>
@@ -8190,6 +8336,8 @@ jdbc.default.password=${database.mysql.password}</echo>
 						<equals arg1="${cmis.repository.type}" arg2="sharepoint2013" />
 					</or>
 					<then>
+						<echo file="tools/sdk/build.${user.name}.properties">auto.deploy.dir=${liferay.home}/deploy</echo>
+
 						<gradle-execute dir="${project.dir}/modules/private/apps/sharepoint/sharepoint-hook" task="deploy">
 							<arg value="clean" />
 						</gradle-execute>

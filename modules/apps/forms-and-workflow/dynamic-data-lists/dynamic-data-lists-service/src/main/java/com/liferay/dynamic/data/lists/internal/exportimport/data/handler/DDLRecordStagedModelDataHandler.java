@@ -25,6 +25,7 @@ import com.liferay.dynamic.data.mapping.io.DDMFormValuesJSONSerializer;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.StorageEngine;
+import com.liferay.exportimport.content.processor.ExportImportContentProcessorController;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataException;
@@ -53,6 +54,9 @@ public class DDLRecordStagedModelDataHandler
 
 	public static final String[] CLASS_NAMES = {DDLRecord.class.getName()};
 
+	/**
+	 * @deprecated As of 7.0.0
+	 */
 	@Deprecated
 	@Override
 	public void deleteStagedModel(DDLRecord stagedModel)
@@ -61,6 +65,9 @@ public class DDLRecordStagedModelDataHandler
 		super.deleteStagedModel(stagedModel);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0
+	 */
 	@Deprecated
 	@Override
 	public void deleteStagedModel(
@@ -70,6 +77,9 @@ public class DDLRecordStagedModelDataHandler
 		super.deleteStagedModel(uuid, groupId, className, extraData);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0
+	 */
 	@Deprecated
 	@Override
 	public DDLRecord fetchStagedModelByUuidAndGroupId(
@@ -78,6 +88,9 @@ public class DDLRecordStagedModelDataHandler
 		return super.fetchStagedModelByUuidAndGroupId(uuid, groupId);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0
+	 */
 	@Deprecated
 	@Override
 	public List<DDLRecord> fetchStagedModelsByUuidAndCompanyId(
@@ -128,7 +141,7 @@ public class DDLRecordStagedModelDataHandler
 		Element recordElement = portletDataContext.getImportDataElement(record);
 
 		DDMFormValues ddmFormValues = getImportDDMFormValues(
-			portletDataContext, recordElement, recordSetId);
+			portletDataContext, recordElement, recordSetId, record);
 
 		DDLRecord importedRecord = (DDLRecord)record.clone();
 
@@ -169,7 +182,7 @@ public class DDLRecordStagedModelDataHandler
 			record.getDDMStorageId());
 
 		ddmFormValues =
-			_ddmFormValuesExportImportContentProcessor.
+			_exportImportContentProcessorController.
 				replaceExportContentReferences(
 					portletDataContext, record, ddmFormValues, true, false);
 
@@ -178,9 +191,21 @@ public class DDLRecordStagedModelDataHandler
 			_ddmFormValuesJSONSerializer.serialize(ddmFormValues));
 	}
 
+	/**
+	 * @deprecated As of 7.0.0
+	 */
+	@Deprecated
 	protected DDMFormValues getImportDDMFormValues(
 			PortletDataContext portletDataContext, Element recordElement,
 			long recordSetId)
+		throws Exception {
+
+		return null;
+	}
+
+	protected DDMFormValues getImportDDMFormValues(
+			PortletDataContext portletDataContext, Element recordElement,
+			long recordSetId, DDLRecord record)
 		throws Exception {
 
 		DDLRecordSet recordSet = _ddlRecordSetLocalService.getRecordSet(
@@ -198,9 +223,9 @@ public class DDLRecordStagedModelDataHandler
 			_ddmFormValuesJSONDeserializer.deserialize(
 				ddmStructure.getDDMForm(), serializedDDMFormValues);
 
-		return _ddmFormValuesExportImportContentProcessor.
+		return _exportImportContentProcessorController.
 			replaceImportContentReferences(
-				portletDataContext, ddmStructure, ddmFormValues);
+				portletDataContext, record, ddmFormValues);
 	}
 
 	@Override
@@ -208,6 +233,9 @@ public class DDLRecordStagedModelDataHandler
 		return _ddlRecordStagedModelRepository;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0
+	 */
 	@Deprecated
 	protected void setDDLRecordLocalService(
 		DDLRecordLocalService ddlRecordLocalService) {
@@ -230,13 +258,13 @@ public class DDLRecordStagedModelDataHandler
 		_ddlRecordStagedModelRepository = ddlRecordStagedModelRepository;
 	}
 
-	@Reference(unbind = "-")
+	/**
+	 * @deprecated As of 7.0.0
+	 */
+	@Deprecated
 	protected void setDDMFormValuesExportImportContentProcessor(
 		DDMFormValuesExportImportContentProcessor
 			ddmFormValuesExportImportContentProcessor) {
-
-		_ddmFormValuesExportImportContentProcessor =
-			ddmFormValuesExportImportContentProcessor;
 	}
 
 	@Reference(unbind = "-")
@@ -286,10 +314,13 @@ public class DDLRecordStagedModelDataHandler
 
 	private DDLRecordSetLocalService _ddlRecordSetLocalService;
 	private DDLRecordStagedModelRepository _ddlRecordStagedModelRepository;
-	private DDMFormValuesExportImportContentProcessor
-		_ddmFormValuesExportImportContentProcessor;
 	private DDMFormValuesJSONDeserializer _ddmFormValuesJSONDeserializer;
 	private DDMFormValuesJSONSerializer _ddmFormValuesJSONSerializer;
+
+	@Reference
+	private ExportImportContentProcessorController
+		_exportImportContentProcessorController;
+
 	private StorageEngine _storageEngine;
 
 }

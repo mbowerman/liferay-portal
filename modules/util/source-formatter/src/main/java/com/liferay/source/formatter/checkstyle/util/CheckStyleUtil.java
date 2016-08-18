@@ -18,9 +18,9 @@ import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.source.formatter.SourceFormatterMessage;
+import com.liferay.source.formatter.checkstyle.Checker;
 import com.liferay.source.formatter.checkstyle.SuppressionsLoader;
 
-import com.puppycrawl.tools.checkstyle.Checker;
 import com.puppycrawl.tools.checkstyle.ConfigurationLoader;
 import com.puppycrawl.tools.checkstyle.DefaultLogger;
 import com.puppycrawl.tools.checkstyle.PropertiesExpander;
@@ -72,8 +72,7 @@ public class CheckStyleUtil {
 		checker.addFilter(filterSet);
 
 		Configuration configuration = ConfigurationLoader.loadConfiguration(
-			new InputSource(
-				classLoader.getResourceAsStream("checkstyle.xml")),
+			new InputSource(classLoader.getResourceAsStream("checkstyle.xml")),
 			new PropertiesExpander(System.getProperties()), false);
 
 		checker.configure(configuration);
@@ -85,6 +84,9 @@ public class CheckStyleUtil {
 
 		return checker;
 	}
+
+	private static final List<SourceFormatterMessage> _sourceFormatterMessages =
+		new ArrayList<>();
 
 	private static class SourceFormatterLogger extends DefaultLogger {
 
@@ -99,13 +101,11 @@ public class CheckStyleUtil {
 
 		@Override
 		public void addError(AuditEvent auditEvent) {
-			String fileName = StringUtil.replace(
-				auditEvent.getFileName(), StringPool.BACK_SLASH,
-				StringPool.SLASH);
+			String fileName = auditEvent.getFileName();
 
 			if (fileName.startsWith(_baseDirAbsolutePath + "/")) {
 				fileName = StringUtil.replaceFirst(
-					fileName, _baseDirAbsolutePath + "/", StringPool.BLANK);
+					fileName, _baseDirAbsolutePath, StringPool.PERIOD);
 			}
 
 			_sourceFormatterMessages.add(
@@ -118,8 +118,5 @@ public class CheckStyleUtil {
 		private final String _baseDirAbsolutePath;
 
 	}
-
-	private static List<SourceFormatterMessage> _sourceFormatterMessages =
-		new ArrayList<>();
 
 }
