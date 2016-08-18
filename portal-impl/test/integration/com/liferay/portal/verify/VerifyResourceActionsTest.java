@@ -52,6 +52,7 @@ public class VerifyResourceActionsTest extends BaseVerifyProcessTestCase {
 
 		createResourceAction(_NAME_1, _ACTION_ID_1, 2);
 		createResourceAction(_NAME_1, _ACTION_ID_2, 2);
+		createResourceAction(_NAME_1, _ACTION_ID_3, 2);
 		createResourceAction(_NAME_2, _ACTION_ID_1, 2);
 		createResourceAction(_NAME_2, _ACTION_ID_2, 4);
 	}
@@ -68,6 +69,11 @@ public class VerifyResourceActionsTest extends BaseVerifyProcessTestCase {
 
 		resourceAction = ResourceActionLocalServiceUtil.fetchResourceAction(
 			_NAME_1, _ACTION_ID_2);
+
+		Assert.assertNotNull(resourceAction);
+
+		resourceAction = ResourceActionLocalServiceUtil.fetchResourceAction(
+			_NAME_1, _ACTION_ID_3);
 
 		Assert.assertNotNull(resourceAction);
 
@@ -90,6 +96,11 @@ public class VerifyResourceActionsTest extends BaseVerifyProcessTestCase {
 
 		resourceAction = ResourceActionLocalServiceUtil.fetchResourceAction(
 			_NAME_1, _ACTION_ID_2);
+
+		Assert.assertNull(resourceAction);
+
+		resourceAction = ResourceActionLocalServiceUtil.fetchResourceAction(
+			_NAME_1, _ACTION_ID_3);
 
 		Assert.assertNull(resourceAction);
 
@@ -128,6 +139,8 @@ public class VerifyResourceActionsTest extends BaseVerifyProcessTestCase {
 	private static final String _ACTION_ID_1 = "action1";
 
 	private static final String _ACTION_ID_2 = "action2";
+
+	private static final String _ACTION_ID_3 = "action3";
 
 	private static final String _NAME_1 = "portlet1";
 
