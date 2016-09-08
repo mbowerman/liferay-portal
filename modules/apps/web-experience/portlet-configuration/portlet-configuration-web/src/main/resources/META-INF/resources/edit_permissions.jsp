@@ -131,21 +131,34 @@ SearchContainer permissionsSearchContainer = new SearchContainer(renderRequest, 
 %>
 
 <div class="edit-permissions portlet-configuration-edit-permissions">
-	<aui:form action="<%= updateRolePermissionsURL.toString() %>" cssClass="form" method="post" name="fm">
-		<aui:input name="resourceId" type="hidden" value="<%= resource.getResourceId() %>" />
+	<portlet:actionURL name="updateRolePermissions" var="actionURL">
+		<portlet:param name="mvcPath" value="/edit_permissions.jsp" />
+		<portlet:param name="tabs2" value="<%= tabs2 %>" />
+		<portlet:param name="returnToFullPageURL" value="<%= returnToFullPageURL %>" />
+		<portlet:param name="portletConfiguration" value="<%= Boolean.TRUE.toString() %>" />
+		<portlet:param name="portletResource" value="<%= portletResource %>" />
+		<portlet:param name="modelResource" value="<%= modelResource %>" />
+		<portlet:param name="modelResourceDescription" value="<%= modelResourceDescription %>" />
+		<portlet:param name="resourceGroupId" value="<%= String.valueOf(resourceGroupId) %>" />
+		<portlet:param name="resourcePrimKey" value="<%= resourcePrimKey %>" />
+		<portlet:param name="roleTypes" value="<%= roleTypesParam %>" />
+	</portlet:actionURL>
 
-		<div class="portlet-configuration-body-content">
-			<aui:nav-bar cssClass="collapse-basic-search" markupView="lexicon">
-				<aui:nav cssClass="navbar-nav">
-					<aui:nav-item label="permissions" selected="<%= true %>" />
-				</aui:nav>
+	<div class="portlet-configuration-body-content">
+		<aui:nav-bar cssClass="collapse-basic-search" markupView="lexicon">
+			<aui:nav cssClass="navbar-nav">
+				<aui:nav-item label="permissions" selected="<%= true %>" />
+			</aui:nav>
 
-				<aui:nav-bar-search searchContainer="<%= permissionsSearchContainer %>">
-					<aui:form action="<%= updateRolePermissionsURL %>" name="searchFM">
-						<liferay-ui:input-search markupView="lexicon" name="keywords" />
-					</aui:form>
-				</aui:nav-bar-search>
-			</aui:nav-bar>
+			<aui:nav-bar-search searchContainer="<%= permissionsSearchContainer %>">
+				<aui:form action="<%= updateRolePermissionsURL %>" name="searchFM">
+					<liferay-ui:input-search markupView="lexicon" name="keywords" />
+				</aui:form>
+			</aui:nav-bar-search>
+		</aui:nav-bar>
+
+		<aui:form action="<%= actionURL %>" cssClass="form" method="post" name="fm">
+			<aui:input name="resourceId" type="hidden" value="<%= resource.getResourceId() %>" />
 
 			<div class="container-fluid-1280">
 
@@ -384,12 +397,12 @@ SearchContainer permissionsSearchContainer = new SearchContainer(renderRequest, 
 					<liferay-ui:search-iterator markupView="lexicon" />
 				</liferay-ui:search-container>
 			</div>
-		</div>
 
-		<aui:button-row>
-			<aui:button cssClass="btn-lg" type="submit" />
-		</aui:button-row>
-	</aui:form>
+			<aui:button-row>
+				<aui:button cssClass="btn-lg" type="submit" />
+			</aui:button-row>
+		</aui:form>
+	</div>
 </div>
 
 <aui:script sandbox="<%= true %>">
