@@ -137,7 +137,7 @@
 
 		<execute function="Uncheck" locator1="Checkbox#NEVER_EXPIRE" value1="Never Expire" />
 
-		<execute function="Type#clickAtSendKeys" locator1="TextInput#EXPIRATION_DATE" value1="${expirationDate}" />
+		<execute function="Type#clickAtType" locator1="TextInput#EXPIRATION_DATE" value1="${expirationDate}" />
 	</command>
 
 	<command name="addFailWithoutRequiredCategoryAssetTypeCP">
@@ -684,7 +684,7 @@
 		<for list="${tagNameList}" param="tagName">
 			<execute function="Click" locator1="AssetCategorization#TAGS_ADD_BUTTON" />
 
-			<execute function="Type#clickAtSendKeys" locator1="AssetCategorization#TAGS_FIELD" value1="${tagName}" />
+			<execute function="Type#clickAtType" locator1="AssetCategorization#TAGS_FIELD" value1="${tagName}" />
 		</for>
 
 		<execute function="Click" locator1="AssetCategorization#TAGS_ADD_BUTTON" />
@@ -991,6 +991,20 @@
 		</if>
 	</command>
 
+	<command name="expandFolderTreeCP">
+		<while>
+			<and>
+				<condition function="IsElementPresent" locator1="WC#WEB_CONTENT_PLUS_ICON_COLLAPSED" />
+				<condition function="IsVisible" locator1="WC#WEB_CONTENT_PLUS_ICON_COLLAPSED" />
+			</and>
+			<then>
+				<execute function="Click" locator1="WC#WEB_CONTENT_PLUS_ICON_COLLAPSED" />
+			</then>
+		</while>
+
+		<execute function="AssertElementNotPresent" locator1="WC#WEB_CONTENT_PLUS_ICON_COLLAPSED" />
+	</command>
+
 	<command name="expireCP">
 		<var name="key_webContentTitle" value="${webContentTitle}" />
 
@@ -1053,6 +1067,37 @@
 		<execute function="Click#waitForMenuToggleJSClick" locator1="Icon#ROW_VERTICAL_ELLIPSIS" />
 
 		<execute function="AssertClick" locator1="MenuItem#VIEW_HISTORY" value1="View History" />
+	</command>
+
+	<command name="moveToFolderCP">
+		<execute macro="LexiconEntry#gotoEntryMenuItem">
+			<var name="menuItem" value="Move" />
+			<var name="rowEntry" value="${webContentTitle}" />
+		</execute>
+
+		<execute function="AssertTextEquals" locator1="WC#MOVE_WEB_CONTENT_ARTICLE" value1="${webContentTitle}">
+			<var name="key_webContentTitle" value="${webContentTitle}" />
+		</execute>
+
+		<execute function="AssertClick" locator1="Button#SELECT" value1="Select" />
+
+		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
+
+		<execute macro="WebContent#expandFolderTreeCP" />
+
+		<execute function="Click" locator1="WC#SELECT_FOLDER">
+			<var name="key_folderName" value="${folderName}" />
+		</execute>
+
+		<execute function="SelectFrame" value1="relative=top" />
+
+		<execute function="Pause" locator1="5000" />
+
+		<execute macro="Button#clickDone" />
+
+		<execute function="AssertClick" locator1="Button#MOVE" value1="Move" />
+
+		<execute macro="Alert#viewSuccessMessage" />
 	</command>
 
 	<command name="moveToRecycleBinCP">
@@ -1246,6 +1291,13 @@
 		<execute function="Confirm#assertConfirmationNoWait" value1="Selecting a new template deletes all unsaved content. Do you want to proceed?" />
 
 		<execute macro="IFrame#selectTopFrame" />
+
+		<if>
+			<condition function="IsElementPresent" locator1="IFrame#EDIT_ASSET" />
+			<then>
+				<execute macro="IFrame#selectEditAssetFrame" />
+			</then>
+		</if>
 
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Structure and Template" />
@@ -1481,6 +1533,28 @@
 		<execute function="AssertTextEquals#assertPartialText" locator1="WCSelectDisplayPage#PUBLIC_DISPLAY_PAGE_ITEM" value1="${displayPageSelection}" />
 
 		<execute function="SelectFrame" value1="relative=top" />
+	</command>
+
+	<command name="viewDisplayStyleCP">
+		<var name="key_webContentTitle" value="${webContentTitle}" />
+
+		<execute macro="Portlet#changeDisplayStyle">
+			<var name="displayStyle" value="Icon" />
+		</execute>
+
+		<execute function="AssertElementPresent#pauseAssertVisible" locator1="WC#ENTRY_ICON_THUMBNAIL" />
+
+		<execute macro="Portlet#changeDisplayStyle">
+			<var name="displayStyle" value="Descriptive" />
+		</execute>
+
+		<execute function="AssertElementPresent#pauseAssertVisible" locator1="WC#ENTRY_DESCRIPTIVE_THUMBNAIL" />
+
+		<execute macro="Portlet#changeDisplayStyle">
+			<var name="displayStyle" value="List" />
+		</execute>
+
+		<execute function="AssertElementPresent" locator1="WC#ENTRY_LIST_TITLE" />
 	</command>
 
 	<command name="viewEditWCViaWCD">

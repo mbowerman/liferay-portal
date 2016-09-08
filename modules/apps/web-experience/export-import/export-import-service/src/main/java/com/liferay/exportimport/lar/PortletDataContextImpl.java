@@ -14,6 +14,8 @@
 
 package com.liferay.exportimport.lar;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetLink;
 import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
@@ -137,6 +139,7 @@ import jodd.bean.BeanUtil;
  * @author Alexander Chow
  * @author Mate Thurzo
  */
+@ProviderType
 public class PortletDataContextImpl implements PortletDataContext {
 
 	public PortletDataContextImpl(LockManager lockManager) {
@@ -913,6 +916,11 @@ public class PortletDataContextImpl implements PortletDataContext {
 		return getImportDataElement(
 			ExportImportClassedModelUtil.getClassSimpleName(stagedModel),
 			"path", path);
+	}
+
+	@Override
+	public long[] getLayoutIds() {
+		return _layoutIds;
 	}
 
 	@Override
@@ -1756,6 +1764,11 @@ public class PortletDataContextImpl implements PortletDataContext {
 	}
 
 	@Override
+	public void setLayoutIds(long[] layoutIds) {
+		_layoutIds = layoutIds;
+	}
+
+	@Override
 	public void setManifestSummary(ManifestSummary manifestSummary) {
 		_manifestSummary = manifestSummary;
 	}
@@ -2527,6 +2540,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 	private transient Element _exportDataRootElement;
 	private long _groupId;
 	private transient Element _importDataRootElement;
+	private transient long[] _layoutIds;
 	private final transient LockManager _lockManager;
 	private final transient Map<String, Lock> _locksMap = new HashMap<>();
 	private transient ManifestSummary _manifestSummary = new ManifestSummary();

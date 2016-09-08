@@ -1454,6 +1454,7 @@
 		<execute macro="CalendarEvent#setRepeatingYearly">
 			<var name="frequency" value="Yearly" />
 			<var name="yearlyRecurrenceSummary" value="Yearly, On The Third Sunday Of February" />
+			<var name="yearlyRecurrenceSummaryPreviousDay" value="Yearly, On The Third Saturday Of February" />
 		</execute>
 
 		<execute macro="CalendarEvent#publish" />
@@ -2394,6 +2395,8 @@
 	</command>
 
 	<command name="DeleteEventAndViewRSSFeed" priority="3">
+		<description message="This is a use case for LPS-67928." />
+
 		<execute macro="TestCase#getSiteName">
 			<return from="siteName" name="siteName" />
 			<var name="siteName" value="${siteName}" />
@@ -2433,6 +2436,7 @@
 			<var name="eventTitle" value="Current Day Event" />
 			<var name="pageName" value="${pageName}" />
 			<var name="siteCalendarName" value="${siteName}" />
+			<var name="siteName" value="${siteName}" />
 		</execute>
 
 		<execute macro="Navigator#closeWindow" />
@@ -2643,6 +2647,8 @@
 	</command>
 
 	<command name="DisableRSSFeedForSiteCalendar" priority="3">
+		<description message="This is a use case for LPS-67928." />
+
 		<execute macro="TestCase#getSiteName">
 			<return from="siteName" name="siteName" />
 			<var name="siteName" value="${siteName}" />
@@ -5521,6 +5527,8 @@
 	</command>
 
 	<command name="ViewSiteCalendarRSSFeed" priority="5">
+		<description message="This is a use case for LPS-67928." />
+
 		<execute macro="TestCase#getSiteName">
 			<return from="siteName" name="siteName" />
 			<var name="siteName" value="${siteName}" />
@@ -5585,6 +5593,7 @@
 			<var name="eventTitle" value="Current Day Event" />
 			<var name="pageName" value="${pageName}" />
 			<var name="siteCalendarName" value="${siteName}" />
+			<var name="siteName" value="${siteName}" />
 		</execute>
 
 		<execute macro="Calendar#viewRSSFeedEventPresent">
@@ -5592,6 +5601,7 @@
 			<var name="eventTitle" value="Future Day Event" />
 			<var name="pageName" value="${pageName}" />
 			<var name="siteCalendarName" value="${siteName}" />
+			<var name="siteName" value="${siteName}" />
 		</execute>
 
 		<execute macro="Navigator#closeWindow" />

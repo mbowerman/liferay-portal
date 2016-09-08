@@ -109,8 +109,7 @@ public class LiferaySeleniumHelper {
 			LiferaySelenium liferaySelenium, String fileName, String target)
 		throws Exception {
 
-		AntCommands antCommands = new AntCommands(
-			liferaySelenium, fileName, target);
+		AntCommands antCommands = new AntCommands(fileName, target);
 
 		ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -1384,11 +1383,22 @@ public class LiferaySeleniumHelper {
 
 		Keyboard keyboard = new DesktopKeyboard();
 
-		keyboard.keyDown(Key.CTRL);
+		if (OSDetector.isApple()) {
+			keyboard.keyDown(Key.CMD);
+			keyboard.keyDown(Key.SHIFT);
 
-		keyboard.type("a");
+			keyboard.type("g");
 
-		keyboard.keyUp(Key.CTRL);
+			keyboard.keyUp(Key.CMD);
+			keyboard.keyUp(Key.SHIFT);
+		}
+		else {
+			keyboard.keyDown(Key.CTRL);
+
+			keyboard.type("a");
+
+			keyboard.keyUp(Key.CTRL);
+		}
 
 		String filePath =
 			FileUtil.getSeparator() + _TEST_DEPENDENCIES_DIR_NAME +

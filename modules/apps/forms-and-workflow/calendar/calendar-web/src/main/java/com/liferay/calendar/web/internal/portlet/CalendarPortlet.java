@@ -153,8 +153,9 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.friendly-url-mapping=calendar",
 		"com.liferay.portlet.header-portlet-css=/css/main.css",
 		"com.liferay.portlet.icon=/icons/calendar.png",
+		"com.liferay.portlet.instanceable=true",
 		"com.liferay.portlet.preferences-owned-by-group=true",
-		"com.liferay.portlet.preferences-unique-per-layout=false",
+		"com.liferay.portlet.preferences-unique-per-layout=true",
 		"javax.portlet.display-name=Calendar",
 		"javax.portlet.expiration-cache=0",
 		"javax.portlet.init-param.copy-request-parameters=true",
@@ -735,7 +736,7 @@ public class CalendarPortlet extends MVCPortlet {
 		String namespace = actionResponse.getNamespace();
 
 		editCalendarURL = HttpUtil.setParameter(
-			editCalendarURL, "p_p_id", CalendarPortletKeys.CALENDAR);
+			editCalendarURL, "p_p_id", themeDisplay.getPpid());
 		editCalendarURL = HttpUtil.setParameter(
 			editCalendarURL, namespace + "mvcPath",
 			templatePath + "edit_calendar.jsp");
@@ -974,7 +975,7 @@ public class CalendarPortlet extends MVCPortlet {
 			ParamUtil.getString(actionRequest, "exceptionDates"));
 
 		for (String exceptionDate : exceptionDates) {
-			recurrence.addExceptionDate(
+			recurrence.addExceptionJCalendar(
 				JCalendarUtil.getJCalendar(Long.valueOf(exceptionDate)));
 		}
 
@@ -1467,7 +1468,8 @@ public class CalendarPortlet extends MVCPortlet {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		CalendarBooking calendarBooking = null;
+		CalendarBooking calendarBooking =
+			_calendarBookingService.fetchCalendarBooking(calendarBookingId);
 
 		TimeZone timeZone = TimeZoneUtil.getTimeZone(StringPool.UTC);
 
@@ -1486,6 +1488,7 @@ public class CalendarPortlet extends MVCPortlet {
 		if (calendarBookingId <= 0) {
 			calendarBooking = _calendarBookingService.addCalendarBooking(
 				calendar.getCalendarId(), childCalendarIds,
+				CalendarBookingConstants.RECURRING_CALENDAR_BOOKING_ID_DEFAULT,
 				CalendarBookingConstants.PARENT_CALENDAR_BOOKING_ID_DEFAULT,
 				titleMap, descriptionMap, location, startTime, endTime, allDay,
 				RecurrenceSerializer.serialize(recurrence), reminders[0],
@@ -1493,15 +1496,28 @@ public class CalendarPortlet extends MVCPortlet {
 				serviceContext);
 		}
 		else {
-			if (updateInstance) {
-				calendarBooking =
-					_calendarBookingService.updateCalendarBookingInstance(
-						calendarBookingId, instanceIndex,
-						calendar.getCalendarId(), childCalendarIds, titleMap,
-						descriptionMap, location, startTime, endTime, allDay,
-						RecurrenceSerializer.serialize(recurrence),
-						allFollowing, reminders[0], remindersType[0],
-						reminders[1], remindersType[1], serviceContext);
+			if (calendarBooking.isRecurring()) {
+				if (updateInstance) {
+					calendarBooking =
+						_calendarBookingService.updateCalendarBookingInstance(
+							calendarBookingId, instanceIndex,
+							calendar.getCalendarId(), childCalendarIds,
+							titleMap, descriptionMap, location, startTime,
+							endTime, allDay,
+							RecurrenceSerializer.serialize(recurrence),
+							allFollowing, reminders[0], remindersType[0],
+							reminders[1], remindersType[1], serviceContext);
+				}
+				else {
+					calendarBooking =
+						_calendarBookingService.updateRecurringCalendarBooking(
+							calendarBookingId, calendar.getCalendarId(),
+							childCalendarIds, titleMap, descriptionMap,
+							location, startTime, endTime, allDay,
+							RecurrenceSerializer.serialize(recurrence),
+							reminders[0], remindersType[0], reminders[1],
+							remindersType[1], serviceContext);
+				}
 			}
 			else {
 				calendarBooking =

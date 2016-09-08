@@ -97,6 +97,8 @@ if (editorOptions != null) {
 			<script src="<%= HtmlUtil.escape(PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNHost() + PortalWebResourcesUtil.getContextPath(PortalWebResourceConstants.RESOURCE_TYPE_EDITOR_CKEDITOR) + "/ckeditor/main.js", javaScriptLastModified)) %>" type="text/javascript"></script>
 		</c:if>
 
+		<liferay-util:dynamic-include key='<%= "com.liferay.frontend.editor.ckeditor.web#" + editorName + "#additionalResources" %>' />
+
 		<script type="text/javascript">
 			Liferay.namespace('EDITORS')['<%= editorName %>'] = true;
 
@@ -128,7 +130,7 @@ if (editorOptions != null) {
 </c:if>
 
 <%
-String textareaName = name;
+String textareaName = HtmlUtil.escapeAttribute(name);
 
 String modules = "aui-node-base";
 
@@ -143,7 +145,7 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 	<textarea id="<%= textareaName %>" name="<%= textareaName %>" style="display: none;"></textarea>
 </liferay-util:buffer>
 
-<div class="<%= cssClass %>" id="<%= name %>Container">
+<div class="<%= cssClass %>" id="<%= HtmlUtil.escapeAttribute(name) %>Container">
 	<c:if test="<%= autoCreate %>">
 		<%= editor %>
 	</c:if>
@@ -152,6 +154,10 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 <script type="text/javascript">
 	CKEDITOR.disableAutoInline = true;
 </script>
+
+<%
+name = HtmlUtil.escapeJS(name);
+%>
 
 <aui:script use="<%= modules %>">
 	var getInitialContent = function() {

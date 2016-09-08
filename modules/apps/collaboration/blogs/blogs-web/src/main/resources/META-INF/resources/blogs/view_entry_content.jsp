@@ -65,14 +65,14 @@ AssetEntry assetEntry = (AssetEntry)request.getAttribute("view_entry_content.jsp
 
 					<c:if test="<%= viewSingleEntry %>">
 						<div class="cover-image-caption">
-							<small><%= entry.getCoverImageCaption() %></small>
+							<small><%= HtmlUtil.escape(entry.getCoverImageCaption()) %></small>
 						</div>
 					</c:if>
 				</c:if>
 
 				<div class="<%= colCssClass %> entry-info text-muted ">
 					<small>
-						<strong><%= entry.getUserName() %></strong>
+						<strong><%= HtmlUtil.escape(entry.getUserName()) %></strong>
 						<span> - </span>
 						<span class="hide-accessible"><liferay-ui:message key="published-date" /></span>
 						<%= dateFormatDate.format(entry.getDisplayDate()) %>
