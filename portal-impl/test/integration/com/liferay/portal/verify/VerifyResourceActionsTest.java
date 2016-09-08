@@ -61,21 +61,17 @@ public class VerifyResourceActionsTest extends BaseVerifyProcessTestCase {
 	public void testDeleteDuplicateBitwiseValuesOnResource() throws Throwable {
 		ResourceActionLocalServiceUtil.checkResourceActions();
 
-		ResourceAction resourceAction =
-			ResourceActionLocalServiceUtil.fetchResourceAction(
-				_NAME_1, _ACTION_ID_1);
+		String[] actionIds =
+			new String[] {_ACTION_ID_1, _ACTION_ID_2, _ACTION_ID_3};
 
-		Assert.assertNotNull(resourceAction);
+		ResourceAction resourceAction = null;
 
-		resourceAction = ResourceActionLocalServiceUtil.fetchResourceAction(
-			_NAME_1, _ACTION_ID_2);
+		for (String actionId : actionIds) {
+			resourceAction = ResourceActionLocalServiceUtil.fetchResourceAction(
+				_NAME_1, actionId);
 
-		Assert.assertNotNull(resourceAction);
-
-		resourceAction = ResourceActionLocalServiceUtil.fetchResourceAction(
-			_NAME_1, _ACTION_ID_3);
-
-		Assert.assertNotNull(resourceAction);
+			Assert.assertNotNull(resourceAction);
+		}
 
 		resourceAction = ResourceActionLocalServiceUtil.fetchResourceAction(
 			_NAME_2, _ACTION_ID_1);
@@ -89,20 +85,23 @@ public class VerifyResourceActionsTest extends BaseVerifyProcessTestCase {
 
 		doVerify();
 
-		resourceAction = ResourceActionLocalServiceUtil.fetchResourceAction(
-			_NAME_1, _ACTION_ID_1);
+		int existingResourceActions = 0;
+		int nullResourceActions = 0;
 
-		Assert.assertNull(resourceAction);
+		for (String actionId : actionIds) {
+			resourceAction = ResourceActionLocalServiceUtil.fetchResourceAction(
+				_NAME_1, actionId);
 
-		resourceAction = ResourceActionLocalServiceUtil.fetchResourceAction(
-			_NAME_1, _ACTION_ID_2);
+			if (resourceAction == null) {
+				nullResourceActions++;
+			}
+			else {
+				existingResourceActions++;
+			}
+		}
 
-		Assert.assertNull(resourceAction);
-
-		resourceAction = ResourceActionLocalServiceUtil.fetchResourceAction(
-			_NAME_1, _ACTION_ID_3);
-
-		Assert.assertNotNull(resourceAction);
+		Assert.assertEquals(1, existingResourceActions);
+		Assert.assertEquals(2, nullResourceActions);
 
 		resourceAction = ResourceActionLocalServiceUtil.fetchResourceAction(
 			_NAME_2, _ACTION_ID_1);
