@@ -1370,12 +1370,26 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 					classPK, script);
 
 				if (language.equals("xsd")) {
-					DDMForm ddmForm = _ddmFormXSDDeserializer.deserialize(
-						updatedScript);
+					try {
+						char firstChar = updatedScript.trim().charAt(0);
 
-					ddmForm = updateDDMFormFields(ddmForm);
+						if ((firstChar != CharPool.OPEN_CURLY_BRACE) &&
+							(firstChar != CharPool.OPEN_BRACKET)) {
 
-					updatedScript = toJSON(ddmForm);
+							DDMForm ddmForm =
+								_ddmFormXSDDeserializer.deserialize(
+									updatedScript);
+
+							ddmForm = updateDDMFormFields(ddmForm);
+
+							updatedScript = toJSON(ddmForm);
+						}
+					}
+					catch (Exception e) {
+						if (_log.isWarnEnabled()) {
+							_log.warn(e, e);
+						}
+					}
 				}
 
 				if (!script.equals(updatedScript)) {
