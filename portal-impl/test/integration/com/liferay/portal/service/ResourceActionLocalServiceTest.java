@@ -72,6 +72,17 @@ public class ResourceActionLocalServiceTest {
 	}
 
 	@Test(expected = SystemException.class)
+	public void testAddDuplicateNameBitwiseValue() throws PortalException {
+		ResourceAction resourceAction =
+			ResourceActionLocalServiceUtil.getResourceAction(
+				_NAME, ActionKeys.VIEW);
+
+		ResourceActionLocalServiceUtil.addResourceAction(
+			resourceAction.getName(), _NAME + 2,
+			resourceAction.getBitwiseValue());
+	}
+
+	@Test(expected = SystemException.class)
 	public void testAddMoreThan64Actions() {
 		List<String> actionIds = new ArrayList<>(65);
 
