@@ -18,9 +18,7 @@ import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.service.ResourceActionLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
-import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.TransactionalTestRule;
 import com.liferay.portal.verify.test.BaseVerifyProcessTestCase;
 
 import org.junit.Assert;
@@ -37,11 +35,9 @@ public class VerifyResourceActionsTest extends BaseVerifyProcessTestCase {
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), TransactionalTestRule.INSTANCE);
+		new LiferayIntegrationTestRule();
 
 	@Before
-	@Transactional
 	public void setUp() throws Exception {
 		super.setUp();
 
