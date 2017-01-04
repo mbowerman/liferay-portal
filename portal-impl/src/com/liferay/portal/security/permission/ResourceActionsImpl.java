@@ -1350,13 +1350,13 @@ public class ResourceActionsImpl implements ResourceActions {
 		Set<String> portletResourceActions =
 			portletResourceActionsBag.getResourceActions();
 
-		readSupportsActions(portletResourceElement, portletResourceActions);
-
-		portletResourceActions.addAll(getPortletMimeTypeActions(name));
-
 		if (!name.equals(PortletKeys.PORTAL)) {
 			checkPortletActions(name, portletResourceActions);
 		}
+
+		readSupportsActions(portletResourceElement, portletResourceActions);
+
+		portletResourceActions.addAll(getPortletMimeTypeActions(name));
 
 		if (portletResourceActions.size() > 64) {
 			throw new ResourceActionsException(
