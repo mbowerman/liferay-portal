@@ -1075,13 +1075,7 @@ public class ResourceActionsImpl implements ResourceActions {
 				name = JS.getSafeName(name);
 
 				if (portletResourceElementNames.add(name)) {
-					PortletResourceActionsBag portletResourceActionsBag =
-						getPortletResourceActionsBag(name);
-
-					Set<String> portletResourceActions =
-						portletResourceActionsBag.getResourceActions();
-
-					portletResourceActions.clear();
+					_portletResourceActionsBags.remove(name);
 				}
 
 				String portletName = readPortletResource(
@@ -1104,13 +1098,7 @@ public class ResourceActionsImpl implements ResourceActions {
 			}
 
 			if (modelResourceElementNames.add(name)) {
-				ModelResourceActionsBag modelResourceActionsBag =
-					getModelResourceActionsBag(name);
-
-				Set<String> modelResourceActions =
-					modelResourceActionsBag.getResourceActions();
-
-				modelResourceActions.clear();
+				_modelResourceActionsBags.remove(name);
 			}
 
 			String modelName = readModelResource(
