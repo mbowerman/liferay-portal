@@ -103,9 +103,11 @@ public interface ResourceActionLocalService extends BaseLocalService,
 	*
 	* @param resourceAction the resource action
 	* @return the resource action that was removed
+	* @throws PortalException
 	*/
 	@Indexable(type = IndexableType.DELETE)
-	public ResourceAction deleteResourceAction(ResourceAction resourceAction);
+	public ResourceAction deleteResourceAction(ResourceAction resourceAction)
+		throws PortalException;
 
 	/**
 	* Deletes the resource action with the primary key from the database. Also notifies the appropriate model listeners.

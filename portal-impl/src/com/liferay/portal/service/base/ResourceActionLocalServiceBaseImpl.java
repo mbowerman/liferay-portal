@@ -121,10 +121,12 @@ public abstract class ResourceActionLocalServiceBaseImpl
 	 *
 	 * @param resourceAction the resource action
 	 * @return the resource action that was removed
+	 * @throws PortalException
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public ResourceAction deleteResourceAction(ResourceAction resourceAction) {
+	public ResourceAction deleteResourceAction(ResourceAction resourceAction)
+		throws PortalException {
 		return resourceActionPersistence.remove(resourceAction);
 	}
 

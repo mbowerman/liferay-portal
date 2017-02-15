@@ -100,10 +100,12 @@ public class ResourceActionLocalServiceWrapper
 	*
 	* @param resourceAction the resource action
 	* @return the resource action that was removed
+	* @throws PortalException
 	*/
 	@Override
 	public com.liferay.portal.kernel.model.ResourceAction deleteResourceAction(
-		com.liferay.portal.kernel.model.ResourceAction resourceAction) {
+		com.liferay.portal.kernel.model.ResourceAction resourceAction)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return _resourceActionLocalService.deleteResourceAction(resourceAction);
 	}
 
