@@ -18,6 +18,7 @@ import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.exception.NoSuchResourceActionException;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.ResourceActionsException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -895,6 +896,30 @@ public class ResourceActionsImpl implements ResourceActions {
 		actions.add(ActionKeys.VIEW);
 	}
 
+	protected void deleteDeprecatedActions(Element parentElement, String name)
+		throws PortalException {
+
+		Element deprecatedElement = getPermissionsChildElement(
+			parentElement, "deprecated");
+
+		if (deprecatedElement == null) {
+			return;
+		}
+
+		List<String> deprecatedActionKeys = readActionKeys(deprecatedElement);
+
+		for (String deprecatedActionKey : deprecatedActionKeys) {
+			ResourceAction resourceAction =
+				ResourceActionLocalServiceUtil.fetchResourceAction(
+					name, deprecatedActionKey);
+
+			if (resourceAction != null) {
+				ResourceActionLocalServiceUtil.deleteResourceAction(
+					resourceAction);
+			}
+		}
+	}
+
 	protected String getCompositeModelName(Element compositeModelNameElement) {
 		StringBundler sb = new StringBundler();
 
@@ -1319,6 +1344,8 @@ public class ResourceActionsImpl implements ResourceActions {
 			}
 		}
 
+		deleteDeprecatedActions(modelResourceElement, name);
+
 		double weight = GetterUtil.getDouble(
 			modelResourceElement.elementTextTrim("weight"), 100);
 
@@ -1396,6 +1423,8 @@ public class ResourceActionsImpl implements ResourceActions {
 		}
 
 		name = JS.getSafeName(name);
+
+		deleteDeprecatedActions(portletResourceElement, name);
 
 		PortletResourceActionsBag portletResourceActionsBag =
 			new PortletResourceActionsBagImpl();
