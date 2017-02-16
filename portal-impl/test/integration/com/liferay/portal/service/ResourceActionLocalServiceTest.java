@@ -43,7 +43,7 @@ public class ResourceActionLocalServiceTest {
 		new LiferayIntegrationTestRule();
 
 	@Before
-	public void setUp() {
+	public void setUp() throws PortalException {
 		List<String> actionIds = new ArrayList<>(3);
 
 		actionIds.add(ActionKeys.VIEW);
@@ -62,7 +62,7 @@ public class ResourceActionLocalServiceTest {
 	}
 
 	@After
-	public void tearDown() {
+	public void tearDown() throws PortalException {
 		List<ResourceAction> resourceActions =
 			ResourceActionLocalServiceUtil.getResourceActions(_NAME);
 
