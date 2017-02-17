@@ -38,11 +38,6 @@ import java.util.regex.Pattern;
  */
 public class BNDSourceProcessor extends BaseSourceProcessor {
 
-	@Override
-	public String[] getIncludes() {
-		return _INCLUDES;
-	}
-
 	protected void checkDirectoryAndBundleName(
 		String fileName, String absolutePath, String content) {
 
@@ -165,6 +160,16 @@ public class BNDSourceProcessor extends BaseSourceProcessor {
 		}
 	}
 
+	protected void checkRange(String fileName, String content) {
+		int pos = content.indexOf("\"${range");
+
+		if (pos != -1) {
+			processMessage(
+				fileName, "Do not use range expression, see LPS-70519",
+				getLineCount(content, pos));
+		}
+	}
+
 	protected void checkWildcardImports(
 		String fileName, String absolutePath, String content, Pattern pattern) {
 
@@ -257,6 +262,8 @@ public class BNDSourceProcessor extends BaseSourceProcessor {
 		content = formatLineBreaks(shortFileName, content);
 		content = formatWhitespace(shortFileName, content);
 
+		checkRange(fileName, content);
+
 		if ((portalSource || subrepository) && isModulesFile(absolutePath) &&
 			!fileName.endsWith("test-bnd.bnd")) {
 
@@ -269,6 +276,11 @@ public class BNDSourceProcessor extends BaseSourceProcessor {
 	@Override
 	protected List<String> doGetFileNames() throws Exception {
 		return getFileNames(new String[0], getIncludes());
+	}
+
+	@Override
+	protected String[] doGetIncludes() {
+		return _INCLUDES;
 	}
 
 	protected String formatBundleClassPath(String content) {

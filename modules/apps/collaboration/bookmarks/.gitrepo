@@ -2,8 +2,10 @@
 ; Do not manually edit this file.
 ;
 [subrepo]
+	autopull = false
 	cmdver = liferay
-	commit = 5d0020ec0b3598f2cccd5f7cdecc5de1a361ca3c
+	commit = 38d88657a92310827ad46e5bd9c4fde2ea2442e4
+	mergebuttonmergecommits = false
 	mode = push
-	parent = 9f169750c79e1f5cd7fea7b71dc2fe74f8d0c391
+	parent = 9cb424ec1a73f8b04e8ab7516ba66a17381cbff8
 	remote = git@github.com:liferay/com-liferay-bookmarks.git
