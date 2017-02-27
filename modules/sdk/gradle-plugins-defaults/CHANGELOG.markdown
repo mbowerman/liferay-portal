@@ -1091,20 +1091,40 @@ project with the `install` and `uploadArchives` tasks.
 ### Changed
 - [LPS-66853]: Update the [Liferay Gradle Plugins] dependency to version 3.2.7.
 
-## 3.0.0 - 2017-02-22
+## 3.0.0 - 2017-02-23
 
 ### Changed
-- [LPS-63943]: Refactor and rename `PrintArtifactPublishCommandsTask` class to
-`WriteArtifactPublishCommandsTask`. Executing
-`gradlew writeArtifactPublishCommands` in a parent directory causes the file
-`build/artifacts-publish-commands/artifacts-publish-commands.sh` to be generated
-with the following commands for all publishable subprojects:
-	- `gradlew baseline`
-	- `gradlew baseline` and Git commands to commit the files modified by the
-	`baseline` task
-	- the publish commands returned by the previous version of the plugin
-- [LPS-63943]: Rename `printArtifactPublishCommands` task to
+- [LPS-63943]: Refactor the `PrintArtifactPublishCommandsTask` class and rename
+it to `WriteArtifactPublishCommandsTask`. Executing
+`gradlew writeArtifactPublishCommands` in a parent directory generates the file
+`build/artifacts-publish-commands/artifacts-publish-commands.sh` with the
+following commands for all publishable subprojects:
+	- `gradlew baseline` (failing when semantic versioning errors are detected).
+	- `gradlew baseline` (ignoring semantic versioning errors) and Git commands
+	to commit the files modified by the `baseline` task.
+	- the publish commands returned by the previous version of the plugin.
+- [LPS-63943]: Rename the `printArtifactPublishCommands` task to
 `writeArtifactPublishCommands`.
+
+## 3.1.0 - 2017-02-23
+
+### Added
+- [LPS-70819]: Set the `jsp.precompile.from.source` project property to `false`
+to make the `compileJSP` task download the archive listed in the
+`artifact.jspc.url` artifact property instead of compiling the JSP pages of the
+OSGi project.
+
+### Changed
+- [LPS-70870]: Update the [Liferay Gradle Plugins] dependency to version 3.2.8.
+
+## 3.1.1 - 2017-02-24
+
+### Changed
+- [LPS-70170]: Change dependency replacements in the `jspC` configuration:
+	- always use the deployed `util-taglib.jar` file; fail if not found.
+	- substitute module taglib dependencies with project dependencies if found,
+	falling back to the deployed JAR file; fail if neither the project or the
+	deployed JAR file are found.
 
 [Liferay CDN]: https://cdn.lfrs.sl/repository.liferay.com/nexus/content/groups/public
 [Liferay Gradle Plugins]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins
@@ -1214,6 +1234,7 @@ with the following commands for all publishable subprojects:
 [LPS-70699]: https://issues.liferay.com/browse/LPS-70699
 [LPS-70707]: https://issues.liferay.com/browse/LPS-70707
 [LPS-70819]: https://issues.liferay.com/browse/LPS-70819
+[LPS-70870]: https://issues.liferay.com/browse/LPS-70870
 [LRDOCS-2594]: https://issues.liferay.com/browse/LRDOCS-2594
 [LRDOCS-2841]: https://issues.liferay.com/browse/LRDOCS-2841
 [LRDOCS-2981]: https://issues.liferay.com/browse/LRDOCS-2981
