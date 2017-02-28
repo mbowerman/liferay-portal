@@ -296,6 +296,10 @@ public class ResourceActionsImpl implements ResourceActions {
 		ModelResourceActionsBag modelResourceActionsBag =
 			_modelResourceActionsBags.get(name);
 
+		if (modelResourceActionsBag == null) {
+			return new ArrayList<>();
+		}
+
 		return new ArrayList<>(modelResourceActionsBag.getResources());
 	}
 
@@ -338,6 +342,10 @@ public class ResourceActionsImpl implements ResourceActions {
 		ModelResourceActionsBag modelResourceActionsBag =
 			_modelResourceActionsBags.get(name);
 
+		if (modelResourceActionsBag == null) {
+			return new ArrayList<>();
+		}
+
 		return new ArrayList<>(modelResourceActionsBag.getResourceActions());
 	}
 
@@ -345,6 +353,10 @@ public class ResourceActionsImpl implements ResourceActions {
 	public List<String> getModelResourceGroupDefaultActions(String name) {
 		ModelResourceActionsBag modelResourceActionsBag =
 			_modelResourceActionsBags.get(name);
+
+		if (modelResourceActionsBag == null) {
+			return new ArrayList<>();
+		}
 
 		return new ArrayList<>(
 			modelResourceActionsBag.getResourceGroupDefaultActions());
@@ -355,6 +367,10 @@ public class ResourceActionsImpl implements ResourceActions {
 		ModelResourceActionsBag modelResourceActionsBag =
 			_modelResourceActionsBags.get(name);
 
+		if (modelResourceActionsBag == null) {
+			return new ArrayList<>();
+		}
+
 		return new ArrayList<>(
 			modelResourceActionsBag.getResourceGuestDefaultActions());
 	}
@@ -363,6 +379,10 @@ public class ResourceActionsImpl implements ResourceActions {
 	public List<String> getModelResourceGuestUnsupportedActions(String name) {
 		ModelResourceActionsBag modelResourceActionsBag =
 			_modelResourceActionsBags.get(name);
+
+		if (modelResourceActionsBag == null) {
+			return new ArrayList<>();
+		}
 
 		return new ArrayList<>(
 			modelResourceActionsBag.getResourceGuestUnsupportedActions());
@@ -378,6 +398,10 @@ public class ResourceActionsImpl implements ResourceActions {
 		ModelResourceActionsBag modelResourceActionsBag =
 			_modelResourceActionsBags.get(name);
 
+		if (modelResourceActionsBag == null) {
+			return new ArrayList<>();
+		}
+
 		return new ArrayList<>(
 			modelResourceActionsBag.getResourceOwnerDefaultActions());
 	}
@@ -386,6 +410,10 @@ public class ResourceActionsImpl implements ResourceActions {
 	public Double getModelResourceWeight(String name) {
 		ModelResourceActionsBag modelResourceActionsBag =
 			_modelResourceActionsBags.get(name);
+
+		if (modelResourceActionsBag == null) {
+			return null;
+		}
 
 		Map<String, Double> modelResourceWeights =
 			modelResourceActionsBag.getResourceWeights();
@@ -425,6 +453,10 @@ public class ResourceActionsImpl implements ResourceActions {
 		PortletResourceActionsBag portletResourceActionsBag =
 			_portletResourceActionsBags.get(portletName);
 
+		if (portletResourceActionsBag == null) {
+			return new ArrayList<>();
+		}
+
 		Set<String> resources = portletResourceActionsBag.getResources();
 
 		if (resources == null) {
@@ -458,6 +490,10 @@ public class ResourceActionsImpl implements ResourceActions {
 
 		PortletResourceActionsBag portletResourceActionsBag =
 			_portletResourceActionsBags.get(name);
+
+		if (portletResourceActionsBag == null) {
+			return new ArrayList<>();
+		}
 
 		Set<String> actions = portletResourceActionsBag.getResourceActions();
 
@@ -498,6 +534,10 @@ public class ResourceActionsImpl implements ResourceActions {
 		PortletResourceActionsBag portletResourceActionsBag =
 			_portletResourceActionsBags.get(name);
 
+		if (portletResourceActionsBag == null) {
+			return new ArrayList<>();
+		}
+
 		return new ArrayList<>(
 			portletResourceActionsBag.getResourceGroupDefaultActions());
 	}
@@ -508,6 +548,10 @@ public class ResourceActionsImpl implements ResourceActions {
 
 		PortletResourceActionsBag portletResourceActionsBag =
 			_portletResourceActionsBags.get(name);
+
+		if (portletResourceActionsBag == null) {
+			return new ArrayList<>();
+		}
 
 		return new ArrayList<>(
 			portletResourceActionsBag.getResourceGuestDefaultActions());
@@ -520,6 +564,10 @@ public class ResourceActionsImpl implements ResourceActions {
 		PortletResourceActionsBag portletResourceActionsBag =
 			_portletResourceActionsBags.get(name);
 
+		if (portletResourceActionsBag == null) {
+			return new ArrayList<>();
+		}
+
 		return new ArrayList<>(
 			portletResourceActionsBag.getResourceGuestUnsupportedActions());
 	}
@@ -531,6 +579,10 @@ public class ResourceActionsImpl implements ResourceActions {
 		PortletResourceActionsBag portletResourceActionsBag =
 			_portletResourceActionsBags.get(name);
 
+		if (portletResourceActionsBag == null) {
+			return new ArrayList<>();
+		}
+
 		return new ArrayList<>(
 			portletResourceActionsBag.getResourceLayoutManagerActions());
 	}
@@ -541,6 +593,10 @@ public class ResourceActionsImpl implements ResourceActions {
 
 		PortletResourceActionsBag portletResourceActionsBag =
 			_portletResourceActionsBags.get(portletName);
+
+		if (portletResourceActionsBag == null) {
+			return null;
+		}
 
 		return portletResourceActionsBag.getPortletRootModelResource();
 	}
@@ -623,6 +679,10 @@ public class ResourceActionsImpl implements ResourceActions {
 	public boolean hasModelResourceActions(String name) {
 		ModelResourceActionsBag modelResourceActionsBag =
 			_modelResourceActionsBags.get(name);
+
+		if (modelResourceActionsBag == null) {
+			return false;
+		}
 
 		Set<String> actions = modelResourceActionsBag.getResourceActions();
 
@@ -1165,6 +1225,12 @@ public class ResourceActionsImpl implements ResourceActions {
 
 			PortletResourceActionsBag portletResourceActionsBag =
 				_portletResourceActionsBags.get(portletName);
+
+			if (portletResourceActionsBag == null) {
+				throw new ResourceActionsException(
+					"The model " + name + " references a portlet that does " +
+						"not exist: " + portletName);
+			}
 
 			Set<String> modelResources =
 				portletResourceActionsBag.getResources();
