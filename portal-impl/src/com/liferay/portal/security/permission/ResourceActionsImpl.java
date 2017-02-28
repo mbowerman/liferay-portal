@@ -747,22 +747,15 @@ public class ResourceActionsImpl implements ResourceActions {
 	}
 
 	protected void checkPortletGroupDefaultActions(Set<String> actions) {
-		if (actions.isEmpty()) {
-			actions.add(ActionKeys.VIEW);
-		}
+		actions.add(ActionKeys.VIEW);
 	}
 
 	protected void checkPortletGuestDefaultActions(Set<String> actions) {
-		if (actions.isEmpty()) {
-			actions.add(ActionKeys.VIEW);
-		}
+		actions.add(ActionKeys.VIEW);
 	}
 
 	protected void checkPortletLayoutManagerActions(Set<String> actions) {
-		if (!actions.contains(ActionKeys.ACCESS_IN_CONTROL_PANEL)) {
-			actions.add(ActionKeys.ADD_TO_PAGE);
-		}
-
+		actions.add(ActionKeys.ADD_TO_PAGE);
 		actions.add(ActionKeys.CONFIGURATION);
 		actions.add(ActionKeys.PERMISSIONS);
 		actions.add(ActionKeys.PREFERENCES);
