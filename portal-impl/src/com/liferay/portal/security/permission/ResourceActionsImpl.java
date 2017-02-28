@@ -727,17 +727,14 @@ public class ResourceActionsImpl implements ResourceActions {
 	}
 
 	protected void checkModelActions(Set<String> actions) {
-		if (!actions.contains(ActionKeys.PERMISSIONS)) {
-			actions.add(ActionKeys.PERMISSIONS);
-		}
+		actions.add(ActionKeys.PERMISSIONS);
 	}
 
 	protected void checkPortletActions(Portlet portlet, Set<String> actions) {
 		checkPortletLayoutManagerActions(actions);
 
 		if ((portlet != null) &&
-			(portlet.getControlPanelEntryCategory() != null) &&
-			!actions.contains(ActionKeys.ACCESS_IN_CONTROL_PANEL)) {
+			(portlet.getControlPanelEntryCategory() != null)) {
 
 			actions.add(ActionKeys.ACCESS_IN_CONTROL_PANEL);
 		}
@@ -762,27 +759,14 @@ public class ResourceActionsImpl implements ResourceActions {
 	}
 
 	protected void checkPortletLayoutManagerActions(Set<String> actions) {
-		if (!actions.contains(ActionKeys.ACCESS_IN_CONTROL_PANEL) &&
-			!actions.contains(ActionKeys.ADD_TO_PAGE)) {
-
+		if (!actions.contains(ActionKeys.ACCESS_IN_CONTROL_PANEL)) {
 			actions.add(ActionKeys.ADD_TO_PAGE);
 		}
 
-		if (!actions.contains(ActionKeys.CONFIGURATION)) {
-			actions.add(ActionKeys.CONFIGURATION);
-		}
-
-		if (!actions.contains(ActionKeys.PERMISSIONS)) {
-			actions.add(ActionKeys.PERMISSIONS);
-		}
-
-		if (!actions.contains(ActionKeys.PREFERENCES)) {
-			actions.add(ActionKeys.PREFERENCES);
-		}
-
-		if (!actions.contains(ActionKeys.VIEW)) {
-			actions.add(ActionKeys.VIEW);
-		}
+		actions.add(ActionKeys.CONFIGURATION);
+		actions.add(ActionKeys.PERMISSIONS);
+		actions.add(ActionKeys.PREFERENCES);
+		actions.add(ActionKeys.VIEW);
 	}
 
 	protected String getCompositeModelName(Element compositeModelNameElement) {
