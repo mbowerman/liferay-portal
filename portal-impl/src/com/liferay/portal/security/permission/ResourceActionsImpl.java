@@ -840,26 +840,7 @@ public class ResourceActionsImpl implements ResourceActions {
 	protected ModelResourceActionsBag getModelResourceActionsBag(
 		String modelName) {
 
-		ModelResourceActionsBag modelResourceActionsBag =
-			_modelResourceActionsBags.get(modelName);
-
-		if (modelResourceActionsBag != null) {
-			return modelResourceActionsBag;
-		}
-
-		synchronized (_modelResourceActionsBags) {
-			modelResourceActionsBag = _modelResourceActionsBags.get(modelName);
-
-			if (modelResourceActionsBag != null) {
-				return modelResourceActionsBag;
-			}
-
-			modelResourceActionsBag = new ModelResourceActionsBagImpl();
-
-			_modelResourceActionsBags.put(modelName, modelResourceActionsBag);
-		}
-
-		return modelResourceActionsBag;
+		return _modelResourceActionsBags.get(modelName);
 	}
 
 	protected Element getPermissionsChildElement(
@@ -916,28 +897,7 @@ public class ResourceActionsImpl implements ResourceActions {
 	protected PortletResourceActionsBag getPortletResourceActionsBag(
 		String portletName) {
 
-		PortletResourceActionsBag portletResourceActionsBag =
-			_portletResourceActionsBags.get(portletName);
-
-		if (portletResourceActionsBag != null) {
-			return portletResourceActionsBag;
-		}
-
-		synchronized (_portletResourceActionsBags) {
-			portletResourceActionsBag = _portletResourceActionsBags.get(
-				portletName);
-
-			if (portletResourceActionsBag != null) {
-				return portletResourceActionsBag;
-			}
-
-			portletResourceActionsBag = new PortletResourceActionsBagImpl();
-
-			_portletResourceActionsBags.put(
-				portletName, portletResourceActionsBag);
-		}
-
-		return portletResourceActionsBag;
+		return _portletResourceActionsBags.get(portletName);
 	}
 
 	protected String getResourceBundlesString(
