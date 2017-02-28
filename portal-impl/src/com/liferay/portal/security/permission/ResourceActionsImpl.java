@@ -728,6 +728,11 @@ public class ResourceActionsImpl implements ResourceActions {
 		actions.add(ActionKeys.VIEW);
 	}
 
+	protected void checkPortletGuestUnsupportedActions(Set<String> actions) {
+		actions.add(ActionKeys.CONFIGURATION);
+		actions.add(ActionKeys.PERMISSIONS);
+	}
+
 	protected void checkPortletLayoutManagerActions(Set<String> actions) {
 		actions.add(ActionKeys.ADD_TO_PAGE);
 		actions.add(ActionKeys.CONFIGURATION);
@@ -1289,8 +1294,8 @@ public class ResourceActionsImpl implements ResourceActions {
 		Set<String> portletResourceGuestUnsupportedActions =
 			portletResourceActionsBag.getResourceGuestUnsupportedActions();
 
-		portletResourceGuestUnsupportedActions.add(ActionKeys.CONFIGURATION);
-		portletResourceGuestUnsupportedActions.add(ActionKeys.PERMISSIONS);
+		checkPortletGuestUnsupportedActions(
+			portletResourceGuestUnsupportedActions);
 
 		readGuestUnsupportedActions(
 			portletResourceElement, portletResourceGuestUnsupportedActions,
@@ -1299,9 +1304,7 @@ public class ResourceActionsImpl implements ResourceActions {
 		Set<String> portletResourceLayoutManagerActions =
 			portletResourceActionsBag.getResourceLayoutManagerActions();
 
-		portletResourceLayoutManagerActions.add(ActionKeys.CONFIGURATION);
-		portletResourceLayoutManagerActions.add(ActionKeys.PREFERENCES);
-		portletResourceLayoutManagerActions.add(ActionKeys.VIEW);
+		checkPortletLayoutManagerActions(portletResourceLayoutManagerActions);
 
 		readLayoutManagerActions(
 			portletResourceElement, portletResourceLayoutManagerActions,
