@@ -16,9 +16,7 @@ package com.liferay.portal.security.permission;
 
 import com.liferay.portal.kernel.security.permission.PortletResourceActionsBag;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -35,8 +33,8 @@ public class PortletResourceActionsBagImpl
 
 		super(portletResourceActionsBag);
 
-		_portletRootModelResources.putAll(
-			portletResourceActionsBag.getPortletRootModelResources());
+		_portletRootModelResource =
+			portletResourceActionsBag.getPortletRootModelResource();
 		_resourceLayoutManagerActions.addAll(
 			portletResourceActionsBag.getResourceLayoutManagerActions());
 	}
@@ -47,8 +45,8 @@ public class PortletResourceActionsBagImpl
 	}
 
 	@Override
-	public Map<String, String> getPortletRootModelResources() {
-		return _portletRootModelResources;
+	public String getPortletRootModelResource() {
+		return _portletRootModelResource;
 	}
 
 	@Override
@@ -56,8 +54,12 @@ public class PortletResourceActionsBagImpl
 		return _resourceLayoutManagerActions;
 	}
 
-	private final Map<String, String> _portletRootModelResources =
-		new HashMap<>();
+	@Override
+	public void setPortletRootModelResource(String portletRootModelResource) {
+		_portletRootModelResource = portletRootModelResource;
+	}
+
+	private String _portletRootModelResource;
 	private final Set<String> _resourceLayoutManagerActions = new HashSet<>();
 
 }

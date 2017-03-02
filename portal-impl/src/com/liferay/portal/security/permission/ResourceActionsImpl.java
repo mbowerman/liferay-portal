@@ -514,10 +514,7 @@ public class ResourceActionsImpl implements ResourceActions {
 		PortletResourceActionsBag portletResourceActionsBag =
 			getPortletResourceActionsBag(portletName);
 
-		Map<String, String> portletRootModelResource =
-			portletResourceActionsBag.getPortletRootModelResources();
-
-		return portletRootModelResource.get(portletName);
+		return portletResourceActionsBag.getPortletRootModelResource();
 	}
 
 	@Override
@@ -1179,10 +1176,7 @@ public class ResourceActionsImpl implements ResourceActions {
 			if (root) {
 				_rootModelResources.add(name);
 
-				Map<String, String> portletRootModelResource =
-					portletResourceActionsBag.getPortletRootModelResources();
-
-				portletRootModelResource.put(portletName, name);
+				portletResourceActionsBag.setPortletRootModelResource(name);
 			}
 		}
 

@@ -14,7 +14,6 @@
 
 package com.liferay.portal.kernel.security.permission;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -22,8 +21,10 @@ import java.util.Set;
  */
 public interface PortletResourceActionsBag extends ResourceActionsBag {
 
-	public Map<String, String> getPortletRootModelResources();
+	public String getPortletRootModelResource();
 
 	public Set<String> getResourceLayoutManagerActions();
+
+	public void setPortletRootModelResource(String portletRootModelResource);
 
 }
