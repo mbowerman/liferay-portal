@@ -1138,14 +1138,11 @@ public class ResourceActionsImpl implements ResourceActions {
 		for (Element modelResourceElement :
 				rootElement.elements("model-resource")) {
 
-			String modelName = readModelResource(
+			ModelResourceActionsBag modelResourceActionsBag = readModelResource(
 				servletContextName, modelResourceElement,
 				tempPortletResourceActionsBags, tempModelResourceActionsBags);
 
 			if (portletNames != null) {
-				ModelResourceActionsBag modelResourceActionsBag =
-					tempModelResourceActionsBags.get(modelName);
-
 				portletNames.addAll(modelResourceActionsBag.getResources());
 			}
 		}
@@ -1227,7 +1224,7 @@ public class ResourceActionsImpl implements ResourceActions {
 		}
 	}
 
-	protected String readModelResource(
+	protected ModelResourceActionsBag readModelResource(
 			String servletContextName, Element modelResourceElement,
 			Map<String, PortletResourceActionsBag>
 				tempPortletResourceActionsBags,
@@ -1369,7 +1366,7 @@ public class ResourceActionsImpl implements ResourceActions {
 
 		tempModelResourceActionsBags.put(name, modelResourceActionsBag);
 
-		return name;
+		return modelResourceActionsBag;
 	}
 
 	protected void readOwnerDefaultActions(
