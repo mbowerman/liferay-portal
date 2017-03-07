@@ -112,8 +112,7 @@ public class AnnouncementsUtil {
 		Set<Role> roles = new LinkedHashSet<>();
 
 		if (!groupsList.isEmpty()) {
-			roles.addAll(
-				RoleLocalServiceUtil.getUserRelatedRoles(userId, groupsList));
+			roles.addAll(userBag.getRoles());
 
 			for (Group group : groupsList) {
 				roles.addAll(
