@@ -23,6 +23,8 @@ import com.liferay.portal.kernel.model.Team;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.UserBag;
+import com.liferay.portal.kernel.security.permission.UserBagFactoryUtil;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
@@ -64,6 +66,8 @@ public class AnnouncementsUtil {
 		scopes.put(_USER_CLASS_NAME_ID, new long[] {userId});
 
 		// Organization announcements
+
+		UserBag userBag = UserBagFactoryUtil.create(userId);
 
 		List<Group> groupsList = new ArrayList<>();
 
