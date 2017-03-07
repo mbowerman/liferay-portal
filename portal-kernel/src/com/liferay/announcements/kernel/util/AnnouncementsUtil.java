@@ -75,26 +75,13 @@ public class AnnouncementsUtil {
 			userBag.getUserOrgs());
 
 		if (!organizations.isEmpty()) {
-			List<Organization> organizationsList = new ArrayList<>();
-
-			organizationsList.addAll(organizations);
-
 			for (Organization organization : organizations) {
 				groupsList.add(organization.getGroup());
-
-				List<Organization> parentOrganizations =
-					OrganizationLocalServiceUtil.getParentOrganizations(
-						organization.getOrganizationId());
-
-				for (Organization parentOrganization : parentOrganizations) {
-					organizationsList.add(parentOrganization);
-					groupsList.add(parentOrganization.getGroup());
-				}
 			}
 
 			scopes.put(
 				_ORGANIZATION_CLASS_NAME_ID,
-				_getOrganizationIds(organizationsList));
+				_getOrganizationIds(organizations));
 		}
 
 		// Site announcements
