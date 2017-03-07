@@ -86,7 +86,7 @@ public class AnnouncementsUtil {
 
 		// Site announcements
 
-		List<Group> groups = GroupLocalServiceUtil.getUserGroups(userId, true);
+		List<Group> groups = new ArrayList<>(userBag.getUserGroups());
 
 		if (!groups.isEmpty()) {
 			scopes.put(_GROUP_CLASS_NAME_ID, _getGroupIds(groups));
