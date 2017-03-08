@@ -97,13 +97,8 @@ public class AnnouncementsUtil {
 			UserGroupLocalServiceUtil.getUserUserGroups(userId);
 
 		if (!userGroups.isEmpty()) {
-			long[] userGroupIds = new long[userGroups.size()];
-
-			int i = 0;
-
-			for (UserGroup userGroup : userGroups) {
-				userGroupIds[i++] = userGroup.getUserGroupId();
-			}
+			long[] userGroupIds = ListUtil.toLongArray(
+				userGroups, UserGroup.USER_GROUP_ID_ACCESSOR);
 
 			scopes.put(_USER_GROUP_CLASS_NAME_ID, userGroupIds);
 		}
