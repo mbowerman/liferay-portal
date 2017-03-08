@@ -74,16 +74,12 @@ public class AnnouncementsUtil {
 
 		UserBag userBag = UserBagFactoryUtil.create(userId);
 
-		List<Group> groupsList = new ArrayList<>();
+		List<Group> groupsList = new ArrayList<>(userBag.getGroups());
 
 		List<Organization> organizations = new ArrayList<>(
 			userBag.getUserOrgs());
 
 		if (!organizations.isEmpty()) {
-			for (Organization organization : organizations) {
-				groupsList.add(organization.getGroup());
-			}
-
 			scopes.put(
 				_ORGANIZATION_CLASS_NAME_ID,
 				_getOrganizationIds(organizations));
@@ -95,8 +91,6 @@ public class AnnouncementsUtil {
 
 		if (!groups.isEmpty()) {
 			scopes.put(_GROUP_CLASS_NAME_ID, _getGroupIds(groups));
-
-			groupsList.addAll(groups);
 		}
 
 		// User group announcements
@@ -106,10 +100,6 @@ public class AnnouncementsUtil {
 
 		if (!userGroups.isEmpty()) {
 			scopes.put(_USER_GROUP_CLASS_NAME_ID, _getUserGroupIds(userGroups));
-
-			for (UserGroup userGroup : userGroups) {
-				groupsList.add(userGroup.getGroup());
-			}
 		}
 
 		// Role announcements
