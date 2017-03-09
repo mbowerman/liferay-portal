@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.PortletApp;
 import com.liferay.portal.kernel.model.PortletCategory;
+import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.model.PortletFilter;
 import com.liferay.portal.kernel.model.PortletURLListener;
 import com.liferay.portal.kernel.portlet.CustomUserAttributes;
@@ -59,6 +60,7 @@ import com.liferay.portlet.PortletURLListenerFactory;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceRegistration;
+import com.liferay.util.JS;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -348,6 +350,19 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 
 			for (Portlet portlet : portlets) {
 				destroyPortlet(portlet, portletIds);
+
+				String portletName = portlet.getPortletName();
+
+				if (servletContextName != null) {
+					portletName = portletName.concat(
+						PortletConstants.WAR_SEPARATOR);
+
+					portletName = portletName.concat(servletContextName);
+				}
+
+				portletName = JS.getSafeName(portletName);
+
+				ResourceActionsUtil.removePortlet(portletName);
 			}
 		}
 
