@@ -27,7 +27,8 @@ The permissions element defines the default permissions granted and unsupported
 to community members, guests users, and layout managers.
 -->
 <!ELEMENT permissions (supports, (community-defaults | site-member-defaults)?,
-guest-defaults?, guest-unsupported?, layout-manager?, owner-defaults?) >
+guest-defaults?, guest-unsupported?, layout-manager?, owner-defaults?,
+deprecated?) >
 
 <!--
 The supports element defines the actions supported by this resource.
@@ -84,6 +85,12 @@ resource is permitted to perform. If omitted, then owners are granted
 permissions on all supported actions.
 -->
 <!ELEMENT owner-defaults (action-key*) >
+
+<!--
+The deprecated element specifies the actions from an older version of the
+portlet that are no longer in use and should be removed from the database.
+-->
+<!ELEMENT deprecated (action-key*) >
 
 <!--
 The model-resource element defines the permissions of the model.
