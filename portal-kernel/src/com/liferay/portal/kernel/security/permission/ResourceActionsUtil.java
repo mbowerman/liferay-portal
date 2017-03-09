@@ -285,6 +285,14 @@ public class ResourceActionsUtil {
 			servletContextName, classLoader, sources);
 	}
 
+	public static void removeModel(String modelName) {
+		getResourceActions().removeModel(modelName);
+	}
+
+	public static void removePortlet(String portletName) {
+		getResourceActions().removePortlet(portletName);
+	}
+
 	public void setResourceActions(ResourceActions resourceActions) {
 		PortalRuntimePermission.checkSetBeanProperty(getClass());
 

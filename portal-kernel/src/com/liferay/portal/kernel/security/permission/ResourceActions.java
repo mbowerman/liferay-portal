@@ -154,4 +154,8 @@ public interface ResourceActions {
 			String... sources)
 		throws Exception;
 
+	public void removeModel(String modelName);
+
+	public void removePortlet(String portletName);
+
 }

@@ -716,6 +716,36 @@ public class ResourceActionsImpl implements ResourceActions {
 		}
 	}
 
+	@Override
+	public void removeModel(String modelName) {
+		ModelResourceActionsBag modelResourceActionsBag =
+			_modelResourceActionsBags.remove(modelName);
+
+		if (modelResourceActionsBag != null) {
+			Set<String> portletResources =
+				modelResourceActionsBag.getResources();
+
+			for (String portletResource : portletResources) {
+				removePortlet(portletResource);
+			}
+		}
+	}
+
+	@Override
+	public void removePortlet(String portletName) {
+		PortletResourceActionsBag portletResourceActionsBag =
+			_portletResourceActionsBags.remove(portletName);
+
+		if (portletResourceActionsBag != null) {
+			Set<String> modelResources =
+				portletResourceActionsBag.getResources();
+
+			for (String modelResource : modelResources) {
+				removeModel(modelResource);
+			}
+		}
+	}
+
 	protected void checkGuestUnsupportedActions(
 		Set<String> guestUnsupportedActions, Set<String> guestDefaultActions) {
 
