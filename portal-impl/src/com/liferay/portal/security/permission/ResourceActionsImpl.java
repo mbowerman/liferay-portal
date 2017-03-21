@@ -148,6 +148,18 @@ public class ResourceActionsImpl implements ResourceActions {
 
 			checkPortletLayoutManagerActions(layoutManagerActions);
 
+			List<String> queuedModelResources = null;
+
+			synchronized (_queuedPortletModelLinks) {
+				queuedModelResources = _queuedPortletModelLinks.remove(
+					portletName);
+			}
+
+			if (queuedModelResources != null) {
+				addQueuedModelResources(
+					portletResourceActionsBag, queuedModelResources);
+			}
+
 			_portletResourceActionsBags.put(
 				portletName, portletResourceActionsBag);
 		}
@@ -806,6 +818,26 @@ public class ResourceActionsImpl implements ResourceActions {
 		}
 	}
 
+	protected void addQueuedModelResources(
+		PortletResourceActionsBag portletResourceActionsBag,
+		List<String> queuedModelResources) {
+
+		Set<String> modelResources = portletResourceActionsBag.getResources();
+
+		modelResources.addAll(queuedModelResources);
+
+		if (portletResourceActionsBag.getPortletRootModelResource() == null) {
+			for (String queuedModelResource : queuedModelResources) {
+				if (_rootModelResources.contains(queuedModelResource)) {
+					portletResourceActionsBag.setPortletRootModelResource(
+						queuedModelResource);
+
+					return;
+				}
+			}
+		}
+	}
+
 	protected void checkGuestUnsupportedActions(
 		Set<String> guestUnsupportedActions, Set<String> guestDefaultActions) {
 
@@ -1244,16 +1276,37 @@ public class ResourceActionsImpl implements ResourceActions {
 				tempPortletResourceActionsBags.get(portletName);
 
 			if (portletResourceActionsBag == null) {
-				portletResourceActionsBag = new PortletResourceActionsBagImpl();
-
-				tempPortletResourceActionsBags.put(
-					portletName, portletResourceActionsBag);
+				portletResourceActionsBag = _portletResourceActionsBags.get(
+					portletName);
 			}
 
-			Set<String> modelResources =
-				portletResourceActionsBag.getResources();
+			boolean root = GetterUtil.getBoolean(
+				modelResourceElement.elementText("root"));
 
-			modelResources.add(name);
+			if (portletResourceActionsBag == null) {
+				synchronized (_queuedPortletModelLinks) {
+					List<String> modelNames = _queuedPortletModelLinks.get(
+						portletName);
+
+					if (modelNames == null) {
+						modelNames = new ArrayList<>();
+
+						_queuedPortletModelLinks.put(portletName, modelNames);
+					}
+
+					modelNames.add(name);
+				}
+			}
+			else {
+				Set<String> modelResources =
+					portletResourceActionsBag.getResources();
+
+				modelResources.add(name);
+
+				if (root) {
+					portletResourceActionsBag.setPortletRootModelResource(name);
+				}
+			}
 
 			// Reference for a model to parent portlets
 
@@ -1264,13 +1317,8 @@ public class ResourceActionsImpl implements ResourceActions {
 
 			// Reference for a model to root portlets
 
-			boolean root = GetterUtil.getBoolean(
-				modelResourceElement.elementText("root"));
-
 			if (root) {
 				_rootModelResources.add(name);
-
-				portletResourceActionsBag.setPortletRootModelResource(name);
 			}
 		}
 
@@ -1402,6 +1450,17 @@ public class ResourceActionsImpl implements ResourceActions {
 			portletResourceElement, portletResourceLayoutManagerActions,
 			portletResourceActions);
 
+		List<String> queuedModelResources = null;
+
+		synchronized (_queuedPortletModelLinks) {
+			queuedModelResources = _queuedPortletModelLinks.remove(name);
+		}
+
+		if (queuedModelResources != null) {
+			addQueuedModelResources(
+				portletResourceActionsBag, queuedModelResources);
+		}
+
 		tempPortletResourceActionsBags.put(name, portletResourceActionsBag);
 
 		return name;
@@ -1443,6 +1502,8 @@ public class ResourceActionsImpl implements ResourceActions {
 	private final Set<String> _portalModelResources = new HashSet<>();
 	private final Map<String, PortletResourceActionsBag>
 		_portletResourceActionsBags = new HashMap<>();
+	private final Map<String, List<String>> _queuedPortletModelLinks =
+		new HashMap<>();
 	private final ServiceTrackerList<ResourceBundleLoader>
 		_resourceBundleLoaders;
 	private final Set<String> _rootModelResources = new HashSet<>();
