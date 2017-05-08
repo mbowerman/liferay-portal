@@ -411,9 +411,54 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 	protected void updateResourceAction(String oldName, String newName)
 		throws Exception {
 
-		runSQL(
-			"update ResourceAction set name = '" + newName +
-				"' where name = '" + oldName + "'");
+		int actionIdsCount = 0;
+
+		try (PreparedStatement ps = connection.prepareStatement(
+				"select count(1) from ResourceAction where name = '" + oldName +
+					"'");
+			ResultSet rs = ps.executeQuery()) {
+
+			if (rs.next()) {
+				actionIdsCount = rs.getInt(1);
+			}
+		}
+
+		if (actionIdsCount == 0) {
+			runSQL(
+				"update ResourceAction set name = '" + newName +
+					"' where name = '" + oldName + "'");
+		}
+		else {
+			StringBundler sb = new StringBundler(5 + 3 * actionIdsCount);
+
+			sb.append("update ResourceAction set name = '");
+			sb.append(newName);
+			sb.append("' where name = '");
+			sb.append(oldName);
+			sb.append("' and actionId not in (");
+
+			try (PreparedStatement ps = connection.prepareStatement(
+					"select actionId from ResourceAction where name = '" +
+						oldName + "'");
+				ResultSet rs = ps.executeQuery()) {
+
+				while (rs.next()) {
+					sb.append("'");
+					sb.append(rs.getString(1));
+					sb.append("',");
+				}
+			}
+
+			String sql = sb.toString();
+
+			sql =
+				sql.substring(0, sql.length() - 1) +
+					StringPool.CLOSE_PARENTHESIS;
+
+			runSQL(sql);
+
+			runSQL("delete from ResourceAction where name = '" + oldName + "'");
+		}
 	}
 
 	protected void updateResourcePermission(
