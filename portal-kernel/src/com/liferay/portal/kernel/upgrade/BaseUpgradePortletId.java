@@ -411,25 +411,25 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 	protected void updateResourceAction(String oldName, String newName)
 		throws Exception {
 
-		List<String> actionIds = new ArrayList<>();
+		int actionIdsCount = 0;
 
 		try (PreparedStatement ps = connection.prepareStatement(
-				"select actionId from ResourceAction where name = '" + oldName +
+				"select count(1) from ResourceAction where name = '" + oldName +
 					"'");
 			ResultSet rs = ps.executeQuery()) {
 
-			while (rs.next()) {
-				actionIds.add(rs.getString("actionId"));
+			if (rs.next()) {
+				actionIdsCount = rs.getInt(1);
 			}
 		}
 
-		if (actionIds.isEmpty()) {
+		if (actionIdsCount == 0) {
 			runSQL(
 				"update ResourceAction set name = '" + newName +
 					"' where name = '" + oldName + "'");
 		}
 		else {
-			StringBundler sb = new StringBundler(5 + 3 * actionIds.size());
+			StringBundler sb = new StringBundler(5 + 3 * actionIdsCount);
 
 			sb.append("update ResourceAction set name = '");
 			sb.append(newName);
@@ -437,19 +437,25 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 			sb.append(oldName);
 			sb.append("' and actionId not in (");
 
-			for (int i = 0; i < actionIds.size(); i++) {
-				sb.append("'");
-				sb.append(actionIds.get(i));
+			try (PreparedStatement ps = connection.prepareStatement(
+					"select actionId from ResourceAction where name = '" +
+						oldName + "'");
+				ResultSet rs = ps.executeQuery()) {
 
-				if (i == (actionIds.size() - 1)) {
-					sb.append("')");
-				}
-				else {
-					sb.append("', ");
+				while (rs.next()) {
+					sb.append("'");
+					sb.append(rs.getString(1));
+					sb.append("',");
 				}
 			}
 
-			runSQL(sb.toString());
+			String sql = sb.toString();
+
+			sql =
+				sql.substring(0, sql.length() - 1) +
+					StringPool.CLOSE_PARENTHESIS;
+
+			runSQL(sql);
 
 			runSQL("delete from ResourceAction where name = '" + oldName + "'");
 		}
