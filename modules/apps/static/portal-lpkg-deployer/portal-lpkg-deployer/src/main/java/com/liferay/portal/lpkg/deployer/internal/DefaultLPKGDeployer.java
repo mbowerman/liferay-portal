@@ -101,6 +101,8 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 	public List<Bundle> deploy(BundleContext bundleContext, File lpkgFile)
 		throws IOException {
 
+		lpkgFile = lpkgFile.getCanonicalFile();
+
 		Path lpkgFilePath = lpkgFile.toPath();
 
 		if (!lpkgFilePath.startsWith(_deploymentDirPath)) {
@@ -295,11 +297,14 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 	private Path _getDeploymentDirPath(BundleContext bundleContext)
 		throws IOException {
 
-		String deploymentDir = GetterUtil.getString(
-			bundleContext.getProperty("lpkg.deployer.dir"),
-			PropsValues.MODULE_FRAMEWORK_MARKETPLACE_DIR);
+		File deploymentDir = new File(
+			GetterUtil.getString(
+				bundleContext.getProperty("lpkg.deployer.dir"),
+				PropsValues.MODULE_FRAMEWORK_MARKETPLACE_DIR));
 
-		Path deploymentDirPath = Paths.get(deploymentDir);
+		deploymentDir = deploymentDir.getCanonicalFile();
+
+		Path deploymentDirPath = deploymentDir.toPath();
 
 		Files.createDirectories(deploymentDirPath);
 
