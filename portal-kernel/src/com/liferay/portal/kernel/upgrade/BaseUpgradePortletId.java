@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.util.UnicodeProperties;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -203,10 +204,10 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 			"select groupId, typeSettings from Group_ where " +
 				getTypeSettingsCriteria(oldRootPortletId);
 
-		String sql2 =
-			"update Group_ set typeSettings = ? where groupId = ?";
+		String sql2 = "update Group_ set typeSettings = ? where groupId = ?";
 
-		try (PreparedStatement ps1 = connection.prepareStatement(sql1);
+		try (PreparedStatement ps1 = connection.prepareStatement(
+				sql1, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 			PreparedStatement ps2 = connection.prepareStatement(sql2);
 			ResultSet rs = ps1.executeQuery()) {
 
@@ -217,10 +218,27 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 				String newTypeSettings = getNewTypeSettings(
 					typeSettings, oldRootPortletId, newRootPortletId);
 
-				ps2.setString(1, newTypeSettings);
-				ps2.setLong(2, groupId);
+				if (_supportsUpdateRow) {
+					try {
+						rs.updateString("typeSettings", newTypeSettings);
 
-				ps2.executeUpdate();
+						rs.updateRow();
+					}
+					catch (SQLFeatureNotSupportedException sqlfnse) {
+						if (_log.isDebugEnabled()) {
+							_log.debug("DB driver does not support updateRow");
+						}
+
+						_supportsUpdateRow = false;
+					}
+				}
+
+				if (!_supportsUpdateRow) {
+					ps2.setString(1, newTypeSettings);
+					ps2.setLong(2, groupId);
+
+					ps2.executeUpdate();
+				}
 			}
 		}
 	}
@@ -333,7 +351,8 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 			"update LayoutRevision set typeSettings = ? where " +
 				"layoutRevisionId = ?";
 
-		try (PreparedStatement ps1 = connection.prepareStatement(sql1);
+		try (PreparedStatement ps1 = connection.prepareStatement(
+				sql1, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 			PreparedStatement ps2 = connection.prepareStatement(sql2);
 			ResultSet rs = ps1.executeQuery()) {
 
@@ -345,10 +364,27 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 					typeSettings, oldRootPortletId, newRootPortletId,
 					exactMatch);
 
-				ps2.setString(1, typeSettings);
-				ps2.setLong(2, layoutRevisionId);
+				if (_supportsUpdateRow) {
+					try {
+						rs.updateString("typeSettings", newTypeSettings);
 
-				ps2.executeUpdate();
+						rs.updateRow();
+					}
+					catch (SQLFeatureNotSupportedException sqlfnse) {
+						if (_log.isDebugEnabled()) {
+							_log.debug("DB driver does not support updateRow");
+						}
+
+						_supportsUpdateRow = false;
+					}
+				}
+
+				if (!_supportsUpdateRow) {
+					ps2.setString(1, typeSettings);
+					ps2.setLong(2, layoutRevisionId);
+
+					ps2.executeUpdate();
+				}
 			}
 		}
 	}
@@ -364,7 +400,8 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 
 		String sql2 = "update Layout set typeSettings = ? where plid = ?";
 
-		try (PreparedStatement ps1 = connection.prepareStatement(sql1);
+		try (PreparedStatement ps1 = connection.prepareStatement(
+				sql1, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 			PreparedStatement ps2 = connection.prepareStatement(sql2);
 			ResultSet rs = ps1.executeQuery()) {
 
@@ -376,10 +413,27 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 					typeSettings, oldRootPortletId, newRootPortletId,
 					exactMatch);
 
-				ps2.setString(1, newTypeSettings);
-				ps2.setLong(2, plid);
+				if (_supportsUpdateRow) {
+					try {
+						rs.updateString("typeSettings", newTypeSettings);
 
-				ps2.executeUpdate();
+						rs.updateRow();
+					}
+					catch (SQLFeatureNotSupportedException sqlfnse) {
+						if (_log.isDebugEnabled()) {
+							_log.debug("DB driver does not support updateRow");
+						}
+
+						_supportsUpdateRow = false;
+					}
+				}
+
+				if (!_supportsUpdateRow) {
+					ps2.setString(1, newTypeSettings);
+					ps2.setLong(2, plid);
+
+					ps2.executeUpdate();
+				}
 			}
 		}
 	}
@@ -605,5 +659,7 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		BaseUpgradePortletId.class);
+
+	private boolean _supportsUpdateRow = true;
 
 }
