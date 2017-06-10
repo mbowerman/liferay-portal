@@ -15,15 +15,11 @@
 package com.liferay.portal.kernel.upgrade;
 
 import com.liferay.exportimport.kernel.staging.StagingUtil;
-import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.LayoutTypePortletConstants;
 import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.model.PortletInstance;
-import com.liferay.portal.kernel.model.ResourceConstants;
-import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -34,6 +30,7 @@ import com.liferay.portal.kernel.util.UnicodeProperties;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -203,12 +200,16 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 	protected void updateGroup(String oldRootPortletId, String newRootPortletId)
 		throws Exception {
 
-		String sql =
+		String sql1 =
 			"select groupId, typeSettings from Group_ where " +
 				getTypeSettingsCriteria(oldRootPortletId);
 
-		try (PreparedStatement ps = connection.prepareStatement(sql);
-			ResultSet rs = ps.executeQuery()) {
+		String sql2 = "update Group_ set typeSettings = ? where groupId = ?";
+
+		try (PreparedStatement ps1 = connection.prepareStatement(
+				sql1, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+			PreparedStatement ps2 = connection.prepareStatement(sql2);
+			ResultSet rs = ps1.executeQuery()) {
 
 			while (rs.next()) {
 				long groupId = rs.getLong("groupId");
@@ -217,7 +218,27 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 				String newTypeSettings = getNewTypeSettings(
 					typeSettings, oldRootPortletId, newRootPortletId);
 
-				updateGroup(groupId, newTypeSettings);
+				if (_supportsUpdateRow) {
+					try {
+						rs.updateString("typeSettings", newTypeSettings);
+
+						rs.updateRow();
+					}
+					catch (SQLFeatureNotSupportedException sqlfnse) {
+						if (_log.isDebugEnabled()) {
+							_log.debug("DB driver does not support updateRow");
+						}
+
+						_supportsUpdateRow = false;
+					}
+				}
+
+				if (!_supportsUpdateRow) {
+					ps2.setString(1, newTypeSettings);
+					ps2.setLong(2, groupId);
+
+					ps2.executeUpdate();
+				}
 			}
 		}
 	}
@@ -228,39 +249,32 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 
 		StringBundler sb = new StringBundler(8);
 
-		sb.append("select portletPreferencesId, portletId from ");
-		sb.append("PortletPreferences where portletId = '");
+		sb.append("update PortletPreferences set portletId = ");
+		sb.append("'");
+		sb.append(newRootPortletId);
+		sb.append("' where portletId = '");
 		sb.append(oldRootPortletId);
-		sb.append("' OR portletId like '");
+		sb.append("'");
+
+		runSQL(sb.toString());
+
+		sb.setIndex(1);
+
+		sb.append("replace(portletId, '");
 		sb.append(oldRootPortletId);
-		sb.append("_INSTANCE_%' OR portletId like '");
+		sb.append("_INSTANCE_', '");
+		sb.append(newRootPortletId);
+		sb.append("_INSTANCE_') where portletId like '");
 		sb.append(oldRootPortletId);
-		sb.append("_USER_%_INSTANCE_%'");
+		sb.append("_INSTANCE_%'");
 
-		try (PreparedStatement ps1 = connection.prepareStatement(sb.toString());
-			PreparedStatement ps2 =
-				AutoBatchPreparedStatementUtil.concurrentAutoBatch(
-					connection,
-					"update PortletPreferences set portletId = ? where " +
-						"portletPreferencesId = ?");
-			ResultSet rs = ps1.executeQuery()) {
+		runSQL(sb.toString());
 
-			while (rs.next()) {
-				long portletPreferencesId = rs.getLong("portletPreferencesId");
-				String portletId = rs.getString("portletId");
+		sb.setStringAt("_USER_', '", 3);
+		sb.setStringAt("_USER_') where portletId like '", 5);
+		sb.setStringAt("_USER_%'", 7);
 
-				String newPortletId = StringUtil.replaceFirst(
-					portletId, oldRootPortletId, newRootPortletId);
-
-				ps2.setString(1, newPortletId);
-
-				ps2.setLong(2, portletPreferencesId);
-
-				ps2.addBatch();
-			}
-
-			ps2.executeBatch();
-		}
+		runSQL(sb.toString());
 	}
 
 	protected void updateLayout(long plid, String typeSettings)
@@ -329,12 +343,18 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 			boolean exactMatch)
 		throws Exception {
 
-		String sql =
+		String sql1 =
 			"select layoutRevisionId, typeSettings from LayoutRevision where " +
 				getTypeSettingsCriteria(oldRootPortletId);
 
-		try (PreparedStatement ps = connection.prepareStatement(sql);
-			ResultSet rs = ps.executeQuery()) {
+		String sql2 =
+			"update LayoutRevision set typeSettings = ? where " +
+				"layoutRevisionId = ?";
+
+		try (PreparedStatement ps1 = connection.prepareStatement(
+				sql1, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+			PreparedStatement ps2 = connection.prepareStatement(sql2);
+			ResultSet rs = ps1.executeQuery()) {
 
 			while (rs.next()) {
 				long layoutRevisionId = rs.getLong("layoutRevisionId");
@@ -344,7 +364,27 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 					typeSettings, oldRootPortletId, newRootPortletId,
 					exactMatch);
 
-				updateLayoutRevision(layoutRevisionId, newTypeSettings);
+				if (_supportsUpdateRow) {
+					try {
+						rs.updateString("typeSettings", newTypeSettings);
+
+						rs.updateRow();
+					}
+					catch (SQLFeatureNotSupportedException sqlfnse) {
+						if (_log.isDebugEnabled()) {
+							_log.debug("DB driver does not support updateRow");
+						}
+
+						_supportsUpdateRow = false;
+					}
+				}
+
+				if (!_supportsUpdateRow) {
+					ps2.setString(1, typeSettings);
+					ps2.setString(2, layoutRevisionId);
+
+					ps2.executeUpdate();
+				}
 			}
 		}
 	}
@@ -354,12 +394,16 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 			boolean exactMatch)
 		throws Exception {
 
-		String sql =
+		String sql1 =
 			"select plid, typeSettings from Layout where " +
 				getTypeSettingsCriteria(oldRootPortletId);
 
-		try (PreparedStatement ps = connection.prepareStatement(sql);
-			ResultSet rs = ps.executeQuery()) {
+		String sql2 = "update Layout set typeSettings = ? where plid = ?";
+
+		try (PreparedStatement ps1 = connection.prepareStatement(
+				sql1, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+			PreparedStatement ps2 = connection.prepareStatement(sql2);
+			ResultSet rs = ps1.executeQuery()) {
 
 			while (rs.next()) {
 				long plid = rs.getLong("plid");
@@ -369,7 +413,27 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 					typeSettings, oldRootPortletId, newRootPortletId,
 					exactMatch);
 
-				updateLayout(plid, newTypeSettings);
+				if (_supportsUpdateRow) {
+					try {
+						rs.updateString("typeSettings", newTypeSettings);
+
+						rs.updateRow();
+					}
+					catch (SQLFeatureNotSupportedException sqlfnse) {
+						if (_log.isDebugEnabled()) {
+							_log.debug("DB driver does not support updateRow");
+						}
+
+						_supportsUpdateRow = false;
+					}
+				}
+
+				if (!_supportsUpdateRow) {
+					ps2.setString(1, newTypeSettings);
+					ps2.setLong(2, plid);
+
+					ps2.executeUpdate();
+				}
 			}
 		}
 	}
@@ -460,59 +524,18 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 			boolean updateName)
 		throws Exception {
 
-		StringBundler sb = new StringBundler(5);
+		StringBundler sb = new StringBundler(8);
 
-		sb.append("select distinct primKey from ResourcePermission where ");
-		sb.append("name = '");
+		sb.append("update ResourcePermission set primKey = replace(primKey, ");
+		sb.append("'_LAYOUT_");
 		sb.append(oldRootPortletId);
-		sb.append("' and scope = ");
-		sb.append(ResourceConstants.SCOPE_INDIVIDUAL);
+		sb.append("', '_LAYOUT_");
+		sb.append(newRootPortletId);
+		sb.append("') where primKey like '%_LAYOUT_");
+		sb.append(oldRootPortletId);
+		sb.append("%'");
 
-		try (PreparedStatement ps1 = connection.prepareStatement(sb.toString());
-			PreparedStatement ps2 =
-				AutoBatchPreparedStatementUtil.concurrentAutoBatch(
-					connection,
-					"update ResourcePermission set primKey = ? where primKey " +
-						"= ?");
-			ResultSet rs = ps1.executeQuery()) {
-
-			while (rs.next()) {
-				String oldPrimKey = rs.getString("primKey");
-
-				int pos = oldPrimKey.indexOf(PortletConstants.LAYOUT_SEPARATOR);
-
-				if (pos != -1) {
-					long plid = GetterUtil.getLong(
-						oldPrimKey.substring(0, pos));
-
-					String portletId = oldPrimKey.substring(
-						pos + PortletConstants.LAYOUT_SEPARATOR.length());
-
-					String instanceId = PortletConstants.getInstanceId(
-						portletId);
-					long userId = PortletConstants.getUserId(portletId);
-
-					String newPortletId = PortletConstants.assemblePortletId(
-						newRootPortletId, userId, instanceId);
-
-					String newPrimKey = PortletPermissionUtil.getPrimaryKey(
-						plid, newPortletId);
-
-					ps2.setString(1, newPrimKey);
-
-					ps2.setString(2, oldPrimKey);
-
-					ps2.addBatch();
-				}
-			}
-
-			ps2.executeBatch();
-		}
-		catch (SQLException sqle) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(sqle, sqle);
-			}
-		}
+		runSQL(sb.toString());
 
 		if (updateName) {
 			runSQL(
@@ -636,5 +659,7 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		BaseUpgradePortletId.class);
+
+	private boolean _supportsUpdateRow = true;
 
 }
