@@ -17,6 +17,13 @@ package com.liferay.portal.verify;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.concurrent.ThrowableAwareRunnable;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Projection;
+import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Property;
+import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Contact;
@@ -96,18 +103,73 @@ public class VerifyResourcePermissions extends VerifyProcess {
 
 	protected void verifyLayout(Role role) throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			List<Layout> layouts =
-				LayoutLocalServiceUtil.getNoPermissionLayouts(role.getRoleId());
+			ActionableDynamicQuery actionableDynamicQuery =
+				LayoutLocalServiceUtil.getActionableDynamicQuery();
 
-			int total = layouts.size();
+			actionableDynamicQuery.setAddCriteriaMethod(
+				new ActionableDynamicQuery.AddCriteriaMethod() {
 
-			for (int i = 0; i < total; i++) {
-				Layout layout = layouts.get(i);
+					@Override
+					public void addCriteria(DynamicQuery dynamicQuery) {
+						DynamicQuery resourcePermissionDynamicQuery =
+							ResourcePermissionLocalServiceUtil.dynamicQuery();
 
-				verifyResourcedModel(
-					role.getCompanyId(), Layout.class.getName(),
-					layout.getPlid(), role, 0, i, total);
-			}
+						Property companyIdProperty =
+							PropertyFactoryUtil.forName("companyId");
+						Property nameProperty = PropertyFactoryUtil.forName(
+							"name");
+						Property roleIdProperty = PropertyFactoryUtil.forName(
+							"roleId");
+
+						resourcePermissionDynamicQuery.add(
+							companyIdProperty.eq(role.getCompanyId()));
+						resourcePermissionDynamicQuery.add(
+							nameProperty.eq(Layout.class.getName()));
+						resourcePermissionDynamicQuery.add(
+							roleIdProperty.eq(role.getRoleId()));
+
+						Projection projection = ProjectionFactoryUtil.property(
+							"primKey");
+
+						resourcePermissionDynamicQuery.setProjection(
+							projection);
+
+						Property plidProperty = PropertyFactoryUtil.forName(
+							"plid");
+
+						dynamicQuery.add(
+							plidProperty.notIn(resourcePermissionDynamicQuery));
+					}
+
+				});
+
+			int total = (int)actionableDynamicQuery.performCount();
+
+			_verifyLayoutIndex = 0;
+
+			actionableDynamicQuery.setPerformActionMethod(
+				new ActionableDynamicQuery.PerformActionMethod<Layout>() {
+
+					@Override
+					public void performAction(Layout layout)
+						throws PortalException {
+
+						try {
+							_verifyLayoutIndex++;
+
+							verifyResourcedModel(
+								role.getCompanyId(), Layout.class.getName(),
+								layout.getPlid(), role, 0, _verifyLayoutIndex,
+								total);
+						}
+						catch (Exception e) {
+							throw new VerifyException(e);
+						}
+					}
+
+				});
+
+			actionableDynamicQuery.performActions();
 		}
 	}
 
@@ -227,6 +289,8 @@ public class VerifyResourcePermissions extends VerifyProcess {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		VerifyResourcePermissions.class);
+
+	private static int _verifyLayoutIndex = 0;
 
 	private class VerifyResourcedModelRunnable extends ThrowableAwareRunnable {
 
