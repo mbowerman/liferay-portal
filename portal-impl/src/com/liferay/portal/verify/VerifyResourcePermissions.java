@@ -131,17 +131,22 @@ public class VerifyResourcePermissions extends VerifyProcess {
 						resourcePermissionDynamicQuery.add(
 							roleIdProperty.eq(role.getRoleId()));
 
-						Projection projection = ProjectionFactoryUtil.property(
-							"primKey");
+						Projection primKeyProjection =
+							ProjectionFactoryUtil.property("primKey");
 
 						resourcePermissionDynamicQuery.setProjection(
-							projection);
+							primKeyProjection);
 
 						Property plidProperty = PropertyFactoryUtil.forName(
 							"plid");
 
 						dynamicQuery.add(
 							plidProperty.notIn(resourcePermissionDynamicQuery));
+
+						Projection plidProjection =
+							ProjectionFactoryUtil.property("plid");
+
+						dynamicQuery.setProjection(plidProjection);
 					}
 
 				});
@@ -151,15 +156,15 @@ public class VerifyResourcePermissions extends VerifyProcess {
 			_verifyLayoutIndex = 0;
 
 			actionableDynamicQuery.setPerformActionMethod(
-				new ActionableDynamicQuery.PerformActionMethod<Layout>() {
+				new ActionableDynamicQuery.PerformActionMethod() {
 
 					@Override
-					public void performAction(Layout layout)
+					public void performAction(Object object)
 						throws PortalException {
 
 						_verifyLayoutIndex++;
 
-						long primKey = layout.getPlid();
+						long primKey = (Long)object;
 
 						if (_log.isInfoEnabled() &&
 							(((_verifyLayoutIndex + 1) % 100) == 0)) {
