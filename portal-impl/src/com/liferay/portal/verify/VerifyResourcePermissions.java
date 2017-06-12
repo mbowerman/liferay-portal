@@ -110,6 +110,27 @@ public class VerifyResourcePermissions extends VerifyProcess {
 			long companyId = role.getCompanyId();
 			String layoutModelName = Layout.class.getName();
 
+			List<String> actionIds =
+				ResourceActionsUtil.getModelResourceActions(layoutModelName);
+
+			actionIds = ListUtil.copy(actionIds);
+
+			List<String> defaultOwnerActions =
+				ResourceActionsUtil.getModelResourceOwnerDefaultActions(
+					layoutModelName);
+
+			if (!defaultOwnerActions.isEmpty()) {
+				Iterator<String> itr = actionIds.iterator();
+
+				while (itr.hasNext()) {
+					String actionId = itr.next();
+
+					if (!defaultOwnerActions.contains(actionId)) {
+						itr.remove();
+					}
+				}
+			}
+
 			ActionableDynamicQuery actionableDynamicQuery =
 				LayoutLocalServiceUtil.getActionableDynamicQuery();
 
@@ -211,29 +232,6 @@ public class VerifyResourcePermissions extends VerifyProcess {
 								companyId, layoutModelName,
 								ResourceConstants.SCOPE_INDIVIDUAL,
 								String.valueOf(primKey));
-
-						List<String> actionIds =
-							ResourceActionsUtil.getModelResourceActions(
-								resource.getName());
-
-						actionIds = ListUtil.copy(actionIds);
-
-						List<String> defaultOwnerActions =
-							ResourceActionsUtil.
-								getModelResourceOwnerDefaultActions(
-									layoutModelName);
-
-						if (!defaultOwnerActions.isEmpty()) {
-							Iterator<String> itr = actionIds.iterator();
-
-							while (itr.hasNext()) {
-								String actionId = itr.next();
-
-								if (!defaultOwnerActions.contains(actionId)) {
-									itr.remove();
-								}
-							}
-						}
 
 						ResourcePermissionLocalServiceUtil.
 							setOwnerResourcePermissions(
