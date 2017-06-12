@@ -28,7 +28,6 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Contact;
 import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.model.Resource;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.Role;
@@ -226,15 +225,10 @@ public class VerifyResourcePermissions extends VerifyProcess {
 							_log.debug(sb.toString());
 						}
 
-						Resource resource =
-							ResourceLocalServiceUtil.getResource(
-								companyId, layoutModelName,
-								ResourceConstants.SCOPE_INDIVIDUAL, primKey);
-
 						ResourcePermissionLocalServiceUtil.
 							setOwnerResourcePermissions(
-								resource.getCompanyId(), resource.getName(),
-								resource.getScope(), resource.getPrimKey(),
+								companyId, layoutModelName,
+								ResourceConstants.SCOPE_INDIVIDUAL, primKey,
 								role.getRoleId(), 0,
 								actionIds.toArray(
 									new String[actionIds.size()]));
