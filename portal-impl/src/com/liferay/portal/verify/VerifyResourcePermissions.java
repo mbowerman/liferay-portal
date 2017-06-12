@@ -157,54 +157,49 @@ public class VerifyResourcePermissions extends VerifyProcess {
 					public void performAction(Layout layout)
 						throws PortalException {
 
-						try {
-							_verifyLayoutIndex++;
+						_verifyLayoutIndex++;
 
-							long primKey = layout.getPlid();
+						long primKey = layout.getPlid();
 
-							if (_log.isInfoEnabled() &&
-								(((_verifyLayoutIndex + 1) % 100) == 0)) {
+						if (_log.isInfoEnabled() &&
+							(((_verifyLayoutIndex + 1) % 100) == 0)) {
 
-								StringBundler sb = new StringBundler(9);
+							StringBundler sb = new StringBundler(9);
 
-								sb.append("Processed ");
-								sb.append(_verifyLayoutIndex + 1);
-								sb.append(" of ");
-								sb.append(total);
-								sb.append(" resource permissions for company ");
-								sb.append("= ");
-								sb.append(companyId);
-								sb.append(" and model ");
-								sb.append(layoutModelName);
+							sb.append("Processed ");
+							sb.append(_verifyLayoutIndex + 1);
+							sb.append(" of ");
+							sb.append(total);
+							sb.append(" resource permissions for company ");
+							sb.append("= ");
+							sb.append(companyId);
+							sb.append(" and model ");
+							sb.append(layoutModelName);
 
-								_log.info(sb.toString());
-							}
-
-							if (_log.isDebugEnabled()) {
-								StringBundler sb = new StringBundler(11);
-
-								sb.append("No resource found for {");
-								sb.append(companyId);
-								sb.append(", ");
-								sb.append(layoutModelName);
-								sb.append(", ");
-								sb.append(ResourceConstants.SCOPE_INDIVIDUAL);
-								sb.append(", ");
-								sb.append(primKey);
-								sb.append(", ");
-								sb.append(role.getRoleId());
-								sb.append("}");
-
-								_log.debug(sb.toString());
-							}
-
-							ResourceLocalServiceUtil.addResources(
-								companyId, 0, 0, layoutModelName,
-								String.valueOf(primKey), false, false, false);
+							_log.info(sb.toString());
 						}
-						catch (Exception e) {
-							throw new VerifyException(e);
+
+						if (_log.isDebugEnabled()) {
+							StringBundler sb = new StringBundler(11);
+
+							sb.append("No resource found for {");
+							sb.append(companyId);
+							sb.append(", ");
+							sb.append(layoutModelName);
+							sb.append(", ");
+							sb.append(ResourceConstants.SCOPE_INDIVIDUAL);
+							sb.append(", ");
+							sb.append(primKey);
+							sb.append(", ");
+							sb.append(role.getRoleId());
+							sb.append("}");
+
+							_log.debug(sb.toString());
 						}
+
+						ResourceLocalServiceUtil.addResources(
+							companyId, 0, 0, layoutModelName,
+							String.valueOf(primKey), false, false, false);
 					}
 
 				});
