@@ -157,10 +157,102 @@ public class VerifyResourcePermissions extends VerifyProcess {
 						try {
 							_verifyLayoutIndex++;
 
-							verifyResourcedModel(
-								role.getCompanyId(), Layout.class.getName(),
-								layout.getPlid(), role, 0, _verifyLayoutIndex,
-								total);
+							long companyId = role.getCompanyId();
+							String modelName = Layout.class.getName();
+							long primKey = layout.getPlid();
+							long ownerId = 0;
+							int cur = _verifyLayoutIndex;
+
+							if (_log.isInfoEnabled() &&
+								(((_verifyLayoutIndex + 1) % 100) == 0)) {
+
+								cur++;
+
+								StringBundler sb = new StringBundler(9);
+
+								sb.append("Processed ");
+								sb.append(cur);
+								sb.append(" of ");
+								sb.append(total);
+								sb.append(" resource permissions for company ");
+								sb.append("= ");
+								sb.append(companyId);
+								sb.append(" and model ");
+								sb.append(modelName);
+
+								_log.info(sb.toString());
+							}
+
+							ResourcePermission resourcePermission =
+								ResourcePermissionLocalServiceUtil.
+									fetchResourcePermission(
+										companyId, modelName,
+										ResourceConstants.SCOPE_INDIVIDUAL,
+										String.valueOf(primKey),
+										role.getRoleId());
+
+							if (resourcePermission == null) {
+								if (_log.isDebugEnabled()) {
+									StringBundler sb = new StringBundler(11);
+
+									sb.append("No resource found for {");
+									sb.append(companyId);
+									sb.append(", ");
+									sb.append(modelName);
+									sb.append(", ");
+									sb.append(
+										ResourceConstants.SCOPE_INDIVIDUAL);
+									sb.append(", ");
+									sb.append(primKey);
+									sb.append(", ");
+									sb.append(role.getRoleId());
+									sb.append("}");
+
+									_log.debug(sb.toString());
+								}
+
+								ResourceLocalServiceUtil.addResources(
+									companyId, 0, ownerId, modelName,
+									String.valueOf(primKey), false, false,
+									false);
+							}
+
+							if (resourcePermission == null) {
+								resourcePermission =
+									ResourcePermissionLocalServiceUtil.
+										fetchResourcePermission(
+											companyId, modelName,
+											ResourceConstants.SCOPE_INDIVIDUAL,
+											String.valueOf(primKey),
+											role.getRoleId());
+
+								if (resourcePermission == null) {
+									return;
+								}
+							}
+
+							if (modelName.equals(User.class.getName())) {
+								User user = UserLocalServiceUtil.fetchUserById(
+									ownerId);
+
+								if (user != null) {
+									Contact contact =
+										ContactLocalServiceUtil.fetchContact(
+											user.getContactId());
+
+									if (contact != null) {
+										ownerId = contact.getUserId();
+									}
+								}
+							}
+
+							if (ownerId != resourcePermission.getOwnerId()) {
+								resourcePermission.setOwnerId(ownerId);
+
+								ResourcePermissionLocalServiceUtil.
+									updateResourcePermission(
+										resourcePermission);
+							}
 						}
 						catch (Exception e) {
 							throw new VerifyException(e);
