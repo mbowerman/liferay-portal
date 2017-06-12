@@ -41,7 +41,6 @@ import com.liferay.portal.kernel.service.ResourceLocalServiceUtil;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.verify.model.VerifiableResourcedModel;
@@ -112,8 +111,6 @@ public class VerifyResourcePermissions extends VerifyProcess {
 
 			List<String> actionIds =
 				ResourceActionsUtil.getModelResourceActions(layoutModelName);
-
-			actionIds = ListUtil.copy(actionIds);
 
 			List<String> defaultOwnerActions =
 				ResourceActionsUtil.getModelResourceOwnerDefaultActions(
