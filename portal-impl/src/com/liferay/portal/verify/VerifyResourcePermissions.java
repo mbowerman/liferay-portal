@@ -130,6 +130,20 @@ public class VerifyResourcePermissions extends VerifyProcess {
 				}
 			}
 
+			long tempActionIdsLong = 0;
+
+			for (String actionId : actionIds) {
+				ResourceAction resourceAction =
+					ResourceActionLocalServiceUtil.getResourceAction(
+						layoutModelName, actionId);
+
+				tempActionIdsLong |= resourceAction.getBitwiseValue();
+			}
+
+			long actionIdsLong = tempActionIdsLong;
+
+			boolean viewActionId = actionIdsLong % 2 == 1;
+
 			ActionableDynamicQuery actionableDynamicQuery =
 				LayoutLocalServiceUtil.getActionableDynamicQuery();
 
@@ -244,21 +258,8 @@ public class VerifyResourcePermissions extends VerifyProcess {
 						resourcePermission.setPrimKeyId(plid);
 						resourcePermission.setRoleId(role.getRoleId());
 						resourcePermission.setOwnerId(0);
-
-						long actionIdsLong = 0;
-
-						for (String actionId : actionIds) {
-							ResourceAction resourceAction =
-								ResourceActionLocalServiceUtil.
-									getResourceAction(
-										layoutModelName, actionId);
-
-							actionIdsLong |= resourceAction.getBitwiseValue();
-						}
-
 						resourcePermission.setActionIds(actionIdsLong);
-						resourcePermission.setViewActionId(
-							actionIdsLong % 2 == 1);
+						resourcePermission.setViewActionId(viewActionId);
 
 						ResourcePermissionLocalServiceUtil.
 							addResourcePermission(resourcePermission);
