@@ -186,7 +186,9 @@ public class VerifyResourcePermissions extends VerifyProcess {
 
 						_verifyLayoutIndex++;
 
-						long primKey = (Long)object;
+						long plid = (Long)object;
+
+						String primKey = String.valueOf(plid);
 
 						if (_log.isInfoEnabled() &&
 							(((_verifyLayoutIndex + 1) % 100) == 0)) {
@@ -227,8 +229,7 @@ public class VerifyResourcePermissions extends VerifyProcess {
 						Resource resource =
 							ResourceLocalServiceUtil.getResource(
 								companyId, layoutModelName,
-								ResourceConstants.SCOPE_INDIVIDUAL,
-								String.valueOf(primKey));
+								ResourceConstants.SCOPE_INDIVIDUAL, primKey);
 
 						ResourcePermissionLocalServiceUtil.
 							setOwnerResourcePermissions(
