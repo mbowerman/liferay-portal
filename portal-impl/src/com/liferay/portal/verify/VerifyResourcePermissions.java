@@ -204,26 +204,6 @@ public class VerifyResourcePermissions extends VerifyProcess {
 							ResourceLocalServiceUtil.addResources(
 								companyId, 0, ownerId, modelName,
 								String.valueOf(primKey), false, false, false);
-
-							ResourcePermission resourcePermission =
-								ResourcePermissionLocalServiceUtil.
-									fetchResourcePermission(
-										companyId, modelName,
-										ResourceConstants.SCOPE_INDIVIDUAL,
-										String.valueOf(primKey),
-										role.getRoleId());
-
-							if (resourcePermission == null) {
-								return;
-							}
-
-							if (ownerId != resourcePermission.getOwnerId()) {
-								resourcePermission.setOwnerId(ownerId);
-
-								ResourcePermissionLocalServiceUtil.
-									updateResourcePermission(
-										resourcePermission);
-							}
 						}
 						catch (Exception e) {
 							throw new VerifyException(e);
