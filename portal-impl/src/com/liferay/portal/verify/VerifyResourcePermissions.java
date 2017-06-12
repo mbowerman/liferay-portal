@@ -105,7 +105,6 @@ public class VerifyResourcePermissions extends VerifyProcess {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
 			long companyId = role.getCompanyId();
 			String modelName = Layout.class.getName();
-			long ownerId = 0;
 
 			ActionableDynamicQuery actionableDynamicQuery =
 				LayoutLocalServiceUtil.getActionableDynamicQuery();
@@ -162,17 +161,14 @@ public class VerifyResourcePermissions extends VerifyProcess {
 							_verifyLayoutIndex++;
 
 							long primKey = layout.getPlid();
-							int cur = _verifyLayoutIndex;
 
 							if (_log.isInfoEnabled() &&
 								(((_verifyLayoutIndex + 1) % 100) == 0)) {
 
-								cur++;
-
 								StringBundler sb = new StringBundler(9);
 
 								sb.append("Processed ");
-								sb.append(cur);
+								sb.append(_verifyLayoutIndex + 1);
 								sb.append(" of ");
 								sb.append(total);
 								sb.append(" resource permissions for company ");
@@ -203,7 +199,7 @@ public class VerifyResourcePermissions extends VerifyProcess {
 							}
 
 							ResourceLocalServiceUtil.addResources(
-								companyId, 0, ownerId, modelName,
+								companyId, 0, 0, modelName,
 								String.valueOf(primKey), false, false, false);
 						}
 						catch (Exception e) {
