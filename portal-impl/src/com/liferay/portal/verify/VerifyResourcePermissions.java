@@ -231,21 +231,6 @@ public class VerifyResourcePermissions extends VerifyProcess {
 								}
 							}
 
-							if (modelName.equals(User.class.getName())) {
-								User user = UserLocalServiceUtil.fetchUserById(
-									ownerId);
-
-								if (user != null) {
-									Contact contact =
-										ContactLocalServiceUtil.fetchContact(
-											user.getContactId());
-
-									if (contact != null) {
-										ownerId = contact.getUserId();
-									}
-								}
-							}
-
 							if (ownerId != resourcePermission.getOwnerId()) {
 								resourcePermission.setOwnerId(ownerId);
 
