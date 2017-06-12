@@ -103,6 +103,10 @@ public class VerifyResourcePermissions extends VerifyProcess {
 
 	protected void verifyLayout(Role role) throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
+			long companyId = role.getCompanyId();
+			String modelName = Layout.class.getName();
+			long ownerId = 0;
+
 			ActionableDynamicQuery actionableDynamicQuery =
 				LayoutLocalServiceUtil.getActionableDynamicQuery();
 
@@ -124,7 +128,7 @@ public class VerifyResourcePermissions extends VerifyProcess {
 						resourcePermissionDynamicQuery.add(
 							companyIdProperty.eq(role.getCompanyId()));
 						resourcePermissionDynamicQuery.add(
-							nameProperty.eq(Layout.class.getName()));
+							nameProperty.eq(modelName));
 						resourcePermissionDynamicQuery.add(
 							roleIdProperty.eq(role.getRoleId()));
 
@@ -157,10 +161,7 @@ public class VerifyResourcePermissions extends VerifyProcess {
 						try {
 							_verifyLayoutIndex++;
 
-							long companyId = role.getCompanyId();
-							String modelName = Layout.class.getName();
 							long primKey = layout.getPlid();
-							long ownerId = 0;
 							int cur = _verifyLayoutIndex;
 
 							if (_log.isInfoEnabled() &&
