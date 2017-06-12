@@ -104,7 +104,7 @@ public class VerifyResourcePermissions extends VerifyProcess {
 	protected void verifyLayout(Role role) throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
 			long companyId = role.getCompanyId();
-			String modelName = Layout.class.getName();
+			String layoutModelName = Layout.class.getName();
 
 			ActionableDynamicQuery actionableDynamicQuery =
 				LayoutLocalServiceUtil.getActionableDynamicQuery();
@@ -127,7 +127,7 @@ public class VerifyResourcePermissions extends VerifyProcess {
 						resourcePermissionDynamicQuery.add(
 							companyIdProperty.eq(role.getCompanyId()));
 						resourcePermissionDynamicQuery.add(
-							nameProperty.eq(modelName));
+							nameProperty.eq(layoutModelName));
 						resourcePermissionDynamicQuery.add(
 							roleIdProperty.eq(role.getRoleId()));
 
@@ -175,7 +175,7 @@ public class VerifyResourcePermissions extends VerifyProcess {
 								sb.append("= ");
 								sb.append(companyId);
 								sb.append(" and model ");
-								sb.append(modelName);
+								sb.append(layoutModelName);
 
 								_log.info(sb.toString());
 							}
@@ -186,7 +186,7 @@ public class VerifyResourcePermissions extends VerifyProcess {
 								sb.append("No resource found for {");
 								sb.append(companyId);
 								sb.append(", ");
-								sb.append(modelName);
+								sb.append(layoutModelName);
 								sb.append(", ");
 								sb.append(ResourceConstants.SCOPE_INDIVIDUAL);
 								sb.append(", ");
@@ -199,7 +199,7 @@ public class VerifyResourcePermissions extends VerifyProcess {
 							}
 
 							ResourceLocalServiceUtil.addResources(
-								companyId, 0, 0, modelName,
+								companyId, 0, 0, layoutModelName,
 								String.valueOf(primKey), false, false, false);
 						}
 						catch (Exception e) {
