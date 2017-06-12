@@ -28,17 +28,20 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Contact;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.Resource;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.ContactLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.service.ResourceLocalServiceUtil;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.verify.model.VerifiableResourcedModel;
@@ -50,6 +53,7 @@ import java.sql.ResultSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -202,9 +206,42 @@ public class VerifyResourcePermissions extends VerifyProcess {
 							_log.debug(sb.toString());
 						}
 
-						ResourceLocalServiceUtil.addResources(
-							companyId, 0, 0, layoutModelName,
-							String.valueOf(primKey), false, false, false);
+						Resource resource =
+							ResourceLocalServiceUtil.getResource(
+								companyId, layoutModelName,
+								ResourceConstants.SCOPE_INDIVIDUAL,
+								String.valueOf(primKey));
+
+						List<String> actionIds =
+							ResourceActionsUtil.getModelResourceActions(
+								resource.getName());
+
+						actionIds = ListUtil.copy(actionIds);
+
+						List<String> defaultOwnerActions =
+							ResourceActionsUtil.
+								getModelResourceOwnerDefaultActions(
+									layoutModelName);
+
+						if (!defaultOwnerActions.isEmpty()) {
+							Iterator<String> itr = actionIds.iterator();
+
+							while (itr.hasNext()) {
+								String actionId = itr.next();
+
+								if (!defaultOwnerActions.contains(actionId)) {
+									itr.remove();
+								}
+							}
+						}
+
+						ResourcePermissionLocalServiceUtil.
+							setOwnerResourcePermissions(
+								resource.getCompanyId(), resource.getName(),
+								resource.getScope(), resource.getPrimKey(),
+								role.getRoleId(), 0,
+								actionIds.toArray(
+									new String[actionIds.size()]));
 					}
 
 				});
