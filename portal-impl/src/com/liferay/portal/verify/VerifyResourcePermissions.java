@@ -14,6 +14,7 @@
 
 package com.liferay.portal.verify;
 
+import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.concurrent.ThrowableAwareRunnable;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
@@ -28,6 +29,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Contact;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.Role;
@@ -36,6 +38,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.ContactLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
+import com.liferay.portal.kernel.service.ResourceActionLocalServiceUtil;
 import com.liferay.portal.kernel.service.ResourceLocalServiceUtil;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
@@ -225,13 +228,40 @@ public class VerifyResourcePermissions extends VerifyProcess {
 							_log.debug(sb.toString());
 						}
 
+						long resourcePermissionId =
+							CounterLocalServiceUtil.increment(
+								ResourcePermission.class.getName(), total);
+
+						ResourcePermission resourcePermission =
+							ResourcePermissionLocalServiceUtil.
+								createResourcePermission(resourcePermissionId);
+
+						resourcePermission.setCompanyId(companyId);
+						resourcePermission.setName(layoutModelName);
+						resourcePermission.setScope(
+							ResourceConstants.SCOPE_INDIVIDUAL);
+						resourcePermission.setPrimKey(primKey);
+						resourcePermission.setPrimKeyId(plid);
+						resourcePermission.setRoleId(role.getRoleId());
+						resourcePermission.setOwnerId(0);
+
+						long actionIdsLong = 0;
+
+						for (String actionId : actionIds) {
+							ResourceAction resourceAction =
+								ResourceActionLocalServiceUtil.
+									getResourceAction(
+										layoutModelName, actionId);
+
+							actionIdsLong |= resourceAction.getBitwiseValue();
+						}
+
+						resourcePermission.setActionIds(actionIdsLong);
+						resourcePermission.setViewActionId(
+							actionIdsLong % 2 == 1);
+
 						ResourcePermissionLocalServiceUtil.
-							setOwnerResourcePermissions(
-								companyId, layoutModelName,
-								ResourceConstants.SCOPE_INDIVIDUAL, primKey,
-								role.getRoleId(), 0,
-								actionIds.toArray(
-									new String[actionIds.size()]));
+							addResourcePermission(resourcePermission);
 					}
 
 				});
