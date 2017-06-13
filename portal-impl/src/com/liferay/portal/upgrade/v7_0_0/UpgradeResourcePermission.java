@@ -14,13 +14,8 @@
 
 package com.liferay.portal.upgrade.v7_0_0;
 
-import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 /**
  * @author Sampsa Sohlman
@@ -44,48 +39,20 @@ public class UpgradeResourcePermission extends UpgradeProcess {
 	}
 
 	protected void upgradeResourcePermissions() throws Exception {
-		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			String selectSQL =
-				"select resourcePermissionId, primKey, actionIds from " +
-					"ResourcePermission";
-			String updateSQL =
-				"update ResourcePermission set primKeyId = ?, viewActionId = " +
-					"? where resourcePermissionId = ?";
+		runSQL(
+			"update ResourcePermission set primKeyId = 0 + CAST_LONG(primKey)");
 
-			try (PreparedStatement ps1 = connection.prepareStatement(selectSQL);
-				ResultSet rs = ps1.executeQuery();
-				PreparedStatement ps2 =
-					AutoBatchPreparedStatementUtil.concurrentAutoBatch(
-						connection, updateSQL)) {
+		runSQL(
+			"update ResourcePermission set primKeyId = 0 where primKeyId is " +
+				"null");
 
-				while (rs.next()) {
-					long resourcePermissionId = rs.getLong(
-						"resourcePermissionId");
-					long actionIds = rs.getLong("actionIds");
+		runSQL(
+			"update ResourcePermission set viewActionId = TRUE where 1 = " +
+				"MOD(actionIds, 2)");
 
-					long newPrimKeyId = GetterUtil.getLong(
-						rs.getString("primKey"));
-
-					boolean newViewActionId = false;
-
-					if ((actionIds % 2) == 1) {
-						newViewActionId = true;
-					}
-
-					if ((newPrimKeyId == 0) && !newViewActionId) {
-						continue;
-					}
-
-					ps2.setLong(1, newPrimKeyId);
-					ps2.setBoolean(2, newViewActionId);
-					ps2.setLong(3, resourcePermissionId);
-
-					ps2.addBatch();
-				}
-
-				ps2.executeBatch();
-			}
-		}
+		runSQL(
+			"update ResourcePermission set viewActionId = FALSE where " +
+				"viewActionId is null");
 	}
 
 }
