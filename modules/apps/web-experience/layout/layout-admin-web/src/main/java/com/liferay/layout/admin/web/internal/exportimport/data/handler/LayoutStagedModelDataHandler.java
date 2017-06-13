@@ -38,7 +38,7 @@ import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelModifiedDateComparator;
 import com.liferay.exportimport.kernel.lifecycle.ExportImportLifecycleManager;
 import com.liferay.exportimport.kernel.staging.LayoutStagingUtil;
-import com.liferay.exportimport.kernel.staging.StagingUtil;
+import com.liferay.exportimport.kernel.staging.Staging;
 import com.liferay.exportimport.lar.LayoutCache;
 import com.liferay.exportimport.lar.PermissionImporter;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskThreadLocal;
@@ -320,17 +320,9 @@ public class LayoutStagedModelDataHandler
 
 		exportTheme(portletDataContext, layout);
 
-		// Page versioning
-
-		LayoutStagingHandler layoutStagingHandler =
-			LayoutStagingUtil.getLayoutStagingHandler(layout);
-
-		if (layoutStagingHandler != null) {
-			layout = layoutStagingHandler.getLayout();
-		}
-
 		portletDataContext.addClassedModel(
-			layoutElement, ExportImportPathUtil.getModelPath(layout), layout);
+			layoutElement, ExportImportPathUtil.getModelPath(layout),
+			LayoutStagingUtil.mergeLayoutRevisionIntoLayout(layout));
 	}
 
 	@Override
@@ -695,7 +687,7 @@ public class LayoutStagedModelDataHandler
 
 		importedLayout.setExpandoBridgeAttributes(serviceContext);
 
-		StagingUtil.updateLastImportSettings(
+		_staging.updateLastImportSettings(
 			layoutElement, importedLayout, portletDataContext);
 
 		fixImportTypeSettings(importedLayout);
@@ -1859,6 +1851,9 @@ public class LayoutStagedModelDataHandler
 	private PortletImportController _portletImportController;
 	private PortletLocalService _portletLocalService;
 	private ResourceLocalService _resourceLocalService;
+
+	@Reference
+	private Staging _staging;
 
 	private class ImportLinkedLayoutCallable implements Callable<Void> {
 

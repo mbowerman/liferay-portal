@@ -201,6 +201,8 @@
 		<check name="LanguageKeysCheck" />
 	</source-processor>
 	<source-processor name="MarkdownSourceProcessor">
+		<check name="MarkdownFileExtensionCheck" />
+		<check name="MarkdownStylingCheck" />
 		<check name="WhitespaceCheck">
 			<property name="allowLeadingSpaces" value="true" />
 		</check>
@@ -258,5 +260,11 @@
 		<check name="XMLTestIgnorableErrorLinesFileCheck" />
 		<check name="XMLTilesDefsFileCheck" />
 		<check name="XMLWebFileCheck" />
+	</source-processor>
+	<source-processor name="YMLSourceProcessor">
+		<check name="WhitespaceCheck">
+			<property name="allowLeadingSpaces" value="true" />
+		</check>
+		<check name="YMLDefintionOrderCheck" />
 	</source-processor>
 </source-formatter>
