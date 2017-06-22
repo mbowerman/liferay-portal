@@ -22,12 +22,13 @@ import com.liferay.vulcan.error.VulcanDeveloperError;
 import com.liferay.vulcan.list.FunctionalList;
 import com.liferay.vulcan.message.RequestInfo;
 import com.liferay.vulcan.message.json.JSONObjectBuilder;
-import com.liferay.vulcan.message.json.PageJSONMessageMapper;
+import com.liferay.vulcan.message.json.PageMessageMapper;
 import com.liferay.vulcan.pagination.Page;
-import com.liferay.vulcan.representor.ModelRepresentorMapper;
+import com.liferay.vulcan.response.control.Embedded;
+import com.liferay.vulcan.response.control.Fields;
+import com.liferay.vulcan.wiring.osgi.ProviderManager;
 import com.liferay.vulcan.wiring.osgi.RelatedModel;
-import com.liferay.vulcan.wiring.osgi.RepresentorManager;
-import com.liferay.vulcan.wiring.osgi.URIResolver;
+import com.liferay.vulcan.wiring.osgi.ResourceManager;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -35,12 +36,14 @@ import java.io.PrintWriter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import javax.servlet.http.HttpServletRequest;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ResourceInfo;
@@ -67,15 +70,15 @@ public class PageMessageBodyWriter<T> implements MessageBodyWriter<Page<T>> {
 
 	@Override
 	public long getSize(
-		Page<T> page, Class<?> type, Type genericType, Annotation[] annotations,
-		MediaType mediaType) {
+		Page<T> page, Class<?> clazz, Type genericType,
+		Annotation[] annotations, MediaType mediaType) {
 
 		return -1;
 	}
 
 	@Override
 	public boolean isWriteable(
-		Class<?> type, Type genericType, Annotation[] annotations,
+		Class<?> clazz, Type genericType, Annotation[] annotations,
 		MediaType mediaType) {
 
 		Method resourceMethod = _resourceInfo.getResourceMethod();
@@ -86,87 +89,66 @@ public class PageMessageBodyWriter<T> implements MessageBodyWriter<Page<T>> {
 			return false;
 		}
 
-		Type genericReturnType = resourceMethod.getGenericReturnType();
-
-		Type[] actualTypeArguments =
-			((ParameterizedType)genericReturnType).getActualTypeArguments();
-
-		try {
-			Class<T> modelClass = (Class<T>)actualTypeArguments[0];
-
-			Optional<ModelRepresentorMapper<T>> optional =
-				_representorManager.getModelRepresentorMapperOptional(
-					modelClass);
-
-			if (!optional.isPresent()) {
-				return false;
-			}
-
-			return true;
-		}
-		catch (ClassCastException cce) {
-			return false;
-		}
+		return true;
 	}
 
 	@Override
 	public void writeTo(
-			Page<T> page, Class<?> type, Type genericType,
+			Page<T> page, Class<?> clazz, Type genericType,
 			Annotation[] annotations, MediaType mediaType,
 			MultivaluedMap<String, Object> httpHeaders,
 			OutputStream entityStream)
 		throws IOException, WebApplicationException {
 
-		Method resourceMethod = _resourceInfo.getResourceMethod();
+		PrintWriter printWriter = new PrintWriter(entityStream, true);
 
-		Type genericReturnType = resourceMethod.getGenericReturnType();
+		Stream<PageMessageMapper<T>> stream = _pageMessageMappers.stream();
 
-		Type[] actualTypeArguments =
-			((ParameterizedType)genericReturnType).getActualTypeArguments();
+		String mediaTypeString = mediaType.toString();
+		Class<T> modelClass = page.getModelClass();
+		RequestInfo requestInfo = new RequestInfoImpl(mediaType, httpHeaders);
 
-		Class<T> modelClass = (Class<T>)actualTypeArguments[0];
+		PageMessageMapper<T> pageMessageMapper = stream.filter(
+			bodyWriter ->
+				mediaTypeString.equals(bodyWriter.getMediaType()) &&
+				bodyWriter.supports(page, modelClass, requestInfo)
+		).findFirst(
+		).orElseThrow(
+			() -> new VulcanDeveloperError.MustHaveMessageMapper(
+				mediaTypeString, modelClass)
+		);
 
 		JSONObjectBuilder jsonObjectBuilder = new JSONObjectBuilderImpl();
 
-		RequestInfo requestInfo = new RequestInfoImpl(mediaType, httpHeaders);
-
-		Stream<PageJSONMessageMapper<T>> stream =
-			_pageJSONMessageMappers.stream();
-
-		String stringMediaType = mediaType.toString();
-
-		PageJSONMessageMapper<T> pageJSONMessageMapper = stream.filter(
-			bodyWriter ->
-				stringMediaType.equals(bodyWriter.getMediaType()) &&
-					bodyWriter.supports(page, modelClass, requestInfo)
-		).findFirst(
-
-		).orElseThrow(
-			() -> new VulcanDeveloperError.MustHaveMessageMapper(
-				stringMediaType, modelClass)
-		);
-
-		pageJSONMessageMapper.onStart(
+		pageMessageMapper.onStart(
 			jsonObjectBuilder, page, modelClass, requestInfo);
+
+		Optional<Fields> fieldsOptional = _providerManager.provide(
+			Fields.class, _httpServletRequest);
+
+		Fields fields = fieldsOptional.orElseThrow(
+			() -> new VulcanDeveloperError.MustHaveProvider(Fields.class));
+
+		Optional<Embedded> embeddedOptional = _providerManager.provide(
+			Embedded.class, _httpServletRequest);
+
+		Embedded embedded = embeddedOptional.orElseThrow(
+			() -> new VulcanDeveloperError.MustHaveProvider(Embedded.class));
 
 		_writeItems(
-			page, modelClass, requestInfo, pageJSONMessageMapper,
-			jsonObjectBuilder);
+			pageMessageMapper, jsonObjectBuilder, page, modelClass, requestInfo,
+			fields, embedded);
 
-		_writeItemTotalCount(pageJSONMessageMapper, jsonObjectBuilder, page);
+		_writeItemTotalCount(pageMessageMapper, jsonObjectBuilder, page);
 
-		_writePageCount(pageJSONMessageMapper, jsonObjectBuilder, page);
+		_writePageCount(pageMessageMapper, jsonObjectBuilder, page);
 
-		_writePageURLs(
-			pageJSONMessageMapper, jsonObjectBuilder, page, modelClass);
+		_writePageURLs(pageMessageMapper, jsonObjectBuilder, page, modelClass);
 
-		_writeCollectionURL(
-			pageJSONMessageMapper, jsonObjectBuilder, modelClass);
+		_writeCollectionURL(pageMessageMapper, jsonObjectBuilder, modelClass);
 
-		pageJSONMessageMapper.onFinish(
+		pageMessageMapper.onFinish(
 			jsonObjectBuilder, page, modelClass, requestInfo);
-
-		PrintWriter printWriter = new PrintWriter(entityStream, true);
 
 		JSONObject jsonObject = jsonObjectBuilder.build();
 
@@ -176,13 +158,11 @@ public class PageMessageBodyWriter<T> implements MessageBodyWriter<Page<T>> {
 	}
 
 	private String _getCollectionURL(Class<T> modelClass) {
-		Optional<String> optional =
-			_uriResolver.getCollectionResourceURIOptional(modelClass);
+		Optional<String> optional = _writerHelper.getCollectionURLOptional(
+			modelClass, _uriInfo);
 
-		String uri = optional.orElseThrow(
+		return optional.orElseThrow(
 			() -> new VulcanDeveloperError.UnresolvableURI(modelClass));
-
-		return _writerHelper.getAbsoluteURL(_uriInfo, uri);
 	}
 
 	private String _getPageURL(
@@ -194,204 +174,229 @@ public class PageMessageBodyWriter<T> implements MessageBodyWriter<Page<T>> {
 	}
 
 	private void _writeCollectionURL(
-		PageJSONMessageMapper<T> pageJSONMessageMapper,
+		PageMessageMapper<T> pageMessageMapper,
 		JSONObjectBuilder jsonObjectBuilder, Class<T> modelClass) {
 
 		String url = _getCollectionURL(modelClass);
 
-		pageJSONMessageMapper.mapCollectionURL(jsonObjectBuilder, url);
+		pageMessageMapper.mapCollectionURL(jsonObjectBuilder, url);
 	}
 
 	private <U, V> void _writeEmbeddedRelatedModel(
-		PageJSONMessageMapper<?> pageJSONMessageMapper,
+		PageMessageMapper<?> pageMessageMapper,
 		JSONObjectBuilder pageJSONObjectBuilder,
 		JSONObjectBuilder itemJSONObjectBuilder,
 		RelatedModel<U, V> relatedModel, U parentModel,
-		FunctionalList<String> parentEmbeddedPathElements) {
+		Class<U> parentModelClass,
+		FunctionalList<String> parentEmbeddedPathElements, Fields fields,
+		Embedded embedded) {
 
 		_writerHelper.writeRelatedModel(
-			relatedModel, parentModel, parentEmbeddedPathElements, _uriInfo,
-			(model, modelClass, url, embeddedPathElements) -> {
+			relatedModel, parentModel, parentModelClass,
+			parentEmbeddedPathElements, _uriInfo, fields, embedded,
+			(model, modelClass, embeddedPathElements) -> {
 				_writerHelper.writeFields(
-					model, modelClass, (fieldName, value) ->
-						pageJSONMessageMapper.mapItemEmbeddedResourceField(
+					model, modelClass, fields,
+					(fieldName, value) ->
+						pageMessageMapper.mapItemEmbeddedResourceField(
 							pageJSONObjectBuilder, itemJSONObjectBuilder,
 							embeddedPathElements, fieldName, value));
 
 				_writerHelper.writeLinks(
-					modelClass, (fieldName, link) ->
-						pageJSONMessageMapper.mapItemEmbeddedResourceLink(
+					modelClass, fields,
+					(fieldName, link) ->
+						pageMessageMapper.mapItemEmbeddedResourceLink(
 							pageJSONObjectBuilder, itemJSONObjectBuilder,
 							embeddedPathElements, fieldName, link));
 
 				_writerHelper.writeTypes(
-					modelClass, types ->
-						pageJSONMessageMapper.mapItemEmbeddedResourceTypes(
-							pageJSONObjectBuilder, itemJSONObjectBuilder,
-							embeddedPathElements, types));
-
-				pageJSONMessageMapper.mapItemEmbeddedResourceURL(
-					pageJSONObjectBuilder, itemJSONObjectBuilder,
-					embeddedPathElements, url);
+					modelClass,
+					types -> pageMessageMapper.mapItemEmbeddedResourceTypes(
+						pageJSONObjectBuilder, itemJSONObjectBuilder,
+						embeddedPathElements, types));
 
 				List<RelatedModel<V, ?>> embeddedRelatedModels =
-					_representorManager.getEmbeddedRelatedModels(modelClass);
+					_resourceManager.getEmbeddedRelatedModels(modelClass);
 
 				embeddedRelatedModels.forEach(
 					embeddedRelatedModel -> _writeEmbeddedRelatedModel(
-						pageJSONMessageMapper, pageJSONObjectBuilder,
+						pageMessageMapper, pageJSONObjectBuilder,
 						itemJSONObjectBuilder, embeddedRelatedModel, model,
-						embeddedPathElements));
+						modelClass, embeddedPathElements, fields, embedded));
 
 				List<RelatedModel<V, ?>> linkedRelatedModels =
-					_representorManager.getLinkedRelatedModels(modelClass);
+					_resourceManager.getLinkedRelatedModels(modelClass);
 
 				linkedRelatedModels.forEach(
 					linkedRelatedModel -> _writeLinkedRelatedModel(
-						pageJSONMessageMapper, pageJSONObjectBuilder,
+						pageMessageMapper, pageJSONObjectBuilder,
 						itemJSONObjectBuilder, linkedRelatedModel, model,
-						embeddedPathElements));
+						modelClass, embeddedPathElements, fields, embedded));
+			},
+			(url, embeddedPathElements, isEmbedded) -> {
+				if (isEmbedded) {
+					pageMessageMapper.mapItemEmbeddedResourceURL(
+						pageJSONObjectBuilder, itemJSONObjectBuilder,
+						embeddedPathElements, url);
+				}
+				else {
+					pageMessageMapper.mapItemLinkedResourceURL(
+						pageJSONObjectBuilder, itemJSONObjectBuilder,
+						embeddedPathElements, url);
+				}
 			});
 	}
 
 	private void _writeItems(
-		Page<T> page, Class<T> modelClass, RequestInfo requestInfo,
-		PageJSONMessageMapper<T> pageJSONMessageMapper,
-		JSONObjectBuilder jsonObjectBuilder) {
+		PageMessageMapper<T> pageMessageMapper,
+		JSONObjectBuilder jsonObjectBuilder, Page<T> page, Class<T> modelClass,
+		RequestInfo requestInfo, Fields fields, Embedded embedded) {
 
-		page.getItems().forEach(
+		Collection<T> items = page.getItems();
+
+		items.forEach(
 			item -> {
 				JSONObjectBuilder itemJSONObjectBuilder =
 					new JSONObjectBuilderImpl();
 
-				pageJSONMessageMapper.onStartItem(
+				pageMessageMapper.onStartItem(
 					jsonObjectBuilder, itemJSONObjectBuilder, item, modelClass,
 					requestInfo);
 
 				_writerHelper.writeFields(
-					item, modelClass, (field, value) ->
-						pageJSONMessageMapper.mapItemField(
-							jsonObjectBuilder, itemJSONObjectBuilder, field,
-							value));
+					item, modelClass, fields,
+					(field, value) -> pageMessageMapper.mapItemField(
+						jsonObjectBuilder, itemJSONObjectBuilder, field,
+						value));
 
 				_writerHelper.writeLinks(
-					modelClass, (fieldName, link) ->
-						pageJSONMessageMapper.mapItemLink(
-							jsonObjectBuilder, itemJSONObjectBuilder, fieldName,
-							link));
+					modelClass, fields,
+					(fieldName, link) -> pageMessageMapper.mapItemLink(
+						jsonObjectBuilder, itemJSONObjectBuilder, fieldName,
+						link));
 
 				_writerHelper.writeTypes(
-					modelClass, types -> pageJSONMessageMapper.mapItemTypes(
+					modelClass,
+					types -> pageMessageMapper.mapItemTypes(
 						jsonObjectBuilder, itemJSONObjectBuilder, types));
 
 				_writerHelper.writeSingleResourceURL(
-					item, modelClass, _uriInfo, url ->
-						pageJSONMessageMapper.mapItemSelfURL(
-							jsonObjectBuilder, itemJSONObjectBuilder, url));
+					item, modelClass, _uriInfo,
+					url -> pageMessageMapper.mapItemSelfURL(
+						jsonObjectBuilder, itemJSONObjectBuilder, url));
 
 				List<RelatedModel<T, ?>> embeddedRelatedModels =
-					_representorManager.getEmbeddedRelatedModels(modelClass);
+					_resourceManager.getEmbeddedRelatedModels(modelClass);
 
 				embeddedRelatedModels.forEach(
 					embeddedRelatedModel -> _writeEmbeddedRelatedModel(
-						pageJSONMessageMapper, jsonObjectBuilder,
+						pageMessageMapper, jsonObjectBuilder,
 						itemJSONObjectBuilder, embeddedRelatedModel, item,
-						null));
+						modelClass, null, fields, embedded));
 
 				List<RelatedModel<T, ?>> linkedRelatedModels =
-					_representorManager.getLinkedRelatedModels(modelClass);
+					_resourceManager.getLinkedRelatedModels(modelClass);
 
 				linkedRelatedModels.forEach(
 					linkedRelatedModel -> _writeLinkedRelatedModel(
-						pageJSONMessageMapper, jsonObjectBuilder,
-						itemJSONObjectBuilder, linkedRelatedModel, item, null));
+						pageMessageMapper, jsonObjectBuilder,
+						itemJSONObjectBuilder, linkedRelatedModel, item,
+						modelClass, null, fields, embedded));
 
-				pageJSONMessageMapper.onFinishItem(
+				pageMessageMapper.onFinishItem(
 					jsonObjectBuilder, itemJSONObjectBuilder, item, modelClass,
 					requestInfo);
 			});
 	}
 
 	private void _writeItemTotalCount(
-		PageJSONMessageMapper<T> pageJSONMessageMapper,
+		PageMessageMapper<T> pageMessageMapper,
 		JSONObjectBuilder jsonObjectBuilder, Page<T> page) {
 
-		int totalCount = page.getTotalCount();
-
-		pageJSONMessageMapper.mapItemTotalCount(jsonObjectBuilder, totalCount);
+		pageMessageMapper.mapItemTotalCount(
+			jsonObjectBuilder, page.getTotalCount());
 	}
 
 	private <U, V> void _writeLinkedRelatedModel(
-		PageJSONMessageMapper<?> pageJSONMessageMapper,
+		PageMessageMapper<?> pageMessageMapper,
 		JSONObjectBuilder pageJSONObjectBuilder,
 		JSONObjectBuilder itemJSONObjectBuilder,
 		RelatedModel<U, V> relatedModel, U parentModel,
-		FunctionalList<String> parentEmbeddedPathElements) {
+		Class<U> parentModelClass,
+		FunctionalList<String> parentEmbeddedPathElements, Fields fields,
+		Embedded embedded) {
 
-		_writerHelper.writeRelatedModel(
-			relatedModel, parentModel, parentEmbeddedPathElements, _uriInfo,
-			(model, modelClass, url, embeddedPathElements) ->
-				pageJSONMessageMapper.mapItemLinkedResourceURL(
+		_writerHelper.writeLinkedRelatedModel(
+			relatedModel, parentModel, parentModelClass,
+			parentEmbeddedPathElements, _uriInfo, fields, embedded,
+			(url, embeddedPathElements) ->
+				pageMessageMapper.mapItemLinkedResourceURL(
 					pageJSONObjectBuilder, itemJSONObjectBuilder,
 					embeddedPathElements, url));
 	}
 
 	private void _writePageCount(
-		PageJSONMessageMapper<T> pageJSONMessageMapper,
+		PageMessageMapper<T> pageMessageMapper,
 		JSONObjectBuilder jsonObjectBuilder, Page<T> page) {
 
-		int count = page.getItems().size();
+		Collection<T> items = page.getItems();
 
-		pageJSONMessageMapper.mapPageCount(jsonObjectBuilder, count);
+		pageMessageMapper.mapPageCount(jsonObjectBuilder, items.size());
 	}
 
 	private void _writePageURLs(
-		PageJSONMessageMapper<T> pageJSONMessageMapper,
+		PageMessageMapper<T> pageMessageMapper,
 		JSONObjectBuilder jsonObjectBuilder, Page<T> page,
 		Class<T> modelClass) {
 
-		int itemsPerPage = page.getItemsPerPage();
-
-		int currentPage = page.getPageNumber();
-
-		pageJSONMessageMapper.mapCurrentPageURL(
+		pageMessageMapper.mapCurrentPageURL(
 			jsonObjectBuilder,
-			_getPageURL(modelClass, currentPage, itemsPerPage));
+			_getPageURL(
+				modelClass, page.getPageNumber(), page.getItemsPerPage()));
 
-		pageJSONMessageMapper.mapFirstPageURL(
-			jsonObjectBuilder, _getPageURL(modelClass, 1, itemsPerPage));
+		pageMessageMapper.mapFirstPageURL(
+			jsonObjectBuilder,
+			_getPageURL(modelClass, 1, page.getItemsPerPage()));
 
 		if (page.hasPrevious()) {
-			pageJSONMessageMapper.mapPreviousPageURL(
+			pageMessageMapper.mapPreviousPageURL(
 				jsonObjectBuilder,
-				_getPageURL(modelClass, currentPage - 1, itemsPerPage));
+				_getPageURL(
+					modelClass, page.getPageNumber() - 1,
+					page.getItemsPerPage()));
 		}
 
 		if (page.hasNext()) {
-			pageJSONMessageMapper.mapNextPageURL(
+			pageMessageMapper.mapNextPageURL(
 				jsonObjectBuilder,
-				_getPageURL(modelClass, currentPage + 1, itemsPerPage));
+				_getPageURL(
+					modelClass, page.getPageNumber() + 1,
+					page.getItemsPerPage()));
 		}
 
-		pageJSONMessageMapper.mapLastPageURL(
+		pageMessageMapper.mapLastPageURL(
 			jsonObjectBuilder,
-			_getPageURL(modelClass, page.getLastPageNumber(), itemsPerPage));
+			_getPageURL(
+				modelClass, page.getLastPageNumber(), page.getItemsPerPage()));
 	}
 
+	@Context
+	private HttpServletRequest _httpServletRequest;
+
 	@Reference(cardinality = AT_LEAST_ONE, policyOption = GREEDY)
-	private List<PageJSONMessageMapper<T>> _pageJSONMessageMappers;
+	private List<PageMessageMapper<T>> _pageMessageMappers;
 
 	@Reference
-	private RepresentorManager _representorManager;
+	private ProviderManager _providerManager;
 
 	@Context
 	private ResourceInfo _resourceInfo;
 
+	@Reference
+	private ResourceManager _resourceManager;
+
 	@Context
 	private UriInfo _uriInfo;
-
-	@Reference
-	private URIResolver _uriResolver;
 
 	@Reference
 	private WriterHelper _writerHelper;

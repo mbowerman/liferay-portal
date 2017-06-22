@@ -17,9 +17,10 @@ package com.liferay.knowledge.base.item.selector.web.internal;
 import com.liferay.item.selector.ItemSelectorReturnType;
 import com.liferay.item.selector.ItemSelectorReturnTypeResolverHandler;
 import com.liferay.item.selector.ItemSelectorView;
-import com.liferay.item.selector.criteria.PortletFileEntryItemSelectorReturnType;
-import com.liferay.item.selector.criteria.PortletFileEntryURLItemSelectorReturnType;
+import com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType;
+import com.liferay.item.selector.criteria.URLItemSelectorReturnType;
 import com.liferay.knowledge.base.item.selector.criterion.KBAttachmentItemSelectorCriterion;
+import com.liferay.knowledge.base.item.selector.web.internal.constants.KBItemSelectorWebKeys;
 import com.liferay.knowledge.base.item.selector.web.internal.display.context.KBAttachmentItemSelectorViewDisplayContext;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.AggregateResourceBundleLoader;
@@ -52,10 +53,6 @@ import org.osgi.service.component.annotations.Reference;
 @Component
 public class KBAttachmentItemSelectorView
 	implements ItemSelectorView<KBAttachmentItemSelectorCriterion> {
-
-	public static final String
-		KB_ATTACHMENT_ITEM_SELECTOR_VIEW_DISPLAY_CONTEXT =
-			"KB_ATTACHMENT_ITEM_SELECTOR_VIEW_DISPLAY_CONTEXT";
 
 	@Override
 	public Class<KBAttachmentItemSelectorCriterion>
@@ -107,7 +104,8 @@ public class KBAttachmentItemSelectorView
 					itemSelectedEventName, search, portletURL);
 
 		request.setAttribute(
-			KB_ATTACHMENT_ITEM_SELECTOR_VIEW_DISPLAY_CONTEXT,
+			KBItemSelectorWebKeys.
+				KB_ATTACHMENT_ITEM_SELECTOR_VIEW_DISPLAY_CONTEXT,
 			kbAttachmentItemSelectorViewDisplayContext);
 
 		ServletContext servletContext = getServletContext();
@@ -150,8 +148,8 @@ public class KBAttachmentItemSelectorView
 		_supportedItemSelectorReturnTypes = Collections.unmodifiableList(
 			ListUtil.fromArray(
 				new ItemSelectorReturnType[] {
-					new PortletFileEntryItemSelectorReturnType(),
-					new PortletFileEntryURLItemSelectorReturnType()
+					new FileEntryItemSelectorReturnType(),
+					new URLItemSelectorReturnType()
 				}));
 
 	private ItemSelectorReturnTypeResolverHandler

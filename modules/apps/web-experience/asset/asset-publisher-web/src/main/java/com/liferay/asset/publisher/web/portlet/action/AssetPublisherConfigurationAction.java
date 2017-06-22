@@ -28,7 +28,7 @@ import com.liferay.asset.publisher.web.util.AssetPublisherCustomizer;
 import com.liferay.asset.publisher.web.util.AssetPublisherCustomizerRegistry;
 import com.liferay.asset.publisher.web.util.AssetPublisherUtil;
 import com.liferay.exportimport.kernel.staging.LayoutStagingUtil;
-import com.liferay.exportimport.kernel.staging.StagingUtil;
+import com.liferay.exportimport.kernel.staging.Staging;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.model.Group;
@@ -37,11 +37,11 @@ import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutRevision;
 import com.liferay.portal.kernel.model.LayoutSetBranch;
 import com.liferay.portal.kernel.model.LayoutTypePortletConstants;
-import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProviderUtil;
 import com.liferay.portal.kernel.portlet.ConfigurationAction;
 import com.liferay.portal.kernel.portlet.DefaultConfigurationAction;
+import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
@@ -119,7 +119,7 @@ public class AssetPublisherConfigurationAction
 		String portletResource = ParamUtil.getString(
 			request, "portletResource");
 
-		String rootPortletId = PortletConstants.getRootPortletId(
+		String rootPortletId = PortletIdCodec.decodePortletName(
 			portletResource);
 
 		AssetPublisherCustomizer assetPublisherCustomizer =
@@ -669,7 +669,7 @@ public class AssetPublisherConfigurationAction
 
 			long layoutSetBranchId = layoutSetBranch.getLayoutSetBranchId();
 
-			long layoutRevisionId = StagingUtil.getRecentLayoutRevisionId(
+			long layoutRevisionId = staging.getRecentLayoutRevisionId(
 				request, layoutSetBranchId, layout.getPlid());
 
 			LayoutRevision layoutRevision =
@@ -799,5 +799,8 @@ public class AssetPublisherConfigurationAction
 
 	@Reference
 	protected Portal portal;
+
+	@Reference
+	protected Staging staging;
 
 }

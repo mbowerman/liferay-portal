@@ -21,8 +21,6 @@ package com.liferay.vulcan.liferay.scope;
  */
 public interface GroupScoped<T> {
 
-	public long getGroupId(T t);
-
-	public void setGroupId(long groupId);
+	public long getGroupId(T model);
 
 }

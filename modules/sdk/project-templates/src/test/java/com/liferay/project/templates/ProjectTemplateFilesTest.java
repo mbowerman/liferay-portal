@@ -306,8 +306,8 @@ public class ProjectTemplateFilesTest {
 				Assert.assertTrue(
 					path + " contains duplicate lines or is not sorted",
 					(previousKey == null) ||
-						(_languagePropertiesKeyComparator.compare(
-							key, previousKey) > 0));
+					(_languagePropertiesKeyComparator.compare(
+						key, previousKey) > 0));
 
 				if (key.startsWith("javax.portlet.")) {
 					portlet = true;
@@ -686,7 +686,7 @@ public class ProjectTemplateFilesTest {
 				Assert.assertFalse(
 					"Forbidden whitespace trailing character in " + path,
 					!line.isEmpty() &&
-						Character.isWhitespace(line.charAt(line.length() - 1)));
+					Character.isWhitespace(line.charAt(line.length() - 1)));
 			}
 		}
 
@@ -719,9 +719,8 @@ public class ProjectTemplateFilesTest {
 		}
 	}
 
-	private static final String[] _SOURCESET_NAMES = {
-		"main", "test", "testIntegration"
-	};
+	private static final String[] _SOURCESET_NAMES =
+		{"main", "test", "testIntegration"};
 
 	private static final Pattern _buildGradleDependencyPattern =
 		Pattern.compile(

@@ -19,15 +19,17 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.vulcan.error.VulcanDeveloperError;
+import com.liferay.vulcan.error.VulcanDeveloperError.MustHaveProvider;
 import com.liferay.vulcan.list.FunctionalList;
 import com.liferay.vulcan.message.RequestInfo;
 import com.liferay.vulcan.message.json.JSONObjectBuilder;
-import com.liferay.vulcan.message.json.SingleModelJSONMessageMapper;
-import com.liferay.vulcan.pagination.Page;
-import com.liferay.vulcan.representor.ModelRepresentorMapper;
+import com.liferay.vulcan.message.json.SingleModelMessageMapper;
+import com.liferay.vulcan.pagination.SingleModel;
+import com.liferay.vulcan.response.control.Embedded;
+import com.liferay.vulcan.response.control.Fields;
+import com.liferay.vulcan.wiring.osgi.ProviderManager;
 import com.liferay.vulcan.wiring.osgi.RelatedModel;
-import com.liferay.vulcan.wiring.osgi.RepresentorManager;
-import com.liferay.vulcan.wiring.osgi.URIResolver;
+import com.liferay.vulcan.wiring.osgi.ResourceManager;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -62,78 +64,74 @@ import org.osgi.service.component.annotations.Reference;
 	immediate = true, property = "liferay.vulcan.message.body.writer=true"
 )
 @Provider
-public class SingleModelMessageBodyWriter<T> implements MessageBodyWriter<T> {
+public class SingleModelMessageBodyWriter<T>
+	implements MessageBodyWriter<SingleModel<T>> {
 
 	@Override
 	public long getSize(
-		T t, Class<?> type, Type genericType, Annotation[] annotations,
-		MediaType mediaType) {
+		SingleModel<T> model, Class<?> clazz, Type genericType,
+		Annotation[] annotations, MediaType mediaType) {
 
 		return -1;
 	}
 
 	@Override
 	public boolean isWriteable(
-		Class<?> type, Type genericType, Annotation[] annotations,
+		Class<?> clazz, Type genericType, Annotation[] annotations,
 		MediaType mediaType) {
 
-		try {
-			Class<T> modelClass = (Class<T>)genericType;
-
-			if (modelClass.isAssignableFrom(Page.class)) {
-				return false;
-			}
-
-			Optional<ModelRepresentorMapper<T>> optional =
-				_representorManager.getModelRepresentorMapperOptional(
-					modelClass);
-
-			if (!optional.isPresent()) {
-				return false;
-			}
-
+		if (clazz.isAssignableFrom(SingleModel.class)) {
 			return true;
 		}
-		catch (ClassCastException cce) {
-			return false;
-		}
+
+		return false;
 	}
 
 	@Override
 	public void writeTo(
-			T model, Class<?> type, Type genericType, Annotation[] annotations,
-			MediaType mediaType, MultivaluedMap<String, Object> httpHeaders,
+			SingleModel<T> singleModel, Class<?> clazz, Type genericType,
+			Annotation[] annotations, MediaType mediaType,
+			MultivaluedMap<String, Object> httpHeaders,
 			OutputStream entityStream)
 		throws IOException, WebApplicationException {
 
-		Class<T> modelClass = (Class<T>)genericType;
+		PrintWriter printWriter = new PrintWriter(entityStream, true);
+
+		Stream<SingleModelMessageMapper<T>> stream =
+			_singleModelMessageMappers.stream();
+
+		String mediaTypeString = mediaType.toString();
+		T model = singleModel.getModel();
+		Class<T> modelClass = singleModel.getModelClass();
+		RequestInfo requestInfo = new RequestInfoImpl(mediaType, httpHeaders);
+
+		SingleModelMessageMapper<T> singleModelMessageMapper = stream.filter(
+			messageMapper ->
+				mediaTypeString.equals(messageMapper.getMediaType()) &&
+				messageMapper.supports(model, modelClass, requestInfo)
+		).findFirst(
+		).orElseThrow(
+			() -> new VulcanDeveloperError.MustHaveMessageMapper(
+				mediaTypeString, modelClass)
+		);
 
 		JSONObjectBuilder jsonObjectBuilder = new JSONObjectBuilderImpl();
 
-		RequestInfo requestInfo = new RequestInfoImpl(mediaType, httpHeaders);
+		Optional<Fields> fieldsOptional = _providerManager.provide(
+			Fields.class, _httpServletRequest);
 
-		Stream<SingleModelJSONMessageMapper<T>> stream =
-			_singleModelJSONMessageMappers.stream();
+		Fields fields = fieldsOptional.orElseThrow(
+			() -> new MustHaveProvider(Fields.class));
 
-		String stringMediaType = mediaType.toString();
+		Optional<Embedded> embeddedOptional = _providerManager.provide(
+			Embedded.class, _httpServletRequest);
 
-		SingleModelJSONMessageMapper<T> singleModelJSONMessageMapper =
-			stream.filter(
-				messageMapper ->
-					stringMediaType.equals(messageMapper.getMediaType()) &&
-						messageMapper.supports(model, modelClass, requestInfo)
-			).findFirst(
-
-			).orElseThrow(
-				() -> new VulcanDeveloperError.MustHaveMessageMapper(
-					stringMediaType, modelClass)
-			);
+		Embedded embedded = embeddedOptional.orElseThrow(
+			() -> new MustHaveProvider(Embedded.class));
 
 		_writeModel(
-			singleModelJSONMessageMapper, jsonObjectBuilder, model, modelClass,
-			requestInfo);
-
-		PrintWriter printWriter = new PrintWriter(entityStream, true);
+			singleModelMessageMapper, jsonObjectBuilder, model, modelClass,
+			requestInfo, fields, embedded);
 
 		JSONObject jsonObject = jsonObjectBuilder.build();
 
@@ -143,106 +141,125 @@ public class SingleModelMessageBodyWriter<T> implements MessageBodyWriter<T> {
 	}
 
 	private <U, V> void _writeEmbeddedRelatedModel(
-		SingleModelJSONMessageMapper<?> singleModelJSONMessageMapper,
+		SingleModelMessageMapper<?> singleModelMessageMapper,
 		JSONObjectBuilder jsonObjectBuilder, RelatedModel<U, V> relatedModel,
-		U parentModel, FunctionalList<String> parentEmbeddedPathElements) {
+		U parentModel, Class<U> parentModelClass,
+		FunctionalList<String> parentEmbeddedPathElements, Fields fields,
+		Embedded embedded) {
 
 		_writerHelper.writeRelatedModel(
-			relatedModel, parentModel, parentEmbeddedPathElements, _uriInfo,
-			(model, modelClass, url, embeddedPathElements) -> {
+			relatedModel, parentModel, parentModelClass,
+			parentEmbeddedPathElements, _uriInfo, fields, embedded,
+			(model, modelClass, embeddedPathElements) -> {
 				_writerHelper.writeFields(
-					model, modelClass, (fieldName, value) ->
-						singleModelJSONMessageMapper.mapEmbeddedResourceField(
+					model, modelClass, fields,
+					(fieldName, value) ->
+						singleModelMessageMapper.mapEmbeddedResourceField(
 							jsonObjectBuilder, embeddedPathElements, fieldName,
 							value));
 
 				_writerHelper.writeLinks(
-					modelClass, (fieldName, link) ->
-						singleModelJSONMessageMapper.mapEmbeddedResourceLink(
+					modelClass, fields,
+					(fieldName, link) ->
+						singleModelMessageMapper.mapEmbeddedResourceLink(
 							jsonObjectBuilder, embeddedPathElements, fieldName,
 							link));
 
-				_writerHelper.writeTypes(modelClass, types ->
-					singleModelJSONMessageMapper.mapEmbeddedResourceTypes(
+				_writerHelper.writeTypes(
+					modelClass,
+					types -> singleModelMessageMapper.mapEmbeddedResourceTypes(
 						jsonObjectBuilder, embeddedPathElements, types));
 
-				singleModelJSONMessageMapper.mapEmbeddedResourceURL(
-					jsonObjectBuilder, embeddedPathElements, url);
-
 				List<RelatedModel<V, ?>> embeddedRelatedModels =
-					_representorManager.getEmbeddedRelatedModels(modelClass);
+					_resourceManager.getEmbeddedRelatedModels(modelClass);
 
 				embeddedRelatedModels.forEach(
 					embeddedRelatedModel -> _writeEmbeddedRelatedModel(
-						singleModelJSONMessageMapper, jsonObjectBuilder,
-						embeddedRelatedModel, model, embeddedPathElements));
+						singleModelMessageMapper, jsonObjectBuilder,
+						embeddedRelatedModel, model, modelClass,
+						embeddedPathElements, fields, embedded));
 
 				List<RelatedModel<V, ?>> linkedRelatedModels =
-					_representorManager.getLinkedRelatedModels(modelClass);
+					_resourceManager.getLinkedRelatedModels(modelClass);
 
 				linkedRelatedModels.forEach(
 					linkedRelatedModel -> _writeLinkedRelatedModel(
-						singleModelJSONMessageMapper, jsonObjectBuilder,
-						linkedRelatedModel, model, embeddedPathElements));
+						singleModelMessageMapper, jsonObjectBuilder,
+						linkedRelatedModel, model, modelClass,
+						embeddedPathElements, fields, embedded));
+			},
+			(url, embeddedPathElements, isEmbedded) -> {
+				if (isEmbedded) {
+					singleModelMessageMapper.mapEmbeddedResourceURL(
+						jsonObjectBuilder, embeddedPathElements, url);
+				}
+				else {
+					singleModelMessageMapper.mapLinkedResourceURL(
+						jsonObjectBuilder, embeddedPathElements, url);
+				}
 			});
 	}
 
 	private <U, V> void _writeLinkedRelatedModel(
-		SingleModelJSONMessageMapper<?> singleModelJSONMessageMapper,
+		SingleModelMessageMapper<?> singleModelMessageMapper,
 		JSONObjectBuilder jsonObjectBuilder, RelatedModel<U, V> relatedModel,
-		U parentModel, FunctionalList<String> parentEmbeddedPathElements) {
+		U parentModel, Class<U> parentModelClass,
+		FunctionalList<String> parentEmbeddedPathElements, Fields fields,
+		Embedded embedded) {
 
-		_writerHelper.writeRelatedModel(
-			relatedModel, parentModel, parentEmbeddedPathElements, _uriInfo,
-			(model, modelClass, url, embeddedPathElements) ->
-				singleModelJSONMessageMapper.mapLinkedResourceURL(
+		_writerHelper.writeLinkedRelatedModel(
+			relatedModel, parentModel, parentModelClass,
+			parentEmbeddedPathElements, _uriInfo, fields, embedded,
+			(url, embeddedPathElements) ->
+				singleModelMessageMapper.mapLinkedResourceURL(
 					jsonObjectBuilder, embeddedPathElements, url));
 	}
 
 	private <U> void _writeModel(
-		SingleModelJSONMessageMapper<U> singleModelJSONMessageMapper,
+		SingleModelMessageMapper<U> singleModelMessageMapper,
 		JSONObjectBuilder jsonObjectBuilder, U model, Class<U> modelClass,
-		RequestInfo requestInfo) {
+		RequestInfo requestInfo, Fields fields, Embedded embedded) {
 
-		singleModelJSONMessageMapper.onStart(
+		singleModelMessageMapper.onStart(
 			jsonObjectBuilder, model, modelClass, requestInfo);
 
 		_writerHelper.writeFields(
-			model, modelClass, (field, value) ->
-				singleModelJSONMessageMapper.mapField(
-					jsonObjectBuilder, field, value));
+			model, modelClass, fields,
+			(field, value) -> singleModelMessageMapper.mapField(
+				jsonObjectBuilder, field, value));
 
 		_writerHelper.writeLinks(
-			modelClass, (fieldName, link) ->
-				singleModelJSONMessageMapper.mapLink(
-					jsonObjectBuilder, fieldName, link));
+			modelClass, fields,
+			(fieldName, link) -> singleModelMessageMapper.mapLink(
+				jsonObjectBuilder, fieldName, link));
 
 		_writerHelper.writeTypes(
-			modelClass, types -> singleModelJSONMessageMapper.mapTypes(
+			modelClass,
+			types -> singleModelMessageMapper.mapTypes(
 				jsonObjectBuilder, types));
 
 		_writerHelper.writeSingleResourceURL(
-			model, modelClass, _uriInfo, url ->
-				singleModelJSONMessageMapper.mapSelfURL(
-					jsonObjectBuilder, url));
+			model, modelClass, _uriInfo,
+			url -> singleModelMessageMapper.mapSelfURL(jsonObjectBuilder, url));
 
 		List<RelatedModel<U, ?>> embeddedRelatedModels =
-			_representorManager.getEmbeddedRelatedModels(modelClass);
+			_resourceManager.getEmbeddedRelatedModels(modelClass);
 
 		embeddedRelatedModels.forEach(
 			embeddedRelatedModel -> _writeEmbeddedRelatedModel(
-				singleModelJSONMessageMapper, jsonObjectBuilder,
-				embeddedRelatedModel, model, null));
+				singleModelMessageMapper, jsonObjectBuilder,
+				embeddedRelatedModel, model, modelClass, null, fields,
+				embedded));
 
 		List<RelatedModel<U, ?>> linkedRelatedModels =
-			_representorManager.getLinkedRelatedModels(modelClass);
+			_resourceManager.getLinkedRelatedModels(modelClass);
 
 		linkedRelatedModels.forEach(
 			linkedRelatedModel -> _writeLinkedRelatedModel(
-				singleModelJSONMessageMapper, jsonObjectBuilder,
-				linkedRelatedModel, model, null));
+				singleModelMessageMapper, jsonObjectBuilder, linkedRelatedModel,
+				model, modelClass, null, fields, embedded));
 
-		singleModelJSONMessageMapper.onFinish(
+		singleModelMessageMapper.onFinish(
 			jsonObjectBuilder, model, modelClass, requestInfo);
 	}
 
@@ -250,17 +267,16 @@ public class SingleModelMessageBodyWriter<T> implements MessageBodyWriter<T> {
 	private HttpServletRequest _httpServletRequest;
 
 	@Reference
-	private RepresentorManager _representorManager;
+	private ProviderManager _providerManager;
+
+	@Reference
+	private ResourceManager _resourceManager;
 
 	@Reference(cardinality = AT_LEAST_ONE, policyOption = GREEDY)
-	private List<SingleModelJSONMessageMapper<T>>
-		_singleModelJSONMessageMappers;
+	private List<SingleModelMessageMapper<T>> _singleModelMessageMappers;
 
 	@Context
 	private UriInfo _uriInfo;
-
-	@Reference
-	private URIResolver _uriResolver;
 
 	@Reference
 	private WriterHelper _writerHelper;

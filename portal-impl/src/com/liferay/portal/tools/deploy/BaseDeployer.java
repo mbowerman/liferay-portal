@@ -44,6 +44,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.kernel.util.Time;
+import com.liferay.portal.kernel.util.UnsafeConsumer;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
@@ -302,25 +303,8 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 
 	@Override
 	public void close() throws IOException {
-		IOException ioe1 = null;
-
-		for (Path tempPath : tempDirPaths) {
-			try {
-				DeployUtil.deletePath(tempPath);
-			}
-			catch (IOException ioe) {
-				if (ioe1 == null) {
-					ioe1 = ioe;
-				}
-				else {
-					ioe1.addSuppressed(ioe);
-				}
-			}
-		}
-
-		if (ioe1 != null) {
-			throw ioe1;
-		}
+		UnsafeConsumer.accept(
+			tempDirPaths, DeployUtil::deletePath, IOException.class);
 	}
 
 	@Override
@@ -1324,6 +1308,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 	public String getInvokerFilterContent() {
 		StringBundler sb = new StringBundler(4);
 
+		sb.append(getInvokerFilterContent("ASYNC"));
 		sb.append(getInvokerFilterContent("ERROR"));
 		sb.append(getInvokerFilterContent("FORWARD"));
 		sb.append(getInvokerFilterContent("INCLUDE"));
@@ -1333,7 +1318,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 	}
 
 	public String getInvokerFilterContent(String dispatcher) {
-		StringBundler sb = new StringBundler(23);
+		StringBundler sb = new StringBundler(24);
 
 		sb.append("<filter>");
 		sb.append("<filter-name>Invoker Filter - ");
@@ -1342,6 +1327,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		sb.append("<filter-class>");
 		sb.append(InvokerFilter.class.getName());
 		sb.append("</filter-class>");
+		sb.append("<async-supported>true</async-supported>");
 		sb.append("<init-param>");
 		sb.append("<param-name>dispatcher</param-name>");
 		sb.append("<param-value>");

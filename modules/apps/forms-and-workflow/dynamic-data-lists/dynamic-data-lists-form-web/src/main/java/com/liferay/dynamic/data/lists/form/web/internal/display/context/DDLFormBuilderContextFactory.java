@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -67,7 +68,7 @@ public class DDLFormBuilderContextFactory {
 		DDMFormTemplateContextFactory ddmFormTemplateContextFactory,
 		HttpServletRequest httpServletRequest,
 		HttpServletResponse httpServletResponse, JSONFactory jsonFactory,
-		Locale locale) {
+		Locale locale, boolean readOnly) {
 
 		_recordSetOptional = recordSetOptional;
 		_ddmFormFieldTypeServicesTracker = ddmFormFieldTypeServicesTracker;
@@ -76,6 +77,7 @@ public class DDLFormBuilderContextFactory {
 		_httpServletResponse = httpServletResponse;
 		_jsonFactory = jsonFactory;
 		_locale = locale;
+		_readOnly = readOnly;
 	}
 
 	public Map<String, Object> create() {
@@ -124,6 +126,7 @@ public class DDLFormBuilderContextFactory {
 		ddmFormRenderingContext.setHttpServletResponse(_httpServletResponse);
 		ddmFormRenderingContext.setLocale(_locale);
 		ddmFormRenderingContext.setPortletNamespace(StringPool.BLANK);
+		ddmFormRenderingContext.setReadOnly(_readOnly);
 
 		Map<String, Object> ddmFormTemplateContext =
 			_ddmFormTemplateContextFactory.create(
@@ -284,6 +287,7 @@ public class DDLFormBuilderContextFactory {
 
 		formContext.put(
 			"pages", createFormContext(ddmForm, ddmFormLayout).get("pages"));
+		formContext.put("paginationMode", ddmFormLayout.getPaginationMode());
 
 		formContext.put("rules", new ArrayList<>());
 
@@ -292,11 +296,11 @@ public class DDLFormBuilderContextFactory {
 		DDMFormSuccessPageSettings ddmFormSuccessPageSettings =
 			ddmForm.getDDMFormSuccessPageSettings();
 
-		successPage.put("body", ddmFormSuccessPageSettings.getBody());
+		successPage.put("body", toMap(ddmFormSuccessPageSettings.getBody()));
 		successPage.put("enabled", ddmFormSuccessPageSettings.isEnabled());
-		successPage.put("title", ddmFormSuccessPageSettings.getTitle());
+		successPage.put("title", toMap(ddmFormSuccessPageSettings.getTitle()));
 
-		formContext.put("successPage", successPage);
+		formContext.put("successPageSettings", successPage);
 
 		return formContext;
 	}
@@ -332,6 +336,19 @@ public class DDLFormBuilderContextFactory {
 		ddlFormBuilderContextFieldVisitor.visit();
 	}
 
+	protected Map<String, Object> toMap(LocalizedValue localizedValue) {
+		Map<String, Object> map = new HashMap<>();
+
+		Map<Locale, String> values = localizedValue.getValues();
+
+		for (Map.Entry<Locale, String> entry : values.entrySet()) {
+			map.put(
+				LanguageUtil.getLanguageId(entry.getKey()), entry.getValue());
+		}
+
+		return map;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		DDLFormBuilderContextFactory.class);
 
@@ -342,6 +359,7 @@ public class DDLFormBuilderContextFactory {
 	private final HttpServletResponse _httpServletResponse;
 	private final JSONFactory _jsonFactory;
 	private final Locale _locale;
+	private final boolean _readOnly;
 	private final Optional<DDLRecordSet> _recordSetOptional;
 
 	private static class DDLFormBuilderContextFieldVisitor {

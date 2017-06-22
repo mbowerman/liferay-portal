@@ -14,11 +14,17 @@
 
 package com.liferay.vulcan.jaxrs.writer.json.internal;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import com.liferay.vulcan.error.VulcanDeveloperError;
 import com.liferay.vulcan.list.FunctionalList;
+import com.liferay.vulcan.representor.Resource;
+import com.liferay.vulcan.response.control.Embedded;
+import com.liferay.vulcan.response.control.Fields;
+import com.liferay.vulcan.uri.CollectionResourceURITransformer;
 import com.liferay.vulcan.wiring.osgi.RelatedModel;
-import com.liferay.vulcan.wiring.osgi.RepresentorManager;
-import com.liferay.vulcan.wiring.osgi.URIResolver;
+import com.liferay.vulcan.wiring.osgi.ResourceManager;
 
 import java.net.URI;
 
@@ -26,8 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -55,38 +65,118 @@ public class WriterHelper {
 		return uri.toString();
 	}
 
+	public <T> Optional<String> getCollectionURLOptional(
+		Class<T> modelClass, UriInfo uriInfo) {
+
+		Optional<Resource<T>> optional = _resourceManager.getResourceOptional(
+			modelClass);
+
+		return optional.map(
+			Resource::getPath
+		).map(
+			path -> "/p/" + path
+		).map(
+			_getTransformURIFunction(
+				(uri, transformer) -> transformer.transformPageURI(
+					uri, modelClass))
+		).map(
+			uri -> getAbsoluteURL(uriInfo, uri)
+		);
+	}
+
+	public <T> Optional<String> getSingleURLOptional(
+		Class<T> modelClass, T model, UriInfo uriInfo) {
+
+		Optional<Resource<T>> optional = _resourceManager.getResourceOptional(
+			modelClass);
+
+		String identifier = _resourceManager.getIdentifier(modelClass, model);
+
+		return optional.map(
+			Resource::getPath
+		).map(
+			path -> "/p/" + path + "/" + identifier
+		).map(
+			_getTransformURIFunction(
+				(uri, transformer) ->
+					transformer.transformCollectionItemSingleResourceURI(
+						uri, modelClass, model))
+		).map(
+			uri -> getAbsoluteURL(uriInfo, uri)
+		);
+	}
+
 	public <T> void writeFields(
-		T model, Class<T> modelClass, BiConsumer<String, Object> biConsumer) {
+		T model, Class<T> modelClass, Fields fields,
+		BiConsumer<String, Object> biConsumer) {
+
+		Predicate<String> fieldsPredicate = _getFieldsPredicate(
+			modelClass, fields);
 
 		Map<String, Function<T, Object>> fieldFunctions =
-			_representorManager.getFieldFunctions(modelClass);
+			_resourceManager.getFieldFunctions(modelClass);
 
-		for (String fieldName : fieldFunctions.keySet()) {
-			Function<T, Object> fieldFunction = fieldFunctions.get(fieldName);
+		for (String field : fieldFunctions.keySet()) {
+			if (fieldsPredicate.test(field)) {
+				Function<T, Object> fieldFunction = fieldFunctions.get(field);
 
-			Object data = fieldFunction.apply(model);
+				Object data = fieldFunction.apply(model);
 
-			if (data != null) {
-				biConsumer.accept(fieldName, data);
+				if (data != null) {
+					biConsumer.accept(field, data);
+				}
 			}
 		}
 	}
 
-	public <T> void writeLinks(
-		Class<T> modelClass, BiConsumer<String, String> biConsumer) {
+	public <T, U> void writeLinkedRelatedModel(
+		RelatedModel<T, U> relatedModel, T parentModel,
+		Class<T> parentModelClass,
+		FunctionalList<String> parentEmbeddedPathElements, UriInfo uriInfo,
+		Fields fields, Embedded embedded,
+		BiConsumer<String, FunctionalList<String>> biConsumer) {
 
-		Map<String, String> links = _representorManager.getLinks(modelClass);
+		writeRelatedModel(
+			relatedModel, parentModel, parentModelClass,
+			parentEmbeddedPathElements, uriInfo, fields, embedded,
+			(model, modelClass, embeddedPathElements) -> {
+			},
+			(url, embeddedPathElements, isEmbedded) -> biConsumer.accept(
+				url, embeddedPathElements));
+	}
+
+	public <T> void writeLinks(
+		Class<T> modelClass, Fields fields,
+		BiConsumer<String, String> biConsumer) {
+
+		Predicate<String> fieldsPredicate = _getFieldsPredicate(
+			modelClass, fields);
+
+		Map<String, String> links = _resourceManager.getLinks(modelClass);
 
 		for (String key : links.keySet()) {
-			biConsumer.accept(key, links.get(key));
+			if (fieldsPredicate.test(key)) {
+				biConsumer.accept(key, links.get(key));
+			}
 		}
 	}
 
 	public <T, U> void writeRelatedModel(
 		RelatedModel<T, U> relatedModel, T parentModel,
+		Class<T> parentModelClass,
 		FunctionalList<String> parentEmbeddedPathElements, UriInfo uriInfo,
-		TetraConsumer<U, Class<U>, String, FunctionalList<String>>
-			tetraConsumer) {
+		Fields fields, Embedded embedded,
+		TriConsumer<U, Class<U>, FunctionalList<String>> modelTriConsumer,
+		TriConsumer<String, FunctionalList<String>, Boolean> urlTriConsumer) {
+
+		Predicate<String> fieldsPredicate = _getFieldsPredicate(
+			parentModelClass, fields);
+
+		String key = relatedModel.getKey();
+
+		if (!fieldsPredicate.test(key)) {
+			return;
+		}
 
 		Function<T, Optional<U>> modelFunction =
 			relatedModel.getModelFunction();
@@ -101,20 +191,32 @@ public class WriterHelper {
 
 		Class<U> modelClass = relatedModel.getModelClass();
 
-		Optional<String> uriOptional =
-			_uriResolver.getSingleResourceURIOptional(modelClass, model);
+		Optional<String> singleURLOptional = getSingleURLOptional(
+			modelClass, model, uriInfo);
 
-		uriOptional.ifPresent(
-			uri -> {
-				String url = getAbsoluteURL(uriInfo, uri);
-
-				String key = relatedModel.getKey();
+		singleURLOptional.ifPresent(
+			url -> {
+				Predicate<String> embeddedPredicate =
+					embedded.getEmbeddedPredicate();
 
 				FunctionalList<String> embeddedPathElements =
 					new StringFunctionalList(parentEmbeddedPathElements, key);
 
-				tetraConsumer.accept(
-					model, modelClass, url, embeddedPathElements);
+				Stream<String> stream = Stream.concat(
+					Stream.of(embeddedPathElements.head()),
+					embeddedPathElements.tail());
+
+				String embeddedPath = String.join(
+					".", stream.collect(Collectors.toList()));
+
+				boolean isEmbedded = embeddedPredicate.test(embeddedPath);
+
+				urlTriConsumer.accept(url, embeddedPathElements, isEmbedded);
+
+				if (isEmbedded) {
+					modelTriConsumer.accept(
+						model, modelClass, embeddedPathElements);
+				}
 			});
 	}
 
@@ -122,29 +224,52 @@ public class WriterHelper {
 		T model, Class<T> modelClass, UriInfo uriInfo,
 		Consumer<String> consumer) {
 
-		Optional<String> optional = _uriResolver.getSingleResourceURIOptional(
-			modelClass, model);
+		Optional<String> singleURLOptional = getSingleURLOptional(
+			modelClass, model, uriInfo);
 
-		String uri = optional.orElseThrow(
+		String singleURL = singleURLOptional.orElseThrow(
 			() -> new VulcanDeveloperError.UnresolvableURI(modelClass));
 
-		String url = getAbsoluteURL(uriInfo, uri);
-
-		consumer.accept(url);
+		consumer.accept(singleURL);
 	}
 
 	public <U> void writeTypes(
 		Class<U> modelClass, Consumer<List<String>> consumer) {
 
-		List<String> types = _representorManager.getTypes(modelClass);
+		List<String> types = _resourceManager.getTypes(modelClass);
 
 		consumer.accept(types);
 	}
 
-	@Reference
-	private RepresentorManager _representorManager;
+	private <T> Predicate<String> _getFieldsPredicate(
+		Class<T> modelClass, Fields fields) {
+
+		List<String> types = _resourceManager.getTypes(modelClass);
+
+		return fields.getFieldsPredicate(types);
+	}
+
+	private Function<String, String> _getTransformURIFunction(
+		BiFunction<String, CollectionResourceURITransformer, String>
+			biFunction) {
+
+		return uri -> {
+			Optional<CollectionResourceURITransformer>
+				collectionResourceURITransformerOptional = Optional.ofNullable(
+					_collectionResourceURITransformer);
+
+			return collectionResourceURITransformerOptional.map(
+				transformer -> biFunction.apply(uri, transformer)
+			).orElse(
+				uri
+			);
+		};
+	}
+
+	@Reference(cardinality = OPTIONAL, policyOption = GREEDY)
+	private CollectionResourceURITransformer _collectionResourceURITransformer;
 
 	@Reference
-	private URIResolver _uriResolver;
+	private ResourceManager _resourceManager;
 
 }

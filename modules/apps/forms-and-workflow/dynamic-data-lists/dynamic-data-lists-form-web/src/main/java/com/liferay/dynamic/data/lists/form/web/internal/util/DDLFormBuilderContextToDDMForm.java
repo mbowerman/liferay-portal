@@ -17,6 +17,7 @@ package com.liferay.dynamic.data.lists.form.web.internal.util;
 import com.liferay.dynamic.data.lists.form.web.internal.converter.DDLFormRuleDeserializer;
 import com.liferay.dynamic.data.lists.form.web.internal.converter.DDLFormRuleToDDMFormRuleConverter;
 import com.liferay.dynamic.data.lists.form.web.internal.converter.model.DDLFormRule;
+import com.liferay.dynamic.data.lists.form.web.internal.converter.serializer.DDLFormRuleSerializerContext;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
@@ -35,6 +36,7 @@ import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -64,10 +66,29 @@ public class DDLFormBuilderContextToDDMForm {
 			jsonObject.getString("defaultLanguageId"), ddmForm);
 		setDDMFormFields(jsonObject.getJSONArray("pages"), ddmForm);
 		setDDMFormRules(jsonObject.getJSONArray("rules"), ddmForm);
+
 		setDDMFormSuccessPageSettings(
 			jsonObject.getJSONObject("successPageSettings"), ddmForm);
 
 		return ddmForm;
+	}
+
+	protected LocalizedValue createLocalizedValue(
+		JSONObject jsonObject, Locale defaultLocale) {
+
+		LocalizedValue localizedValue = new LocalizedValue(defaultLocale);
+
+		Iterator<String> keys = jsonObject.keys();
+
+		while (keys.hasNext()) {
+			String languageId = keys.next();
+
+			localizedValue.addString(
+				LocaleUtil.fromLanguageId(languageId),
+				jsonObject.getString(languageId));
+		}
+
+		return localizedValue;
 	}
 
 	protected Set<Locale> getAvailableLocales(JSONArray jsonArray) {
@@ -186,7 +207,9 @@ public class DDLFormBuilderContextToDDMForm {
 		return ddmFormFieldValidation;
 	}
 
-	protected List<DDMFormRule> getDDMFormRules(JSONArray jsonArray)
+	protected List<DDMFormRule> getDDMFormRules(
+			DDLFormRuleSerializerContext ddlFormRuleSerializerContext,
+			JSONArray jsonArray)
 		throws PortalException {
 
 		if ((jsonArray == null) || (jsonArray.length() == 0)) {
@@ -196,7 +219,8 @@ public class DDLFormBuilderContextToDDMForm {
 		List<DDLFormRule> ddlFormRules = ddlFormRuleDeserializer.deserialize(
 			jsonArray.toString());
 
-		return ddlFormRulesToDDMFormRulesConverter.convert(ddlFormRules);
+		return ddlFormRulesToDDMFormRulesConverter.convert(
+			ddlFormRules, ddlFormRuleSerializerContext);
 	}
 
 	protected LocalizedValue getLocalizedValue(
@@ -321,7 +345,13 @@ public class DDLFormBuilderContextToDDMForm {
 	protected void setDDMFormRules(JSONArray jsonArray, DDMForm ddmForm)
 		throws PortalException {
 
-		List<DDMFormRule> ddmFormRules = getDDMFormRules(jsonArray);
+		DDLFormRuleSerializerContext ddlFormRuleSerializerContext =
+			new DDLFormRuleSerializerContext();
+
+		ddlFormRuleSerializerContext.addAttribute("form", ddmForm);
+
+		List<DDMFormRule> ddmFormRules = getDDMFormRules(
+			ddlFormRuleSerializerContext, jsonArray);
 
 		ddmForm.setDDMFormRules(ddmFormRules);
 	}
@@ -332,43 +362,19 @@ public class DDLFormBuilderContextToDDMForm {
 		DDMFormSuccessPageSettings ddmFormSuccessPageSettings =
 			new DDMFormSuccessPageSettings();
 
-		setSuccessPageSettingsBody(
-			jsonObject.getJSONObject("body"), ddmForm.getDefaultLocale(),
-			ddmFormSuccessPageSettings);
-		setSuccessPageSettingsTitle(
-			jsonObject.getJSONObject("title"), ddmForm.getDefaultLocale(),
-			ddmFormSuccessPageSettings);
-		setSuccessPageSettingsEnabled(
-			jsonObject.getBoolean("enabled"), ddmFormSuccessPageSettings);
+		Locale defaultLocale = ddmForm.getDefaultLocale();
+
+		ddmFormSuccessPageSettings.setBody(
+			createLocalizedValue(
+				jsonObject.getJSONObject("body"), defaultLocale));
+
+		ddmFormSuccessPageSettings.setTitle(
+			createLocalizedValue(
+				jsonObject.getJSONObject("title"), defaultLocale));
+
+		ddmFormSuccessPageSettings.setEnabled(jsonObject.getBoolean("enabled"));
 
 		ddmForm.setDDMFormSuccessPageSettings(ddmFormSuccessPageSettings);
-	}
-
-	protected void setSuccessPageSettingsBody(
-		JSONObject jsonObject, Locale defaultLocale,
-		DDMFormSuccessPageSettings ddmFormSuccessPageSettings) {
-
-		String body = jsonObject.getString(
-			LocaleUtil.toLanguageId(defaultLocale));
-
-		ddmFormSuccessPageSettings.setBody(body);
-	}
-
-	protected void setSuccessPageSettingsEnabled(
-		boolean enabled,
-		DDMFormSuccessPageSettings ddmFormSuccessPageSettings) {
-
-		ddmFormSuccessPageSettings.setEnabled(enabled);
-	}
-
-	protected void setSuccessPageSettingsTitle(
-		JSONObject jsonObject, Locale defaultLocale,
-		DDMFormSuccessPageSettings ddmFormSuccessPageSettings) {
-
-		String title = jsonObject.getString(
-			LocaleUtil.toLanguageId(defaultLocale));
-
-		ddmFormSuccessPageSettings.setTitle(title);
 	}
 
 	@Reference

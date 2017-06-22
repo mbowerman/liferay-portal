@@ -34,11 +34,11 @@ import com.liferay.document.library.kernel.document.conversion.DocumentConversio
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
+import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portlet.PortletURLUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
@@ -92,9 +92,8 @@ public class AssetPublisherDisplayContext {
 
 	public static final String PAGINATION_TYPE_SIMPLE = "simple";
 
-	public static final String[] PAGINATION_TYPES = {
-		PAGINATION_TYPE_NONE, PAGINATION_TYPE_REGULAR, PAGINATION_TYPE_SIMPLE
-	};
+	public static final String[] PAGINATION_TYPES =
+		{PAGINATION_TYPE_NONE, PAGINATION_TYPE_REGULAR, PAGINATION_TYPE_SIMPLE};
 
 	public AssetPublisherDisplayContext(
 			AssetPublisherCustomizer assetPublisherCustomizer,
@@ -564,7 +563,7 @@ public class AssetPublisherDisplayContext {
 
 	public String getRootPortletId() {
 		if (_rootPortletId == null) {
-			_rootPortletId = PortletConstants.getRootPortletId(
+			_rootPortletId = PortletIdCodec.decodePortletName(
 				getPortletResource());
 		}
 
@@ -627,7 +626,7 @@ public class AssetPublisherDisplayContext {
 		Map<Long, Map<String, PortletURL>> scopeAddPortletURLs = new HashMap();
 
 		LiferayPortletResponse liferayPortletResponse =
-			(LiferayPortletResponse)_portletResponse;
+			PortalUtil.getLiferayPortletResponse(_portletResponse);
 
 		PortletURL redirectURL = liferayPortletResponse.createRenderURL();
 
@@ -636,7 +635,7 @@ public class AssetPublisherDisplayContext {
 		redirectURL.setParameter("mvcPath", "/add_asset_redirect.jsp");
 
 		LiferayPortletRequest liferayPortletRequest =
-			(LiferayPortletRequest)_portletRequest;
+			PortalUtil.getLiferayPortletRequest(_portletRequest);
 
 		PortletURL currentURLObj = PortletURLUtil.getCurrent(
 			liferayPortletRequest, liferayPortletResponse);
@@ -828,7 +827,7 @@ public class AssetPublisherDisplayContext {
 		if (_enableConversions == null) {
 			_enableConversions =
 				isOpenOfficeServerEnabled() &&
-					ArrayUtil.isNotEmpty(getExtensions());
+				ArrayUtil.isNotEmpty(getExtensions());
 		}
 
 		return _enableConversions;

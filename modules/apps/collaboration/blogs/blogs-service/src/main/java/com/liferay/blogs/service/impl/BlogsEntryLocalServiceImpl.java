@@ -35,6 +35,7 @@ import com.liferay.blogs.util.BlogsUtil;
 import com.liferay.blogs.util.comparator.EntryDisplayDateComparator;
 import com.liferay.blogs.util.comparator.EntryIdComparator;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.friendly.url.model.FriendlyURLEntry;
 import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
 import com.liferay.portal.kernel.comment.CommentManagerUtil;
@@ -327,12 +328,16 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			urlTitle = _getUniqueUrlTitle(entry);
 		}
 
-		FriendlyURLEntry friendlyURLEntry =
-			friendlyURLEntryLocalService.addFriendlyURLEntry(
-				groupId, user.getCompanyId(), BlogsEntry.class, entryId,
-				urlTitle);
+		if (!ExportImportThreadLocal.isImportInProcess()) {
+			FriendlyURLEntry friendlyURLEntry =
+				friendlyURLEntryLocalService.addFriendlyURLEntry(
+					groupId, BlogsEntry.class, entryId, urlTitle,
+					serviceContext);
 
-		entry.setUrlTitle(friendlyURLEntry.getUrlTitle());
+			urlTitle = friendlyURLEntry.getUrlTitle();
+		}
+
+		entry.setUrlTitle(urlTitle);
 
 		entry.setDescription(description);
 		entry.setContent(content);
@@ -668,8 +673,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		// Friendly URL
 
 		friendlyURLEntryLocalService.deleteFriendlyURLEntry(
-			entry.getGroupId(), entry.getCompanyId(), BlogsEntry.class,
-			entry.getEntryId());
+			entry.getGroupId(), BlogsEntry.class, entry.getEntryId());
 
 		// Ratings
 
@@ -724,11 +728,9 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@Override
 	public BlogsEntry fetchEntry(long groupId, String urlTitle) {
-		Group group = groupLocalService.fetchGroup(groupId);
-
 		FriendlyURLEntry friendlyURLEntry =
 			friendlyURLEntryLocalService.fetchFriendlyURLEntry(
-				groupId, group.getCompanyId(), BlogsEntry.class, urlTitle);
+				groupId, BlogsEntry.class, urlTitle);
 
 		if (friendlyURLEntry != null) {
 			return blogsEntryPersistence.fetchByPrimaryKey(
@@ -808,11 +810,9 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	public BlogsEntry getEntry(long groupId, String urlTitle)
 		throws PortalException {
 
-		Group group = groupLocalService.fetchGroup(groupId);
-
 		FriendlyURLEntry friendlyURLEntry =
 			friendlyURLEntryLocalService.fetchFriendlyURLEntry(
-				groupId, group.getCompanyId(), BlogsEntry.class, urlTitle);
+				groupId, BlogsEntry.class, urlTitle);
 
 		if (friendlyURLEntry != null) {
 			return blogsEntryPersistence.findByPrimaryKey(
@@ -1254,8 +1254,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 				BlogsEntry.class);
 
 			friendlyURLEntryLocalService.validate(
-				entry.getGroupId(), entry.getCompanyId(), classNameId, entryId,
-				urlTitle);
+				entry.getGroupId(), classNameId, entryId, urlTitle);
 		}
 		else {
 			urlTitle = _getUniqueUrlTitle(entry, title);
@@ -1271,8 +1270,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 			FriendlyURLEntry friendlyURLEntry =
 				friendlyURLEntryLocalService.addFriendlyURLEntry(
-					entry.getGroupId(), entry.getCompanyId(), BlogsEntry.class,
-					entry.getEntryId(), urlTitle);
+					entry.getGroupId(), BlogsEntry.class, entry.getEntryId(),
+					urlTitle, serviceContext);
 
 			entry.setUrlTitle(friendlyURLEntry.getUrlTitle());
 		}
@@ -1492,8 +1491,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 			FriendlyURLEntry friendlyURLEntry =
 				friendlyURLEntryLocalService.addFriendlyURLEntry(
-					entry.getGroupId(), entry.getCompanyId(), BlogsEntry.class,
-					entry.getEntryId(), uniqueUrlTitle);
+					entry.getGroupId(), BlogsEntry.class, entry.getEntryId(),
+					uniqueUrlTitle, serviceContext);
 
 			entry.setUrlTitle(friendlyURLEntry.getUrlTitle());
 		}
@@ -2332,8 +2331,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			BlogsEntry.class);
 
 		return friendlyURLEntryLocalService.getUniqueUrlTitle(
-			entry.getGroupId(), entry.getCompanyId(), classNameId,
-			entry.getEntryId(), urlTitle);
+			entry.getGroupId(), classNameId, entry.getEntryId(), urlTitle);
 	}
 
 	private String _getURLTitle(long entryId) throws NoSuchEntryException {

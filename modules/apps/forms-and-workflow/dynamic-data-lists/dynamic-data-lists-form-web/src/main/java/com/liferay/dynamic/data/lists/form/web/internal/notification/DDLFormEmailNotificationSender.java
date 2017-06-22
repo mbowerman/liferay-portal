@@ -39,6 +39,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
@@ -354,12 +355,14 @@ public class DDLFormEmailNotificationSender {
 		return pages;
 	}
 
-	protected String getSiteName(PortletRequest portletRequest, Locale locale) {
-		ThemeDisplay themeDisplay = getThemeDisplay(portletRequest);
+	protected String getSiteName(long groupId, Locale locale) {
+		Group siteGroup = _groupLocalService.fetchGroup(groupId);
 
-		Group siteGroup = themeDisplay.getSiteGroup();
+		if (siteGroup != null) {
+			return siteGroup.getName(locale);
+		}
 
-		return siteGroup.getName(locale);
+		return StringPool.BLANK;
 	}
 
 	protected TemplateResource getTemplateResource(String templatePath) {
@@ -376,11 +379,8 @@ public class DDLFormEmailNotificationSender {
 		return (ThemeDisplay)portletRequest.getAttribute(WebKeys.THEME_DISPLAY);
 	}
 
-	protected String getViewFormEntriesURL(
-			PortletRequest portletRequest, DDLRecordSet recordSet)
+	protected String getViewFormEntriesURL(DDLRecordSet recordSet)
 		throws PortalException {
-
-		ThemeDisplay themeDisplay = getThemeDisplay(portletRequest);
 
 		Map<String, String[]> params = new HashMap<>();
 
@@ -395,16 +395,12 @@ public class DDLFormEmailNotificationSender {
 			new String[] {String.valueOf(recordSet.getRecordSetId())});
 
 		return _portal.getControlPanelFullURL(
-			themeDisplay.getScopeGroupId(),
+			recordSet.getGroupId(),
 			DDLFormPortletKeys.DYNAMIC_DATA_LISTS_FORM_ADMIN, params);
 	}
 
-	protected String getViewFormURL(
-			PortletRequest portletRequest, DDLRecordSet recordSet,
-			DDLRecord record)
+	protected String getViewFormURL(DDLRecordSet recordSet, DDLRecord record)
 		throws PortalException {
-
-		ThemeDisplay themeDisplay = getThemeDisplay(portletRequest);
 
 		Map<String, String[]> params = new HashMap<>();
 
@@ -422,7 +418,7 @@ public class DDLFormEmailNotificationSender {
 			new String[] {String.valueOf(recordSet.getRecordSetId())});
 
 		return _portal.getControlPanelFullURL(
-			themeDisplay.getScopeGroupId(),
+			recordSet.getGroupId(),
 			DDLFormPortletKeys.DYNAMIC_DATA_LISTS_FORM_ADMIN, params);
 	}
 
@@ -436,13 +432,10 @@ public class DDLFormEmailNotificationSender {
 		template.put("authorName", recordSet.getUserName());
 		template.put("formName", recordSet.getName(locale));
 		template.put("pages", getPages(recordSet, record));
-		template.put("siteName", getSiteName(portletRequest, locale));
+		template.put("siteName", getSiteName(recordSet.getGroupId(), locale));
 		template.put("userName", record.getUserName());
-		template.put(
-			"viewFormEntriesURL",
-			getViewFormEntriesURL(portletRequest, recordSet));
-		template.put(
-			"viewFormURL", getViewFormURL(portletRequest, recordSet, record));
+		template.put("viewFormEntriesURL", getViewFormEntriesURL(recordSet));
+		template.put("viewFormURL", getViewFormURL(recordSet, record));
 	}
 
 	protected String render(Template template) throws TemplateException {
@@ -495,6 +488,10 @@ public class DDLFormEmailNotificationSender {
 		DDLFormEmailNotificationSender.class);
 
 	private DDMFormFieldTypeServicesTracker _ddmFormFieldTypeServicesTracker;
+
+	@Reference
+	private GroupLocalService _groupLocalService;
+
 	private MailService _mailService;
 
 	@Reference

@@ -29,7 +29,7 @@ import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelModifiedDateComparator;
 import com.liferay.friendly.url.model.FriendlyURLEntry;
 import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
-import com.liferay.portal.kernel.comment.CommentManagerUtil;
+import com.liferay.portal.kernel.comment.CommentManager;
 import com.liferay.portal.kernel.comment.DiscussionStagingHandler;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -312,6 +312,10 @@ public class BlogsEntryStagedModelDataHandler
 		if (coverImageSelector != null) {
 			_blogsEntryLocalService.addCoverImage(
 				importedEntry.getEntryId(), coverImageSelector);
+
+			_blogsEntryLocalService.addOriginalImageFileEntry(
+				userId, importedEntry.getGroupId(), importedEntry.getEntryId(),
+				coverImageSelector);
 		}
 
 		// Small image
@@ -446,7 +450,7 @@ public class BlogsEntryStagedModelDataHandler
 		}
 
 		DiscussionStagingHandler discussionStagingHandler =
-			CommentManagerUtil.getDiscussionStagingHandler();
+			_commentManager.getDiscussionStagingHandler();
 
 		String stagedModelClassName = null;
 
@@ -513,8 +517,7 @@ public class BlogsEntryStagedModelDataHandler
 
 		List<FriendlyURLEntry> friendlyURLEntries =
 			_friendlyURLEntryLocalService.getFriendlyURLEntries(
-				blogsEntry.getGroupId(), blogsEntry.getCompanyId(), classNameId,
-				blogsEntry.getEntryId());
+				blogsEntry.getGroupId(), classNameId, blogsEntry.getEntryId());
 
 		for (FriendlyURLEntry friendlyURLEntry : friendlyURLEntries) {
 			StagedModelDataHandlerUtil.exportReferenceStagedModel(
@@ -589,7 +592,7 @@ public class BlogsEntryStagedModelDataHandler
 	private void _importFriendlyURLEntries(
 			PortletDataContext portletDataContext, BlogsEntry blogsEntry,
 			BlogsEntry importedBlogsEntry)
-		throws PortletDataException {
+		throws PortalException {
 
 		List<Element> friendlyURLEntryElements =
 			portletDataContext.getReferenceDataElements(
@@ -603,17 +606,29 @@ public class BlogsEntryStagedModelDataHandler
 
 			friendlyURLEntry.setClassNameId(
 				_portal.getClassNameId(BlogsEntry.class));
-			friendlyURLEntry.setClassPK(importedBlogsEntry.getPrimaryKey());
 
 			StagedModelDataHandlerUtil.importStagedModel(
 				portletDataContext, friendlyURLEntry);
 		}
+
+		FriendlyURLEntry mainFriendlyURLEntry =
+			_friendlyURLEntryLocalService.getMainFriendlyURLEntry(
+				importedBlogsEntry.getGroupId(), BlogsEntry.class,
+				importedBlogsEntry.getEntryId());
+
+		importedBlogsEntry.setUrlTitle(mainFriendlyURLEntry.getUrlTitle());
+
+		_blogsEntryLocalService.updateBlogsEntry(importedBlogsEntry);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		BlogsEntryStagedModelDataHandler.class);
 
 	private BlogsEntryLocalService _blogsEntryLocalService;
+
+	@Reference
+	private CommentManager _commentManager;
+
 	private ExportImportContentProcessor<String> _exportImportContentProcessor;
 	private FriendlyURLEntryLocalService _friendlyURLEntryLocalService;
 	private ImageLocalService _imageLocalService;
