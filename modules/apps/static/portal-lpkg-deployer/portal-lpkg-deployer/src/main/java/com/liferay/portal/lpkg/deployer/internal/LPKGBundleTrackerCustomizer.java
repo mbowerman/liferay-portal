@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.URLCodec;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.lpkg.deployer.internal.wrapper.bundle.URLStreamHandlerServiceServiceTrackerCustomizer;
 import com.liferay.portal.lpkg.deployer.internal.wrapper.bundle.WARBundleWrapperBundleActivator;
 import com.liferay.portal.util.PropsValues;
@@ -44,6 +45,7 @@ import java.nio.file.StandardCopyOption;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
@@ -172,15 +174,24 @@ public class LPKGBundleTrackerCustomizer
 						continue;
 					}
 
-					Bundle newBundle = _bundleContext.installBundle(
-						url.getPath(), url.openStream());
+					String location = url.getPath();
 
-					BundleStartLevel bundleStartLevel = newBundle.adapt(
-						BundleStartLevel.class);
+					Bundle newBundle = _bundleContext.getBundle(location);
 
-					bundleStartLevel.setStartLevel(
+					if (newBundle != null) {
+						bundles.add(newBundle);
+
+						continue;
+					}
+
+					newBundle = _bundleContext.installBundle(
+						location, url.openStream());
+
+					BundleStartLevelUtil.setStartLevelAndStart(
+						newBundle,
 						PropsValues.
-							MODULE_FRAMEWORK_DYNAMIC_INSTALL_START_LEVEL);
+							MODULE_FRAMEWORK_DYNAMIC_INSTALL_START_LEVEL,
+						_bundleContext);
 
 					bundles.add(newBundle);
 				}
@@ -199,47 +210,31 @@ public class LPKGBundleTrackerCustomizer
 					continue;
 				}
 
+				String location = url.getPath();
+
+				Bundle newBundle = _bundleContext.getBundle(location);
+
+				if (newBundle != null) {
+					bundles.add(newBundle);
+
+					continue;
+				}
+
 				// Install a wrapper bundle for this WAR bundle. The wrapper
 				// bundle defers the WAR bundle installation until the WAB
 				// protocol handler is ready. The installed WAR bundle is always
 				// tied its wrapper bundle. When the wrapper bundle is
 				// uninstalled, its wrapped WAR bundle will also be unintalled.
 
-				Bundle newBundle = _bundleContext.installBundle(
+				newBundle = _bundleContext.installBundle(
 					url.getPath(), _toWARWrapperBundle(bundle, url));
 
-				BundleStartLevel bundleStartLevel = newBundle.adapt(
-					BundleStartLevel.class);
-
-				bundleStartLevel.setStartLevel(
-					PropsValues.MODULE_FRAMEWORK_DYNAMIC_INSTALL_START_LEVEL);
+				BundleStartLevelUtil.setStartLevelAndStart(
+					newBundle,
+					PropsValues.MODULE_FRAMEWORK_DYNAMIC_INSTALL_START_LEVEL,
+					_bundleContext);
 
 				bundles.add(newBundle);
-			}
-
-			Bundle systemBundle = _bundleContext.getBundle(0);
-
-			FrameworkWiring frameworkWiring = systemBundle.adapt(
-				FrameworkWiring.class);
-
-			final DefaultNoticeableFuture<FrameworkEvent>
-				defaultNoticeableFuture = new DefaultNoticeableFuture<>();
-
-			frameworkWiring.refreshBundles(
-				null,
-				new FrameworkListener() {
-
-					@Override
-					public void frameworkEvent(FrameworkEvent frameworkEvent) {
-						defaultNoticeableFuture.set(frameworkEvent);
-					}
-
-				});
-
-			FrameworkEvent frameworkEvent = defaultNoticeableFuture.get();
-
-			if (frameworkEvent.getType() != FrameworkEvent.PACKAGES_REFRESHED) {
-				throw frameworkEvent.getThrowable();
 			}
 		}
 		catch (Throwable t) {
@@ -263,6 +258,56 @@ public class LPKGBundleTrackerCustomizer
 	@Override
 	public void modifiedBundle(
 		Bundle bundle, BundleEvent bundleEvent, List<Bundle> bundles) {
+
+		if ((bundle.getState() != Bundle.RESOLVED) ||
+			(bundleEvent.getType() != BundleEvent.RESOLVED)) {
+
+			return;
+		}
+
+		try {
+			List<Bundle> newBundles = addingBundle(bundle, bundleEvent);
+
+			if (newBundles != null) {
+				bundles.removeAll(newBundles);
+			}
+
+			for (Bundle installedBundle : bundles) {
+				if (installedBundle.getState() != Bundle.UNINSTALLED) {
+					installedBundle.uninstall();
+
+					if (_log.isInfoEnabled()) {
+						_log.info(
+							"Uninstalled " + installedBundle + "because " +
+								bundle + " was updated");
+					}
+				}
+			}
+
+			bundles.clear();
+
+			if (newBundles != null) {
+				bundles.addAll(newBundles);
+			}
+
+			for (Bundle installedBundle : bundles) {
+				if (installedBundle.getState() == Bundle.RESOLVED) {
+					installedBundle.start();
+				}
+			}
+		}
+		catch (Exception e) {
+			_log.error("Rollback bundle refresh for " + bundles, e);
+
+			for (Bundle newBundle : bundles) {
+				try {
+					newBundle.uninstall();
+				}
+				catch (BundleException be) {
+					_log.error("Unable to uninstall bundle " + newBundle, be);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -281,11 +326,11 @@ public class LPKGBundleTrackerCustomizer
 			try {
 				_uninstallBundle(prefix, newBundle);
 			}
-			catch (BundleException be) {
+			catch (Throwable t) {
 				_log.error(
 					"Unable to uninstall " + newBundle +
 						" in response to uninstallation of " + bundle,
-					be);
+					t);
 			}
 		}
 	}
@@ -329,7 +374,7 @@ public class LPKGBundleTrackerCustomizer
 	}
 
 	private boolean _checkOverridden(String symbolicName, URL url)
-		throws BundleException {
+		throws Throwable {
 
 		String path = url.getPath();
 
@@ -417,7 +462,9 @@ public class LPKGBundleTrackerCustomizer
 		bundle.uninstall();
 	}
 
-	private String _readServletContextName(URL url) throws IOException {
+	private String[] _readServletContextNameAndPortalProfileNames(URL url)
+		throws IOException {
+
 		String pathString = url.getPath();
 
 		String servletContextName = pathString.substring(
@@ -428,6 +475,8 @@ public class LPKGBundleTrackerCustomizer
 		if (index >= 0) {
 			servletContextName = servletContextName.substring(0, index);
 		}
+
+		String portalProfileNames = null;
 
 		Path tempFilePath = Files.createTempFile(null, null);
 
@@ -452,6 +501,9 @@ public class LPKGBundleTrackerCustomizer
 					if (configuredServletContextName != null) {
 						servletContextName = configuredServletContextName;
 					}
+
+					portalProfileNames = properties.getProperty(
+						"liferay-portal-profile-names");
 				}
 			}
 		}
@@ -459,7 +511,7 @@ public class LPKGBundleTrackerCustomizer
 			Files.delete(tempFilePath);
 		}
 
-		return servletContextName;
+		return new String[] {servletContextName, portalProfileNames};
 	}
 
 	private InputStream _toWARWrapperBundle(Bundle bundle, URL url)
@@ -473,11 +525,22 @@ public class LPKGBundleTrackerCustomizer
 		sb.append(bundle.getVersion());
 		sb.append(StringPool.SLASH);
 
-		String servletContextName = _readServletContextName(url);
+		String[] servletContextNameAndPortalProfileNames =
+			_readServletContextNameAndPortalProfileNames(url);
+
+		String servletContextName = servletContextNameAndPortalProfileNames[0];
 
 		sb.append(servletContextName);
 
 		sb.append(".war");
+
+		String portalProfileNames = servletContextNameAndPortalProfileNames[1];
+
+		if (Validator.isNotNull(portalProfileNames)) {
+			sb.append(StringPool.QUESTION);
+			sb.append("liferay-portal-profile-names=");
+			sb.append(portalProfileNames);
+		}
 
 		String lpkgURL = sb.toString();
 
@@ -511,7 +574,8 @@ public class LPKGBundleTrackerCustomizer
 					jarOutputStream);
 
 				_writeClasses(
-					jarOutputStream, WARBundleWrapperBundleActivator.class,
+					jarOutputStream, BundleStartLevelUtil.class,
+					WABWrapperUtil.class, WARBundleWrapperBundleActivator.class,
 					URLStreamHandlerServiceServiceTrackerCustomizer.class);
 			}
 
@@ -522,12 +586,16 @@ public class LPKGBundleTrackerCustomizer
 	}
 
 	private void _uninstallBundle(String prefix, Bundle bundle)
-		throws BundleException {
+		throws Throwable {
 
 		String symbolicName = bundle.getSymbolicName();
 
+		Set<Bundle> uninstalledBundles = new HashSet<>();
+
+		Dictionary<String, String> headers = bundle.getHeaders();
+
 		if (symbolicName.startsWith(prefix) &&
-			symbolicName.endsWith("-wrapper")) {
+			Boolean.valueOf(headers.get("Wrapper-Bundle"))) {
 
 			String wrappedBundleSymbolicName = symbolicName.substring(
 				prefix.length(), symbolicName.length() - 8);
@@ -540,11 +608,40 @@ public class LPKGBundleTrackerCustomizer
 					version.equals(curBundle.getVersion())) {
 
 					curBundle.uninstall();
+
+					uninstalledBundles.add(curBundle);
 				}
 			}
 		}
 
 		bundle.uninstall();
+
+		uninstalledBundles.add(bundle);
+
+		Bundle systemBundle = _bundleContext.getBundle(0);
+
+		FrameworkWiring frameworkWiring = systemBundle.adapt(
+			FrameworkWiring.class);
+
+		final DefaultNoticeableFuture<FrameworkEvent> defaultNoticeableFuture =
+			new DefaultNoticeableFuture<>();
+
+		frameworkWiring.refreshBundles(
+			uninstalledBundles,
+			new FrameworkListener() {
+
+				@Override
+				public void frameworkEvent(FrameworkEvent frameworkEvent) {
+					defaultNoticeableFuture.set(frameworkEvent);
+				}
+
+			});
+
+		FrameworkEvent frameworkEvent = defaultNoticeableFuture.get();
+
+		if (frameworkEvent.getType() != FrameworkEvent.PACKAGES_REFRESHED) {
+			throw frameworkEvent.getThrowable();
+		}
 	}
 
 	private void _writeClasses(
@@ -593,7 +690,8 @@ public class LPKGBundleTrackerCustomizer
 			Constants.IMPORT_PACKAGE,
 			_buildImportPackageString(
 				BundleActivator.class, BundleStartLevel.class,
-				ServiceTrackerCustomizer.class, URLConstants.class));
+				ServiceTrackerCustomizer.class, StringBundler.class,
+				URLConstants.class));
 		attributes.putValue("Liferay-WAB-Context-Name", contextName);
 		attributes.putValue("Liferay-WAB-LPKG-URL", lpkgURL);
 		attributes.putValue(
@@ -601,6 +699,7 @@ public class LPKGBundleTrackerCustomizer
 			String.valueOf(
 				PropsValues.MODULE_FRAMEWORK_DYNAMIC_INSTALL_START_LEVEL));
 		attributes.putValue("Manifest-Version", "2");
+		attributes.putValue("Wrapper-Bundle", "true");
 
 		jarOutputStream.putNextEntry(new ZipEntry(JarFile.MANIFEST_NAME));
 

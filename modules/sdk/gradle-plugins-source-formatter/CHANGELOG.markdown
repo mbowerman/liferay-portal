@@ -853,6 +853,60 @@ another task with the same name is being executed in a parent project.
 - [LPS-72705]: Update the [Liferay Source Formatter] dependency to version
 1.0.433.
 
+## 2.0.45 - 2017-08-03
+
+### Changed
+- [LPS-73935]: Update the [Liferay Source Formatter] dependency to version
+1.0.434.
+
+## 2.0.46 - 2017-08-04
+
+### Changed
+- [LPS-74034]: Update the [Liferay Source Formatter] dependency to version
+1.0.435.
+
+## 2.0.47 - 2017-08-07
+
+### Changed
+- [LPS-74063]: Update the [Liferay Source Formatter] dependency to version
+1.0.436.
+
+## 2.0.48 - 2017-08-09
+
+### Changed
+- [LPS-74104]: Update the [Liferay Source Formatter] dependency to version
+1.0.437.
+
+## 2.0.49 - 2017-08-09
+
+### Changed
+- [LPS-74088]: Update the [Liferay Source Formatter] dependency to version
+1.0.438.
+
+## 2.0.50 - 2017-08-11
+
+### Changed
+- [LPS-73967]: Update the [Liferay Source Formatter] dependency to version
+1.0.439.
+
+## 2.0.51 - 2017-08-15
+
+### Changed
+- [LPS-74139]: Update the [Liferay Source Formatter] dependency to version
+1.0.440.
+
+## 2.0.52 - 2017-08-15
+
+### Changed
+- [LPS-74139]: Update the [Liferay Source Formatter] dependency to version
+1.0.441.
+
+## 2.0.53 - 2017-08-16
+
+### Changed
+- [LPS-74139]: Update the [Liferay Source Formatter] dependency to version
+1.0.442.
+
 [Liferay Source Formatter]: https://github.com/liferay/liferay-portal/tree/master/modules/util/source-formatter
 [LPS-52675]: https://issues.liferay.com/browse/LPS-52675
 [LPS-62970]: https://issues.liferay.com/browse/LPS-62970
@@ -893,3 +947,10 @@ another task with the same name is being executed in a parent project.
 [LPS-73470]: https://issues.liferay.com/browse/LPS-73470
 [LPS-73489]: https://issues.liferay.com/browse/LPS-73489
 [LPS-73600]: https://issues.liferay.com/browse/LPS-73600
+[LPS-73935]: https://issues.liferay.com/browse/LPS-73935
+[LPS-73967]: https://issues.liferay.com/browse/LPS-73967
+[LPS-74034]: https://issues.liferay.com/browse/LPS-74034
+[LPS-74063]: https://issues.liferay.com/browse/LPS-74063
+[LPS-74088]: https://issues.liferay.com/browse/LPS-74088
+[LPS-74104]: https://issues.liferay.com/browse/LPS-74104
+[LPS-74139]: https://issues.liferay.com/browse/LPS-74139
