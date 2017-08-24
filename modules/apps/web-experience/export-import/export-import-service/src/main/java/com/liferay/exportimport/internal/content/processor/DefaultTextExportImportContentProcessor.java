@@ -1100,13 +1100,6 @@ public class DefaultTextExportImportContentProcessor
 
 		url = replaceExportHostname(group.getGroupId(), url, urlSB);
 
-		if (!url.startsWith(StringPool.SLASH)) {
-			urlSB.append(url);
-			urlSB.append(urlTail);
-
-			return new ObjectValuePair<>(urlSB.toString(), null);
-		}
-
 		String pathContext = _portal.getPathContext();
 
 		if (pathContext.length() > 1) {
