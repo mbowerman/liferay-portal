@@ -1077,8 +1077,10 @@ public class DefaultTextExportImportContentProcessor
 	}
 
 	private ObjectValuePair<String, Layout> _getLayoutFromURL(
-			String url, Group group)
+			String originalURL, Group group)
 		throws PortalException {
+
+		String url = originalURL;
 
 		int friendlyURLPos = url.indexOf(Portal.FRIENDLY_URL_SEPARATOR);
 
@@ -1247,8 +1249,9 @@ public class DefaultTextExportImportContentProcessor
 
 		if (urlGroup == null) {
 			throw new NoSuchLayoutException(
-				"Unable validate referenced page because it cannot be found " +
-					"with url: " + url);
+				"Unable to find referenced page from URL " + originalURL +
+					" because no group could be found with friendly URL " +
+						groupFriendlyURL);
 		}
 
 		urlSB.append(_DATA_HANDLER_GROUP_FRIENDLY_URL);
@@ -1276,8 +1279,9 @@ public class DefaultTextExportImportContentProcessor
 
 		if (layout == null) {
 			throw new NoSuchLayoutException(
-				"Unable to validate referenced page because the page group " +
-					"cannot be found: " + group.getGroupId());
+				"Unable to find referenced page from URL " + originalURL +
+					" because no layout could be found with friendly URL " +
+						url + " in group " + urlGroup.getGroupId());
 		}
 
 		urlSB.append(url);
