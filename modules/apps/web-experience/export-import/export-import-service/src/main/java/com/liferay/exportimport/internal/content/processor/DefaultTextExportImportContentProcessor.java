@@ -1230,6 +1230,17 @@ public class DefaultTextExportImportContentProcessor
 			}
 		}
 
+		String siteAdminURL =
+			GroupConstants.CONTROL_PANEL_FRIENDLY_URL +
+				PropsValues.CONTROL_PANEL_LAYOUT_FRIENDLY_URL;
+
+		if (url.equals(siteAdminURL)) {
+			urlSB.append(_DATA_HANDLER_SITE_ADMIN_URL);
+			urlSB.append(urlTail);
+
+			return new ObjectValuePair<>(urlSB.toString(), null);
+		}
+
 		pos = url.indexOf(StringPool.SLASH, 1);
 
 		String groupFriendlyURL = url;
@@ -1249,17 +1260,6 @@ public class DefaultTextExportImportContentProcessor
 
 		urlSB.append(_DATA_HANDLER_GROUP_FRIENDLY_URL);
 
-		String siteAdminURL =
-			GroupConstants.CONTROL_PANEL_FRIENDLY_URL +
-				PropsValues.CONTROL_PANEL_LAYOUT_FRIENDLY_URL;
-
-		if (url.endsWith(siteAdminURL)) {
-			urlSB.append(_DATA_HANDLER_SITE_ADMIN_URL);
-			urlSB.append(urlTail);
-
-			return new ObjectValuePair<>(urlSB.toString(), null);
-		}
-
 		if (pos == -1) {
 			urlSB.append(urlTail);
 
@@ -1267,6 +1267,16 @@ public class DefaultTextExportImportContentProcessor
 		}
 
 		url = url.substring(pos);
+
+		if (url.equals(
+				VirtualLayoutConstants.CANONICAL_URL_SEPARATOR +
+					siteAdminURL)) {
+
+			urlSB.append(_DATA_HANDLER_SITE_ADMIN_URL);
+			urlSB.append(urlTail);
+
+			return new ObjectValuePair<>(urlSB.toString(), null);
+		}
 
 		Layout layout = _layoutLocalService.fetchLayoutByFriendlyURL(
 			urlGroup.getGroupId(), privateLayout, url);
