@@ -1157,6 +1157,11 @@ public class DefaultTextExportImportContentProcessor
 			return new ObjectValuePair<>(urlSB.toString(), null);
 		}
 
+		if (virtualHost == null) {
+			virtualHost = _virtualHostLocalService.getVirtualHost(
+				group.getCompanyId(), 0);
+		}
+
 		int pos = url.indexOf(StringPool.SLASH, 1);
 
 		String localePath = StringPool.BLANK;
