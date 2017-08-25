@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.StagedModel;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.VirtualHost;
 import com.liferay.portal.kernel.model.VirtualLayoutConstants;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -1180,7 +1181,8 @@ public class DefaultTextExportImportContentProcessor
 
 			if (urlWithoutLocale.startsWith(_PRIVATE_GROUP_SERVLET_MAPPING) ||
 				urlWithoutLocale.startsWith(_PRIVATE_USER_SERVLET_MAPPING) ||
-				urlWithoutLocale.startsWith(_PUBLIC_GROUP_SERVLET_MAPPING)) {
+				urlWithoutLocale.startsWith(_PUBLIC_GROUP_SERVLET_MAPPING) ||
+				(urlWithoutLocale.indexOf(StringPool.SLASH, 1) == -1)) {
 
 				urlSB.append(localePath);
 
@@ -1188,12 +1190,65 @@ public class DefaultTextExportImportContentProcessor
 			}
 		}
 
+		if (url.indexOf(StringPool.SLASH, 1) == -1) {
+			if (virtualHost.getLayoutSetId() != 0) {
+				LayoutSet layoutSet = _layoutSetLocalService.getLayoutSet(
+					virtualHost.getLayoutSetId());
+
+				Layout layout = _layoutLocalService.fetchLayoutByFriendlyURL(
+					layoutSet.getGroupId(), layoutSet.isPrivateLayout(), url);
+
+				if (layout == null) {
+					StringBundler sb = new StringBundler(8);
+
+					sb.append("Unable to find referenced page from URL \"");
+					sb.append(originalURL);
+					sb.append("\" because no ");
+
+					if (layoutSet.isPrivateLayout()) {
+						sb.append("private ");
+					}
+					else {
+						sb.append("public ");
+					}
+
+					sb.append("layout could be found with friendly URL \"");
+					sb.append(url);
+					sb.append("\" in group ");
+					sb.append(layoutSet.getGroupId());
+
+					throw new NoSuchLayoutException(sb.toString());
+				}
+
+				urlSB.append(url);
+				urlSB.append(urlTail);
+
+				return new ObjectValuePair<>(urlSB.toString(), layout);
+			}
+			else {
+				return new ObjectValuePair<>(originalURL, null);
+			}
+		}
+
 		boolean privateLayout = false;
+
+		long classNameId = _portal.getClassNameId(Group.class.getName());
 
 		if (url.startsWith(_PRIVATE_GROUP_SERVLET_MAPPING)) {
 			urlSB.append(_DATA_HANDLER_PRIVATE_GROUP_SERVLET_MAPPING);
 
 			url = url.substring(_PRIVATE_GROUP_SERVLET_MAPPING.length() - 1);
+
+			String siteAdminURL =
+				GroupConstants.CONTROL_PANEL_FRIENDLY_URL +
+					PropsValues.CONTROL_PANEL_LAYOUT_FRIENDLY_URL;
+
+			if (url.equals(siteAdminURL)) {
+				urlSB.append(_DATA_HANDLER_SITE_ADMIN_URL);
+				urlSB.append(urlTail);
+
+				return new ObjectValuePair<>(urlSB.toString(), null);
+			}
 
 			privateLayout = true;
 		}
@@ -1203,6 +1258,8 @@ public class DefaultTextExportImportContentProcessor
 			url = url.substring(_PRIVATE_USER_SERVLET_MAPPING.length() - 1);
 
 			privateLayout = true;
+
+			classNameId = _portal.getClassNameId(User.class.getName());
 		}
 		else if (url.startsWith(_PUBLIC_GROUP_SERVLET_MAPPING)) {
 			urlSB.append(_DATA_HANDLER_PUBLIC_SERVLET_MAPPING);
@@ -1210,65 +1267,10 @@ public class DefaultTextExportImportContentProcessor
 			url = url.substring(_PUBLIC_GROUP_SERVLET_MAPPING.length() - 1);
 		}
 		else {
-			String urlSBString = urlSB.toString();
-
-			LayoutSet layoutSet = null;
-
-			if (urlSBString.contains(
-					_DATA_HANDLER_PUBLIC_LAYOUT_SET_SECURE_URL) ||
-				urlSBString.contains(_DATA_HANDLER_PUBLIC_LAYOUT_SET_URL)) {
-
-				layoutSet = group.getPublicLayoutSet();
-			}
-			else if (urlSBString.contains(
-						_DATA_HANDLER_PRIVATE_LAYOUT_SET_SECURE_URL) ||
-					 urlSBString.contains(
-						 _DATA_HANDLER_PRIVATE_LAYOUT_SET_URL)) {
-
-				layoutSet = group.getPrivateLayoutSet();
-			}
-
-			if (layoutSet == null) {
-				urlSB.append(url);
-				urlSB.append(urlTail);
-
-				return new ObjectValuePair<>(urlSB.toString(), null);
-			}
-
-			privateLayout = layoutSet.isPrivateLayout();
-
-			Layout layout = _layoutLocalService.fetchLayoutByFriendlyURL(
-				group.getGroupId(), privateLayout, url);
-
-			if (layout != null) {
-				if (privateLayout) {
-					if (group.isUser()) {
-						urlSB.append(
-							_DATA_HANDLER_PRIVATE_USER_SERVLET_MAPPING);
-					}
-					else {
-						urlSB.append(
-							_DATA_HANDLER_PRIVATE_GROUP_SERVLET_MAPPING);
-					}
-				}
-				else {
-					urlSB.append(_DATA_HANDLER_PUBLIC_SERVLET_MAPPING);
-				}
-
-				urlSB.append(_DATA_HANDLER_GROUP_FRIENDLY_URL);
-				urlSB.append(url);
-				urlSB.append(urlTail);
-
-				return new ObjectValuePair<>(urlSB.toString(), layout);
-			}
+			return new ObjectValuePair<>(originalURL, null);
 		}
 
-		String siteAdminURL =
-			GroupConstants.CONTROL_PANEL_FRIENDLY_URL +
-				PropsValues.CONTROL_PANEL_LAYOUT_FRIENDLY_URL;
-
-		if (url.equals(siteAdminURL)) {
-			urlSB.append(_DATA_HANDLER_SITE_ADMIN_URL);
+		if (url.length() == 0) {
 			urlSB.append(urlTail);
 
 			return new ObjectValuePair<>(urlSB.toString(), null);
@@ -1283,30 +1285,46 @@ public class DefaultTextExportImportContentProcessor
 		}
 
 		Group urlGroup = _groupLocalService.fetchFriendlyURLGroup(
-			group.getCompanyId(), groupFriendlyURL);
+			virtualHost.getCompanyId(), groupFriendlyURL);
 
-		if (urlGroup == null) {
-			throw new NoSuchLayoutException(
-				"Unable to find referenced page from URL " + originalURL +
-					" because no group could be found with friendly URL " +
-						groupFriendlyURL);
+		if ((urlGroup == null) || (urlGroup.getClassNameId() != classNameId)) {
+			StringBundler sb = new StringBundler(9);
+
+			sb.append("Unable to find referenced page from URL \"");
+			sb.append(originalURL);
+			sb.append("\" because no group with could be found with friendly ");
+			sb.append("URL \"");
+			sb.append(groupFriendlyURL);
+			sb.append(" and class name ID ");
+			sb.append(classNameId);
+			sb.append("\" in company ");
+			sb.append(virtualHost.getCompanyId());
+
+			throw new NoSuchLayoutException(sb.toString());
 		}
 
-		urlSB.append(_DATA_HANDLER_GROUP_FRIENDLY_URL);
+		if (group.equals(urlGroup)) {
+			urlSB.append(_DATA_HANDLER_GROUP_FRIENDLY_URL);
+		}
+		else {
+			urlSB.append(groupFriendlyURL);
+		}
 
-		if (pos == -1) {
+		url = url.substring(groupFriendlyURL.length());
+
+		String siteAdminURL =
+			VirtualLayoutConstants.CANONICAL_URL_SEPARATOR +
+				GroupConstants.CONTROL_PANEL_FRIENDLY_URL +
+					PropsValues.CONTROL_PANEL_LAYOUT_FRIENDLY_URL;
+
+		if (url.equals(siteAdminURL)) {
+			urlSB.append(_DATA_HANDLER_SITE_ADMIN_URL);
 			urlSB.append(urlTail);
 
 			return new ObjectValuePair<>(urlSB.toString(), null);
 		}
 
-		url = url.substring(pos);
-
-		if (url.equals(
-				VirtualLayoutConstants.CANONICAL_URL_SEPARATOR +
-					siteAdminURL)) {
-
-			urlSB.append(_DATA_HANDLER_SITE_ADMIN_URL);
+		if (url.length() == 0) {
 			urlSB.append(urlTail);
 
 			return new ObjectValuePair<>(urlSB.toString(), null);
@@ -1316,10 +1334,25 @@ public class DefaultTextExportImportContentProcessor
 			urlGroup.getGroupId(), privateLayout, url);
 
 		if (layout == null) {
-			throw new NoSuchLayoutException(
-				"Unable to find referenced page from URL " + originalURL +
-					" because no layout could be found with friendly URL " +
-						url + " in group " + urlGroup.getGroupId());
+			StringBundler sb = new StringBundler(8);
+
+			sb.append("Unable to find referenced page from URL \"");
+			sb.append(originalURL);
+			sb.append("\" because no ");
+
+			if (privateLayout) {
+				sb.append("private ");
+			}
+			else {
+				sb.append("public ");
+			}
+
+			sb.append("layout could be found with friendly URL \"");
+			sb.append(url);
+			sb.append("\" in group ");
+			sb.append(urlGroup.getGroupId());
+
+			throw new NoSuchLayoutException(sb.toString());
 		}
 
 		urlSB.append(url);
