@@ -41,6 +41,7 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutFriendlyURLLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
+import com.liferay.portal.kernel.service.LayoutSetLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.VirtualHostLocalService;
@@ -1089,7 +1090,50 @@ public class DefaultTextExportImportContentProcessor
 
 		StringBundler urlSB = new StringBundler(7);
 
-		url = replaceExportHostname(group.getGroupId(), url, urlSB);
+		ObjectValuePair<VirtualHost, String> ovp = _extractVirtualHostFromURL(
+			url);
+
+		VirtualHost virtualHost = ovp.getKey();
+
+		if ((virtualHost != null) &&
+			(virtualHost.getCompanyId() == group.getCompanyId())) {
+
+			if (virtualHost.getLayoutSetId() == 0) {
+				if (url.startsWith(Http.HTTPS)) {
+					urlSB.append(_DATA_HANDLER_COMPANY_SECURE_URL);
+				}
+				else {
+					urlSB.append(_DATA_HANDLER_COMPANY_URL);
+				}
+			}
+			else {
+				LayoutSet layoutSet = _layoutSetLocalService.getLayoutSet(
+					virtualHost.getLayoutSetId());
+
+				if (layoutSet.getGroupId() == group.getGroupId()) {
+					if (layoutSet.isPrivateLayout()) {
+						if (url.startsWith(Http.HTTPS)) {
+							urlSB.append(
+								_DATA_HANDLER_PRIVATE_LAYOUT_SET_SECURE_URL);
+						}
+						else {
+							urlSB.append(_DATA_HANDLER_PRIVATE_LAYOUT_SET_URL);
+						}
+					}
+					else {
+						if (url.startsWith(Http.HTTPS)) {
+							urlSB.append(
+								_DATA_HANDLER_PUBLIC_LAYOUT_SET_SECURE_URL);
+						}
+						else {
+							urlSB.append(_DATA_HANDLER_PUBLIC_LAYOUT_SET_URL);
+						}
+					}
+				}
+			}
+		}
+
+		url = ovp.getValue();
 
 		String pathContext = _portal.getPathContext();
 
@@ -1417,6 +1461,9 @@ public class DefaultTextExportImportContentProcessor
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;
+
+	@Reference
+	private LayoutSetLocalService _layoutSetLocalService;
 
 	@Reference
 	private Portal _portal;
