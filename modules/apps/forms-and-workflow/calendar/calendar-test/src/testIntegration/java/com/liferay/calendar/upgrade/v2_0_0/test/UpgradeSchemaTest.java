@@ -64,7 +64,7 @@ public class UpgradeSchemaTest {
 
 		_upgradeDatabaseTestHelper =
 			CalendarUpgradeTestUtil.getUpgradeDatabaseTestHelper();
-		_upgradeSchema = CalendarUpgradeTestUtil.getUpgradeStep(
+		_upgradeProcess = CalendarUpgradeTestUtil.getUpgradeStep(
 			"com.liferay.calendar.internal.upgrade.v2_0_0.UpgradeSchema");
 
 		CheckBookingsMessageListenerTestUtil.setUp();
@@ -85,7 +85,7 @@ public class UpgradeSchemaTest {
 
 		assertDoesNotHaveColumn("recurringCalendarBookingId");
 
-		_upgradeSchema.upgrade();
+		_upgradeProcess.upgrade();
 
 		assertHasColumn("recurringCalendarBookingId");
 	}
@@ -100,7 +100,7 @@ public class UpgradeSchemaTest {
 
 		dropColumnRecurringCalendarBookingId();
 
-		_upgradeSchema.upgrade();
+		_upgradeProcess.upgrade();
 
 		assertRecurringCalendarBookingIdValue(
 			calendarBooking, recurringCalendarBookingId);
@@ -149,6 +149,6 @@ public class UpgradeSchemaTest {
 	private Group _group;
 
 	private UpgradeDatabaseTestHelper _upgradeDatabaseTestHelper;
-	private UpgradeProcess _upgradeSchema;
+	private UpgradeProcess _upgradeProcess;
 
 }

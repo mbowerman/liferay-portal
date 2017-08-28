@@ -96,8 +96,8 @@ public class AssetDisplayTemplatePermission
 
 		if (assetDisplayTemplate == null) {
 			_log.error(
-				"Unable to get asset display template with " +
-					"assetDisplayTemplateId " + assetDisplayTemplateId);
+				"Unable to get asset display template " +
+					assetDisplayTemplateId);
 
 			return false;
 		}
@@ -151,7 +151,8 @@ public class AssetDisplayTemplatePermission
 
 			PermissionCacheKey permissionCacheKey = (PermissionCacheKey)obj;
 
-			if ((_entryId == permissionCacheKey._entryId) &&
+			if ((_assetDisplayTemplateId ==
+					permissionCacheKey._assetDisplayTemplateId) &&
 				Objects.equals(_actionId, permissionCacheKey._actionId)) {
 
 				return true;
@@ -162,18 +163,20 @@ public class AssetDisplayTemplatePermission
 
 		@Override
 		public int hashCode() {
-			int hash = HashUtil.hash(0, _entryId);
+			int hash = HashUtil.hash(0, _assetDisplayTemplateId);
 
 			return HashUtil.hash(hash, _actionId);
 		}
 
-		private PermissionCacheKey(long entryId, String actionId) {
-			_entryId = entryId;
+		private PermissionCacheKey(
+			long assetDisplayTemplateId, String actionId) {
+
+			_assetDisplayTemplateId = assetDisplayTemplateId;
 			_actionId = actionId;
 		}
 
 		private final String _actionId;
-		private final long _entryId;
+		private final long _assetDisplayTemplateId;
 
 	}
 
