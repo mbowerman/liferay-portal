@@ -502,7 +502,7 @@
 	</command>
 
 	<command name="ConfigureDataProviderWithSelectField" priority="5">
-		<property name="portal.acceptance" value="true" />
+		<property name="portal.acceptance" value="quarantine" />
 		<property name="test.name.skip.portal.instance" value="Forms#ConfigureDataProviderWithSelectField" />
 
 		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
@@ -895,6 +895,8 @@
 	</command>
 
 	<command name="EditAllFormFieldNames" priority="4">
+		<property name="portal.subrepo" value="false" />
+
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -1393,6 +1395,7 @@
 	<command name="EditFormWithUpdatedSiteAndUserLocale" priority="2">
 		<description message="This is a use case for LPS-69100 and LPS-69334." />
 
+		<property name="portal.subrepo" value="false" />
 		<property name="test.name.skip.portal.instance" value="Forms#EditFormWithUpdatedSiteAndUserLocale" />
 
 		<execute macro="Navigator#openURL" />
@@ -1487,7 +1490,7 @@
 
 	<command name="NavigateToCorrectForm" priority="5">
 		<description message="This is a use case for LPS-59331" />
-		<property name="portal.acceptance" value="true" />
+		<property name="portal.acceptance" value="quarantine" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -1588,7 +1591,7 @@
 
 	<command name="PreviewAndPublishForm" priority="5">
 		<description message="This is a use case for LPS-61740" />
-		<property name="portal.acceptance" value="true" />
+		<property name="portal.acceptance" value="quarantine" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -3007,7 +3010,7 @@
 	</command>
 
 	<command name="SubmitFormWithCustomTextContainingValidation" priority="5">
-		<property name="portal.acceptance" value="true" />
+		<property name="portal.acceptance" value="quarantine" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -3883,7 +3886,7 @@
 
 	<command name="SubmitFormWithRequiredRepeatingTextField" priority="5">
 		<description message="This is a use case for LPS-59335." />
-		<property name="portal.acceptance" value="true" />
+		<property name="portal.acceptance" value="quarantine" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -4316,6 +4319,8 @@
 
 	<command name="ViewAltSuccessPagePagination" priority="2">
 		<description message="This is a use case for LPS-71485 and LPS-71512." />
+
+		<property name="portal.subrepo" value="false" />
 
 		<execute macro="Navigator#openURL" />
 

@@ -977,10 +977,6 @@ public class GroupImpl extends GroupBaseImpl {
 			this, privateSite);
 
 		if (siteLayoutsCount == 0) {
-			boolean hasPowerUserRole = RoleLocalServiceUtil.hasUserRole(
-				permissionChecker.getUserId(), permissionChecker.getCompanyId(),
-				RoleConstants.POWER_USER, true);
-
 			if (isSite()) {
 				if (privateSite) {
 					showSite =
@@ -995,29 +991,30 @@ public class GroupImpl extends GroupBaseImpl {
 				showSite = false;
 			}
 			else if (isUser()) {
+				showSite = false;
+
+				boolean hasPowerUserRole = RoleLocalServiceUtil.hasUserRole(
+					permissionChecker.getUserId(),
+					permissionChecker.getCompanyId(), RoleConstants.POWER_USER,
+					true);
+
 				if (privateSite) {
-					showSite =
-						PropsValues.
-							MY_SITES_SHOW_USER_PRIVATE_SITES_WITH_NO_LAYOUTS;
+					if (!PropsValues.
+							LAYOUT_USER_PRIVATE_LAYOUTS_POWER_USER_REQUIRED ||
+						hasPowerUserRole) {
 
-					if (PropsValues.
-							LAYOUT_USER_PRIVATE_LAYOUTS_POWER_USER_REQUIRED &&
-						!hasPowerUserRole) {
-
-						showSite = false;
+						showSite =
+							PropsValues.
+								MY_SITES_SHOW_USER_PRIVATE_SITES_WITH_NO_LAYOUTS;
 					}
 				}
-				else {
+				else if (!PropsValues.
+							LAYOUT_USER_PUBLIC_LAYOUTS_POWER_USER_REQUIRED ||
+						 hasPowerUserRole) {
+
 					showSite =
 						PropsValues.
 							MY_SITES_SHOW_USER_PUBLIC_SITES_WITH_NO_LAYOUTS;
-
-					if (PropsValues.
-							LAYOUT_USER_PUBLIC_LAYOUTS_POWER_USER_REQUIRED &&
-						!hasPowerUserRole) {
-
-						showSite = false;
-					}
 				}
 			}
 		}
