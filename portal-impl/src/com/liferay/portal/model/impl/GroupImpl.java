@@ -991,47 +991,30 @@ public class GroupImpl extends GroupBaseImpl {
 				showSite = false;
 			}
 			else if (isUser()) {
+				showSite = false;
+
+				boolean hasPowerUserRole = RoleLocalServiceUtil.hasUserRole(
+					permissionChecker.getUserId(),
+					permissionChecker.getCompanyId(), RoleConstants.POWER_USER,
+					true);
+
 				if (privateSite) {
 					if (!PropsValues.
-							LAYOUT_USER_PRIVATE_LAYOUTS_POWER_USER_REQUIRED) {
+							LAYOUT_USER_PRIVATE_LAYOUTS_POWER_USER_REQUIRED ||
+						hasPowerUserRole) {
 
-						return PropsValues.
-							MY_SITES_SHOW_USER_PRIVATE_SITES_WITH_NO_LAYOUTS;
-					}
-
-					boolean hasPowerUserRole = RoleLocalServiceUtil.hasUserRole(
-						permissionChecker.getUserId(),
-						permissionChecker.getCompanyId(),
-						RoleConstants.POWER_USER, true);
-
-					if (hasPowerUserRole) {
-						return PropsValues.
-							MY_SITES_SHOW_USER_PRIVATE_SITES_WITH_NO_LAYOUTS;
-					}
-					else {
-						return false;
+						showSite =
+							PropsValues.
+								MY_SITES_SHOW_USER_PRIVATE_SITES_WITH_NO_LAYOUTS;
 					}
 				}
-				else {
-					if (!PropsValues.
-							LAYOUT_USER_PUBLIC_LAYOUTS_POWER_USER_REQUIRED) {
+				else if (!PropsValues.
+							LAYOUT_USER_PUBLIC_LAYOUTS_POWER_USER_REQUIRED ||
+						 hasPowerUserRole) {
 
-						return PropsValues.
+					showSite =
+						PropsValues.
 							MY_SITES_SHOW_USER_PUBLIC_SITES_WITH_NO_LAYOUTS;
-					}
-
-					boolean hasPowerUserRole = RoleLocalServiceUtil.hasUserRole(
-						permissionChecker.getUserId(),
-						permissionChecker.getCompanyId(),
-						RoleConstants.POWER_USER, true);
-
-					if (hasPowerUserRole) {
-						return PropsValues.
-							MY_SITES_SHOW_USER_PUBLIC_SITES_WITH_NO_LAYOUTS;
-					}
-					else {
-						return false;
-					}
 				}
 			}
 		}
