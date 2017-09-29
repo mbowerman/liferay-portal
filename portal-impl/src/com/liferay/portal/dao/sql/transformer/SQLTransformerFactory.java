@@ -24,6 +24,16 @@ import com.liferay.portal.kernel.dao.db.DBType;
 public class SQLTransformerFactory {
 
 	public static SQLTransformer getSQLTransformer(DB db) {
+		SQLTransformerLogic sqlTransformerLogic = getSQLTransformLogic(db);
+
+		if (sqlTransformerLogic == null) {
+			return sql -> sql;
+		}
+
+		return new DefaultSQLTransformer(sqlTransformerLogic.getFunctions());
+	}
+
+	protected static SQLTransformerLogic getSQLTransformLogic(DB db) {
 		DBType dbType = db.getDBType();
 
 		SQLTransformerLogic sqlTransformerLogic = null;
@@ -49,11 +59,8 @@ public class SQLTransformerFactory {
 		else if (dbType == DBType.SYBASE) {
 			sqlTransformerLogic = new SybaseSQLTransformerLogic(db);
 		}
-		else {
-			return sql -> sql;
-		}
 
-		return new DefaultSQLTransformer(sqlTransformerLogic.getFunctions());
+		return sqlTransformerLogic;
 	}
 
 }
