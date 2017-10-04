@@ -15,7 +15,9 @@
 package com.liferay.portal.dao.sql.transformer;
 
 import com.liferay.portal.kernel.dao.db.DB;
+import com.liferay.portal.kernel.util.StringUtil;
 
+import java.util.function.Function;
 import java.util.regex.Matcher;
 
 /**
@@ -31,12 +33,16 @@ public class SQLServerSQLTransformerLogic extends BaseSQLTransformerLogic {
 			getCastClobTextFunction(), getCastLongFunction(),
 			getCastTextFunction(), getInstrFunction(),
 			getIntegerDivisionFunction(), getModFunction(),
-			getNullDateFunction(), getSubstrFunction());
+			getNullDateFunction(), getSubstrFunction(), _getLengthFunction());
 	}
 
 	@Override
 	protected String replaceCastText(Matcher matcher) {
 		return matcher.replaceAll("CAST($1 AS NVARCHAR(MAX))");
+	}
+
+	private Function<String, String> _getLengthFunction() {
+		return (String sql) -> StringUtil.replace(sql, "LENGTH(", "LEN(");
 	}
 
 }
