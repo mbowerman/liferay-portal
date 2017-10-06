@@ -15,9 +15,11 @@
 package com.liferay.portal.dao.sql.transformer;
 
 import com.liferay.portal.kernel.dao.db.DB;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 
+import java.util.LinkedList;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 
@@ -32,10 +34,28 @@ public class SybaseSQLTransformerLogic extends BaseSQLTransformerLogic {
 		setFunctions(
 			getBitwiseCheckFunction(), getBooleanFunction(),
 			getCastClobTextFunction(), getCastLongFunction(),
-			getCastTextFunction(), getInstrFunction(),
+			getCastTextFunction(), getConcatFunction(), getInstrFunction(),
 			getIntegerDivisionFunction(), getModFunction(),
 			getNullDateFunction(), getSubstrFunction(), _getCrossJoinFunction(),
 			_getReplaceFunction());
+	}
+
+	@Override
+	protected Function<LinkedList<String>, String>
+		getReplacementConcatSQLFunction() {
+
+		return (LinkedList<String> expressions) -> {
+			StringBundler sb = new StringBundler(2 * expressions.size() - 1);
+
+			sb.append(expressions.poll());
+
+			while (!expressions.isEmpty()) {
+				sb.append(" + ");
+				sb.append(expressions.poll());
+			}
+
+			return sb.toString();
+		};
 	}
 
 	@Override
