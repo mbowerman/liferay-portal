@@ -131,7 +131,9 @@ public class LocalGitSyncUtil {
 		GitWorkingDirectory.Branch currentBranch =
 			gitWorkingDirectory.getCurrentBranch();
 
-		if (!localBranchName.equals(currentBranch.getName())) {
+		if ((currentBranch == null) ||
+			!localBranchName.equals(currentBranch.getName())) {
+
 			gitWorkingDirectory.checkoutBranch(localBranch, "-f");
 		}
 
@@ -280,10 +282,16 @@ public class LocalGitSyncUtil {
 				long branchAge = timestamp - remoteBranchTimestamp;
 
 				if (branchAge > _BRANCH_EXPIRE_AGE_MILLIS) {
-					deleteRemoteRepositoryCacheBranch(
-						gitWorkingDirectory,
+					GitWorkingDirectory.Branch remoteRepositoryBaseCacheBranch =
 						gitWorkingDirectory.getBranch(
-							matcher.group("name"), remote));
+							matcher.group("name"), remote);
+
+					if (remoteRepositoryBaseCacheBranch != null) {
+						deleteRemoteRepositoryCacheBranch(
+							gitWorkingDirectory,
+							remoteRepositoryBaseCacheBranch);
+					}
+
 					deleteRemoteRepositoryCacheBranch(
 						gitWorkingDirectory, remoteBranch);
 
@@ -551,7 +559,9 @@ public class LocalGitSyncUtil {
 			GitWorkingDirectory.Branch currentBranch =
 				gitWorkingDirectory.getCurrentBranch();
 
-			if (localBranchName.equals(currentBranch.getName())) {
+			if ((currentBranch == null) ||
+				!localBranchName.equals(currentBranch.getName())) {
+
 				gitWorkingDirectory.checkoutBranch(localBranch, "-f");
 			}
 		}
@@ -592,11 +602,20 @@ public class LocalGitSyncUtil {
 
 		long duration = System.currentTimeMillis() - start;
 
-		System.out.println(
-			JenkinsResultsParserUtil.combine(
-				"Pushed ", localBranch.getName(), " to ", remoteBranchName,
-				" on ", Integer.toString(remotes.size()), " git nodes in ",
-				JenkinsResultsParserUtil.toDurationString(duration)));
+		if (localBranch == null) {
+			System.out.println(
+				JenkinsResultsParserUtil.combine(
+					"Deleted ", remoteBranchName, " on ",
+					Integer.toString(remotes.size()), " git nodes in ",
+					JenkinsResultsParserUtil.toDurationString(duration)));
+		}
+		else {
+			System.out.println(
+				JenkinsResultsParserUtil.combine(
+					"Pushed ", localBranch.getName(), " to ", remoteBranchName,
+					" on ", Integer.toString(remotes.size()), " git nodes in ",
+					JenkinsResultsParserUtil.toDurationString(duration)));
+		}
 
 		return resultsMap;
 	}
@@ -843,6 +862,11 @@ public class LocalGitSyncUtil {
 				GitWorkingDirectory.Branch currentBranch =
 					gitWorkingDirectory.getCurrentBranch();
 
+				if (currentBranch == null) {
+					currentBranch = gitWorkingDirectory.getBranch(
+						gitWorkingDirectory.getUpstreamBranchName(), null);
+				}
+
 				GitWorkingDirectory.Branch newTimestampBranch =
 					gitWorkingDirectory.createLocalBranch(
 						newTimestampBranchName);
@@ -940,7 +964,7 @@ public class LocalGitSyncUtil {
 	private static final long _BRANCH_EXPIRE_AGE_MILLIS =
 		1000 * 60 * 60 * 24 * 2;
 
-	private static final int _MAX_THREAD_POOL_SIZE = 10;
+	private static final int _MAX_THREAD_POOL_SIZE = 5;
 
 	private static final String _cacheBranchRegex = ".*cache-.+-.+-.+-[^-]+";
 	private static final Pattern _cacheTimestampBranchPattern = Pattern.compile(

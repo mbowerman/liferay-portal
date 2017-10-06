@@ -2930,6 +2930,10 @@ public class ServiceBuilder {
 	}
 
 	private void _createPersistenceTest(Entity entity) throws Exception {
+		if (entity.isDeprecated()) {
+			return;
+		}
+
 		Map<String, Object> context = _getContext();
 
 		context.put("entity", entity);
@@ -5883,7 +5887,8 @@ public class ServiceBuilder {
 
 		_currentTplName = name;
 
-		return StringUtil.strip(FreeMarkerUtil.process(name, context), '\r');
+		return StringUtil.removeChar(
+			FreeMarkerUtil.process(name, context), '\r');
 	}
 
 	private Map<String, Object> _putDeprecatedKeys(

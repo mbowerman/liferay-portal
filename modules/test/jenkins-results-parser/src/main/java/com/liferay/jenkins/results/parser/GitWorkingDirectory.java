@@ -135,14 +135,15 @@ public class GitWorkingDirectory {
 
 		Branch currentBranch = getCurrentBranch();
 
-		String currentBranchName = currentBranch.getName();
+		if (currentBranch != null) {
+			String currentBranchName = currentBranch.getName();
 
-		String branchName = branch.getName();
+			if (currentBranchName.equals(branch.getName())) {
+				System.out.println(
+					currentBranchName + " is already checked out");
 
-		if (currentBranchName.equals(branchName)) {
-			System.out.println(currentBranchName + " is already checked out");
-
-			return;
+				return;
+			}
 		}
 
 		waitForIndexLock();
@@ -155,6 +156,8 @@ public class GitWorkingDirectory {
 			sb.append(options);
 			sb.append(" ");
 		}
+
+		String branchName = branch.getName();
 
 		sb.append(branchName);
 
@@ -202,7 +205,11 @@ public class GitWorkingDirectory {
 			timeout++;
 
 			if (timeout >= 59) {
-				if (branchName.equals(getCurrentBranch())) {
+				currentBranch = getCurrentBranch();
+
+				if ((currentBranch != null) &&
+					branchName.equals(currentBranch.getName())) {
+
 					return;
 				}
 
@@ -409,6 +416,12 @@ public class GitWorkingDirectory {
 
 			if (branchName.equals("HEAD")) {
 				branchName = executionResult.getStandardOut();
+
+				branchName = branchName.trim();
+
+				if (branchName.isEmpty()) {
+					return null;
+				}
 			}
 
 			return new Branch(branchName, null, getBranchSha(branchName));
@@ -658,7 +671,19 @@ public class GitWorkingDirectory {
 	}
 
 	public boolean pushToRemote(boolean force, Branch remoteBranch) {
-		return pushToRemote(force, getCurrentBranch(), remoteBranch);
+		Branch currentBranch = getCurrentBranch();
+
+		if (currentBranch == null) {
+			Remote remote = remoteBranch.getRemote();
+
+			throw new RuntimeException(
+				JenkinsResultsParserUtil.combine(
+					"Unable to push current branch to remote branch ",
+					remoteBranch.getName(), " on ", remote.getName(),
+					" because the current branch is invalid"));
+		}
+
+		return pushToRemote(force, currentBranch, remoteBranch);
 	}
 
 	public boolean pushToRemote(
@@ -757,7 +782,7 @@ public class GitWorkingDirectory {
 	}
 
 	public void removeRemote(Remote remote) {
-		if (!remoteExists(remote.getName())) {
+		if ((remote == null) || !remoteExists(remote.getName())) {
 			return;
 		}
 
@@ -781,7 +806,8 @@ public class GitWorkingDirectory {
 	public void reset(String options) {
 		String command = "git reset " + options;
 
-		ExecutionResult executionResult = executeBashCommands(command);
+		ExecutionResult executionResult = executeBashCommands(
+			2, 1000 * 60 * 2, command);
 
 		if (executionResult.getExitValue() != 0) {
 			throw new RuntimeException(
@@ -820,7 +846,7 @@ public class GitWorkingDirectory {
 			_sha = sha;
 		}
 
-		private String _name;
+		private final String _name;
 		private final Remote _remote;
 		private final String _sha;
 
@@ -872,8 +898,10 @@ public class GitWorkingDirectory {
 
 			if (remoteInputLines[0].equals(remoteInputLines[1])) {
 				throw new IllegalArgumentException(
-					"\"remoteInputLines[0]\" and \"remoteInputLines[1]\" are " +
-						"identical: " + remoteInputLines[0]);
+					JenkinsResultsParserUtil.combine(
+						"\"remoteInputLines[0]\" and ",
+						"\"remoteInputLines[1]\" are identical: ",
+						remoteInputLines[0]));
 			}
 
 			if ((remoteInputLines[0] == null) ||
@@ -986,7 +1014,7 @@ public class GitWorkingDirectory {
 	}
 
 	protected ExecutionResult executeBashCommands(String... commands) {
-		return executeBashCommands(1, 1000 * 5, commands);
+		return executeBashCommands(1, 1000 * 30, commands);
 	}
 
 	protected List<String> getLocalBranchNames() {
