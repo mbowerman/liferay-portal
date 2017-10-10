@@ -29,7 +29,7 @@ public class SQLServerSQLTransformerLogic extends BaseSQLTransformerLogic {
 		setFunctions(
 			getBitwiseCheckFunction(), getBooleanFunction(),
 			getCastClobTextFunction(), getCastLongFunction(),
-			getCastTextFunction(), getInstrFunction(),
+			getCastTextFunction(), getConcatFunction(), getInstrFunction(),
 			getIntegerDivisionFunction(), getModFunction(),
 			getNullDateFunction(), getSubstrFunction());
 	}
