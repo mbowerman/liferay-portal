@@ -18,6 +18,7 @@ import com.liferay.frontend.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.taglib.util.IncludeTag;
 
@@ -54,9 +55,21 @@ public class ScreenNavigationTag extends IncludeTag {
 
 		_screenNavigationCategories =
 			screenNavigationRegistry.getScreenNavigationCategories(
-				_key, themeDisplay.getUser(), _modelBean);
+				_key, themeDisplay.getUser(), getModelContext());
 
 		return super.doStartTag();
+	}
+
+	public Object getModelContext() {
+		if (Validator.isNotNull(_modelBean)) {
+			return _modelBean;
+		}
+
+		return _context;
+	}
+
+	public void setContext(Object context) {
+		_context = context;
 	}
 
 	public void setKey(String key) {
@@ -80,6 +93,7 @@ public class ScreenNavigationTag extends IncludeTag {
 
 	@Override
 	protected void cleanUp() {
+		_context = null;
 		_key = null;
 		_modelBean = null;
 		_portletURL = null;
@@ -143,7 +157,7 @@ public class ScreenNavigationTag extends IncludeTag {
 
 		return screenNavigationRegistry.getScreenNavigationEntries(
 			selectedScreenNavigationCategory, themeDisplay.getUser(),
-			_modelBean);
+			getModelContext());
 	}
 
 	private ScreenNavigationCategory _getSelectedScreenNavigationCategory() {
@@ -167,8 +181,11 @@ public class ScreenNavigationTag extends IncludeTag {
 
 	private ScreenNavigationEntry _getSelectedScreenNavigationEntry() {
 		String screenNavigationEntryKey = ParamUtil.getString(
-			request, "screenNavigationEntryKey",
-			_getDefaultScreenNavigationEntryKey());
+			request, "screenNavigationEntryKey");
+
+		if (Validator.isNull(screenNavigationEntryKey)) {
+			screenNavigationEntryKey = _getDefaultScreenNavigationEntryKey();
+		}
 
 		List<ScreenNavigationEntry> screenNavigationEntries =
 			_getScreenNavigationEntries();
@@ -191,6 +208,7 @@ public class ScreenNavigationTag extends IncludeTag {
 
 	private static final String _PAGE = "/screen_navigation/page.jsp";
 
+	private Object _context;
 	private String _key;
 	private Object _modelBean;
 	private PortletURL _portletURL;

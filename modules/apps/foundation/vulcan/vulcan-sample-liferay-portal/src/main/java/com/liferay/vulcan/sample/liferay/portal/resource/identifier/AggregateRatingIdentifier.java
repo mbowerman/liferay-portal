@@ -14,30 +14,32 @@
 
 package com.liferay.vulcan.sample.liferay.portal.resource.identifier;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.model.ClassedModel;
 import com.liferay.vulcan.resource.identifier.Identifier;
 
 /**
- * Instances of this identifier represents an identifier for aggregate rating
- * entities.
+ * Represents an identifier for entities in an aggregate rating.
  *
  * <p>
- * This identifier should only be used to identify {@link
- * com.liferay.vulcan.sample.liferay.portal.rating.AggregateRating} single
- * items.
+ * This identifier should only be used to identify single items in {@link
+ * com.liferay.vulcan.sample.liferay.portal.rating.AggregateRating}.
  * </p>
  *
  * @author Alejandro Hernández
  */
+@ProviderType
 public interface AggregateRatingIdentifier extends Identifier {
 
 	/**
-	 * Returns a new {@code AggregateRatingIdentifier} from a combination of
-	 * className/classPK.
+	 * Creates and returns a new aggregate rating identifier from a class name
+	 * and class PK.
 	 *
-	 * @param  className the className of the identifier.
-	 * @param  classPK the classPK of the identifier.
-	 * @return the {@code AggregateRatingIdentifier}.
+	 * @param  className the identifier's class name
+	 * @param  classPK the identifier's class PK
+	 * @return the new aggregate rating identifier
+	 * @review
 	 */
 	public static AggregateRatingIdentifier create(
 		String className, long classPK) {
@@ -58,11 +60,11 @@ public interface AggregateRatingIdentifier extends Identifier {
 	}
 
 	/**
-	 * Returns a new {@code AggregateRatingIdentifier} created from a model
-	 * which must be a {@link ClassedModel};
+	 * Creates and returns a new aggregate rating identifier from a {@code
+	 * ClassedModel}.
 	 *
-	 * @param  t a {@link ClassedModel} model.
-	 * @return the {@code AggregateRatingIdentifier}.
+	 * @param  t the {@code ClassedModel}
+	 * @return the new aggregate rating identifier
 	 */
 	public static <T extends ClassedModel> AggregateRatingIdentifier create(
 		T t) {
@@ -74,6 +76,7 @@ public interface AggregateRatingIdentifier extends Identifier {
 	 * Returns the class name.
 	 *
 	 * @return the class name.
+	 * @review
 	 */
 	public String getClassName();
 
@@ -81,6 +84,7 @@ public interface AggregateRatingIdentifier extends Identifier {
 	 * Returns the class PK.
 	 *
 	 * @return the class PK.
+	 * @review
 	 */
 	public long getClassPK();
 

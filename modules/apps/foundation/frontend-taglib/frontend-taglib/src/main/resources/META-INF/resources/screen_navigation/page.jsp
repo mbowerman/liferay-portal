@@ -24,7 +24,7 @@ List<ScreenNavigationCategory> screenNavigationCategories = (List<ScreenNavigati
 List<ScreenNavigationEntry> screenNavigationEntries = (List<ScreenNavigationEntry>)request.getAttribute("liferay-frontend:screen-navigation:screenNavigationEntries");
 %>
 
-<c:if test="<%= (screenNavigationCategories.size() > 1) || (screenNavigationEntries.size() > 1) %>">
+<c:if test="<%= (screenNavigationCategories.size() > 1) %>">
 	<aui:nav-bar markupView="lexicon">
 		<aui:nav cssClass="navbar-nav">
 
@@ -33,6 +33,7 @@ List<ScreenNavigationEntry> screenNavigationEntries = (List<ScreenNavigationEntr
 				PortletURL screenNavigationCategoryURL = PortletURLUtil.clone(portletURL, liferayPortletResponse);
 
 				screenNavigationCategoryURL.setParameter("screenNavigationCategoryKey", screenNavigationCategory.getCategoryKey());
+				screenNavigationCategoryURL.setParameter("screenNavigationEntryKey", StringPool.BLANK);
 			%>
 
 				<aui:nav-item href="<%= screenNavigationCategoryURL.toString() %>" label="<%= screenNavigationCategory.getLabel(themeDisplay.getLocale()) %>" selected="<%= Objects.equals(selectedScreenNavigationCategory.getCategoryKey(), screenNavigationCategory.getCategoryKey()) %>" />
@@ -45,7 +46,7 @@ List<ScreenNavigationEntry> screenNavigationEntries = (List<ScreenNavigationEntr
 	</aui:nav-bar>
 </c:if>
 
-<div class="container-fluid-1280">
+<div class="container">
 	<div class="row">
 		<c:if test="<%= screenNavigationEntries.size() > 1 %>">
 			<div class="col-md-3">
@@ -72,15 +73,11 @@ List<ScreenNavigationEntry> screenNavigationEntries = (List<ScreenNavigationEntr
 		</c:if>
 
 		<div class="<%= (screenNavigationEntries.size() > 1) ? "col-md-9" : "col-md-12" %>">
-			<aui:fieldset-group markupView="lexicon">
-				<aui:fieldset>
 
-					<%
-					selectedScreenNavigationEntry.render(request, response);
-					%>
+			<%
+			selectedScreenNavigationEntry.render(request, response);
+			%>
 
-				</aui:fieldset>
-			</aui:fieldset-group>
 		</div>
 	</div>
 </div>

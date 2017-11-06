@@ -37,18 +37,25 @@ import org.osgi.service.component.annotations.Reference;
 public class ExceptionConverterManager extends BaseManager<ExceptionConverter> {
 
 	/**
-	 * Converts an exception to its generic {@code APIError} representation. If
-	 * no {@link ExceptionConverter} can be found for the actual exception
-	 * class, it tries to use the superclass {@link ExceptionConverter}.
+	 * Converts an exception to its generic {@code APIError} representation, if
+	 * a valid {@link ExceptionConverter} exists. Returns {@code
+	 * Optional#empty()} otherwise.
 	 *
 	 * <p>
-	 * If non {@link ExceptionConverter} can be found a generic converter
-	 * ({@code ExceptionConverter<Exception>} will be used.
+	 * If no {@link ExceptionConverter} can be found for the exception class,
+	 * this method tries to use the superclass of {@code ExceptionConverter}.
 	 * </p>
 	 *
-	 * @param  exception the exception to be converted.
-	 * @return the corresponding error, if a valid {@link ExceptionConverter} is
-	 *         present; <code>Optional#empty()</code> otherwise.
+	 * <p>
+	 * If no {@link ExceptionConverter} can be found a generic converter ({@code
+	 * ExceptionConverter<Exception>} will be used.
+	 * </p>
+	 *
+	 * @param  exception the exception to convert
+	 * @return the exception's {@code APIError} representation, if a valid
+	 *         {@code ExceptionConverter} is present; {@code Optional#empty()}
+	 *         otherwise
+	 * @review
 	 */
 	public <T extends Exception> Optional<APIError> convert(T exception) {
 		return _convert(exception, (Class<T>)exception.getClass());
@@ -58,14 +65,14 @@ public class ExceptionConverterManager extends BaseManager<ExceptionConverter> {
 	protected void setServiceReference(
 		ServiceReference<ExceptionConverter> serviceReference) {
 
-		addService(serviceReference, ExceptionConverter.class);
+		addService(serviceReference);
 	}
 
 	@SuppressWarnings("unused")
 	protected void unsetServiceReference(
 		ServiceReference<ExceptionConverter> serviceReference) {
 
-		removeService(serviceReference, ExceptionConverter.class);
+		removeService(serviceReference);
 	}
 
 	private <T extends Exception> Optional<APIError> _convert(
