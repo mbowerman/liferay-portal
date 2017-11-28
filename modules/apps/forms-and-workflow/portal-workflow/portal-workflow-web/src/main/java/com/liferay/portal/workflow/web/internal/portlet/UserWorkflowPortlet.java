@@ -14,7 +14,7 @@
 
 package com.liferay.portal.workflow.web.internal.portlet;
 
-import com.liferay.portal.workflow.web.constants.WorkflowWebKeys;
+import com.liferay.portal.workflow.constants.WorkflowWebKeys;
 import com.liferay.portal.workflow.web.internal.constants.WorkflowPortletKeys;
 
 import java.util.Arrays;
@@ -55,7 +55,7 @@ import org.osgi.service.component.annotations.Component;
 public class UserWorkflowPortlet extends BaseWorkflowPortlet {
 
 	@Override
-	public List<String> getPortletTabNames() {
+	public List<String> getWorkflowPortletTabNames() {
 		return Arrays.asList(WorkflowWebKeys.WORKFLOW_TAB_MY_SUBMISSIONS);
 	}
 

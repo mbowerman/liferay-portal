@@ -1234,6 +1234,40 @@ another task with the same name is being executed in a parent project.
 - [LPS-75798]: Update the [Liferay Source Formatter] dependency to version
 1.0.494.
 
+## 2.3.24 - 2017-11-14
+
+### Changed
+- [LPS-74526]: Update the [Liferay Source Formatter] dependency to version
+1.0.495.
+
+## 2.3.25 - 2017-11-14
+
+### Changed
+- [LPS-75798]: Update the [Liferay Source Formatter] dependency to version
+1.0.496.
+
+## 2.3.26 - 2017-11-15
+
+### Changed
+- [LPS-75798]: Update the [Liferay Source Formatter] dependency to version
+1.0.497.
+
+## 2.3.27 - 2017-11-16
+
+### Changed
+- [LPS-75952]: Update the [Liferay Source Formatter] dependency to version
+1.0.498.
+
+## 2.3.28 - 2017-11-21
+
+### Changed
+- [LPS-75971]: Update the [Liferay Source Formatter] dependency to version 1.0.499.
+
+## 2.3.29 - 2017-11-24
+
+### Changed
+- [LPS-76110]: Update the [Liferay Source Formatter] dependency to version 1.0.500.
+
 [Liferay Source Formatter]: https://github.com/liferay/liferay-portal/tree/master/modules/util/source-formatter
 [LPS-52675]: https://issues.liferay.com/browse/LPS-52675
 [LPS-62970]: https://issues.liferay.com/browse/LPS-62970
@@ -1290,6 +1324,7 @@ another task with the same name is being executed in a parent project.
 [LPS-74433]: https://issues.liferay.com/browse/LPS-74433
 [LPS-74457]: https://issues.liferay.com/browse/LPS-74457
 [LPS-74475]: https://issues.liferay.com/browse/LPS-74475
+[LPS-74526]: https://issues.liferay.com/browse/LPS-74526
 [LPS-74538]: https://issues.liferay.com/browse/LPS-74538
 [LPS-74544]: https://issues.liferay.com/browse/LPS-74544
 [LPS-74614]: https://issues.liferay.com/browse/LPS-74614
@@ -1310,3 +1345,6 @@ another task with the same name is being executed in a parent project.
 [LPS-75613]: https://issues.liferay.com/browse/LPS-75613
 [LPS-75745]: https://issues.liferay.com/browse/LPS-75745
 [LPS-75798]: https://issues.liferay.com/browse/LPS-75798
+[LPS-75952]: https://issues.liferay.com/browse/LPS-75952
+[LPS-75971]: https://issues.liferay.com/browse/LPS-75971
+[LPS-76110]: https://issues.liferay.com/browse/LPS-76110

@@ -33,6 +33,7 @@ import java.io.File;
 import java.net.URL;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +42,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 
 /**
  * @author Hugo Huijser
@@ -226,6 +231,43 @@ public abstract class BaseSourceCheck implements SourceCheck {
 		return StringPool.BLANK;
 	}
 
+	protected Document getCustomSQLDocument(
+			String fileName, String absolutePath,
+			Document portalCustomSQLDocument)
+		throws Exception {
+
+		if (isPortalSource() && !isModulesFile(absolutePath)) {
+			return portalCustomSQLDocument;
+		}
+
+		int i = fileName.lastIndexOf("/src/");
+
+		if (i == -1) {
+			return null;
+		}
+
+		File customSQLFile = new File(
+			fileName.substring(0, i) + "/src/custom-sql/default.xml");
+
+		if (!customSQLFile.exists()) {
+			customSQLFile = new File(
+				fileName.substring(0, i) +
+					"/src/main/resources/META-INF/custom-sql/default.xml");
+		}
+
+		if (!customSQLFile.exists()) {
+			customSQLFile = new File(
+				fileName.substring(0, i) +
+					"/src/main/resources/custom-sql/default.xml");
+		}
+
+		if (!customSQLFile.exists()) {
+			return null;
+		}
+
+		return SourceUtil.readXML(customSQLFile);
+	}
+
 	protected File getFile(String fileName, int level) {
 		return SourceFormatterUtil.getFile(_baseDirName, fileName, level);
 	}
@@ -343,6 +385,53 @@ public abstract class BaseSourceCheck implements SourceCheck {
 		catch (Exception e) {
 			return null;
 		}
+	}
+
+	protected Document getPortalCustomSQLDocument() throws Exception {
+		if (!isPortalSource()) {
+			return null;
+		}
+
+		String portalCustomSQLDefaultContent = getPortalContent(
+			"portal-impl/src/custom-sql/default.xml");
+
+		if (portalCustomSQLDefaultContent == null) {
+			return null;
+		}
+
+		Document document = DocumentHelper.createDocument();
+
+		Element rootElement = document.addElement("custom-sql");
+
+		Document customSQLDefaultDocument = SourceUtil.readXML(
+			portalCustomSQLDefaultContent);
+
+		Element customSQLDefaultRootElement =
+			customSQLDefaultDocument.getRootElement();
+
+		for (Element sqlElement :
+				(List<Element>)customSQLDefaultRootElement.elements("sql")) {
+
+			String customSQLFileContent = getPortalContent(
+				"portal-impl/src/" + sqlElement.attributeValue("file"));
+
+			if (customSQLFileContent == null) {
+				continue;
+			}
+
+			Document customSQLDocument = SourceUtil.readXML(
+				customSQLFileContent);
+
+			Element customSQLRootElement = customSQLDocument.getRootElement();
+
+			for (Element customSQLElement :
+					(List<Element>)customSQLRootElement.elements("sql")) {
+
+				rootElement.add(customSQLElement.detach());
+			}
+		}
+
+		return document;
 	}
 
 	protected String getProjectPathPrefix() {
@@ -496,6 +585,21 @@ public abstract class BaseSourceCheck implements SourceCheck {
 		return _portalSource;
 	}
 
+	protected boolean isReadOnly(String absolutePath) {
+
+		// This method should only be called temporarily by checks with new
+		// logic. After all source in all subrepositories has been changed
+		// according to new formatting rules, the call should be reverted.
+
+		for (String readOnlyDirName : _readOnlyDirNames) {
+			if (absolutePath.contains(readOnlyDirName)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	protected boolean isSubrepository() {
 		return _subrepository;
 	}
@@ -570,6 +674,13 @@ public abstract class BaseSourceCheck implements SourceCheck {
 
 	private static final String _GIT_LIFERAY_PORTAL_URL =
 		"https://raw.githubusercontent.com/liferay/liferay-portal/";
+
+	private static final List<String> _readOnlyDirNames = Arrays.asList(
+		"/modules/apps/adaptive-media/", "/modules/apps/analytics/",
+		"/modules/apps/forms-and-workflow/dynamic-data-mapping/",
+		"/modules/apps/forms-and-workflow/portal-workflow/",
+		"/modules/apps/foundation/vulcan/",
+		"/modules/apps/web-experience/journal/", "/modules/private/apps/");
 
 	private String _baseDirName;
 	private int _maxLineLength;
