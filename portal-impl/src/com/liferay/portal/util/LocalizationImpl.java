@@ -493,7 +493,7 @@ public class LocalizationImpl implements Localization {
 
 	@Override
 	public Map<Locale, String> getLocalizationMap(String xml) {
-		return getLocalizationMap(xml, false);
+		return getLocalizationMap(xml, true);
 	}
 
 	@Override
