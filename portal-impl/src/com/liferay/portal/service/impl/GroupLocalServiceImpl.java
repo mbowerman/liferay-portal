@@ -250,7 +250,17 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		if (nameMap != null) {
 			groupKey = nameMap.get(LocaleUtil.getDefault());
-			friendlyName = nameMap.get(LocaleUtil.getDefault());
+
+			if (groupKey == null) {
+				for (Locale key : nameMap.keySet()) {
+					groupKey = nameMap.get(key);
+					friendlyName = nameMap.get(key);
+					break;
+				}
+			}
+			else {
+				friendlyName = nameMap.get(LocaleUtil.getDefault());
+			}
 		}
 
 		long groupId = 0;

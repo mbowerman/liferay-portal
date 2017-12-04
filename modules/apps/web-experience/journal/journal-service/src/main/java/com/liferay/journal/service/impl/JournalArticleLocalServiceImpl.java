@@ -291,8 +291,8 @@ public class JournalArticleLocalServiceImpl
 	 * @param  smallImageFile the web content article's small image file
 	 * @param  images the web content's images
 	 * @param  articleURL the web content article's accessible URL
-	 * @param  validateReferences whether the article references are validated
-	 *         or not
+	 * @param  latestVersion whether the article references and structure fields
+	 *         are validated or not, as it is needed for the latest version only
 	 * @param  serviceContext the service context to be applied. Can set the
 	 *         UUID, creation date, modification date, expando bridge
 	 *         attributes, guest permissions, group permissions, asset category
@@ -318,7 +318,7 @@ public class JournalArticleLocalServiceImpl
 			boolean neverReview, boolean indexable, boolean smallImage,
 			String smallImageURL, File smallImageFile,
 			Map<String, byte[]> images, String articleURL,
-			boolean validateReferences, ServiceContext serviceContext)
+			boolean latestVersion, ServiceContext serviceContext)
 		throws PortalException {
 
 		// Article
@@ -372,9 +372,9 @@ public class JournalArticleLocalServiceImpl
 			user.getCompanyId(), groupId, classNameId, articleId, autoArticleId,
 			version, titleMap, content, ddmStructureKey, ddmTemplateKey,
 			displayDate, expirationDate, smallImage, smallImageURL,
-			smallImageFile, smallImageBytes, serviceContext);
+			smallImageFile, smallImageBytes, latestVersion, serviceContext);
 
-		if (validateReferences) {
+		if (latestVersion) {
 			validateReferences(
 				groupId, ddmStructureKey, ddmTemplateKey, layoutUuid,
 				smallImage, smallImageURL, smallImageBytes, 0, content);
@@ -5440,8 +5440,8 @@ public class JournalArticleLocalServiceImpl
 	 * @param  images the web content's images (optionally <code>null</code>)
 	 * @param  articleURL the web content article's accessible URL (optionally
 	 *         <code>null</code>)
-	 * @param  validateReferences whether the article references are validated
-	 *         or not
+	 * @param  latestVersion whether the article references and structure fields
+	 *         are validated or not, as it is needed for the latest version only
 	 * @param  serviceContext the service context to be applied. Can set the
 	 *         modification date, expando bridge attributes, asset category IDs,
 	 *         asset tag names, asset link entry IDs, asset priority, workflow
@@ -5469,7 +5469,7 @@ public class JournalArticleLocalServiceImpl
 			boolean neverReview, boolean indexable, boolean smallImage,
 			String smallImageURL, File smallImageFile,
 			Map<String, byte[]> images, String articleURL,
-			boolean validateReferences, ServiceContext serviceContext)
+			boolean latestVersion, ServiceContext serviceContext)
 		throws PortalException {
 
 		// Article
@@ -5492,7 +5492,7 @@ public class JournalArticleLocalServiceImpl
 
 		boolean imported = ExportImportThreadLocal.isImportInProcess();
 
-		double latestVersion = latestArticle.getVersion();
+		double latestArticleVersion = latestArticle.getVersion();
 
 		boolean addNewVersion = false;
 
@@ -5500,13 +5500,13 @@ public class JournalArticleLocalServiceImpl
 			article = getArticle(groupId, articleId, version);
 		}
 		else {
-			if ((version > 0) && (version != latestVersion)) {
+			if ((version > 0) && (version != latestArticleVersion)) {
 				StringBundler sb = new StringBundler(4);
 
 				sb.append("Version ");
 				sb.append(version);
 				sb.append(" is not the same as ");
-				sb.append(latestVersion);
+				sb.append(latestArticleVersion);
 
 				throw new ArticleVersionException(sb.toString());
 			}
@@ -5565,9 +5565,9 @@ public class JournalArticleLocalServiceImpl
 			user.getCompanyId(), groupId, latestArticle.getClassNameId(),
 			titleMap, content, ddmStructureKey, ddmTemplateKey, displayDate,
 			expirationDate, smallImage, smallImageURL, smallImageFile,
-			smallImageBytes, serviceContext);
+			smallImageBytes, latestVersion, serviceContext);
 
-		if (validateReferences) {
+		if (latestVersion) {
 			validateReferences(
 				groupId, ddmStructureKey, ddmTemplateKey, layoutUuid,
 				smallImage, smallImageURL, smallImageBytes,
@@ -8215,7 +8215,7 @@ public class JournalArticleLocalServiceImpl
 			Map<Locale, String> titleMap, String content,
 			String ddmStructureKey, String ddmTemplateKey, Date displayDate,
 			Date expirationDate, boolean smallImage, String smallImageURL,
-			File smallImageFile, byte[] smallImageBytes,
+			File smallImageFile, byte[] smallImageBytes, boolean latestVersion,
 			ServiceContext serviceContext)
 		throws PortalException {
 
@@ -8265,8 +8265,10 @@ public class JournalArticleLocalServiceImpl
 			classNameLocalService.getClassNameId(JournalArticle.class),
 			ddmStructureKey, true);
 
-		validateDDMStructureFields(
-			ddmStructure, classNameId, content, articleDefaultLocale);
+		if (latestVersion) {
+			validateDDMStructureFields(
+				ddmStructure, classNameId, content, articleDefaultLocale);
+		}
 
 		if (Validator.isNotNull(ddmTemplateKey)) {
 			DDMTemplate ddmTemplate = ddmTemplateLocalService.getTemplate(
@@ -8326,7 +8328,7 @@ public class JournalArticleLocalServiceImpl
 			String content, String ddmStructureKey, String ddmTemplateKey,
 			Date displayDate, Date expirationDate, boolean smallImage,
 			String smallImageURL, File smallImageFile, byte[] smallImageBytes,
-			ServiceContext serviceContext)
+			boolean latestVersion, ServiceContext serviceContext)
 		throws PortalException {
 
 		if (!autoArticleId) {
@@ -8355,7 +8357,8 @@ public class JournalArticleLocalServiceImpl
 		validate(
 			companyId, groupId, classNameId, titleMap, content, ddmStructureKey,
 			ddmTemplateKey, displayDate, expirationDate, smallImage,
-			smallImageURL, smallImageFile, smallImageBytes, serviceContext);
+			smallImageURL, smallImageFile, smallImageBytes, latestVersion,
+			serviceContext);
 	}
 
 	protected void validate(String articleId) throws PortalException {

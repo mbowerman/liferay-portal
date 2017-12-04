@@ -160,9 +160,13 @@
 	</command>
 
 	<command name="addFriendlyURLLocalizedPG">
-		<var name="key_friendlyUrlLocalized" value="${friendlyUrlLocalized}" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="General" />
+		</execute>
 
-		<execute function="Click" locator1="SitePagesEditPage#FRIENDLY_URL_LOCALIZED" />
+		<execute function="Click" locator1="SitePagesEditPage#FRIENDLY_URL_LOCALIZED">
+			<var name="key_friendlyUrlLocalized" value="${friendlyUrlLocalized}" />
+		</execute>
 
 		<execute function="Type" locator1="SitePagesEditPage#FRIENDLY_URL_FIELD" value1="${localizedFriendlyURL}" />
 	</command>
@@ -254,7 +258,7 @@
 			<var name="name" value="${pageTranslationName}" />
 		</execute>
 
-		<execute macro="PortletEntry#save" />
+		<execute macro="Button#clickSave" />
 	</command>
 
 	<command name="addPageTypePanelPG">
@@ -273,7 +277,6 @@
 
 	<command name="assertCannotDeleteOnlyPage">
 		<execute macro="LexiconEntry#delete">
-			<var name="dialog" value="Are you sure you want to delete this? It will be deleted immediately." />
 			<var name="failure" value="You must have at least one page." />
 			<var name="rowEntry" value="${pageName}" />
 		</execute>
@@ -306,12 +309,14 @@
 	</command>
 
 	<command name="changeLogoViaPageCP">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletOption" value="Configure" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Navigation" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Site Pages" />
 		</execute>
 
-		<execute function="AssertClick" locator1="MenuItem#ANY_MENU_ITEM" value1="Configure">
-			<var name="key_menuItem" value="Configure" />
+		<execute macro="Portlet#gotoPortletOptions">
+			<var name="portletOption" value="Configure" />
 		</execute>
 
 		<execute macro="Panel#expandPanel">
@@ -352,15 +357,17 @@
 	</command>
 
 	<command name="deleteFriendlyURLPG">
-		<var name="key_friendlyUrlLocalized" value="${friendlyUrlLocalized}" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="General" />
+		</execute>
 
-		<execute function="Click#pauseClickAt" locator1="SitePagesEditPage#FRIENDLY_URL_LOCALIZED" />
+		<execute function="Click#pauseClickAt" locator1="SitePagesEditPage#FRIENDLY_URL_LOCALIZED">
+			<var name="key_friendlyUrlLocalized" value="${friendlyUrlLocalized}" />
+		</execute>
 
 		<execute function="Type" locator1="SitePagesEditPage#FRIENDLY_URL_FIELD" value1=" " />
 
-		<execute function="AssertClick#pauseAssertTextClickAt" locator1="Button#SAVE" value1="Save" />
-
-		<execute macro="Alert#viewSuccessMessage" />
+		<execute macro="Button#clickSave" />
 	</command>
 
 	<command name="deleteLivePG">
@@ -477,17 +484,6 @@
 	</command>
 
 	<command name="editSelectPageType">
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
-			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
-		</execute>
-
-		<execute macro="LexiconEntry#gotoEntryMenuItem">
-			<var name="menuItem" value="Configure" />
-			<var name="rowEntry" value="${page}" />
-		</execute>
-
 		<execute function="Select" locator1="SitePagesEditPage#PAGE_TYPE_LAYOUT" value1="${pageType}">
 			<var name="key_pageType" value="${pageType}" />
 		</execute>
