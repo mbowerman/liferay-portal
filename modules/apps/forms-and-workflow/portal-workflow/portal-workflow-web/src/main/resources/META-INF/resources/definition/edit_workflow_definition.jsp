@@ -83,7 +83,7 @@ renderResponse.setTitle((workflowDefinition == null) ? LanguageUtil.get(request,
 					<aui:icon cssClass="icon-monospaced sidenav-close text-default visible-xs-inline-block" image="times" markupView="lexicon" url="javascript:;" />
 				</div>
 
-				<liferay-ui:tabs cssClass="navbar-no-collapse" names="details,versions" refresh="<%= false %>" type="dropdown">
+				<liferay-ui:tabs cssClass="navbar-no-collapse" names="details,revision-history" refresh="<%= false %>" type="tabs">
 					<liferay-ui:section>
 						<div class="sidebar-body">
 							<h3 class="version">
@@ -137,6 +137,7 @@ renderResponse.setTitle((workflowDefinition == null) ? LanguageUtil.get(request,
 							</liferay-util:buffer>
 
 							<liferay-ui:message arguments="<%= importFileMark %>" key="write-your-definition-or-x" translateArguments="<%= false %>" />
+
 							<input class="workflow-definition-upload-source" id="<portlet:namespace />upload" type="file" />
 						</aui:col>
 
@@ -172,10 +173,14 @@ renderResponse.setTitle((workflowDefinition == null) ? LanguageUtil.get(request,
 		}
 	).render();
 
+	var xmlFormatter = new Liferay.XMLFormatter();
+
 	var editorContentElement = A.one('#<portlet:namespace />content');
 
 	if (editorContentElement) {
-		contentEditor.set(STR_VALUE, editorContentElement.val());
+		var content = xmlFormatter.format(editorContentElement.val());
+
+		contentEditor.set(STR_VALUE, content);
 	}
 
 	var uploadFile = $('#<portlet:namespace />upload');

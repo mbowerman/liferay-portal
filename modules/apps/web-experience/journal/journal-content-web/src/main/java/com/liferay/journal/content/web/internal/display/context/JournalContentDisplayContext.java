@@ -25,6 +25,7 @@ import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalServiceUtil;
 import com.liferay.dynamic.data.mapping.service.permission.DDMTemplatePermission;
+import com.liferay.journal.constants.JournalContentPortletKeys;
 import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.constants.JournalWebKeys;
 import com.liferay.journal.content.asset.addon.entry.common.ContentMetadataAssetAddonEntry;
@@ -32,7 +33,6 @@ import com.liferay.journal.content.asset.addon.entry.common.ContentMetadataAsset
 import com.liferay.journal.content.asset.addon.entry.common.UserToolAssetAddonEntry;
 import com.liferay.journal.content.asset.addon.entry.common.UserToolAssetAddonEntryTracker;
 import com.liferay.journal.content.web.configuration.JournalContentPortletInstanceConfiguration;
-import com.liferay.journal.content.web.constants.JournalContentPortletKeys;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalArticleDisplay;
 import com.liferay.journal.service.JournalArticleLocalServiceUtil;
@@ -79,6 +79,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import javax.portlet.PortletMode;
 import javax.portlet.PortletPreferences;
@@ -311,24 +312,31 @@ public class JournalContentDisplayContext {
 			return _ddmTemplateKey;
 		}
 
-		_ddmTemplateKey = ParamUtil.getString(
+		_ddmTemplateKey =
+			_journalContentPortletInstanceConfiguration.ddmTemplateKey();
+
+		String ddmTemplateKey = ParamUtil.getString(
 			_portletRequest, "ddmTemplateKey");
 
-		if (Validator.isNotNull(_ddmTemplateKey)) {
-			return _ddmTemplateKey;
+		if (Validator.isNotNull(ddmTemplateKey)) {
+			_ddmTemplateKey = ddmTemplateKey;
 		}
-
-		long articleResourcePrimKey = ParamUtil.getLong(
-			_portletRequest, "articleResourcePrimKey");
 
 		JournalArticle article = getArticle();
 
-		if ((article != null) && (articleResourcePrimKey > 0)) {
-			_ddmTemplateKey = article.getDDMTemplateKey();
+		if (article == null) {
+			return _ddmTemplateKey;
 		}
-		else {
-			_ddmTemplateKey =
-				_journalContentPortletInstanceConfiguration.ddmTemplateKey();
+
+		List<DDMTemplate> ddmTemplates = getDDMTemplates();
+
+		Stream<DDMTemplate> stream = ddmTemplates.stream();
+
+		boolean hasTemplate = stream.anyMatch(
+			template -> _ddmTemplateKey.equals(template.getTemplateKey()));
+
+		if (!hasTemplate) {
+			_ddmTemplateKey = article.getDDMTemplateKey();
 		}
 
 		return _ddmTemplateKey;
