@@ -1873,7 +1873,7 @@ public class SitesImpl implements Sites {
 
 		File file = null;
 
-		StringBundler sb = new StringBundler(importData ? 4 : 3);
+		StringBundler sb = new StringBundler(importData ? 8 : 7);
 
 		sb.append(_TEMP_DIR);
 		sb.append(layoutSetPrototype.getUuid());
@@ -1946,8 +1946,30 @@ public class SitesImpl implements Sites {
 					importLayoutSettingsMap, WorkflowConstants.STATUS_DRAFT,
 					new ServiceContext());
 
-		ExportImportLocalServiceUtil.importLayouts(
-			exportImportConfiguration, file);
+		try {
+			sb.setIndex(sb.index() - 1);
+
+			sb.append(StringPool.DASH);
+			sb.append(groupId);
+			sb.append(StringPool.DASH);
+			sb.append(privateLayout);
+			sb.append(".lar");
+
+			File copyFile = new File(sb.toString());
+
+			FileUtil.copyFile(file, copyFile);
+
+			try {
+				ExportImportLocalServiceUtil.importLayouts(
+					exportImportConfiguration, file);
+			}
+			finally {
+				FileUtil.delete(copyFile);
+			}
+		}
+		catch (Exception e) {
+			throw new PortalException(e);
+		}
 
 		if (newFile) {
 			try {
