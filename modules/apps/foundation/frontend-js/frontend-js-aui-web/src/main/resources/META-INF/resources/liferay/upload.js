@@ -471,10 +471,11 @@ AUI.add(
 									var tempRandomSuffix = instance.get('tempRandomSuffix');
 
 									if (tempRandomSuffix) {
-										var pos = title.indexOf(tempRandomSuffix);
+										var posTempRandomSuffix = title.indexOf(tempRandomSuffix);
+										var posDot = title.lastIndexOf('.');
 
-										if (pos != -1) {
-											title = title.substr(0, pos);
+										if (posTempRandomSuffix != -1) {
+											title = title.substr(0, posTempRandomSuffix) + title.substr(posDot);
 										}
 									}
 
