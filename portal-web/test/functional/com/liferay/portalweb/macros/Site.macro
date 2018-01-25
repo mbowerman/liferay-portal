@@ -884,18 +884,12 @@
 	</command>
 
 	<command name="searchCP">
-		<execute macro="Site#searchInputCP">
-			<var name="siteName" value="Site Name" />
+		<execute macro="Search#searchCP">
+			<var name="searchTerm" value="Site Name" />
 		</execute>
 
 		<execute macro="Site#viewSearchResultsCP">
 			<var name="siteName" value="Site Name" />
-		</execute>
-	</command>
-
-	<command name="searchInputCP">
-		<execute macro="Search#searchCP">
-			<var name="searchTerm" value="${siteName}" />
 		</execute>
 	</command>
 

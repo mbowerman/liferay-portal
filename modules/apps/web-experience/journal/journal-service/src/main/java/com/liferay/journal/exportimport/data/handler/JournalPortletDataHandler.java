@@ -35,7 +35,6 @@ import com.liferay.journal.model.JournalFolder;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.journal.service.JournalFeedLocalService;
 import com.liferay.journal.service.JournalFolderLocalService;
-import com.liferay.journal.service.permission.JournalPermission;
 import com.liferay.journal.util.JournalContent;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Disjunction;
@@ -157,9 +156,6 @@ public class JournalPortletDataHandler extends BasePortletDataHandler {
 			new StagedModelType(JournalFeed.class),
 			new StagedModelType(JournalFolder.class));
 
-		String[] referencedContentBehaviorOptions =
-			{"include-always", "include-if-modified"};
-
 		setExportControls(
 			new PortletDataHandlerBoolean(
 				NAMESPACE, "web-content", true, false,
@@ -169,7 +165,9 @@ public class JournalPortletDataHandler extends BasePortletDataHandler {
 						new PortletDataHandlerControl[] {
 							new PortletDataHandlerChoice(
 								NAMESPACE, "referenced-content-behavior", 0,
-								referencedContentBehaviorOptions)
+								new String[] {
+									"include-always", "include-if-modified"
+								})
 						}),
 					new PortletDataHandlerBoolean(
 						NAMESPACE, "version-history",
@@ -226,7 +224,7 @@ public class JournalPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		portletDataContext.addPortletPermissions(
-			JournalPermission.RESOURCE_NAME);
+			JournalConstants.RESOURCE_NAME);
 
 		Element rootElement = addExportDataRootElement(portletDataContext);
 
@@ -289,7 +287,7 @@ public class JournalPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		portletDataContext.importPortletPermissions(
-			JournalPermission.RESOURCE_NAME);
+			JournalConstants.RESOURCE_NAME);
 
 		if (portletDataContext.getBooleanParameter(NAMESPACE, "feeds")) {
 			Element feedsElement = portletDataContext.getImportDataGroupElement(
