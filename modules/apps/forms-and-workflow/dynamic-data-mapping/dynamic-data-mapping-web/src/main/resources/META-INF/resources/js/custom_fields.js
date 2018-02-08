@@ -975,6 +975,14 @@ AUI.add(
 
 			translationManager.get('availableLocales').forEach(
 				function(locale) {
+
+					if(attribute == "label"){
+						for(i in localizationMap){
+							defaultLocale = i;
+							break;
+						}
+					}
+
 					var value = A.Object.getValue(localizationMap, [locale, attribute]);
 
 					if (!isValue(value)) {
