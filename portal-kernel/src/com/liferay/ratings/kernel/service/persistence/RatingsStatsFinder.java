@@ -18,7 +18,7 @@ import aQute.bnd.annotation.ProviderType;
 
 /**
  * @author Brian Wing Shun Chan
- * @deprecated As of 7.0.0, with no direct replacement
+ * @deprecated As of Judson, with no direct replacement
  * @generated
  */
 @Deprecated
@@ -28,5 +28,5 @@ public interface RatingsStatsFinder {
 		java.util.Set<java.io.Serializable> primaryKeys);
 
 	public java.util.List<com.liferay.ratings.kernel.model.RatingsStats> findByC_C(
-		long classNameId, java.util.List<java.lang.Long> classPKs);
+		long classNameId, java.util.List<Long> classPKs);
 }

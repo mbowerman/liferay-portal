@@ -120,6 +120,8 @@ public class AssetVocabularyPersistenceTest {
 
 		newAssetVocabulary.setUuid(RandomTestUtil.randomString());
 
+		newAssetVocabulary.setExternalReferenceCode(RandomTestUtil.randomString());
+
 		newAssetVocabulary.setGroupId(RandomTestUtil.nextLong());
 
 		newAssetVocabulary.setCompanyId(RandomTestUtil.nextLong());
@@ -148,6 +150,8 @@ public class AssetVocabularyPersistenceTest {
 
 		Assert.assertEquals(existingAssetVocabulary.getUuid(),
 			newAssetVocabulary.getUuid());
+		Assert.assertEquals(existingAssetVocabulary.getExternalReferenceCode(),
+			newAssetVocabulary.getExternalReferenceCode());
 		Assert.assertEquals(existingAssetVocabulary.getVocabularyId(),
 			newAssetVocabulary.getVocabularyId());
 		Assert.assertEquals(existingAssetVocabulary.getGroupId(),
@@ -242,6 +246,15 @@ public class AssetVocabularyPersistenceTest {
 	}
 
 	@Test
+	public void testCountByC_ERC() throws Exception {
+		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+
+		_persistence.countByC_ERC(0L, "null");
+
+		_persistence.countByC_ERC(0L, (String)null);
+	}
+
+	@Test
 	public void testFindByPrimaryKeyExisting() throws Exception {
 		AssetVocabulary newAssetVocabulary = addAssetVocabulary();
 
@@ -271,10 +284,11 @@ public class AssetVocabularyPersistenceTest {
 
 	protected OrderByComparator<AssetVocabulary> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("AssetVocabulary", "uuid",
-			true, "vocabularyId", true, "groupId", true, "companyId", true,
-			"userId", true, "userName", true, "createDate", true,
-			"modifiedDate", true, "name", true, "title", true, "description",
-			true, "settings", true, "lastPublishDate", true);
+			true, "externalReferenceCode", true, "vocabularyId", true,
+			"groupId", true, "companyId", true, "userId", true, "userName",
+			true, "createDate", true, "modifiedDate", true, "name", true,
+			"title", true, "description", true, "settings", true,
+			"lastPublishDate", true);
 	}
 
 	@Test
@@ -492,6 +506,14 @@ public class AssetVocabularyPersistenceTest {
 		Assert.assertTrue(Objects.equals(existingAssetVocabulary.getName(),
 				ReflectionTestUtil.invoke(existingAssetVocabulary,
 					"getOriginalName", new Class<?>[0])));
+
+		Assert.assertEquals(Long.valueOf(existingAssetVocabulary.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(existingAssetVocabulary,
+				"getOriginalCompanyId", new Class<?>[0]));
+		Assert.assertTrue(Objects.equals(
+				existingAssetVocabulary.getExternalReferenceCode(),
+				ReflectionTestUtil.invoke(existingAssetVocabulary,
+					"getOriginalExternalReferenceCode", new Class<?>[0])));
 	}
 
 	protected AssetVocabulary addAssetVocabulary() throws Exception {
@@ -500,6 +522,8 @@ public class AssetVocabularyPersistenceTest {
 		AssetVocabulary assetVocabulary = _persistence.create(pk);
 
 		assetVocabulary.setUuid(RandomTestUtil.randomString());
+
+		assetVocabulary.setExternalReferenceCode(RandomTestUtil.randomString());
 
 		assetVocabulary.setGroupId(RandomTestUtil.nextLong());
 

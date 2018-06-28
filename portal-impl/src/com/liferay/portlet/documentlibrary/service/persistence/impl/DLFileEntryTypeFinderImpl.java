@@ -16,6 +16,7 @@ package com.liferay.portlet.documentlibrary.service.persistence.impl;
 
 import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.service.persistence.DLFileEntryTypeFinder;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.SQLQuery;
@@ -25,7 +26,6 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portlet.documentlibrary.model.impl.DLFileEntryTypeImpl;
@@ -49,7 +49,7 @@ public class DLFileEntryTypeFinderImpl
 		DLFileEntryTypeFinder.class.getName() + ".findByC_G_N_D_S";
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	public static final String JOIN_BY_FILE_ENTRY_TYPE =
@@ -172,7 +172,7 @@ public class DLFileEntryTypeFinderImpl
 			sql = StringUtil.replace(
 				sql, "[$GROUP_ID$]", getGroupIds(groupIds.length));
 			sql = CustomSQLUtil.replaceKeywords(
-				sql, "lower(DLFileEntryType.name)", StringPool.LIKE, false,
+				sql, "LOWER(DLFileEntryType.name)", StringPool.LIKE, false,
 				names);
 			sql = CustomSQLUtil.replaceKeywords(
 				sql, "DLFileEntryType.description", StringPool.LIKE, true,
@@ -249,7 +249,7 @@ public class DLFileEntryTypeFinderImpl
 			sql = StringUtil.replace(
 				sql, "[$GROUP_ID$]", getGroupIds(groupIds.length));
 			sql = CustomSQLUtil.replaceKeywords(
-				sql, "lower(DLFileEntryType.name)", StringPool.LIKE, false,
+				sql, "LOWER(DLFileEntryType.name)", StringPool.LIKE, false,
 				names);
 			sql = CustomSQLUtil.replaceKeywords(
 				sql, "DLFileEntryType.description", StringPool.LIKE, true,
@@ -302,7 +302,7 @@ public class DLFileEntryTypeFinderImpl
 		sb.append(prefix);
 		sb.append("((DLFileEntryType.companyId = 0) AND ");
 		sb.append("(DLFileEntryType.groupId = 0) AND (");
-		sb.append("(lower(DLFileEntryType.name) LIKE ? ");
+		sb.append("(LOWER(DLFileEntryType.name) LIKE ? ");
 		sb.append("[$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$] ");
 		sb.append("(DLFileEntryType.description LIKE ? ");
 		sb.append("[$AND_OR_NULL_CHECK$]) ))) UNION ALL (");

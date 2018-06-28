@@ -17,6 +17,7 @@ package com.liferay.portlet.layoutsadmin.util;
 import com.liferay.layouts.admin.kernel.util.Sitemap;
 import com.liferay.layouts.admin.kernel.util.SitemapURLProvider;
 import com.liferay.layouts.admin.kernel.util.SitemapURLProviderRegistryUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
@@ -29,7 +30,6 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
@@ -231,6 +231,10 @@ public class SitemapImpl implements Sitemap {
 			}
 		}
 
+		if (!rootElement.hasContent()) {
+			return StringPool.BLANK;
+		}
+
 		return document.asXML();
 	}
 
@@ -256,7 +260,7 @@ public class SitemapImpl implements Sitemap {
 			}
 
 			List<Layout> layouts = LayoutLocalServiceUtil.getLayouts(
-				layoutSet.getGroupId(), layoutSet.getPrivateLayout(),
+				layoutSet.getGroupId(), layoutSet.isPrivateLayout(),
 				entry.getKey());
 
 			for (Layout layout : layouts) {
@@ -273,7 +277,7 @@ public class SitemapImpl implements Sitemap {
 				sb.append("&groupId=");
 				sb.append(layoutSet.getGroupId());
 				sb.append("&privateLayout=");
-				sb.append(layout.getPrivateLayout());
+				sb.append(layout.isPrivateLayout());
 
 				locationElement.addText(sb.toString());
 			}

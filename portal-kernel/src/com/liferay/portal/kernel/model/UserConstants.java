@@ -16,6 +16,7 @@ package com.liferay.portal.kernel.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
@@ -24,7 +25,6 @@ import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ServiceProxyFactory;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.kernel.webserver.WebServerServletTokenUtil;
 import com.liferay.users.admin.kernel.file.uploads.UserFileUploadsSettings;
@@ -52,7 +52,7 @@ public class UserConstants {
 		PropsKeys.USERS_EMAIL_ADDRESS_AUTO_SUFFIX);
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #getPortraitURL(String,
+	 * @deprecated As of Wilberforce, replaced by {@link #getPortraitURL(String,
 	 *             boolean, long, String)}
 	 */
 	@Deprecated

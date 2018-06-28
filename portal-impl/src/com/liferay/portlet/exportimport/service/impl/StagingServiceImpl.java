@@ -18,6 +18,7 @@ import com.liferay.exportimport.kernel.lar.MissingReferences;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lifecycle.ExportImportLifecycleManagerUtil;
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -28,7 +29,6 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.permission.GroupPermissionUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portlet.exportimport.service.base.StagingServiceBaseImpl;
 
 import java.io.Serializable;
@@ -170,7 +170,7 @@ public class StagingServiceImpl extends StagingServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	@Override
@@ -237,8 +237,8 @@ public class StagingServiceImpl extends StagingServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #publishStagingRequest(long,
-	 *             boolean, Map)}
+	 * @deprecated As of Wilberforce, replaced by {@link
+	 *             #publishStagingRequest(long, boolean, Map)}
 	 */
 	@Deprecated
 	@Override

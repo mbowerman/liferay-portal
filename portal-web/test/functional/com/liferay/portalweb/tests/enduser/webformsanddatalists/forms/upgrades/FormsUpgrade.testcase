@@ -9,15 +9,16 @@
 
 		<execute macro="Smoke#viewWelcomePage" />
 
-		<execute macro="Upgrade#reindexSearches" />
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Configuration" />
+			<var name="panel" value="Control Panel" />
+			<var name="portlet" value="Search" />
+		</execute>
+
+		<execute macro="SearchAdministration#executeSearchActions">
+			<var name="actionsDescription" value="Reindex all search indexes." />
+		</execute>
 	</set-up>
-
-	<command name="AddFormAfterUpgrade6012" priority="5">
-		<property name="data.archive.type" value="data-archive-portal" />
-		<property name="portal.version" value="6.0.12" />
-
-		<execute macro="Upgrade#addForm" />
-	</command>
 
 	<command name="AddFormAfterUpgrade612" priority="5">
 		<property name="data.archive.type" value="data-archive-portal" />
@@ -41,9 +42,9 @@
 		<execute macro="Upgrade#addForm" />
 	</command>
 
-	<command name="AddFormAfterUpgrade623" priority="5">
+	<command name="AddFormAfterUpgrade621021" priority="5">
 		<property name="data.archive.type" value="data-archive-portal" />
-		<property name="portal.version" value="6.2.3" />
+		<property name="portal.version" value="6.2.10.21" />
 		<property name="testray.component.names" value="Forms" />
 
 		<execute macro="Upgrade#addForm" />

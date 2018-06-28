@@ -723,7 +723,7 @@ public class DLFileEntryTypeLocalServiceImpl
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #_updateDDMStructure(long,
+	 * @deprecated As of Judson, replaced by {@link #_updateDDMStructure(long,
 	 *             String, long, long, Map, Map, long[], ServiceContext)}
 	 */
 	@Deprecated
@@ -802,11 +802,14 @@ public class DLFileEntryTypeLocalServiceImpl
 		if ((dlFileEntryType != null) &&
 			(dlFileEntryType.getFileEntryTypeId() != fileEntryTypeId)) {
 
-			throw new DuplicateFileEntryTypeException(fileEntryTypeKey);
+			throw new DuplicateFileEntryTypeException(
+				"A file entry type already exists for key " + fileEntryTypeKey);
 		}
 
 		if (ddmStructureIds.length == 0) {
-			throw new NoSuchMetadataSetException("DDM structure IDs is empty");
+			throw new NoSuchMetadataSetException(
+				"DDM structure IDs is empty for file entry type " +
+					fileEntryTypeKey);
 		}
 
 		for (long ddmStructureId : ddmStructureIds) {

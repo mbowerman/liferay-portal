@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.model.CacheModel;
 import com.liferay.portal.kernel.model.ContainerModel;
+import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.TrashedModel;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.impl.BaseModelImpl;
@@ -659,7 +660,7 @@ public class ExportImportConfigurationModelImpl extends BaseModelImpl<ExportImpo
 
 		com.liferay.portal.kernel.trash.TrashHandler trashHandler = getTrashHandler();
 
-		if (!Validator.isNull(trashHandler.getContainerModelClassName(
+		if (Validator.isNotNull(trashHandler.getContainerModelClassName(
 						getPrimaryKey()))) {
 			ContainerModel containerModel = null;
 
@@ -697,7 +698,7 @@ public class ExportImportConfigurationModelImpl extends BaseModelImpl<ExportImpo
 	}
 
 	/**
-	* @deprecated As of 7.0.0, with no direct replacement
+	* @deprecated As of Judson, with no direct replacement
 	*/
 	@Deprecated
 	@Override
@@ -1195,7 +1196,7 @@ public class ExportImportConfigurationModelImpl extends BaseModelImpl<ExportImpo
 
 	private static final ClassLoader _classLoader = ExportImportConfiguration.class.getClassLoader();
 	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
-			ExportImportConfiguration.class
+			ExportImportConfiguration.class, ModelWrapper.class
 		};
 	private long _mvccVersion;
 	private long _exportImportConfigurationId;

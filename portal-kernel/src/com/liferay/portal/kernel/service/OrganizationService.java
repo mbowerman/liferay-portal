@@ -92,11 +92,11 @@ public interface OrganizationService extends BaseService {
 	and expando bridge attributes for the organization.
 	* @return the organization
 	*/
-	public Organization addOrganization(long parentOrganizationId,
-		java.lang.String name, java.lang.String type, long regionId,
-		long countryId, long statusId, java.lang.String comments, boolean site,
-		List<Address> addresses, List<EmailAddress> emailAddresses,
-		List<OrgLabor> orgLabors, List<Phone> phones, List<Website> websites,
+	public Organization addOrganization(long parentOrganizationId, String name,
+		String type, long regionId, long countryId, long statusId,
+		String comments, boolean site, List<Address> addresses,
+		List<EmailAddress> emailAddresses, List<OrgLabor> orgLabors,
+		List<Phone> phones, List<Website> websites,
 		ServiceContext serviceContext) throws PortalException;
 
 	/**
@@ -122,10 +122,10 @@ public interface OrganizationService extends BaseService {
 	and expando bridge attributes for the organization.
 	* @return the organization
 	*/
-	public Organization addOrganization(long parentOrganizationId,
-		java.lang.String name, java.lang.String type, long regionId,
-		long countryId, long statusId, java.lang.String comments, boolean site,
-		ServiceContext serviceContext) throws PortalException;
+	public Organization addOrganization(long parentOrganizationId, String name,
+		String type, long regionId, long countryId, long statusId,
+		String comments, boolean site, ServiceContext serviceContext)
+		throws PortalException;
 
 	/**
 	* Assigns the password policy to the organizations, removing any other
@@ -184,7 +184,7 @@ public interface OrganizationService extends BaseService {
 	<code>0</code> if the organization could not be found
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public long getOrganizationId(long companyId, java.lang.String name)
+	public long getOrganizationId(long companyId, String name)
 		throws PortalException;
 
 	/**
@@ -241,7 +241,7 @@ public interface OrganizationService extends BaseService {
 	*
 	* @return the OSGi service identifier
 	*/
-	public java.lang.String getOSGiServiceIdentifier();
+	public String getOSGiServiceIdentifier();
 
 	/**
 	* Returns all the organizations with which the user is explicitly
@@ -316,10 +316,9 @@ public interface OrganizationService extends BaseService {
 	* @return the organization
 	*/
 	public Organization updateOrganization(long organizationId,
-		long parentOrganizationId, java.lang.String name,
-		java.lang.String type, long regionId, long countryId, long statusId,
-		java.lang.String comments, boolean logo, byte[] logoBytes,
-		boolean site, List<Address> addresses,
+		long parentOrganizationId, String name, String type, long regionId,
+		long countryId, long statusId, String comments, boolean logo,
+		byte[] logoBytes, boolean site, List<Address> addresses,
 		List<EmailAddress> emailAddresses, List<OrgLabor> orgLabors,
 		List<Phone> phones, List<Website> websites,
 		ServiceContext serviceContext) throws PortalException;
@@ -348,18 +347,17 @@ public interface OrganizationService extends BaseService {
 	names for the organization, and merge expando bridge
 	attributes for the organization.
 	* @return the organization
-	* @deprecated As of 7.0.0, replaced by {@link #updateOrganization(long,
-	long, String, String, long, long, long, String, boolean,
-	byte[], boolean, List, List, List, List, List,
-	ServiceContext)}
+	* @deprecated As of Wilberforce, replaced by {@link
+	#updateOrganization(long, long, String, String, long, long,
+	long, String, boolean, byte[], boolean, List, List, List,
+	List, List, ServiceContext)}
 	*/
-	@java.lang.Deprecated
+	@Deprecated
 	public Organization updateOrganization(long organizationId,
-		long parentOrganizationId, java.lang.String name,
-		java.lang.String type, long regionId, long countryId, long statusId,
-		java.lang.String comments, boolean site, List<Address> addresses,
-		List<EmailAddress> emailAddresses, List<OrgLabor> orgLabors,
-		List<Phone> phones, List<Website> websites,
+		long parentOrganizationId, String name, String type, long regionId,
+		long countryId, long statusId, String comments, boolean site,
+		List<Address> addresses, List<EmailAddress> emailAddresses,
+		List<OrgLabor> orgLabors, List<Phone> phones, List<Website> websites,
 		ServiceContext serviceContext) throws PortalException;
 
 	/**
@@ -383,8 +381,7 @@ public interface OrganizationService extends BaseService {
 	* @return the organization
 	*/
 	public Organization updateOrganization(long organizationId,
-		long parentOrganizationId, java.lang.String name,
-		java.lang.String type, long regionId, long countryId, long statusId,
-		java.lang.String comments, boolean site, ServiceContext serviceContext)
-		throws PortalException;
+		long parentOrganizationId, String name, String type, long regionId,
+		long countryId, long statusId, String comments, boolean site,
+		ServiceContext serviceContext) throws PortalException;
 }

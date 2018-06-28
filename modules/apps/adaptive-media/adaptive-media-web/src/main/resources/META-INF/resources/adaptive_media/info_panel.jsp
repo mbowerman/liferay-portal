@@ -32,7 +32,7 @@ if (ListUtil.isNotEmpty(selectedAMImageConfigurationEntries)) {
 
 <div class="sidebar-header">
 	<c:choose>
-		<c:when test="<%= (selectedConfigurationEntriesSize == 1) %>">
+		<c:when test="<%= selectedConfigurationEntriesSize == 1 %>">
 			<ul class="sidebar-actions">
 
 				<%
@@ -52,7 +52,7 @@ if (ListUtil.isNotEmpty(selectedAMImageConfigurationEntries)) {
 				<liferay-ui:message key="image-resolution" />
 			</h5>
 		</c:when>
-		<c:when test="<%= (selectedConfigurationEntriesSize > 1) %>">
+		<c:when test="<%= selectedConfigurationEntriesSize > 1 %>">
 			<h4 class="sidebar-title"><liferay-ui:message arguments="<%= selectedConfigurationEntriesSize %>" key="x-items-are-selected" /></h4>
 		</c:when>
 		<c:otherwise>
@@ -61,12 +61,17 @@ if (ListUtil.isNotEmpty(selectedAMImageConfigurationEntries)) {
 	</c:choose>
 </div>
 
-<liferay-ui:tabs cssClass="navbar-no-collapse" names="details" refresh="<%= false %>" type="dropdown">
+<liferay-ui:tabs
+	cssClass="navbar-no-collapse"
+	names="details"
+	refresh="<%= false %>"
+	type="dropdown"
+>
 	<liferay-ui:section>
 		<div class="sidebar-body">
 			<dl class="sidebar-block">
 				<c:choose>
-					<c:when test="<%= (selectedConfigurationEntriesSize == 1) %>">
+					<c:when test="<%= selectedConfigurationEntriesSize == 1 %>">
 						<dt class="sidebar-dt">
 							<liferay-ui:message key="name" />
 						</dt>
@@ -132,7 +137,7 @@ if (ListUtil.isNotEmpty(selectedAMImageConfigurationEntries)) {
 							<%= HtmlUtil.escape(amImageConfigurationEntry.getDescription()) %>
 						</dd>
 					</c:when>
-					<c:when test="<%= (selectedConfigurationEntriesSize > 1) %>">
+					<c:when test="<%= selectedConfigurationEntriesSize > 1 %>">
 						<dt class="sidebar-dt">
 							<liferay-ui:message arguments="<%= selectedConfigurationEntriesSize %>" key="x-items-are-selected" />
 						</dt>

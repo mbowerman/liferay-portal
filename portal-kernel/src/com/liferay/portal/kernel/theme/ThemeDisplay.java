@@ -19,6 +19,8 @@ import aQute.bnd.annotation.ProviderType;
 import com.liferay.admin.kernel.util.PortalMyAccountApplicationType;
 import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.mobile.device.rules.kernel.MDRRuleGroupInstance;
+import com.liferay.petra.reflect.ReflectionUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -57,8 +59,6 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
-import com.liferay.portal.kernel.util.ReflectionUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.TimeZoneThreadLocal;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -96,8 +96,7 @@ import javax.servlet.http.HttpServletResponse;
  * <code>
  * themeDisplay = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
  * </code>
- * </pre>
- * </p>
+ * </pre></p>
  *
  * @author Brian Wing Shun Chan
  */
@@ -389,7 +388,7 @@ public class ThemeDisplay
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	public String getFacebookCanvasPageURL() {
@@ -533,8 +532,7 @@ public class ThemeDisplay
 	 * returns "2" for RESOURCE phase
 	 * returns "3" for EVENT phase
 	 * </code>
-	 * </pre>
-	 * </p>
+	 * </pre></p>
 	 *
 	 * @return the numeric portlet lifecycle indicator
 	 */
@@ -1017,7 +1015,7 @@ public class ThemeDisplay
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	public String getURLAddContent() {
@@ -1037,7 +1035,7 @@ public class ThemeDisplay
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	public String getURLLayoutTemplates() {
@@ -1063,7 +1061,7 @@ public class ThemeDisplay
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	@JSON(include = false)
@@ -1137,7 +1135,7 @@ public class ThemeDisplay
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	public boolean isFacebook() {
@@ -1146,6 +1144,18 @@ public class ThemeDisplay
 
 	public boolean isFreeformLayout() {
 		return _freeformLayout;
+	}
+
+	public boolean isHubAction() {
+		return _hubAction;
+	}
+
+	public boolean isHubPartialAction() {
+		return _hubPartialAction;
+	}
+
+	public boolean isHubResource() {
+		return _hubResource;
 	}
 
 	public boolean isI18n() {
@@ -1222,7 +1232,7 @@ public class ThemeDisplay
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	public boolean isShowAddContentIcon() {
@@ -1230,7 +1240,7 @@ public class ThemeDisplay
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	public boolean isShowAddContentIconPermission() {
@@ -1394,7 +1404,7 @@ public class ThemeDisplay
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	public void setFacebookCanvasPageURL(String facebookCanvasPageURL) {
@@ -1403,6 +1413,18 @@ public class ThemeDisplay
 
 	public void setFreeformLayout(boolean freeformLayout) {
 		_freeformLayout = freeformLayout;
+	}
+
+	public void setHubAction(boolean hubAction) {
+		_hubAction = hubAction;
+	}
+
+	public void setHubPartialAction(boolean hubPartialAction) {
+		_hubPartialAction = hubPartialAction;
+	}
+
+	public void setHubResource(boolean resource) {
+		_hubResource = resource;
 	}
 
 	public void setI18nLanguageId(String i18nLanguageId) {
@@ -1711,14 +1733,14 @@ public class ThemeDisplay
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	public void setShowAddContentIcon(boolean showAddContentIcon) {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	public void setShowAddContentIconPermission(
@@ -1847,7 +1869,7 @@ public class ThemeDisplay
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	public void setURLAddContent(String urlAddContent) {
@@ -1870,7 +1892,7 @@ public class ThemeDisplay
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	public void setURLMyAccount(PortletURL urlMyAccount) {
@@ -1878,7 +1900,7 @@ public class ThemeDisplay
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	public void setURLPageSettings(PortletURL urlPageSettings) {
@@ -1902,7 +1924,7 @@ public class ThemeDisplay
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	public void setURLUpdateManager(PortletURL urlUpdateManager) {
@@ -2013,12 +2035,15 @@ public class ThemeDisplay
 	private String _doAsUserLanguageId = StringPool.BLANK;
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	private String _facebookCanvasPageURL;
 
 	private boolean _freeformLayout;
+	private boolean _hubAction;
+	private boolean _hubPartialAction;
+	private boolean _hubResource;
 	private boolean _i18n;
 	private String _i18nLanguageId;
 	private String _i18nPath;

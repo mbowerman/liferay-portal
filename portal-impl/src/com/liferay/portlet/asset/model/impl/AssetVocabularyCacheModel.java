@@ -65,10 +65,12 @@ public class AssetVocabularyCacheModel implements CacheModel<AssetVocabulary>,
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(27);
+		StringBundler sb = new StringBundler(29);
 
 		sb.append("{uuid=");
 		sb.append(uuid);
+		sb.append(", externalReferenceCode=");
+		sb.append(externalReferenceCode);
 		sb.append(", vocabularyId=");
 		sb.append(vocabularyId);
 		sb.append(", groupId=");
@@ -107,6 +109,13 @@ public class AssetVocabularyCacheModel implements CacheModel<AssetVocabulary>,
 		}
 		else {
 			assetVocabularyImpl.setUuid(uuid);
+		}
+
+		if (externalReferenceCode == null) {
+			assetVocabularyImpl.setExternalReferenceCode("");
+		}
+		else {
+			assetVocabularyImpl.setExternalReferenceCode(externalReferenceCode);
 		}
 
 		assetVocabularyImpl.setVocabularyId(vocabularyId);
@@ -178,6 +187,7 @@ public class AssetVocabularyCacheModel implements CacheModel<AssetVocabulary>,
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		uuid = objectInput.readUTF();
+		externalReferenceCode = objectInput.readUTF();
 
 		vocabularyId = objectInput.readLong();
 
@@ -204,6 +214,13 @@ public class AssetVocabularyCacheModel implements CacheModel<AssetVocabulary>,
 		}
 		else {
 			objectOutput.writeUTF(uuid);
+		}
+
+		if (externalReferenceCode == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(externalReferenceCode);
 		}
 
 		objectOutput.writeLong(vocabularyId);
@@ -256,6 +273,7 @@ public class AssetVocabularyCacheModel implements CacheModel<AssetVocabulary>,
 	}
 
 	public String uuid;
+	public String externalReferenceCode;
 	public long vocabularyId;
 	public long groupId;
 	public long companyId;

@@ -14,6 +14,8 @@
 
 package com.liferay.portal.kernel.util;
 
+import com.liferay.petra.string.StringPool;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -77,7 +79,7 @@ public class AggregateResourceBundleLoader implements ResourceBundleLoader {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #loadResourceBundle(Locale)}
+	 * @deprecated As of Judson, replaced by {@link #loadResourceBundle(Locale)}
 	 */
 	@Deprecated
 	@Override

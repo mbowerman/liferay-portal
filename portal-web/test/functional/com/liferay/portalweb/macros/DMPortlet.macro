@@ -83,7 +83,7 @@
 			<then>
 				<execute macro="Alert#viewRequestFailedToComplete" />
 
-				<execute function="AssertClick#assertPartialTextClickAt" locator1="Message#ERROR_2" value1="Display style views cannot be empty." />
+				<execute function="AssertClick#assertPartialTextClickAt" locator1="Message#ERROR_1" value1="Display style views cannot be empty." />
 			</then>
 			<else>
 				<execute macro="Alert#viewSuccessMessage" />
@@ -168,14 +168,14 @@
 	<command name="viewDefaultPG">
 		<var name="key_portletName" value="Documents and Media" />
 
-		<execute function="AssertTextEquals" locator1="Portlet#TITLE" value1="Documents and Media" />
+		<execute function="AssertTextEquals#assertTextCaseInsensitive" locator1="Portlet#TITLE" value1="Documents and Media" />
 		<execute function="AssertTextEquals" locator1="Message#EMPTY_INFO" value1="There are no documents or media files in this folder." />
 	</command>
 
 	<command name="viewNoPermissionCP">
 		<var name="key_portletTitle" value="Documents and Media" />
 
-		<execute function="AssertTextEquals" locator1="Home#SITE_ADMINISTRATION_PORTLET_TITLE" value1="Documents and Media" />
+		<execute function="AssertTextEquals#assertTextCaseInsensitive" locator1="Home#SITE_ADMINISTRATION_PORTLET_TITLE" value1="Documents and Media" />
 		<execute function="AssertTextEquals" locator1="Message#EMPTY_INFO" value1="There are no documents or media files in this folder." />
 	</command>
 

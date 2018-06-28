@@ -14,15 +14,22 @@
 
 package com.liferay.poshi.runner.elements;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.liferay.poshi.runner.util.Dom4JUtil;
 
+import java.io.IOException;
+
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.dom4j.Attribute;
 import org.dom4j.Element;
+import org.dom4j.Node;
 
 /**
  * @author Kenji Heigel
  */
-public class ForPoshiElement extends BasePoshiElement {
+public class ForPoshiElement extends PoshiElement {
 
 	@Override
 	public PoshiElement clone(Element element) {
@@ -35,46 +42,45 @@ public class ForPoshiElement extends BasePoshiElement {
 
 	@Override
 	public PoshiElement clone(
-		PoshiElement parentPoshiElement, String readableSyntax) {
+		PoshiElement parentPoshiElement, String poshiScript) {
 
-		if (_isElementType(readableSyntax)) {
-			return new ForPoshiElement(readableSyntax);
+		if (_isElementType(poshiScript)) {
+			return new ForPoshiElement(parentPoshiElement, poshiScript);
 		}
 
 		return null;
 	}
 
 	@Override
-	public void parseReadableSyntax(String readableSyntax) {
-		for (String readableBlock : getReadableBlocks(readableSyntax)) {
-			if (readableBlock.startsWith("for (")) {
-				String parentheticalContent = getParentheticalContent(
-					readableBlock);
+	public void parsePoshiScript(String poshiScript) {
+		String blockName = getBlockName(poshiScript);
 
-				String[] parentheticalContentArray = parentheticalContent.split(
-					":");
+		String parentheticalContent = getParentheticalContent(blockName);
 
-				String param = parentheticalContentArray[0].trim();
+		Matcher matcher = _blockParameterPattern.matcher(parentheticalContent);
 
-				addAttribute("param", param);
+		if (matcher.find()) {
+			addAttribute("param", matcher.group(1));
 
-				String list = getQuotedContent(
-					parentheticalContentArray[1].trim());
+			addAttribute(matcher.group(2), matcher.group(3));
+		}
+		else {
+			throw new RuntimeException(
+				"Invalid parameter syntax:\n" + parentheticalContent);
+		}
 
-				addAttribute("list", list);
+		String blockContent = getBlockContent(poshiScript);
 
-				continue;
-			}
-
-			add(PoshiElementFactory.newPoshiElement(this, readableBlock));
+		for (String poshiScriptSnippet : getPoshiScriptSnippets(blockContent)) {
+			add(PoshiNodeFactory.newPoshiNode(this, poshiScriptSnippet.trim()));
 		}
 	}
 
 	@Override
-	public String toReadableSyntax() {
-		String readableSyntax = super.toReadableSyntax();
+	public String toPoshiScript() {
+		String poshiScript = super.toPoshiScript();
 
-		return "\n" + createReadableBlock(readableSyntax);
+		return "\n" + createPoshiScriptSnippet(poshiScript);
 	}
 
 	protected ForPoshiElement() {
@@ -82,76 +88,71 @@ public class ForPoshiElement extends BasePoshiElement {
 
 	protected ForPoshiElement(Element element) {
 		super(_ELEMENT_NAME, element);
+
+		initTypeAttributeName(element);
 	}
 
-	protected ForPoshiElement(String readableSyntax) {
-		super(_ELEMENT_NAME, readableSyntax);
+	protected ForPoshiElement(List<Attribute> attributes, List<Node> nodes) {
+		super(_ELEMENT_NAME, attributes, nodes);
+	}
+
+	protected ForPoshiElement(
+		PoshiElement parentPoshiElement, String poshiScript) {
+
+		super(_ELEMENT_NAME, parentPoshiElement, poshiScript);
 	}
 
 	@Override
 	protected String getBlockName() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("for (");
+		sb.append("for (var ");
 		sb.append(attributeValue("param"));
-		sb.append(" : \"");
-		sb.append(attributeValue("list"));
+		sb.append(" : ");
+		sb.append(typeAttributeName);
+		sb.append(" \"");
+		sb.append(attributeValue(typeAttributeName));
 		sb.append("\")");
 
 		return sb.toString();
 	}
 
-	protected List<String> getReadableBlocks(String readableSyntax) {
-		StringBuilder sb = new StringBuilder();
+	protected void initTypeAttributeName(Element element) {
+		if (element.attribute("list") != null) {
+			typeAttributeName = "list";
 
-		List<String> readableBlocks = new ArrayList<>();
-
-		for (String line : readableSyntax.split("\n")) {
-			String trimmedLine = line.trim();
-
-			if (trimmedLine.startsWith("for (")) {
-				readableBlocks.add(line);
-
-				continue;
-			}
-
-			if (!trimmedLine.startsWith("else {")) {
-				String readableBlock = sb.toString();
-
-				readableBlock = readableBlock.trim();
-
-				if (isValidReadableBlock(readableBlock)) {
-					readableBlocks.add(readableBlock);
-
-					sb.setLength(0);
-				}
-			}
-
-			sb.append(line);
-			sb.append("\n");
+			return;
 		}
 
-		return readableBlocks;
+		if (element.attribute("table") != null) {
+			typeAttributeName = "table";
+
+			return;
+		}
+
+		try {
+			throw new IllegalArgumentException(
+				"Invalid 'for' element " + Dom4JUtil.format(element));
+		}
+		catch (IOException ioe) {
+			throw new IllegalArgumentException("Invalid 'for' element", ioe);
+		}
 	}
 
-	private boolean _isElementType(String readableSyntax) {
-		readableSyntax = readableSyntax.trim();
+	protected String typeAttributeName;
 
-		if (!isBalancedReadableSyntax(readableSyntax)) {
-			return false;
-		}
-
-		if (!readableSyntax.startsWith("for (")) {
-			return false;
-		}
-
-		if (!readableSyntax.endsWith("}")) {
-			return false;
-		}
-
-		return true;
+	private boolean _isElementType(String poshiScript) {
+		return isValidPoshiScriptBlock(_blockNamePattern, poshiScript);
 	}
 
 	private static final String _ELEMENT_NAME = "for";
+
+	private static final String _POSHI_SCRIPT_KEYWORD = _ELEMENT_NAME;
+
+	private static final Pattern _blockNamePattern = Pattern.compile(
+		"^" + _POSHI_SCRIPT_KEYWORD + BLOCK_NAME_PARAMETER_REGEX,
+		Pattern.DOTALL);
+	private static final Pattern _blockParameterPattern = Pattern.compile(
+		"var[\\s]*([\\w]*)[\\s]*:[\\s]*([\\w]*)[\\s]*\"(.*)\"");
 
 }

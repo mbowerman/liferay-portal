@@ -14,17 +14,17 @@
 
 package com.liferay.portal.kernel.process.log;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.portal.kernel.process.ProcessCallable;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectOutputStream;
 
 /**
- * @author Shuyang Zhou
- * @deprecated As of 7.0.0, with no direct replacement
+ * @author     Shuyang Zhou
+ * @deprecated As of Judson, with no direct replacement
  */
 @Deprecated
 public class ProcessOutputStream extends UnsyncByteArrayOutputStream {

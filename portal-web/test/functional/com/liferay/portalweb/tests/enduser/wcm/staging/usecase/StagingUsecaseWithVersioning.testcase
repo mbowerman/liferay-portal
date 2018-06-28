@@ -19,9 +19,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -75,9 +75,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicChildPage">
@@ -120,9 +120,9 @@
 		<execute macro="Navigator#gotoStagedView" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -143,7 +143,7 @@
 
 		<execute macro="Staging#enablePageInSitePagesVariation">
 			<var name="pageName" value="Test Page Name" />
-			<var name="privacy" value="Public" />
+			<var name="privacy" value="Public Pages" />
 			<var name="sitePagesVariationName" value="Main Variation" />
 		</execute>
 
@@ -153,9 +153,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#deletePage">
@@ -165,9 +165,9 @@
 
 	<command name="PublicationWithoutReadyForPublication" priority="4">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -183,16 +183,16 @@
 			<var name="portletName" value="Hello World" />
 		</execute>
 
-		<execute macro="Staging#gotoPublishToLive" >
+		<execute macro="Staging#gotoPublishToLive">
 			<var name="pleaseDoNotMarkAsReady" value="true" />
 		</execute>
 
 		<execute macro="Staging#publishToLive" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="Navigator#openSiteURL">
@@ -201,7 +201,7 @@
 
 		<execute macro="Page#viewNoPage">
 			<var name="pageName" value="Staging Test Page 2" />
-			<var name="privacy" value="Public" />
+			<var name="privacy" value="Public Pages" />
 		</execute>
 	</command>
 
@@ -313,7 +313,7 @@
 	</command>
 
 	<command name="StagingBlogsCP" priority="5">
-		<property name="portal.acceptance" value="pending" />
+		<property name="portal.acceptance" value="quarantine" />
 		<property name="testray.component.names" value="Training" />
 
 		<execute macro="ProductMenu#gotoPortlet">
@@ -392,12 +392,12 @@
 
 		<execute function="IsElementNotPresent" locator1="Staging#PAGE_VARIATION" />
 
-		<execute macro="Staging#changePageVariationInHistory" >
+		<execute macro="Staging#changePageVariationInHistory">
 			<var name="pageVariationName" value="All Page Variations" />
 			<var name="pageVariationNameMenulistName" value="Wednesday" />
 		</execute>
 
-		<execute macro="Staging#viewHistoryVersionPG" >
+		<execute macro="Staging#viewHistoryVersionPG">
 			<var name="historyVersionName" value="Wednesday" />
 		</execute>
 
@@ -483,7 +483,7 @@
 
 		<execute macro="ProductMenu#gotoLiveSite" />
 
-		<execute function="IsElementPresent" locator1="Home#PORTLET" >
+		<execute function="IsElementPresent" locator1="Home#PORTLET">
 			<var name="portletTypeKey" value="YouTube" />
 			<var name="portletTypeKey" value="Web Content Display" />
 		</execute>
@@ -500,6 +500,7 @@
 
 		<execute macro="Page#changeLogoViaPageCP">
 			<var name="logoFile" value="Document_2.png" />
+			<var name="pageName" value="Staging Test Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoStagedSitePage">
@@ -572,9 +573,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -648,9 +649,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -691,7 +692,7 @@
 
 		<execute macro="Staging#enablePageInSitePagesVariation">
 			<var name="pageName" value="Page 2" />
-			<var name="privacy" value="Public" />
+			<var name="privacy" value="Public Pages" />
 			<var name="sitePagesVariationName" value="Summer" />
 		</execute>
 
@@ -718,7 +719,7 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute function="IsElementPresent" locator1="Home#PORTLET" >
+		<execute function="IsElementPresent" locator1="Home#PORTLET">
 			<var name="portletTypeKey" value="Web Content Display" />
 		</execute>
 
@@ -837,7 +838,7 @@
 			<var name="contentDateRange" value="Last" />
 		</execute>
 
-		<execute function="AssertChecked" locator1="Checkbox#ANY_CHECKBOX" value1="Web Content" >
+		<execute function="AssertChecked#assertCheckedNotVisible" locator1="Checkbox#ANY_CHECKBOX" value1="Web Content">
 			<var name="checkboxName" value="Web Content" />
 		</execute>
 
@@ -872,9 +873,9 @@
 		<execute macro="Navigator#gotoStagedView" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -893,9 +894,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="LexiconEntry#gotoEntryMenuItem">

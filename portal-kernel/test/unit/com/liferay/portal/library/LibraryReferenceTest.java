@@ -15,9 +15,9 @@
 package com.liferay.portal.library;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.util.PropertiesUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -69,7 +69,8 @@ public class LibraryReferenceTest {
 		_portalPath = Paths.get(System.getProperty("user.dir"));
 
 		_initGitIgnoreJars();
-		_initLibJars();
+		_initLibJars(LIB_DIR_NAME);
+		_initLibJars(LIB_PRE_DIR_NAME);
 		_initModuleSourceDirs();
 
 		DocumentBuilderFactory documentBuilderFactory =
@@ -208,6 +209,13 @@ public class LibraryReferenceTest {
 		}
 
 		for (String jar : libJars) {
+			if ((fileName.equals(_ECLIPSE_FILE_NAME) ||
+				 fileName.equals(_NETBEANS_PROPERTIES_FILE_NAME)) &&
+				_ideExcludeJars.contains(jar)) {
+
+				continue;
+			}
+
 			if (fileName.equals(_VERSIONS_FILE_NAME) &&
 				(_excludeJars.contains(jar) ||
 				 _libDependencyJars.contains(jar))) {
@@ -265,15 +273,17 @@ public class LibraryReferenceTest {
 
 	protected static final String LIB_DIR_NAME = "lib";
 
+	protected static final String LIB_PRE_DIR_NAME = "tmp/lib-pre";
+
 	private static void _initEclipse(DocumentBuilder documentBuilder)
 		throws Exception {
 
 		Document document = documentBuilder.parse(new File(_ECLIPSE_FILE_NAME));
 
-		NodeList nodelist = document.getElementsByTagName("classpathentry");
+		NodeList nodeList = document.getElementsByTagName("classpathentry");
 
-		for (int i = 0; i < nodelist.getLength(); i++) {
-			Node node = nodelist.item(i);
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node node = nodeList.item(i);
 
 			NamedNodeMap namedNodeMap = node.getAttributes();
 
@@ -331,10 +341,11 @@ public class LibraryReferenceTest {
 		}
 	}
 
-	private static void _initLibJars() throws IOException {
-		Path libDirPath = Paths.get(LIB_DIR_NAME);
+	private static void _initLibJars(String dirName) throws IOException {
+		Path libDirPath = Paths.get(dirName);
 
 		_readLines(_excludeJars, libDirPath.resolve("versions-ignore.txt"));
+		_readLines(_ideExcludeJars, libDirPath.resolve("ide-ignore.txt"));
 
 		Files.walkFileTree(
 			libDirPath,
@@ -452,10 +463,10 @@ public class LibraryReferenceTest {
 			_netBeansJars,
 			StringUtil.split(properties.getProperty("javac.classpath"), ':'));
 
-		NodeList nodelist = document.getElementsByTagName("source-folder");
+		NodeList nodeList = document.getElementsByTagName("source-folder");
 
-		for (int i = 0; i < nodelist.getLength(); i++) {
-			Element element = (Element)nodelist.item(i);
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Element element = (Element)nodeList.item(i);
 
 			NodeList locationNodeList = element.getElementsByTagName(
 				"location");
@@ -478,10 +489,10 @@ public class LibraryReferenceTest {
 
 		Document document = documentBuilder.parse(new File(fileName));
 
-		NodeList nodelist = document.getElementsByTagName("file-name");
+		NodeList nodeList = document.getElementsByTagName("file-name");
 
-		for (int i = 0; i < nodelist.getLength(); i++) {
-			Node node = nodelist.item(i);
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node node = nodeList.item(i);
 
 			jars.add(node.getTextContent());
 		}
@@ -532,6 +543,7 @@ public class LibraryReferenceTest {
 	private static final Set<String> _eclipseModuleSourceDirs = new HashSet<>();
 	private static final Set<String> _excludeJars = new HashSet<>();
 	private static final Set<String> _gitIgnoreJars = new HashSet<>();
+	private static final Set<String> _ideExcludeJars = new HashSet<>();
 	private static final List<String> _intelliJFileNames = Arrays.asList(
 		"portal-impl/portal-impl.iml", "portal-kernel/portal-kernel.iml",
 		"portal-test-integration/portal-test-integration.iml",

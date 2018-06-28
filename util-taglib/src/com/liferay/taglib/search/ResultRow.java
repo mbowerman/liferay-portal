@@ -14,8 +14,8 @@
 
 package com.liferay.taglib.search;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.search.SearchEntry;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -70,6 +70,7 @@ public class ResultRow
 		_bold = bold;
 		_cssClass = cssClass;
 		_state = state;
+
 		_searchEntries = new ArrayList<>();
 	}
 
@@ -155,7 +156,7 @@ public class ResultRow
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	@Override
@@ -177,7 +178,7 @@ public class ResultRow
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	@Override
@@ -214,7 +215,7 @@ public class ResultRow
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	@Override
@@ -231,7 +232,7 @@ public class ResultRow
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	@Override
@@ -248,7 +249,7 @@ public class ResultRow
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	@Override
@@ -287,7 +288,7 @@ public class ResultRow
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	@Override

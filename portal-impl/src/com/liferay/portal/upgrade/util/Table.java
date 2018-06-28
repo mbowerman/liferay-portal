@@ -14,6 +14,7 @@
 
 package com.liferay.portal.upgrade.util;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.dao.jdbc.postgresql.PostgreSQLJDBCUtil;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -31,7 +32,6 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.Validator;
@@ -138,7 +138,7 @@ public class Table {
 	}
 
 	public void generateTempFile() throws Exception {
-		Connection con = DataAccess.getUpgradeOptimizedConnection();
+		Connection con = DataAccess.getConnection();
 
 		try {
 			generateTempFile(con);
@@ -478,7 +478,7 @@ public class Table {
 	}
 
 	public void populateTable() throws Exception {
-		Connection con = DataAccess.getUpgradeOptimizedConnection();
+		Connection con = DataAccess.getConnection();
 
 		try {
 			populateTable(con);
@@ -666,7 +666,7 @@ public class Table {
 		String sql = sb.toString();
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
+			con = DataAccess.getConnection();
 
 			ps = con.prepareStatement(sql);
 

@@ -14,7 +14,12 @@
 
 package com.liferay.poshi.runner.elements;
 
+import java.util.List;
+import java.util.regex.Pattern;
+
+import org.dom4j.Attribute;
 import org.dom4j.Element;
+import org.dom4j.Node;
 
 /**
  * @author Kenji Heigel
@@ -32,10 +37,10 @@ public class PropertyPoshiElement extends VarPoshiElement {
 
 	@Override
 	public PoshiElement clone(
-		PoshiElement parentPoshiElement, String readableSyntax) {
+		PoshiElement parentPoshiElement, String poshiScript) {
 
-		if (_isElementType(readableSyntax)) {
-			return new PropertyPoshiElement(readableSyntax);
+		if (_isElementType(poshiScript)) {
+			return new PropertyPoshiElement(parentPoshiElement, poshiScript);
 		}
 
 		return null;
@@ -48,28 +53,28 @@ public class PropertyPoshiElement extends VarPoshiElement {
 		super(_ELEMENT_NAME, element);
 	}
 
-	protected PropertyPoshiElement(String readableSyntax) {
-		super(_ELEMENT_NAME, readableSyntax);
+	protected PropertyPoshiElement(
+		List<Attribute> attributes, List<Node> nodes) {
+
+		super(_ELEMENT_NAME, attributes, nodes);
 	}
 
-	private boolean _isElementType(String readableSyntax) {
-		readableSyntax = readableSyntax.trim();
+	protected PropertyPoshiElement(
+		PoshiElement parentPoshiElement, String poshiScript) {
 
-		if (!isBalancedReadableSyntax(readableSyntax)) {
-			return false;
-		}
+		super(_ELEMENT_NAME, parentPoshiElement, poshiScript);
+	}
 
-		if (!readableSyntax.endsWith(";")) {
-			return false;
-		}
-
-		if (!readableSyntax.startsWith("property ")) {
-			return false;
-		}
-
-		return true;
+	private boolean _isElementType(String poshiScript) {
+		return isValidPoshiScriptStatement(_statementPattern, poshiScript);
 	}
 
 	private static final String _ELEMENT_NAME = "property";
+
+	private static final String _POSHI_SCRIPT_KEYWORD = _ELEMENT_NAME;
+
+	private static final Pattern _statementPattern = Pattern.compile(
+		"^" + _POSHI_SCRIPT_KEYWORD + "[\\s]*[\\w\\.-]*" + ASSIGNMENT_REGEX +
+			".*" + STATEMENT_END_REGEX);
 
 }

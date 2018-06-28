@@ -15,11 +15,11 @@
 package com.liferay.source.formatter.checks;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
 import com.liferay.portal.kernel.util.NaturalOrderStringComparator;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.tools.ToolsUtil;
@@ -68,7 +68,7 @@ public class JavaAnnotationsCheck extends BaseFileCheck {
 
 		addMessage(
 			fileName, sb.toString(), "meta_annotations.markdown",
-			getLineCount(content, content.indexOf(matcher.group())));
+			getLineNumber(content, content.indexOf(matcher.group())));
 	}
 
 	private void _checkMetaAnnotationKeys(
@@ -130,6 +130,64 @@ public class JavaAnnotationsCheck extends BaseFileCheck {
 
 		return StringUtil.replaceFirst(
 			annotation, StringPool.PERCENT, StringPool.BLANK, matcher.start());
+	}
+
+	private String _fixSingleValueArray(String annotation) {
+		int x = -1;
+
+		outerLoop:
+		while (true) {
+			x = annotation.indexOf("= {", x + 1);
+
+			if (x == -1) {
+				return annotation;
+			}
+
+			if (ToolsUtil.isInsideQuotes(annotation, x)) {
+				continue;
+			}
+
+			String arrayString = null;
+
+			int y = x;
+
+			while (true) {
+				y = annotation.indexOf("}", y + 1);
+
+				if (y == -1) {
+					return annotation;
+				}
+
+				if (!ToolsUtil.isInsideQuotes(annotation, y)) {
+					arrayString = annotation.substring(x + 2, y + 1);
+
+					if (getLevel(arrayString, "{", "}") == 0) {
+						break;
+					}
+				}
+			}
+
+			y = -1;
+
+			while (true) {
+				y = arrayString.indexOf(",", y + 1);
+
+				if (y == -1) {
+					break;
+				}
+
+				if (!ToolsUtil.isInsideQuotes(arrayString, y)) {
+					continue outerLoop;
+				}
+			}
+
+			String replacement = StringUtil.trim(
+				arrayString.substring(1, arrayString.length() - 1));
+
+			if (Validator.isNotNull(replacement)) {
+				return StringUtil.replace(annotation, arrayString, replacement);
+			}
+		}
 	}
 
 	private String _formatAnnotationParameterProperties(String annotation) {
@@ -239,6 +297,7 @@ public class JavaAnnotationsCheck extends BaseFileCheck {
 			if (newAnnotation.contains(StringPool.OPEN_PARENTHESIS)) {
 				newAnnotation = _fixAnnotationLineBreaks(newAnnotation, indent);
 				newAnnotation = _fixAnnotationMetaTypeProperties(newAnnotation);
+				newAnnotation = _fixSingleValueArray(newAnnotation);
 				newAnnotation = _formatAnnotationParameterProperties(
 					newAnnotation);
 
@@ -276,11 +335,11 @@ public class JavaAnnotationsCheck extends BaseFileCheck {
 		Matcher matcher = _modifierPattern.matcher(content);
 
 		while (matcher.find()) {
-			int lineCount = getLineCount(content, matcher.end());
+			int lineNumber = getLineNumber(content, matcher.end());
 
 			String annotationsBlock = StringPool.BLANK;
 
-			for (int i = lineCount - 1;; i--) {
+			for (int i = lineNumber - 1;; i--) {
 				String line = getLine(content, i);
 
 				if (Validator.isNull(line) ||
@@ -408,7 +467,11 @@ public class JavaAnnotationsCheck extends BaseFileCheck {
 		private String _getPropertyName(String property) {
 			int x = property.indexOf(StringPool.EQUAL);
 
-			return property.substring(0, x);
+			if (x != -1) {
+				return property.substring(0, x);
+			}
+
+			return property;
 		}
 
 		private final String _parameterName;

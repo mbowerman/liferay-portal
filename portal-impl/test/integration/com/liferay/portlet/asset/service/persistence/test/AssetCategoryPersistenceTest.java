@@ -120,6 +120,8 @@ public class AssetCategoryPersistenceTest {
 
 		newAssetCategory.setUuid(RandomTestUtil.randomString());
 
+		newAssetCategory.setExternalReferenceCode(RandomTestUtil.randomString());
+
 		newAssetCategory.setGroupId(RandomTestUtil.nextLong());
 
 		newAssetCategory.setCompanyId(RandomTestUtil.nextLong());
@@ -152,6 +154,8 @@ public class AssetCategoryPersistenceTest {
 
 		Assert.assertEquals(existingAssetCategory.getUuid(),
 			newAssetCategory.getUuid());
+		Assert.assertEquals(existingAssetCategory.getExternalReferenceCode(),
+			newAssetCategory.getExternalReferenceCode());
 		Assert.assertEquals(existingAssetCategory.getCategoryId(),
 			newAssetCategory.getCategoryId());
 		Assert.assertEquals(existingAssetCategory.getGroupId(),
@@ -233,6 +237,14 @@ public class AssetCategoryPersistenceTest {
 		_persistence.countByVocabularyId(RandomTestUtil.nextLong());
 
 		_persistence.countByVocabularyId(0L);
+	}
+
+	@Test
+	public void testCountByG_P() throws Exception {
+		_persistence.countByG_P(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
+
+		_persistence.countByG_P(0L, 0L);
 	}
 
 	@Test
@@ -321,6 +333,15 @@ public class AssetCategoryPersistenceTest {
 	}
 
 	@Test
+	public void testCountByC_ERC() throws Exception {
+		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+
+		_persistence.countByC_ERC(0L, "null");
+
+		_persistence.countByC_ERC(0L, (String)null);
+	}
+
+	@Test
 	public void testFindByPrimaryKeyExisting() throws Exception {
 		AssetCategory newAssetCategory = addAssetCategory();
 
@@ -350,11 +371,12 @@ public class AssetCategoryPersistenceTest {
 
 	protected OrderByComparator<AssetCategory> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("AssetCategory", "uuid",
-			true, "categoryId", true, "groupId", true, "companyId", true,
-			"userId", true, "userName", true, "createDate", true,
-			"modifiedDate", true, "parentCategoryId", true, "leftCategoryId",
-			true, "rightCategoryId", true, "name", true, "title", true,
-			"description", true, "vocabularyId", true, "lastPublishDate", true);
+			true, "externalReferenceCode", true, "categoryId", true, "groupId",
+			true, "companyId", true, "userId", true, "userName", true,
+			"createDate", true, "modifiedDate", true, "parentCategoryId", true,
+			"leftCategoryId", true, "rightCategoryId", true, "name", true,
+			"title", true, "description", true, "vocabularyId", true,
+			"lastPublishDate", true);
 	}
 
 	@Test
@@ -575,6 +597,14 @@ public class AssetCategoryPersistenceTest {
 				existingAssetCategory.getVocabularyId()),
 			ReflectionTestUtil.<Long>invoke(existingAssetCategory,
 				"getOriginalVocabularyId", new Class<?>[0]));
+
+		Assert.assertEquals(Long.valueOf(existingAssetCategory.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(existingAssetCategory,
+				"getOriginalCompanyId", new Class<?>[0]));
+		Assert.assertTrue(Objects.equals(
+				existingAssetCategory.getExternalReferenceCode(),
+				ReflectionTestUtil.invoke(existingAssetCategory,
+					"getOriginalExternalReferenceCode", new Class<?>[0])));
 	}
 
 	protected AssetCategory addAssetCategory() throws Exception {
@@ -583,6 +613,8 @@ public class AssetCategoryPersistenceTest {
 		AssetCategory assetCategory = _persistence.create(pk);
 
 		assetCategory.setUuid(RandomTestUtil.randomString());
+
+		assetCategory.setExternalReferenceCode(RandomTestUtil.randomString());
 
 		assetCategory.setGroupId(RandomTestUtil.nextLong());
 
@@ -834,6 +866,8 @@ public class AssetCategoryPersistenceTest {
 		AssetCategory assetCategory = _persistence.create(pk);
 
 		assetCategory.setUuid(RandomTestUtil.randomString());
+
+		assetCategory.setExternalReferenceCode(RandomTestUtil.randomString());
 		assetCategory.setGroupId(groupId);
 
 		assetCategory.setCompanyId(RandomTestUtil.nextLong());

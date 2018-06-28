@@ -45,6 +45,7 @@ import com.liferay.portal.kernel.service.persistence.impl.TableMapperFactory;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -56,6 +57,7 @@ import com.liferay.portal.model.impl.RoleModelImpl;
 import java.io.Serializable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -5734,13 +5736,6 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 					result = role;
 
 					cacheResult(role);
-
-					if ((role.getCompanyId() != companyId) ||
-							(role.getName() == null) ||
-							!role.getName().equals(name)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_C_N,
-							finderArgs, role);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -8630,13 +8625,6 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 					result = role;
 
 					cacheResult(role);
-
-					if ((role.getCompanyId() != companyId) ||
-							(role.getClassNameId() != classNameId) ||
-							(role.getClassPK() != classPK)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_C_C_C,
-							finderArgs, role);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -9207,8 +9195,6 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 	@Override
 	protected Role removeImpl(Role role) {
-		role = toUnwrappedModel(role);
-
 		roleToGroupTableMapper.deleteLeftPrimaryKeyTableMappings(role.getPrimaryKey());
 
 		roleToUserTableMapper.deleteLeftPrimaryKeyTableMappings(role.getPrimaryKey());
@@ -9242,9 +9228,23 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 	@Override
 	public Role updateImpl(Role role) {
-		role = toUnwrappedModel(role);
-
 		boolean isNew = role.isNew();
+
+		if (!(role instanceof RoleModelImpl)) {
+			InvocationHandler invocationHandler = null;
+
+			if (ProxyUtil.isProxyClass(role.getClass())) {
+				invocationHandler = ProxyUtil.getInvocationHandler(role);
+
+				throw new IllegalArgumentException(
+					"Implement ModelWrapper in role proxy " +
+					invocationHandler.getClass());
+			}
+
+			throw new IllegalArgumentException(
+				"Implement ModelWrapper in custom Role implementation " +
+				role.getClass());
+		}
 
 		RoleModelImpl roleModelImpl = (RoleModelImpl)role;
 
@@ -9543,35 +9543,6 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		role.resetOriginalValues();
 
 		return role;
-	}
-
-	protected Role toUnwrappedModel(Role role) {
-		if (role instanceof RoleImpl) {
-			return role;
-		}
-
-		RoleImpl roleImpl = new RoleImpl();
-
-		roleImpl.setNew(role.isNew());
-		roleImpl.setPrimaryKey(role.getPrimaryKey());
-
-		roleImpl.setMvccVersion(role.getMvccVersion());
-		roleImpl.setUuid(role.getUuid());
-		roleImpl.setRoleId(role.getRoleId());
-		roleImpl.setCompanyId(role.getCompanyId());
-		roleImpl.setUserId(role.getUserId());
-		roleImpl.setUserName(role.getUserName());
-		roleImpl.setCreateDate(role.getCreateDate());
-		roleImpl.setModifiedDate(role.getModifiedDate());
-		roleImpl.setClassNameId(role.getClassNameId());
-		roleImpl.setClassPK(role.getClassPK());
-		roleImpl.setName(role.getName());
-		roleImpl.setTitle(role.getTitle());
-		roleImpl.setDescription(role.getDescription());
-		roleImpl.setType(role.getType());
-		roleImpl.setSubtype(role.getSubtype());
-
-		return roleImpl;
 	}
 
 	/**

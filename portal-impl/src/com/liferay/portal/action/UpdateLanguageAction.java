@@ -15,6 +15,7 @@
 package com.liferay.portal.action;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Contact;
 import com.liferay.portal.kernel.model.Group;
@@ -25,7 +26,6 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.util.PropsValues;
@@ -54,8 +54,6 @@ public class UpdateLanguageAction extends Action {
 			HttpServletRequest request, HttpServletResponse response)
 		throws Exception {
 
-		HttpSession session = request.getSession();
-
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
@@ -82,6 +80,8 @@ public class UpdateLanguageAction extends Action {
 					contact.getFacebookSn(), contact.getJabberSn(),
 					contact.getSkypeSn(), contact.getTwitterSn());
 			}
+
+			HttpSession session = request.getSession();
 
 			session.setAttribute(Globals.LOCALE_KEY, locale);
 

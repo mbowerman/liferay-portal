@@ -147,6 +147,8 @@ fi
 SUBREPO_SEARCH_PARAMETERS=(
 	"7.0.x:../..:modules"
 	"7.0.x-private:../../../liferay-portal-ee:modules/private"
+	"7.1.x:../..:modules"
+	"7.1.x-private:../../../liferay-portal-ee:modules/private"
 	"master-private:../../../liferay-portal-ee:modules/private"
 	"master:../..:modules"
 )
@@ -165,6 +167,7 @@ then
 	then
 		VALID_BRANCHES="
 7.0.x
+7.1.x
 master
 "
 
@@ -394,7 +397,7 @@ do
 
 	if [[ -z "$(echo "${BRANCH_JSON}" | grep '"sha"')" ]]
 	then
-		error "Failed to retrieve the branch information for ${BRANCH} via the GitHub API."
+		error "Failed to retrieve the branch information for ${BRANCH} via the GitHub API at liferay/${SUBREPO}:${BRANCH}."
 	fi
 
 	CURRENT_TREE_URL="$(echo "${BRANCH_JSON}" | grep '/git/trees/' | sed 's/"[^"]*$//' | sed 's/.*"//')"
@@ -415,7 +418,7 @@ do
 
 	if [[ -z "$(echo "${TREE_CONTENT}" | grep "\"${CURRENT_TREE_URL}\"")" ]]
 	then
-		error "Failed to retrieve the tree content for ${BRANCH} via the GitHub API."
+		error "Failed to retrieve the tree content for ${BRANCH} via the GitHub API at liferay/${SUBREPO}:${BRANCH}."
 	fi
 
 	GRADLEW_BAT_REMOTE_SHA="$(echo "${TREE_CONTENT}" | grep '"gradlew.bat"' | sed 's/.*"sha":"//' | sed 's/".*//')"

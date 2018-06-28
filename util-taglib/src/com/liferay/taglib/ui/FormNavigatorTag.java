@@ -40,7 +40,7 @@ public class FormNavigatorTag extends IncludeTag {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	public void setCategoryNames(String[] categoryNames) {
@@ -48,7 +48,7 @@ public class FormNavigatorTag extends IncludeTag {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	public void setCategorySections(String[][] categorySections) {
@@ -80,7 +80,7 @@ public class FormNavigatorTag extends IncludeTag {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	public void setJspPath(String jspPath) {
@@ -97,6 +97,8 @@ public class FormNavigatorTag extends IncludeTag {
 
 	@Override
 	protected void cleanUp() {
+		super.cleanUp();
+
 		_backURL = null;
 		_categoryNames = null;
 		_categorySections = null;

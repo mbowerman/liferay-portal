@@ -31,7 +31,7 @@ import com.liferay.portal.kernel.util.ReferenceRegistry;
  * @see ResourceBlockPermissionLocalService
  * @see com.liferay.portal.service.base.ResourceBlockPermissionLocalServiceBaseImpl
  * @see com.liferay.portal.service.impl.ResourceBlockPermissionLocalServiceImpl
- * @deprecated As of 7.0.0, with no direct replacement
+ * @deprecated As of Judson, with no direct replacement
  * @generated
  */
 @Deprecated
@@ -201,23 +201,22 @@ public class ResourceBlockPermissionLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link
+	* @deprecated As of Wilberforce, replaced by {@link
 	#getAvailableResourceBlockPermissionActionIds(String, long,
 	List)}
 	*/
 	@Deprecated
-	public static java.util.Map<java.lang.Long, java.util.Set<java.lang.String>> getAvailableResourceBlockPermissionActionIds(
-		long[] roleIds, java.lang.String name, long primKey,
-		java.util.List<java.lang.String> actionIds)
+	public static java.util.Map<Long, java.util.Set<String>> getAvailableResourceBlockPermissionActionIds(
+		long[] roleIds, String name, long primKey,
+		java.util.List<String> actionIds)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .getAvailableResourceBlockPermissionActionIds(roleIds, name,
 			primKey, actionIds);
 	}
 
-	public static java.util.Map<java.lang.Long, java.util.Set<java.lang.String>> getAvailableResourceBlockPermissionActionIds(
-		java.lang.String name, long primKey,
-		java.util.List<java.lang.String> actionIds)
+	public static java.util.Map<Long, java.util.Set<String>> getAvailableResourceBlockPermissionActionIds(
+		String name, long primKey, java.util.List<String> actionIds)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .getAvailableResourceBlockPermissionActionIds(name, primKey,
@@ -233,7 +232,7 @@ public class ResourceBlockPermissionLocalServiceUtil {
 	*
 	* @return the OSGi service identifier
 	*/
-	public static java.lang.String getOSGiServiceIdentifier() {
+	public static String getOSGiServiceIdentifier() {
 		return getService().getOSGiServiceIdentifier();
 	}
 

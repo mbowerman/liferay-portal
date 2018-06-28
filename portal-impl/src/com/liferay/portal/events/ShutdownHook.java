@@ -14,9 +14,9 @@
 
 package com.liferay.portal.events;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.util.Map;
 
@@ -72,9 +72,9 @@ public class ShutdownHook implements Runnable {
 			sb.append(thread.getState());
 			sb.append("\n");
 
-			for (int i = 0; i < elements.length; i++) {
+			for (StackTraceElement element : elements) {
 				sb.append("\t");
-				sb.append(elements[i]);
+				sb.append(element);
 				sb.append("\n");
 			}
 

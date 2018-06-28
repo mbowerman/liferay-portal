@@ -48,12 +48,10 @@ public class LayoutRevisionLocalServiceWrapper
 	public com.liferay.portal.kernel.model.LayoutRevision addLayoutRevision(
 		long userId, long layoutSetBranchId, long layoutBranchId,
 		long parentLayoutRevisionId, boolean head, long plid,
-		long portletPreferencesPlid, boolean privateLayout,
-		java.lang.String name, java.lang.String title,
-		java.lang.String description, java.lang.String keywords,
-		java.lang.String robots, java.lang.String typeSettings,
-		boolean iconImage, long iconImageId, java.lang.String themeId,
-		java.lang.String colorSchemeId, java.lang.String css,
+		long portletPreferencesPlid, boolean privateLayout, String name,
+		String title, String description, String keywords, String robots,
+		String typeSettings, boolean iconImage, long iconImageId,
+		String themeId, String colorSchemeId, String css,
 		ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _layoutRevisionLocalService.addLayoutRevision(userId,
@@ -245,7 +243,7 @@ public class LayoutRevisionLocalServiceWrapper
 	}
 
 	/**
-	* @deprecated As of 7.0.0, with no direct replacement
+	* @deprecated As of Judson, with no direct replacement
 	*/
 	@Deprecated
 	@Override
@@ -310,7 +308,7 @@ public class LayoutRevisionLocalServiceWrapper
 	}
 
 	/**
-	* @deprecated As of 7.0.0, with no direct replacement
+	* @deprecated As of Judson, with no direct replacement
 	*/
 	@Deprecated
 	@Override
@@ -357,6 +355,13 @@ public class LayoutRevisionLocalServiceWrapper
 		long layoutSetBranchId, boolean head) {
 		return _layoutRevisionLocalService.getLayoutRevisions(layoutSetBranchId,
 			head);
+	}
+
+	@Override
+	public java.util.List<com.liferay.portal.kernel.model.LayoutRevision> getLayoutRevisions(
+		long layoutSetBranchId, boolean head, int status) {
+		return _layoutRevisionLocalService.getLayoutRevisions(layoutSetBranchId,
+			head, status);
 	}
 
 	@Override
@@ -427,7 +432,7 @@ public class LayoutRevisionLocalServiceWrapper
 	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getOSGiServiceIdentifier() {
+	public String getOSGiServiceIdentifier() {
 		return _layoutRevisionLocalService.getOSGiServiceIdentifier();
 	}
 
@@ -452,12 +457,10 @@ public class LayoutRevisionLocalServiceWrapper
 
 	@Override
 	public com.liferay.portal.kernel.model.LayoutRevision updateLayoutRevision(
-		long userId, long layoutRevisionId, long layoutBranchId,
-		java.lang.String name, java.lang.String title,
-		java.lang.String description, java.lang.String keywords,
-		java.lang.String robots, java.lang.String typeSettings,
-		boolean iconImage, long iconImageId, java.lang.String themeId,
-		java.lang.String colorSchemeId, java.lang.String css,
+		long userId, long layoutRevisionId, long layoutBranchId, String name,
+		String title, String description, String keywords, String robots,
+		String typeSettings, boolean iconImage, long iconImageId,
+		String themeId, String colorSchemeId, String css,
 		ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _layoutRevisionLocalService.updateLayoutRevision(userId,

@@ -15,11 +15,11 @@
 package com.liferay.portal.tools;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.xml.SAXReaderFactory;
@@ -30,6 +30,7 @@ import de.hunsicker.jalopy.storage.Convention;
 import de.hunsicker.jalopy.storage.ConventionKeys;
 import de.hunsicker.jalopy.storage.Environment;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 
@@ -240,7 +241,7 @@ public class ToolsUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Judson, replaced by {@link
 	 *             #stripFullyQualifiedClassNames(String, String)}
 	 */
 	@Deprecated
@@ -370,7 +371,8 @@ public class ToolsUtil {
 		throws IOException {
 
 		writeFile(
-			file, content, author, jalopySettings, modifiedFileNames, null);
+			file, content, null, author, jalopySettings, modifiedFileNames,
+			null);
 	}
 
 	public static void writeFile(
@@ -378,6 +380,29 @@ public class ToolsUtil {
 			Map<String, Object> jalopySettings, Set<String> modifiedFileNames,
 			String packagePath)
 		throws IOException {
+
+		writeFile(
+			file, content, null, author, jalopySettings, modifiedFileNames,
+			packagePath);
+	}
+
+	public static void writeFile(
+			File file, String content, String author,
+			Set<String> modifiedFileNames)
+		throws IOException {
+
+		writeFile(file, content, author, null, modifiedFileNames);
+	}
+
+	public static void writeFile(
+			File file, String content, String header, String author,
+			Map<String, Object> jalopySettings, Set<String> modifiedFileNames,
+			String packagePath)
+		throws IOException {
+
+		if (!file.exists()) {
+			_write(file, StringPool.BLANK);
+		}
 
 		if (Validator.isNull(packagePath)) {
 			packagePath = getPackagePath(file);
@@ -391,10 +416,6 @@ public class ToolsUtil {
 
 		content = importsFormatter.format(content, packagePath, className);
 
-		File tempFile = new File(_TMP_DIR, "ServiceBuilder.temp");
-
-		_write(tempFile, content);
-
 		// Beautify
 
 		StringBuffer sb = new StringBuffer();
@@ -402,7 +423,8 @@ public class ToolsUtil {
 		Jalopy jalopy = new Jalopy();
 
 		jalopy.setFileFormat(FileFormat.UNIX);
-		jalopy.setInput(tempFile);
+		jalopy.setInput(
+			new ByteArrayInputStream(content.getBytes()), file.getPath());
 		jalopy.setOutput(sb);
 
 		File jalopyXmlFile = new File("tools/jalopy.xml");
@@ -456,6 +478,10 @@ public class ToolsUtil {
 
 		Convention convention = Convention.getInstance();
 
+		if (Validator.isNotNull(header)) {
+			convention.put(ConventionKeys.HEADER_TEXT, header);
+		}
+
 		String classMask = "/**\n * @author $author$\n*/";
 
 		convention.put(
@@ -495,19 +521,9 @@ public class ToolsUtil {
 
 		writeFileRaw(file, newContent, modifiedFileNames);
 
-		tempFile.deleteOnExit();
-
 		if (failOnFormatError && !formatSuccess) {
 			throw new IOException("Unable to beautify " + file);
 		}
-	}
-
-	public static void writeFile(
-			File file, String content, String author,
-			Set<String> modifiedFileNames)
-		throws IOException {
-
-		writeFile(file, content, author, null, modifiedFileNames);
 	}
 
 	public static void writeFileRaw(
@@ -659,7 +675,5 @@ public class ToolsUtil {
 
 		Files.write(path, s.getBytes(StandardCharsets.UTF_8));
 	}
-
-	private static final String _TMP_DIR = System.getProperty("java.io.tmpdir");
 
 }

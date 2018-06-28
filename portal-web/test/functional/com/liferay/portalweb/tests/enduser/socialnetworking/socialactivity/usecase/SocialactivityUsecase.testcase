@@ -1,5 +1,5 @@
 <definition component-name="portal-social-networking">
-	<property name="portal.release" value="true" />
+	<property name="portal.release" value="false" />
 	<property name="portal.upstream" value="true" />
 	<property name="custom.properties" value="default.layout.template.id=1_column" />
 	<property name="testray.main.component.name" value="Social Networking" />
@@ -19,7 +19,7 @@
 				<execute macro="PortalInstances#tearDownCP" />
 			</then>
 			<else>
-				<!--There is no need for a SocialActivity#tearDownCP, as the User Statistics will not be reset and Jenkins does not run teardowns.-->
+				<!-- There is no need for a SocialActivity#tearDownCP, as the User Statistics will not be reset and Jenkins does not run teardowns. -->
 
 				<execute macro="User#firstLoginPG" />
 
@@ -91,13 +91,21 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Social Activity Page" />
+			<var name="sitePageType" value="Widget Page" />
+		</execute>
+
+		<execute macro="SitePages#configurePage">
+			<var name="columnName" value="1 Column" />
+			<var name="pageName" value="Social Activity Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -113,13 +121,21 @@
 		<execute function="AssertTextEquals" locator1="Portlet#BODY" value1="There are no active users for this period." />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Blogs Page" />
+			<var name="sitePageType" value="Widget Page" />
+		</execute>
+
+		<execute macro="SitePages#configurePage">
+			<var name="columnName" value="1 Column" />
+			<var name="pageName" value="Blogs Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -280,115 +296,23 @@
 		</execute>
 	</command>
 
-	<command name="Localization" priority="4">
-		<property name="test.name.skip.portal.instance" value="SocialactivityUsecase#Localization" />
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
-			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
-		</execute>
-
-		<execute macro="SitePages#addPublicPage">
-			<var name="pageName" value="Social Activity Page" />
-		</execute>
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Social Activity Page" />
-		</execute>
-
-		<execute macro="Portlet#addPG">
-			<var name="portletName" value="Language Selector" />
-		</execute>
-
-		<execute macro="ProductMenuHelper#expandPanel">
-			<var name="panel" value="Control Panel" />
-		</execute>
-
-		<execute macro="LanguagePortlet#selectLanguagePG">
-			<var name="language" value="French (France)" />
-		</execute>
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Social Activity Page" />
-		</execute>
-
-		<execute macro="Page#gotoSALocalizedCP">
-			<var name="adminLocalized" value="Administration du portail" />
-			<var name="portletCategoryName" value="Paramètres" />
-			<var name="portletName" value="Activité sociale" />
-		</execute>
-
-		<execute function="AssertVisible" locator1="Portlet#HEADER" />
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Social Activity Page" />
-		</execute>
-
-		<execute macro="LanguagePortlet#selectLanguagePG">
-			<var name="language" value="Japanese (Japan)" />
-		</execute>
-
-		<execute macro="Page#gotoSALocalizedCP">
-			<var name="adminLocalized" value="システム管理" />
-			<var name="portletCategoryName" value="編集" />
-			<var name="portletName" value="ソーシャルアクティビティ" />
-		</execute>
-
-		<execute function="AssertVisible" locator1="Portlet#HEADER" />
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Social Activity Page" />
-		</execute>
-
-		<execute macro="LanguagePortlet#selectLanguagePG">
-			<var name="language" value="Portuguese (Brazil)" />
-		</execute>
-
-		<execute macro="Page#gotoSALocalizedCP">
-			<var name="adminLocalized" value="Administração" />
-			<var name="portletCategoryName" value="Configurar" />
-			<var name="portletName" value="Atividade Social" />
-		</execute>
-
-		<execute function="AssertVisible" locator1="Portlet#HEADER" />
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Social Activity Page" />
-		</execute>
-
-		<execute macro="LanguagePortlet#selectLanguagePG">
-			<var name="language" value="English (United States)" />
-		</execute>
-
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Configuration" />
-			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Social Activity" />
-		</execute>
-
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="My Account" />
-			<var name="panel" value="User" />
-			<var name="portlet" value="Account Settings" />
-		</execute>
-
-		<execute function="AssertSelectedLabel" locator1="MyAccount#LANGUAGE_SELECT" value1="English (United States)" />
-	</command>
-
 	<command name="SaveUserStatisticsConfiguration" priority="4">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="User Statistics Page" />
+			<var name="sitePageType" value="Widget Page" />
+		</execute>
+
+		<execute macro="SitePages#configurePage">
+			<var name="columnName" value="1 Column" />
+			<var name="pageName" value="User Statistics Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -442,13 +366,21 @@
 
 	<command name="ViewActivityViaGroupStatistics" priority="4">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Group Statistics Page" />
+			<var name="sitePageType" value="Widget Page" />
+		</execute>
+
+		<execute macro="SitePages#configurePage">
+			<var name="columnName" value="1 Column" />
+			<var name="pageName" value="Group Statistics Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -461,7 +393,7 @@
 
 		<var name="key_portletName" value="Group Statistics" />
 
-		<execute function="AssertTextEquals" locator1="Portlet#BODY" value1="Please configure this portlet and select at least one activity counter." />
+		<execute function="AssertTextEquals" locator1="Portlet#BODY" value1="Please configure this widget and select at least one activity counter." />
 
 		<execute macro="SocialActivity#updateGroupStatisticsConfiguration">
 			<var name="chartType" value="column diagram" />
@@ -482,9 +414,7 @@
 
 		<execute macro="Navigator#openURL" />
 
-		<var name="blogsEntryCounterList" value="1,2,3" />
-
-		<for list="${blogsEntryCounterList}" param="entryCount" >
+		<for list="1,2,3" param="entryCount">
 			<execute macro="Navigator#openURL" />
 
 			<execute macro="ProductMenu#gotoPortlet">

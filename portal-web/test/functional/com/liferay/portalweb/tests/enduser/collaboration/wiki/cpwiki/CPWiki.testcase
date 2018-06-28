@@ -25,96 +25,6 @@
 		</if>
 	</tear-down>
 
-	<command name="AddChildPageFormatMediaWiki" priority="4">
-		<property name="osgi.app.includes" value="wiki-engine-mediawiki" />
-		<property name="test.assert.warning.exceptions" value="true" />
-
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
-			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Wiki" />
-		</execute>
-
-		<execute macro="WikiNavigator#gotoNode">
-			<var name="wikiNodeName" value="Main" />
-		</execute>
-
-		<execute macro="LexiconEntry#gotoAdd" />
-
-		<execute macro="WikiEntry#selectPageFormat">
-			<var name="pageFormat" value="MediaWiki" />
-		</execute>
-
-		<execute macro="WikiEntry#confirmMediaWiki" />
-
-		<execute macro="WikiEntry#addPageTitle">
-			<var name="wikiPageTitle" value="MediaWiki Page Title" />
-		</execute>
-
-		<execute macro="WikiEntry#addMediaWikiDescription">
-			<var name="wikiPageContent" value="''MediaWiki Page Content''" />
-		</execute>
-
-		<execute macro="PortletEntry#publish" />
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
-			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Wiki" />
-		</execute>
-
-		<execute macro="WikiNavigator#gotoNode">
-			<var name="wikiNodeName" value="Main" />
-		</execute>
-
-		<execute macro="WikiNavigator#gotoCP">
-			<var name="wikiPageTitle" value="MediaWiki Page Title" />
-		</execute>
-
-		<execute macro="WikiNavigator#gotoAddChildPageViaCP" />
-
-		<execute macro="WikiEntry#selectPageFormat">
-			<var name="pageFormat" value="MediaWiki" />
-		</execute>
-
-		<execute macro="WikiEntry#confirmMediaWiki" />
-
-		<execute macro="WikiEntry#addPageTitle">
-			<var name="wikiPageTitle" value="MediaWiki Child Page Title" />
-		</execute>
-
-		<execute macro="WikiEntry#addMediaWikiDescription">
-			<var name="wikiPageContent" value="''MediaWiki Child Page Content''" />
-		</execute>
-
-		<execute macro="PortletEntry#publish" />
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
-			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Wiki" />
-		</execute>
-
-		<execute macro="WikiNavigator#gotoNode">
-			<var name="wikiNodeName" value="Main" />
-		</execute>
-
-		<execute macro="WikiNavigator#gotoCP">
-			<var name="wikiPageTitle" value="MediaWiki Page Title" />
-		</execute>
-
-		<execute macro="WikiNavigator#gotoChildPageCP">
-			<var name="wikiChildPageContent" value="MediaWiki Child Page Content" />
-			<var name="wikiChildPageTitle" value="MediaWiki Child Page Title" />
-		</execute>
-
-		<execute macro="WikiEntry#viewPageContentBody">
-			<var name="wikiPageContent" value="MediaWiki Child Page Content" />
-		</execute>
-	</command>
-
 	<command name="AddWikiFrontPage" priority="5">
 		<property name="portal.acceptance" value="true" />
 
@@ -251,12 +161,10 @@
 			<var name="portlet" value="System Settings" />
 		</execute>
 
-		<execute macro="SystemSettings#gotoCategory">
-			<var name="category" value="Collaboration" />
-		</execute>
-
-		<execute macro="SystemSettings#editConfiguration">
+		<execute macro="SystemSettings#gotoConfiguration">
+			<var name="configurationCategory" value="Wiki" />
 			<var name="configurationName" value="Wiki Service" />
+			<var name="configurationScope" value="Site Scope" />
 		</execute>
 
 		<execute macro="PortalSettings#configureWikiService">
@@ -355,7 +263,7 @@
 			<var name="portlet" value="Wiki" />
 		</execute>
 
-		<execute macro="WikiNavigator#gotoNode" >
+		<execute macro="WikiNavigator#gotoNode">
 			<var name="wikiNodeName" value="Main" />
 		</execute>
 
@@ -413,7 +321,7 @@
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Recycle Bin" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Recycle Bin" />
 		</execute>
@@ -489,9 +397,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -750,7 +658,7 @@
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Recycle Bin" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Recycle Bin" />
 		</execute>

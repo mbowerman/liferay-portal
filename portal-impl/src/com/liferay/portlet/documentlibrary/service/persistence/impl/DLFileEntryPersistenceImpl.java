@@ -41,6 +41,7 @@ import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -53,6 +54,7 @@ import com.liferay.portlet.documentlibrary.model.impl.DLFileEntryModelImpl;
 import java.io.Serializable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -782,13 +784,6 @@ public class DLFileEntryPersistenceImpl extends BasePersistenceImpl<DLFileEntry>
 					result = dlFileEntry;
 
 					cacheResult(dlFileEntry);
-
-					if ((dlFileEntry.getUuid() == null) ||
-							!dlFileEntry.getUuid().equals(uuid) ||
-							(dlFileEntry.getGroupId() != groupId)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_UUID_G,
-							finderArgs, dlFileEntry);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -11614,14 +11609,6 @@ public class DLFileEntryPersistenceImpl extends BasePersistenceImpl<DLFileEntry>
 					result = dlFileEntry;
 
 					cacheResult(dlFileEntry);
-
-					if ((dlFileEntry.getGroupId() != groupId) ||
-							(dlFileEntry.getFolderId() != folderId) ||
-							(dlFileEntry.getName() == null) ||
-							!dlFileEntry.getName().equals(name)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_G_F_N,
-							finderArgs, dlFileEntry);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -11895,14 +11882,6 @@ public class DLFileEntryPersistenceImpl extends BasePersistenceImpl<DLFileEntry>
 					result = dlFileEntry;
 
 					cacheResult(dlFileEntry);
-
-					if ((dlFileEntry.getGroupId() != groupId) ||
-							(dlFileEntry.getFolderId() != folderId) ||
-							(dlFileEntry.getFileName() == null) ||
-							!dlFileEntry.getFileName().equals(fileName)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_G_F_FN,
-							finderArgs, dlFileEntry);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -12175,14 +12154,6 @@ public class DLFileEntryPersistenceImpl extends BasePersistenceImpl<DLFileEntry>
 					result = dlFileEntry;
 
 					cacheResult(dlFileEntry);
-
-					if ((dlFileEntry.getGroupId() != groupId) ||
-							(dlFileEntry.getFolderId() != folderId) ||
-							(dlFileEntry.getTitle() == null) ||
-							!dlFileEntry.getTitle().equals(title)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_G_F_T,
-							finderArgs, dlFileEntry);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -14806,8 +14777,6 @@ public class DLFileEntryPersistenceImpl extends BasePersistenceImpl<DLFileEntry>
 
 	@Override
 	protected DLFileEntry removeImpl(DLFileEntry dlFileEntry) {
-		dlFileEntry = toUnwrappedModel(dlFileEntry);
-
 		Session session = null;
 
 		try {
@@ -14838,9 +14807,23 @@ public class DLFileEntryPersistenceImpl extends BasePersistenceImpl<DLFileEntry>
 
 	@Override
 	public DLFileEntry updateImpl(DLFileEntry dlFileEntry) {
-		dlFileEntry = toUnwrappedModel(dlFileEntry);
-
 		boolean isNew = dlFileEntry.isNew();
+
+		if (!(dlFileEntry instanceof DLFileEntryModelImpl)) {
+			InvocationHandler invocationHandler = null;
+
+			if (ProxyUtil.isProxyClass(dlFileEntry.getClass())) {
+				invocationHandler = ProxyUtil.getInvocationHandler(dlFileEntry);
+
+				throw new IllegalArgumentException(
+					"Implement ModelWrapper in dlFileEntry proxy " +
+					invocationHandler.getClass());
+			}
+
+			throw new IllegalArgumentException(
+				"Implement ModelWrapper in custom DLFileEntry implementation " +
+				dlFileEntry.getClass());
+		}
 
 		DLFileEntryModelImpl dlFileEntryModelImpl = (DLFileEntryModelImpl)dlFileEntry;
 
@@ -15405,50 +15388,6 @@ public class DLFileEntryPersistenceImpl extends BasePersistenceImpl<DLFileEntry>
 		dlFileEntry.resetOriginalValues();
 
 		return dlFileEntry;
-	}
-
-	protected DLFileEntry toUnwrappedModel(DLFileEntry dlFileEntry) {
-		if (dlFileEntry instanceof DLFileEntryImpl) {
-			return dlFileEntry;
-		}
-
-		DLFileEntryImpl dlFileEntryImpl = new DLFileEntryImpl();
-
-		dlFileEntryImpl.setNew(dlFileEntry.isNew());
-		dlFileEntryImpl.setPrimaryKey(dlFileEntry.getPrimaryKey());
-
-		dlFileEntryImpl.setUuid(dlFileEntry.getUuid());
-		dlFileEntryImpl.setFileEntryId(dlFileEntry.getFileEntryId());
-		dlFileEntryImpl.setGroupId(dlFileEntry.getGroupId());
-		dlFileEntryImpl.setCompanyId(dlFileEntry.getCompanyId());
-		dlFileEntryImpl.setUserId(dlFileEntry.getUserId());
-		dlFileEntryImpl.setUserName(dlFileEntry.getUserName());
-		dlFileEntryImpl.setCreateDate(dlFileEntry.getCreateDate());
-		dlFileEntryImpl.setModifiedDate(dlFileEntry.getModifiedDate());
-		dlFileEntryImpl.setClassNameId(dlFileEntry.getClassNameId());
-		dlFileEntryImpl.setClassPK(dlFileEntry.getClassPK());
-		dlFileEntryImpl.setRepositoryId(dlFileEntry.getRepositoryId());
-		dlFileEntryImpl.setFolderId(dlFileEntry.getFolderId());
-		dlFileEntryImpl.setTreePath(dlFileEntry.getTreePath());
-		dlFileEntryImpl.setName(dlFileEntry.getName());
-		dlFileEntryImpl.setFileName(dlFileEntry.getFileName());
-		dlFileEntryImpl.setExtension(dlFileEntry.getExtension());
-		dlFileEntryImpl.setMimeType(dlFileEntry.getMimeType());
-		dlFileEntryImpl.setTitle(dlFileEntry.getTitle());
-		dlFileEntryImpl.setDescription(dlFileEntry.getDescription());
-		dlFileEntryImpl.setExtraSettings(dlFileEntry.getExtraSettings());
-		dlFileEntryImpl.setFileEntryTypeId(dlFileEntry.getFileEntryTypeId());
-		dlFileEntryImpl.setVersion(dlFileEntry.getVersion());
-		dlFileEntryImpl.setSize(dlFileEntry.getSize());
-		dlFileEntryImpl.setReadCount(dlFileEntry.getReadCount());
-		dlFileEntryImpl.setSmallImageId(dlFileEntry.getSmallImageId());
-		dlFileEntryImpl.setLargeImageId(dlFileEntry.getLargeImageId());
-		dlFileEntryImpl.setCustom1ImageId(dlFileEntry.getCustom1ImageId());
-		dlFileEntryImpl.setCustom2ImageId(dlFileEntry.getCustom2ImageId());
-		dlFileEntryImpl.setManualCheckInRequired(dlFileEntry.isManualCheckInRequired());
-		dlFileEntryImpl.setLastPublishDate(dlFileEntry.getLastPublishDate());
-
-		return dlFileEntryImpl;
 	}
 
 	/**

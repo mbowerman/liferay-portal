@@ -14,7 +14,7 @@
 
 package com.liferay.portal.kernel.template;
 
-import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.petra.string.StringPool;
 
 /**
  * @author Tina Tian
@@ -35,7 +35,7 @@ public interface TemplateConstants {
 	public static final String DEFAUT_ENCODING = StringPool.UTF8;
 
 	/**
-	 * @deprecated As of 6.2.0
+	 * @deprecated As of Newton
 	 */
 	@Deprecated
 	public static final String JOURNAL_SEPARATOR = "_JOURNAL_CONTEXT_";

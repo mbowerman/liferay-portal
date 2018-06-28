@@ -31,7 +31,7 @@ import com.liferay.portal.kernel.util.ReferenceRegistry;
  * @see AssetTagStatsLocalService
  * @see com.liferay.portlet.asset.service.base.AssetTagStatsLocalServiceBaseImpl
  * @see com.liferay.portlet.asset.service.impl.AssetTagStatsLocalServiceImpl
- * @deprecated As of 7.0.0, replaced by {@link
+ * @deprecated As of Judson, replaced by {@link
 com.liferay.asset.tag.stats.service.impl.AssetTagStatsLocalServiceImpl}
  * @generated
  */
@@ -284,7 +284,7 @@ public class AssetTagStatsLocalServiceUtil {
 	*
 	* @return the OSGi service identifier
 	*/
-	public static java.lang.String getOSGiServiceIdentifier() {
+	public static String getOSGiServiceIdentifier() {
 		return getService().getOSGiServiceIdentifier();
 	}
 

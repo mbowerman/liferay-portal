@@ -95,7 +95,7 @@ public class ServiceComponentLocalServiceWrapper
 	@Override
 	public void destroyServiceComponent(
 		com.liferay.portal.kernel.service.configuration.ServiceComponentConfiguration serviceComponentConfiguration,
-		java.lang.ClassLoader classLoader) {
+		ClassLoader classLoader) {
 		_serviceComponentLocalService.destroyServiceComponent(serviceComponentConfiguration,
 			classLoader);
 	}
@@ -213,7 +213,7 @@ public class ServiceComponentLocalServiceWrapper
 	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getOSGiServiceIdentifier() {
+	public String getOSGiServiceIdentifier() {
 		return _serviceComponentLocalService.getOSGiServiceIdentifier();
 	}
 
@@ -268,15 +268,15 @@ public class ServiceComponentLocalServiceWrapper
 	@Override
 	public com.liferay.portal.kernel.model.ServiceComponent initServiceComponent(
 		com.liferay.portal.kernel.service.configuration.ServiceComponentConfiguration serviceComponentConfiguration,
-		java.lang.ClassLoader classLoader, java.lang.String buildNamespace,
-		long buildNumber, long buildDate)
+		ClassLoader classLoader, String buildNamespace, long buildNumber,
+		long buildDate)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _serviceComponentLocalService.initServiceComponent(serviceComponentConfiguration,
 			classLoader, buildNamespace, buildNumber, buildDate);
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link
+	* @deprecated As of Judson, replaced by {@link
 	#initServiceComponent(ServiceComponentConfiguration,
 	ClassLoader, String, long, long)}
 	*/
@@ -284,8 +284,8 @@ public class ServiceComponentLocalServiceWrapper
 	@Override
 	public com.liferay.portal.kernel.model.ServiceComponent initServiceComponent(
 		com.liferay.portal.kernel.service.configuration.ServiceComponentConfiguration serviceComponentConfiguration,
-		java.lang.ClassLoader classLoader, java.lang.String buildNamespace,
-		long buildNumber, long buildDate, boolean buildAutoUpgrade)
+		ClassLoader classLoader, String buildNamespace, long buildNumber,
+		long buildDate, boolean buildAutoUpgrade)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _serviceComponentLocalService.initServiceComponent(serviceComponentConfiguration,
 			classLoader, buildNamespace, buildNumber, buildDate,
@@ -305,28 +305,27 @@ public class ServiceComponentLocalServiceWrapper
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #upgradeDB(ClassLoader,
+	* @deprecated As of Judson, replaced by {@link #upgradeDB(ClassLoader,
 	String, long, ServiceComponent, String, String, String)}
 	*/
 	@Deprecated
 	@Override
-	public void upgradeDB(java.lang.ClassLoader classLoader,
-		java.lang.String buildNamespace, long buildNumber,
-		boolean buildAutoUpgrade,
+	public void upgradeDB(ClassLoader classLoader, String buildNamespace,
+		long buildNumber, boolean buildAutoUpgrade,
 		com.liferay.portal.kernel.model.ServiceComponent previousServiceComponent,
-		java.lang.String tablesSQL, java.lang.String sequencesSQL,
-		java.lang.String indexesSQL) throws java.lang.Exception {
+		String tablesSQL, String sequencesSQL, String indexesSQL)
+		throws Exception {
 		_serviceComponentLocalService.upgradeDB(classLoader, buildNamespace,
 			buildNumber, buildAutoUpgrade, previousServiceComponent, tablesSQL,
 			sequencesSQL, indexesSQL);
 	}
 
 	@Override
-	public void upgradeDB(java.lang.ClassLoader classLoader,
-		java.lang.String buildNamespace, long buildNumber,
+	public void upgradeDB(ClassLoader classLoader, String buildNamespace,
+		long buildNumber,
 		com.liferay.portal.kernel.model.ServiceComponent previousServiceComponent,
-		java.lang.String tablesSQL, java.lang.String sequencesSQL,
-		java.lang.String indexesSQL) throws java.lang.Exception {
+		String tablesSQL, String sequencesSQL, String indexesSQL)
+		throws Exception {
 		_serviceComponentLocalService.upgradeDB(classLoader, buildNamespace,
 			buildNumber, previousServiceComponent, tablesSQL, sequencesSQL,
 			indexesSQL);

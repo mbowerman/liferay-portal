@@ -119,9 +119,10 @@ public class VerifyPermission extends VerifyProcess {
 							_organizationToGroupBitwiseValues.entrySet()) {
 
 						long organizationBitwiseValue = entry.getKey();
-						long groupBitwiseValue = entry.getValue();
 
 						if ((oldActionIds & organizationBitwiseValue) != 0) {
+							long groupBitwiseValue = entry.getValue();
+
 							newGroupActionIds |= groupBitwiseValue;
 						}
 					}
@@ -293,9 +294,8 @@ public class VerifyPermission extends VerifyProcess {
 
 			if (_log.isInfoEnabled()) {
 				_log.info(
-					StringBundler.concat(
-						"Identifying portlets that have both user and power ",
-						"user permissions"));
+					"Identifying portlets that have both user and power user " +
+						"permissions");
 			}
 
 			runSQL(
@@ -319,9 +319,8 @@ public class VerifyPermission extends VerifyProcess {
 
 			if (_log.isInfoEnabled()) {
 				_log.info(
-					StringBundler.concat(
-						"Deleting power user permissions where the portlet ",
-						"has both user and power user permissions"));
+					"Deleting power user permissions where the portlet has " +
+						"both user and power user permissions");
 			}
 
 			runSQL(
@@ -333,9 +332,8 @@ public class VerifyPermission extends VerifyProcess {
 
 			if (_log.isInfoEnabled()) {
 				_log.info(
-					StringBundler.concat(
-						"Switching remaining portlet power user permissions ",
-						"to user permissions"));
+					"Switching remaining portlet power user permissions to " +
+						"user permissions");
 			}
 
 			runSQL(

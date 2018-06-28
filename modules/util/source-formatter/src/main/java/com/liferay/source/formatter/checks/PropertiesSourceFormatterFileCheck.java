@@ -15,8 +15,8 @@
 package com.liferay.source.formatter.checks;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.tools.ToolsUtil;
 
@@ -32,11 +32,6 @@ import java.util.Properties;
  * @author Hugo Huijser
  */
 public class PropertiesSourceFormatterFileCheck extends BaseFileCheck {
-
-	@Override
-	public void init() throws Exception {
-		_hasPrivateAppsDir = _hasPrivateAppsDir();
-	}
 
 	@Override
 	protected String doProcess(
@@ -87,7 +82,7 @@ public class PropertiesSourceFormatterFileCheck extends BaseFileCheck {
 			for (String propertyFileName : propertyFileNames) {
 				if (propertyFileName.contains(StringPool.STAR) ||
 					propertyFileName.endsWith("-ext.properties") ||
-					(isPortalSource() && !_hasPrivateAppsDir &&
+					(isPortalSource() && !_hasPrivateAppsDir() &&
 					 isModulesApp(propertyFileName, true))) {
 
 					continue;
@@ -111,21 +106,27 @@ public class PropertiesSourceFormatterFileCheck extends BaseFileCheck {
 		}
 	}
 
-	private boolean _hasPrivateAppsDir() {
+	private synchronized boolean _hasPrivateAppsDir() {
+		if (_hasPrivateAppsDir != null) {
+			return _hasPrivateAppsDir;
+		}
+
+		_hasPrivateAppsDir = false;
+
 		if (isPortalSource()) {
-			return false;
+			return _hasPrivateAppsDir;
 		}
 
 		File privateAppsDir = getFile(
 			"modules/private/apps", ToolsUtil.PORTAL_MAX_DIR_LEVEL);
 
 		if (privateAppsDir != null) {
-			return true;
+			_hasPrivateAppsDir = true;
 		}
 
-		return false;
+		return _hasPrivateAppsDir;
 	}
 
-	private boolean _hasPrivateAppsDir;
+	private Boolean _hasPrivateAppsDir;
 
 }

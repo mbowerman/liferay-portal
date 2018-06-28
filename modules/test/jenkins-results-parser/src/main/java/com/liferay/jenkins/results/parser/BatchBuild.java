@@ -281,9 +281,14 @@ public class BatchBuild extends BaseBuild {
 				continue;
 			}
 
+			AxisBuild axisBuild = getAxisBuild(axisVariable);
+
+			if (axisBuild == null) {
+				continue;
+			}
+
 			testResults.addAll(
-				TestResult.getTestResults(
-					getAxisBuild(axisVariable), suitesJSONArray, testStatus));
+				getTestResults(axisBuild, suitesJSONArray, testStatus));
 		}
 
 		return testResults;
@@ -433,11 +438,10 @@ public class BatchBuild extends BaseBuild {
 				"env.option." + environmentType + "." + name + "." +
 					environmentMajorVersion.replace(".", ""));
 		}
-		else {
-			return buildProperties.getProperty(
-				"env.option." + environmentType + "." + name +
-					environmentMajorVersion.replace(".", ""));
-		}
+
+		return buildProperties.getProperty(
+			"env.option." + environmentType + "." + name +
+				environmentMajorVersion.replace(".", ""));
 	}
 
 	@Override
@@ -473,7 +477,8 @@ public class BatchBuild extends BaseBuild {
 				for (TestResult testResult : getTestResults(null)) {
 					String testStatus = testResult.getStatus();
 
-					if (testStatus.equals("PASSED") ||
+					if (testStatus.equals("FIXED") ||
+						testStatus.equals("PASSED") ||
 						testStatus.equals("SKIPPED")) {
 
 						continue;
@@ -498,11 +503,11 @@ public class BatchBuild extends BaseBuild {
 		return Dom4JUtil.getNewElement(
 			"div", null, Dom4JUtil.getNewElement("h6", null, "Job Results:"),
 			Dom4JUtil.getNewElement(
-				"p", null, Integer.toString(successCount),
+				"p", null, String.valueOf(successCount),
 				JenkinsResultsParserUtil.getNounForm(
 					successCount, " Tests", " Test"),
 				" Passed.", Dom4JUtil.getNewElement("br"),
-				Integer.toString(failCount),
+				String.valueOf(failCount),
 				JenkinsResultsParserUtil.getNounForm(
 					failCount, " Tests", " Test"),
 				" Failed.", getFailureMessageElement()));

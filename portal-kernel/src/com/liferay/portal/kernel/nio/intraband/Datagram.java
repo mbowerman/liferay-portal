@@ -14,10 +14,10 @@
 
 package com.liferay.portal.kernel.nio.intraband;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.BigEndianCodec;
 import com.liferay.portal.kernel.nio.intraband.CompletionHandler.CompletionType;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -57,8 +57,7 @@ import java.util.EnumSet;
  * <td>Data Chunk</td>
  * <td>byte[]</td>
  * <td>
- * <pre>${Data Size}</pre>
- * </td> <td>14</td> </tr>
+ * <pre>${Data Size}</pre></td> <td>14</td> </tr>
  *
  * </table>
  * </p>

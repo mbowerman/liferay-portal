@@ -50,6 +50,17 @@
 	<td></td>
 	<td></td>
 </tr>
+<!--RULE_BUILDER-->
+<tr>
+	<td>RULE_BUILDER_ADD_CONDITION</td>
+	<td>//button[contains(@class,'form-builder-rule-add-condition')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
 <!--SOURCE_SCOPE-->
 <tr>
 	<td>SOURCE_DROPDOWN</td>
@@ -119,12 +130,12 @@
 </tr>
 <tr>
 	<td>SELECT_MORE_THAN_ONE_ASSET_TYPE_MOVE_AVAILABLE</td>
-	<td>//button[contains(@class,'move-left') and contains(@title,'Move selected items from Selected to Available.')]</td>
+	<td>//button[contains(@class,'move-right') and contains(@title,'Move selected items from Selected to Available.')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>SELECT_MORE_THAN_ONE_ASSET_TYPE_MOVE_SELECTED</td>
-	<td>//button[contains(@class,'move-right') and contains(@title,'Move selected items from Available to Selected.')]</td>
+	<td>//button[contains(@class,'move-left') and contains(@title,'Move selected items from Available to Selected.')]</td>
 	<td></td>
 </tr>
 <tr>

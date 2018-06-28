@@ -40,6 +40,7 @@ import com.liferay.portal.kernel.service.ResourceBlockPermissionLocalService;
 import com.liferay.portal.kernel.service.persistence.ResourceBlockFinder;
 import com.liferay.portal.kernel.service.persistence.ResourceBlockPermissionPersistence;
 import com.liferay.portal.kernel.service.persistence.ResourceBlockPersistence;
+import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
 
@@ -59,7 +60,7 @@ import javax.sql.DataSource;
  * @author Brian Wing Shun Chan
  * @see com.liferay.portal.service.impl.ResourceBlockPermissionLocalServiceImpl
  * @see com.liferay.portal.kernel.service.ResourceBlockPermissionLocalServiceUtil
- * @deprecated As of 7.0.0, with no direct replacement
+ * @deprecated As of Judson, with no direct replacement
  * @generated
  */
 @Deprecated
@@ -95,6 +96,7 @@ public abstract class ResourceBlockPermissionLocalServiceBaseImpl
 	 * @return the new resource block permission
 	 */
 	@Override
+	@Transactional(enabled = false)
 	public ResourceBlockPermission createResourceBlockPermission(
 		long resourceBlockPermissionId) {
 		return resourceBlockPermissionPersistence.create(resourceBlockPermissionId);

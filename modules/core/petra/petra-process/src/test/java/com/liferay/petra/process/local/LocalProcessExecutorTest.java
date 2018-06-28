@@ -27,13 +27,13 @@ import com.liferay.petra.process.ProcessLog.Level;
 import com.liferay.petra.process.TerminationProcessException;
 import com.liferay.petra.process.local.LocalProcessLauncher.ProcessContext;
 import com.liferay.petra.process.local.LocalProcessLauncher.ShutdownHook;
+import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
 import com.liferay.portal.kernel.util.InetAddressUtil;
-import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.SocketUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.ThreadUtil;
@@ -93,9 +93,12 @@ public class LocalProcessExecutorTest {
 			@Override
 			public void appendAssertClasses(List<Class<?>> assertClasses) {
 				assertClasses.add(ProcessConfig.class);
+
 				Collections.addAll(
 					assertClasses, ProcessConfig.class.getDeclaredClasses());
+
 				assertClasses.add(LocalProcessLauncher.class);
+
 				Collections.addAll(
 					assertClasses,
 					LocalProcessLauncher.class.getDeclaredClasses());
@@ -1178,8 +1181,7 @@ public class LocalProcessExecutorTest {
 
 		Assert.assertFalse(
 			StringBundler.concat(
-				"After waited ", String.valueOf(time), " ",
-				String.valueOf(timeUnit), ". ", message),
+				"After waited ", time, " ", timeUnit, ". ", message),
 			supplier.get());
 	}
 

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.service.impl;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
@@ -31,11 +32,11 @@ import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.spring.aop.Skip;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.security.permission.PermissionCacheUtil;
 import com.liferay.portal.service.base.ResourceActionLocalServiceBaseImpl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -102,9 +103,14 @@ public class ResourceActionLocalServiceImpl
 		}
 
 		long availableBits = -2;
+		Map<String, ResourceAction> resourceActionMap = new HashMap<>();
 
-		for (ResourceAction resourceAction : getResourceActions(name)) {
+		List<ResourceAction> resourceActions = getResourceActions(name);
+
+		for (ResourceAction resourceAction : resourceActions) {
 			availableBits &= ~resourceAction.getBitwiseValue();
+
+			resourceActionMap.put(resourceAction.getActionId(), resourceAction);
 		}
 
 		List<ResourceAction> newResourceActions = null;
@@ -118,8 +124,7 @@ public class ResourceActionLocalServiceImpl
 				continue;
 			}
 
-			resourceAction = resourceActionPersistence.fetchByN_A(
-				name, actionId);
+			resourceAction = resourceActionMap.get(actionId);
 
 			if (resourceAction == null) {
 				long bitwiseValue = 1;

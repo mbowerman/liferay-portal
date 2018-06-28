@@ -14,7 +14,12 @@
 
 package com.liferay.poshi.runner.elements;
 
+import java.util.List;
+import java.util.regex.Pattern;
+
+import org.dom4j.Attribute;
 import org.dom4j.Element;
+import org.dom4j.Node;
 
 /**
  * @author Kenji Heigel
@@ -32,10 +37,10 @@ public class WhilePoshiElement extends IfPoshiElement {
 
 	@Override
 	public PoshiElement clone(
-		PoshiElement parentPoshiElement, String readableSyntax) {
+		PoshiElement parentPoshiElement, String poshiScript) {
 
-		if (_isElementType(readableSyntax)) {
-			return new WhilePoshiElement(readableSyntax);
+		if (_isElementType(parentPoshiElement, poshiScript)) {
+			return new WhilePoshiElement(parentPoshiElement, poshiScript);
 		}
 
 		return null;
@@ -48,28 +53,88 @@ public class WhilePoshiElement extends IfPoshiElement {
 		super(_ELEMENT_NAME, element);
 	}
 
-	protected WhilePoshiElement(String readableSyntax) {
-		super(_ELEMENT_NAME, readableSyntax);
+	protected WhilePoshiElement(List<Attribute> attributes, List<Node> nodes) {
+		super(_ELEMENT_NAME, attributes, nodes);
 	}
 
-	private boolean _isElementType(String readableSyntax) {
-		readableSyntax = readableSyntax.trim();
+	protected WhilePoshiElement(
+		PoshiElement parentPoshiElement, String poshiScript) {
 
-		if (!isBalancedReadableSyntax(readableSyntax)) {
+		super(_ELEMENT_NAME, parentPoshiElement, poshiScript);
+	}
+
+	@Override
+	protected String getBlockName() {
+		String parentheticalContent = getParentheticalContent(
+			super.getBlockName());
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append(getPoshiScriptKeyword());
+		sb.append(" (");
+		sb.append(parentheticalContent);
+
+		if (attributeValue("max-iterations") != null) {
+			sb.append(" && (maxIterations = \"");
+			sb.append(attributeValue("max-iterations"));
+			sb.append("\")");
+		}
+
+		sb.append(")");
+
+		return sb.toString();
+	}
+
+	@Override
+	protected String getCondition(String poshiScript) {
+		String parentheticalContent = getParentheticalContent(poshiScript);
+
+		if (parentheticalContent.contains("&& (maxIterations = ")) {
+			int index = parentheticalContent.lastIndexOf("&&");
+
+			String maxIterationsAssignment = parentheticalContent.substring(
+				index + 2);
+
+			maxIterationsAssignment = getParentheticalContent(
+				maxIterationsAssignment);
+
+			String maxIterationsValue = getValueFromAssignment(
+				maxIterationsAssignment);
+
+			addAttribute(
+				"max-iterations", getQuotedContent(maxIterationsValue));
+
+			parentheticalContent = parentheticalContent.substring(0, index);
+		}
+
+		return parentheticalContent.trim();
+	}
+
+	@Override
+	protected String getPoshiScriptKeyword() {
+		return _ELEMENT_NAME;
+	}
+
+	protected static final Pattern blockNamePattern;
+
+	private boolean _isElementType(
+		PoshiElement parentPoshiElement, String poshiScript) {
+
+		if (WhilePoshiElement.class.equals(parentPoshiElement.getClass())) {
 			return false;
 		}
 
-		if (!readableSyntax.startsWith("while (")) {
-			return false;
-		}
-
-		if (!readableSyntax.endsWith("}")) {
-			return false;
-		}
-
-		return true;
+		return isValidPoshiScriptBlock(blockNamePattern, poshiScript);
 	}
 
 	private static final String _ELEMENT_NAME = "while";
+
+	private static final String _POSHI_SCRIPT_KEYWORD = _ELEMENT_NAME;
+
+	static {
+		blockNamePattern = Pattern.compile(
+			"^" + _POSHI_SCRIPT_KEYWORD + BLOCK_NAME_PARAMETER_REGEX,
+			Pattern.DOTALL);
+	}
 
 }

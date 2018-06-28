@@ -14,8 +14,8 @@
 
 package com.liferay.util.servlet;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.util.Collections;
@@ -81,7 +81,7 @@ public class NullSession implements HttpSession {
 	}
 
 	/**
-	 * @deprecated As of 6.1.0
+	 * @deprecated As of Bunyan
 	 */
 	@Deprecated
 	@Override
@@ -90,7 +90,7 @@ public class NullSession implements HttpSession {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Override
@@ -99,7 +99,7 @@ public class NullSession implements HttpSession {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Override
@@ -120,7 +120,7 @@ public class NullSession implements HttpSession {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Override
@@ -134,7 +134,7 @@ public class NullSession implements HttpSession {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Override

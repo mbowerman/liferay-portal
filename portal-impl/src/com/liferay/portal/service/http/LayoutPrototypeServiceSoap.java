@@ -69,10 +69,9 @@ import java.util.Map;
 @ProviderType
 public class LayoutPrototypeServiceSoap {
 	public static com.liferay.portal.kernel.model.LayoutPrototypeSoap addLayoutPrototype(
-		java.lang.String[] nameMapLanguageIds,
-		java.lang.String[] nameMapValues,
-		java.lang.String[] descriptionMapLanguageIds,
-		java.lang.String[] descriptionMapValues, boolean active,
+		String[] nameMapLanguageIds, String[] nameMapValues,
+		String[] descriptionMapLanguageIds, String[] descriptionMapValues,
+		boolean active,
 		com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws RemoteException {
 		try {
@@ -94,14 +93,13 @@ public class LayoutPrototypeServiceSoap {
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #addLayoutPrototype(Map, Map,
-	boolean, ServiceContext)}
+	* @deprecated As of Wilberforce, replaced by {@link
+	#addLayoutPrototype(Map, Map, boolean, ServiceContext)}
 	*/
 	@Deprecated
 	public static com.liferay.portal.kernel.model.LayoutPrototypeSoap addLayoutPrototype(
-		java.lang.String[] nameMapLanguageIds,
-		java.lang.String[] nameMapValues, java.lang.String description,
-		boolean active,
+		String[] nameMapLanguageIds, String[] nameMapValues,
+		String description, boolean active,
 		com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws RemoteException {
 		try {
@@ -161,7 +159,7 @@ public class LayoutPrototypeServiceSoap {
 	}
 
 	public static com.liferay.portal.kernel.model.LayoutPrototypeSoap[] search(
-		long companyId, java.lang.Boolean active,
+		long companyId, Boolean active,
 		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portal.kernel.model.LayoutPrototype> obc)
 		throws RemoteException {
 		try {
@@ -178,10 +176,9 @@ public class LayoutPrototypeServiceSoap {
 	}
 
 	public static com.liferay.portal.kernel.model.LayoutPrototypeSoap updateLayoutPrototype(
-		long layoutPrototypeId, java.lang.String[] nameMapLanguageIds,
-		java.lang.String[] nameMapValues,
-		java.lang.String[] descriptionMapLanguageIds,
-		java.lang.String[] descriptionMapValues, boolean active,
+		long layoutPrototypeId, String[] nameMapLanguageIds,
+		String[] nameMapValues, String[] descriptionMapLanguageIds,
+		String[] descriptionMapValues, boolean active,
 		com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws RemoteException {
 		try {
@@ -203,14 +200,14 @@ public class LayoutPrototypeServiceSoap {
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #updateLayoutPrototype(long,
-	Map, Map, boolean, ServiceContext)}
+	* @deprecated As of Wilberforce, replaced by {@link
+	#updateLayoutPrototype(long, Map, Map, boolean,
+	ServiceContext)}
 	*/
 	@Deprecated
 	public static com.liferay.portal.kernel.model.LayoutPrototypeSoap updateLayoutPrototype(
-		long layoutPrototypeId, java.lang.String[] nameMapLanguageIds,
-		java.lang.String[] nameMapValues, java.lang.String description,
-		boolean active,
+		long layoutPrototypeId, String[] nameMapLanguageIds,
+		String[] nameMapValues, String description, boolean active,
 		com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws RemoteException {
 		try {

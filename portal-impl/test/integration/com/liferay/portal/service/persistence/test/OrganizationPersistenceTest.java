@@ -121,6 +121,8 @@ public class OrganizationPersistenceTest {
 
 		newOrganization.setUuid(RandomTestUtil.randomString());
 
+		newOrganization.setExternalReferenceCode(RandomTestUtil.randomString());
+
 		newOrganization.setCompanyId(RandomTestUtil.nextLong());
 
 		newOrganization.setUserId(RandomTestUtil.nextLong());
@@ -159,6 +161,8 @@ public class OrganizationPersistenceTest {
 			newOrganization.getMvccVersion());
 		Assert.assertEquals(existingOrganization.getUuid(),
 			newOrganization.getUuid());
+		Assert.assertEquals(existingOrganization.getExternalReferenceCode(),
+			newOrganization.getExternalReferenceCode());
 		Assert.assertEquals(existingOrganization.getOrganizationId(),
 			newOrganization.getOrganizationId());
 		Assert.assertEquals(existingOrganization.getCompanyId(),
@@ -181,8 +185,8 @@ public class OrganizationPersistenceTest {
 			newOrganization.getName());
 		Assert.assertEquals(existingOrganization.getType(),
 			newOrganization.getType());
-		Assert.assertEquals(existingOrganization.getRecursable(),
-			newOrganization.getRecursable());
+		Assert.assertEquals(existingOrganization.isRecursable(),
+			newOrganization.isRecursable());
 		Assert.assertEquals(existingOrganization.getRegionId(),
 			newOrganization.getRegionId());
 		Assert.assertEquals(existingOrganization.getCountryId(),
@@ -262,6 +266,15 @@ public class OrganizationPersistenceTest {
 	}
 
 	@Test
+	public void testCountByC_ERC() throws Exception {
+		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+
+		_persistence.countByC_ERC(0L, "null");
+
+		_persistence.countByC_ERC(0L, (String)null);
+	}
+
+	@Test
 	public void testFindByPrimaryKeyExisting() throws Exception {
 		Organization newOrganization = addOrganization();
 
@@ -285,12 +298,12 @@ public class OrganizationPersistenceTest {
 
 	protected OrderByComparator<Organization> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("Organization_",
-			"mvccVersion", true, "uuid", true, "organizationId", true,
-			"companyId", true, "userId", true, "userName", true, "createDate",
-			true, "modifiedDate", true, "parentOrganizationId", true,
-			"treePath", true, "name", true, "type", true, "recursable", true,
-			"regionId", true, "countryId", true, "statusId", true, "comments",
-			true, "logoId", true);
+			"mvccVersion", true, "uuid", true, "externalReferenceCode", true,
+			"organizationId", true, "companyId", true, "userId", true,
+			"userName", true, "createDate", true, "modifiedDate", true,
+			"parentOrganizationId", true, "treePath", true, "name", true,
+			"type", true, "recursable", true, "regionId", true, "countryId",
+			true, "statusId", true, "comments", true, "logoId", true);
 	}
 
 	@Test
@@ -501,6 +514,14 @@ public class OrganizationPersistenceTest {
 		Assert.assertTrue(Objects.equals(existingOrganization.getName(),
 				ReflectionTestUtil.invoke(existingOrganization,
 					"getOriginalName", new Class<?>[0])));
+
+		Assert.assertEquals(Long.valueOf(existingOrganization.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(existingOrganization,
+				"getOriginalCompanyId", new Class<?>[0]));
+		Assert.assertTrue(Objects.equals(
+				existingOrganization.getExternalReferenceCode(),
+				ReflectionTestUtil.invoke(existingOrganization,
+					"getOriginalExternalReferenceCode", new Class<?>[0])));
 	}
 
 	protected Organization addOrganization() throws Exception {
@@ -511,6 +532,8 @@ public class OrganizationPersistenceTest {
 		organization.setMvccVersion(RandomTestUtil.nextLong());
 
 		organization.setUuid(RandomTestUtil.randomString());
+
+		organization.setExternalReferenceCode(RandomTestUtil.randomString());
 
 		organization.setCompanyId(RandomTestUtil.nextLong());
 

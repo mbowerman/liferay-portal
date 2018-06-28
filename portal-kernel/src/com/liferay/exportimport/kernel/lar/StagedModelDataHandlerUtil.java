@@ -16,6 +16,7 @@ package com.liferay.exportimport.kernel.lar;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -24,7 +25,6 @@ import com.liferay.portal.kernel.model.StagedModel;
 import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
 import com.liferay.portal.kernel.spring.orm.LastSessionRecorderHelperUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Attribute;
 import com.liferay.portal.kernel.xml.Document;
@@ -50,14 +50,15 @@ public class StagedModelDataHandlerUtil {
 		throws PortalException {
 
 		String className = deletionElement.attributeValue("class-name");
-		String extraData = deletionElement.attributeValue("extra-data");
-		String uuid = deletionElement.attributeValue("uuid");
 
 		StagedModelDataHandler<?> stagedModelDataHandler =
 			StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(
 				className);
 
 		if (stagedModelDataHandler != null) {
+			String extraData = deletionElement.attributeValue("extra-data");
+			String uuid = deletionElement.attributeValue("uuid");
+
 			stagedModelDataHandler.deleteStagedModel(
 				uuid, portletDataContext.getScopeGroupId(), className,
 				extraData);
@@ -91,7 +92,7 @@ public class StagedModelDataHandlerUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Wilberforce, replaced by {@link
 	 *             #exportReferenceStagedModel(PortletDataContext, StagedModel,
 	 *             StagedModel, String)}
 	 */
@@ -109,7 +110,7 @@ public class StagedModelDataHandlerUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Wilberforce, replaced by {@link
 	 *             #exportReferenceStagedModel(PortletDataContext, StagedModel,
 	 *             StagedModel, String)}
 	 */
@@ -199,7 +200,7 @@ public class StagedModelDataHandlerUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Judson, replaced by {@link
 	 *             #importReferenceStagedModel(PortletDataContext, Class,
 	 *             Serializable)}
 	 */
@@ -237,7 +238,7 @@ public class StagedModelDataHandlerUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Judson, replaced by {@link
 	 *             #importReferenceStagedModel(PortletDataContext, String,
 	 *             Serializable)}
 	 */
@@ -278,7 +279,7 @@ public class StagedModelDataHandlerUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Judson, replaced by {@link
 	 *             #importReferenceStagedModel(PortletDataContext, StagedModel,
 	 *             Class, Serializable)}
 	 */
@@ -319,7 +320,7 @@ public class StagedModelDataHandlerUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Judson, replaced by {@link
 	 *             #importReferenceStagedModel(PortletDataContext, StagedModel,
 	 *             String, Serializable)}
 	 */

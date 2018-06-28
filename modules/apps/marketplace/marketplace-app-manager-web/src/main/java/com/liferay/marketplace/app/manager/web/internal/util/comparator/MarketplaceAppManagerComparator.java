@@ -17,8 +17,8 @@ package com.liferay.marketplace.app.manager.web.internal.util.comparator;
 import com.liferay.marketplace.app.manager.web.internal.constants.BundleConstants;
 import com.liferay.marketplace.app.manager.web.internal.util.AppDisplay;
 import com.liferay.marketplace.app.manager.web.internal.util.ModuleGroupDisplay;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.util.Comparator;
 import java.util.Dictionary;
@@ -110,7 +110,8 @@ public class MarketplaceAppManagerComparator implements Comparator {
 		else if (object instanceof Bundle) {
 			Bundle bundle = (Bundle)object;
 
-			Dictionary<String, String> headers = bundle.getHeaders();
+			Dictionary<String, String> headers = bundle.getHeaders(
+				StringPool.BLANK);
 
 			return GetterUtil.getString(
 				headers.get(BundleConstants.BUNDLE_NAME));

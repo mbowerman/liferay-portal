@@ -42,8 +42,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Peter Fellwock
  */
 @Component(
-	immediate = true,
-	property = {"service.ranking:Integer=" + Integer.MAX_VALUE}
+	immediate = true, property = "service.ranking:Integer=" + Integer.MAX_VALUE
 )
 public class TestWorkflowHandler implements WorkflowHandler<Object> {
 
@@ -70,7 +69,7 @@ public class TestWorkflowHandler implements WorkflowHandler<Object> {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Override
@@ -79,7 +78,7 @@ public class TestWorkflowHandler implements WorkflowHandler<Object> {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Override

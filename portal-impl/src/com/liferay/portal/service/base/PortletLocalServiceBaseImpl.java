@@ -40,11 +40,11 @@ import com.liferay.portal.kernel.service.PortletLocalService;
 import com.liferay.portal.kernel.service.persistence.PortletPersistence;
 import com.liferay.portal.kernel.service.persistence.PortletPreferencesFinder;
 import com.liferay.portal.kernel.service.persistence.PortletPreferencesPersistence;
-import com.liferay.portal.kernel.service.persistence.ResourceActionPersistence;
 import com.liferay.portal.kernel.service.persistence.ResourcePermissionFinder;
 import com.liferay.portal.kernel.service.persistence.ResourcePermissionPersistence;
 import com.liferay.portal.kernel.service.persistence.RoleFinder;
 import com.liferay.portal.kernel.service.persistence.RolePersistence;
+import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
 
@@ -96,6 +96,7 @@ public abstract class PortletLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @return the new portlet
 	 */
 	@Override
+	@Transactional(enabled = false)
 	public Portlet createPortlet(long id) {
 		return portletPersistence.create(id);
 	}
@@ -443,44 +444,6 @@ public abstract class PortletLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	/**
-	 * Returns the resource action local service.
-	 *
-	 * @return the resource action local service
-	 */
-	public com.liferay.portal.kernel.service.ResourceActionLocalService getResourceActionLocalService() {
-		return resourceActionLocalService;
-	}
-
-	/**
-	 * Sets the resource action local service.
-	 *
-	 * @param resourceActionLocalService the resource action local service
-	 */
-	public void setResourceActionLocalService(
-		com.liferay.portal.kernel.service.ResourceActionLocalService resourceActionLocalService) {
-		this.resourceActionLocalService = resourceActionLocalService;
-	}
-
-	/**
-	 * Returns the resource action persistence.
-	 *
-	 * @return the resource action persistence
-	 */
-	public ResourceActionPersistence getResourceActionPersistence() {
-		return resourceActionPersistence;
-	}
-
-	/**
-	 * Sets the resource action persistence.
-	 *
-	 * @param resourceActionPersistence the resource action persistence
-	 */
-	public void setResourceActionPersistence(
-		ResourceActionPersistence resourceActionPersistence) {
-		this.resourceActionPersistence = resourceActionPersistence;
-	}
-
-	/**
 	 * Returns the resource permission local service.
 	 *
 	 * @return the resource permission local service
@@ -658,10 +621,6 @@ public abstract class PortletLocalServiceBaseImpl extends BaseLocalServiceImpl
 	protected PortletPreferencesFinder portletPreferencesFinder;
 	@BeanReference(type = com.liferay.portal.kernel.service.ResourceLocalService.class)
 	protected com.liferay.portal.kernel.service.ResourceLocalService resourceLocalService;
-	@BeanReference(type = com.liferay.portal.kernel.service.ResourceActionLocalService.class)
-	protected com.liferay.portal.kernel.service.ResourceActionLocalService resourceActionLocalService;
-	@BeanReference(type = ResourceActionPersistence.class)
-	protected ResourceActionPersistence resourceActionPersistence;
 	@BeanReference(type = com.liferay.portal.kernel.service.ResourcePermissionLocalService.class)
 	protected com.liferay.portal.kernel.service.ResourcePermissionLocalService resourcePermissionLocalService;
 	@BeanReference(type = ResourcePermissionPersistence.class)

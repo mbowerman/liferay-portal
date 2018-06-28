@@ -39,6 +39,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 
 import java.io.Serializable;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -97,6 +98,7 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	* @param linkId the primary key for the new asset link
 	* @return the new asset link
 	*/
+	@Transactional(enabled = false)
 	public AssetLink createAssetLink(long linkId);
 
 	/**
@@ -286,6 +288,10 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	public List<AssetLink> getDirectLinks(long entryId, int typeId,
 		boolean excludeInvisibleLinks);
 
+	/**
+	* @deprecated As of Judson, with no direct replacement
+	*/
+	@Deprecated
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ExportActionableDynamicQuery getExportActionbleDynamicQuery(
 		PortletDataContext portletDataContext);
@@ -303,6 +309,10 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<AssetLink> getLinks(long entryId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AssetLink> getLinks(long groupId, Date startDate, Date endDate,
+		int start, int end);
 
 	/**
 	* Returns all the asset links of the given link type whose first or second
@@ -335,7 +345,7 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	*
 	* @return the OSGi service identifier
 	*/
-	public java.lang.String getOSGiServiceIdentifier();
+	public String getOSGiServiceIdentifier();
 
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.security.pacl;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.url.URLContainer;
@@ -22,7 +23,6 @@ import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.SortedProperties;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.security.pacl.checker.Checker;
 
@@ -226,7 +226,7 @@ public abstract class BasePACLPolicy implements PACLPolicy {
 		}
 
 		// Set a system property to match the servletContextName so that the
-		// plugin can use it in it's Java security policy file for setting the
+		// plugin can use it in its Java security policy file for setting the
 		// code base
 
 		URL rootURL = _urlContainer.getResource(StringPool.SLASH);

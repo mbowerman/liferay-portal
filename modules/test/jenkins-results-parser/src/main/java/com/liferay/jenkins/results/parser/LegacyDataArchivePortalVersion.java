@@ -48,6 +48,11 @@ public class LegacyDataArchivePortalVersion {
 
 		_portalVersionTestDirectory = new File(_portalVersionDirectory, "test");
 
+		if (!_portalVersionTestDirectory.exists()) {
+			throw new RuntimeException(
+				_portalVersionDirectory + " does not exist");
+		}
+
 		_dataArchiveTypes = _getDataArchiveTypes();
 		_databaseNames = _getDatabaseNames();
 		_latestTestCommit = _getLatestTestCommit();
@@ -131,15 +136,10 @@ public class LegacyDataArchivePortalVersion {
 	}
 
 	private Commit _getLatestTestCommit() {
-		String gitLog = _legacyGitWorkingDirectory.log(
+		List<Commit> commits = _legacyGitWorkingDirectory.log(
 			50, _portalVersionTestDirectory);
 
-		String[] gitLogEntities = gitLog.split("\n");
-
-		for (String gitLogEntity : gitLogEntities) {
-			Commit commit = CommitFactory.newCommit(
-				gitLogEntity, _legacyGitWorkingDirectory);
-
+		for (Commit commit : commits) {
 			if (commit.getType() != Commit.Type.MANUAL) {
 				continue;
 			}

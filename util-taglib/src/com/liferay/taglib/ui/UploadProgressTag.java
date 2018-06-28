@@ -38,7 +38,7 @@ public class UploadProgressTag extends IncludeTag {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	public void setRedirect(String redirect) {
@@ -50,6 +50,8 @@ public class UploadProgressTag extends IncludeTag {
 
 	@Override
 	protected void cleanUp() {
+		super.cleanUp();
+
 		_height = 25;
 		_id = null;
 		_message = null;

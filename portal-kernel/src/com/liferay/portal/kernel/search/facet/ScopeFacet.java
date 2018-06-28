@@ -38,8 +38,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Raymond Augé
+ * @author     Raymond Augé
+ * @deprecated As of Judson, with no direct replacement
  */
+@Deprecated
 public class ScopeFacet extends MultiValueFacet {
 
 	public ScopeFacet(SearchContext searchContext) {

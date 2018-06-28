@@ -80,7 +80,7 @@ public class BasicRegistryImpl implements Registry {
 	}
 
 	/**
-	 * @deprecated As of 1.2.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	@Override
@@ -103,7 +103,7 @@ public class BasicRegistryImpl implements Registry {
 	}
 
 	/**
-	 * @deprecated As of 1.2.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	@Override
@@ -588,10 +588,10 @@ public class BasicRegistryImpl implements Registry {
 
 			if (thisServiceRanking != otherServiceRanking) {
 				if (thisServiceRanking < otherServiceRanking) {
-					return -1;
+					return 1;
 				}
 
-				return 1;
+				return -1;
 			}
 
 			long thisServiceId = (Long)_properties.get("service.id");

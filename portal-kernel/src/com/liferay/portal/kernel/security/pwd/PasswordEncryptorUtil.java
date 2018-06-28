@@ -14,10 +14,10 @@
 
 package com.liferay.portal.kernel.security.pwd;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PwdEncryptorException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.StringPool;
 
 /**
  * @author Brian Wing Shun Chan
@@ -28,7 +28,7 @@ import com.liferay.portal.kernel.util.StringPool;
 public class PasswordEncryptorUtil {
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Wilberforce, replaced by {@link
 	 *             #getDefaultPasswordAlgorithmType}
 	 */
 	@Deprecated

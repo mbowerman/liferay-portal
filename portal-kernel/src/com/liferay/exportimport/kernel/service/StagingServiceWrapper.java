@@ -39,7 +39,7 @@ public class StagingServiceWrapper implements StagingService,
 	}
 
 	@Override
-	public long createStagingRequest(long groupId, java.lang.String checksum)
+	public long createStagingRequest(long groupId, String checksum)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _stagingService.createStagingRequest(groupId, checksum);
 	}
@@ -50,12 +50,12 @@ public class StagingServiceWrapper implements StagingService,
 	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getOSGiServiceIdentifier() {
+	public String getOSGiServiceIdentifier() {
 		return _stagingService.getOSGiServiceIdentifier();
 	}
 
 	@Override
-	public boolean hasRemoteLayout(java.lang.String uuid, long groupId,
+	public boolean hasRemoteLayout(String uuid, long groupId,
 		boolean privateLayout)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _stagingService.hasRemoteLayout(uuid, groupId, privateLayout);
@@ -63,21 +63,20 @@ public class StagingServiceWrapper implements StagingService,
 
 	@Override
 	public void propagateExportImportLifecycleEvent(int code, int processFlag,
-		java.lang.String processId,
-		java.util.List<java.io.Serializable> arguments)
+		String processId, java.util.List<java.io.Serializable> arguments)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_stagingService.propagateExportImportLifecycleEvent(code, processFlag,
 			processId, arguments);
 	}
 
 	/**
-	* @deprecated As of 7.0.0, with no direct replacement
+	* @deprecated As of Wilberforce, with no direct replacement
 	*/
 	@Deprecated
 	@Override
 	public com.liferay.exportimport.kernel.lar.MissingReferences publishStagingRequest(
 		long stagingRequestId, boolean privateLayout,
-		java.util.Map<java.lang.String, java.lang.String[]> parameterMap)
+		java.util.Map<String, String[]> parameterMap)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _stagingService.publishStagingRequest(stagingRequestId,
 			privateLayout, parameterMap);
@@ -93,21 +92,21 @@ public class StagingServiceWrapper implements StagingService,
 	}
 
 	@Override
-	public void updateStagingRequest(long stagingRequestId,
-		java.lang.String fileName, byte[] bytes)
+	public void updateStagingRequest(long stagingRequestId, String fileName,
+		byte[] bytes)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_stagingService.updateStagingRequest(stagingRequestId, fileName, bytes);
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #publishStagingRequest(long,
-	boolean, Map)}
+	* @deprecated As of Wilberforce, replaced by {@link
+	#publishStagingRequest(long, boolean, Map)}
 	*/
 	@Deprecated
 	@Override
 	public com.liferay.exportimport.kernel.lar.MissingReferences validateStagingRequest(
 		long stagingRequestId, boolean privateLayout,
-		java.util.Map<java.lang.String, java.lang.String[]> parameterMap)
+		java.util.Map<String, String[]> parameterMap)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _stagingService.validateStagingRequest(stagingRequestId,
 			privateLayout, parameterMap);

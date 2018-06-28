@@ -15,9 +15,9 @@
 package com.liferay.portal.kernel.servlet.taglib.aui;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.Mergeable;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Pattern;
 
 /**
  * @author Brian Wing Shun Chan
@@ -123,7 +124,7 @@ public class ScriptData implements Mergeable<ScriptData>, Serializable {
 
 		boolean modified = true;
 
-		if ((CharPool.LOWER_CASE_A <= c) && (c <= CharPool.LOWER_CASE_Z) ||
+		if (((CharPool.LOWER_CASE_A <= c) && (c <= CharPool.LOWER_CASE_Z)) ||
 			(c == CharPool.UNDERLINE)) {
 
 			sb.append(c);
@@ -152,8 +153,8 @@ public class ScriptData implements Mergeable<ScriptData>, Serializable {
 					sb.append(c);
 				}
 			}
-			else if ((CharPool.UPPER_CASE_A <= c) &&
-					 (c <= CharPool.UPPER_CASE_Z) ||
+			else if (((CharPool.UPPER_CASE_A <= c) &&
+					  (c <= CharPool.UPPER_CASE_Z)) ||
 					 ((CharPool.NUMBER_0 <= c) && (c <= CharPool.NUMBER_9)) ||
 					 (c == CharPool.UNDERLINE)) {
 
@@ -207,7 +208,7 @@ public class ScriptData implements Mergeable<ScriptData>, Serializable {
 	}
 
 	private String[] _splitNameAlias(String name) {
-		String[] parts = name.split("\\s+");
+		String[] parts = _whitespacePattern.split(name, 4);
 
 		if ((parts.length == 3) &&
 			StringUtil.equalsIgnoreCase(parts[1], "as")) {
@@ -315,6 +316,7 @@ public class ScriptData implements Mergeable<ScriptData>, Serializable {
 		}
 	}
 
+	private static final Pattern _whitespacePattern = Pattern.compile("\\s+");
 	private static final long serialVersionUID = 1L;
 
 	private final ConcurrentMap<String, PortletData> _portletDataMap =

@@ -14,7 +14,7 @@
 
 package com.liferay.source.formatter.checkstyle.checks;
 
-import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.source.formatter.checkstyle.util.DetailASTUtil;
 
@@ -40,13 +40,11 @@ public class MapIterationCheck extends BaseCheck {
 			detailAST, true, TokenTypes.FOR_EACH_CLAUSE);
 
 		for (DetailAST forEachClauseAST : forEachClauseASTList) {
-			_checkKeySetIteration(forEachClauseAST, detailAST);
+			_checkKeySetIteration(forEachClauseAST);
 		}
 	}
 
-	private void _checkKeySetIteration(
-		DetailAST forEachClauseAST, DetailAST detailAST) {
-
+	private void _checkKeySetIteration(DetailAST forEachClauseAST) {
 		DetailAST variableDefAST = forEachClauseAST.findFirstToken(
 			TokenTypes.VARIABLE_DEF);
 
@@ -70,7 +68,8 @@ public class MapIterationCheck extends BaseCheck {
 				continue;
 			}
 
-			DetailAST typeAST = DetailASTUtil.findTypeAST(detailAST, mapName);
+			DetailAST typeAST = DetailASTUtil.getVariableTypeAST(
+				keySetMethodCallAST, mapName);
 
 			if ((typeAST != null) && DetailASTUtil.isCollection(typeAST)) {
 				List<DetailAST> wildcardTypeASTList =
@@ -94,16 +93,16 @@ public class MapIterationCheck extends BaseCheck {
 			DetailAST eListAST = getMethodCallAST.findFirstToken(
 				TokenTypes.ELIST);
 
-			DetailAST firstChild = eListAST.getFirstChild();
+			DetailAST firstChildAST = eListAST.getFirstChild();
 
-			if (firstChild.getType() != TokenTypes.EXPR) {
+			if (firstChildAST.getType() != TokenTypes.EXPR) {
 				continue;
 			}
 
-			firstChild = firstChild.getFirstChild();
+			firstChildAST = firstChildAST.getFirstChild();
 
-			if (firstChild.getType() == TokenTypes.IDENT) {
-				String parameterName = firstChild.getText();
+			if (firstChildAST.getType() == TokenTypes.IDENT) {
+				String parameterName = firstChildAST.getText();
 
 				if (parameterName.equals(keyName)) {
 					return true;

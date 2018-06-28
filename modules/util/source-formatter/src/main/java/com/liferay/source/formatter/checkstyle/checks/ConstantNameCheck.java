@@ -33,11 +33,17 @@ public class ConstantNameCheck
 	extends com.puppycrawl.tools.checkstyle.checks.naming.ConstantNameCheck {
 
 	public void setCamelCaseTypeNames(String camelCaseTypeNames) {
-		_camelCaseTypeNames = StringUtil.split(camelCaseTypeNames);
+		_camelCaseTypeNames = ArrayUtil.append(
+			_camelCaseTypeNames, StringUtil.split(camelCaseTypeNames));
+	}
+
+	public void setEnabled(boolean enabled) {
+		_enabled = enabled;
 	}
 
 	public void setImmutableFieldTypes(String immutableFieldTypes) {
-		_immutableFieldTypes = StringUtil.split(immutableFieldTypes);
+		_immutableFieldTypes = ArrayUtil.append(
+			_immutableFieldTypes, StringUtil.split(immutableFieldTypes));
 	}
 
 	public void setShowDebugInformation(boolean showDebugInformation) {
@@ -46,6 +52,10 @@ public class ConstantNameCheck
 
 	@Override
 	public void visitToken(DetailAST detailAST) {
+		if (!_enabled) {
+			return;
+		}
+
 		if (!_showDebugInformation) {
 			_checkConstantName(detailAST);
 
@@ -71,7 +81,7 @@ public class ConstantNameCheck
 
 		String regex = null;
 
-		String typeName = DetailASTUtil.getTypeName(detailAST);
+		String typeName = DetailASTUtil.getTypeName(detailAST, false);
 
 		if (ArrayUtil.contains(_camelCaseTypeNames, typeName) ||
 			DetailASTUtil.isCollection(
@@ -152,6 +162,7 @@ public class ConstantNameCheck
 	private static final String _UPPER_CASE_REGEX = "^[A-Z0-9][_A-Z0-9]*$";
 
 	private String[] _camelCaseTypeNames = new String[0];
+	private boolean _enabled = true;
 	private String[] _immutableFieldTypes = new String[0];
 	private boolean _showDebugInformation;
 

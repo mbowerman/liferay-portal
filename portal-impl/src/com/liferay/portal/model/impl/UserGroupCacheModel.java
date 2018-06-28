@@ -78,12 +78,14 @@ public class UserGroupCacheModel implements CacheModel<UserGroup>,
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(25);
+		StringBundler sb = new StringBundler(27);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
 		sb.append(", uuid=");
 		sb.append(uuid);
+		sb.append(", externalReferenceCode=");
+		sb.append(externalReferenceCode);
 		sb.append(", userGroupId=");
 		sb.append(userGroupId);
 		sb.append(", companyId=");
@@ -120,6 +122,13 @@ public class UserGroupCacheModel implements CacheModel<UserGroup>,
 		}
 		else {
 			userGroupImpl.setUuid(uuid);
+		}
+
+		if (externalReferenceCode == null) {
+			userGroupImpl.setExternalReferenceCode("");
+		}
+		else {
+			userGroupImpl.setExternalReferenceCode(externalReferenceCode);
 		}
 
 		userGroupImpl.setUserGroupId(userGroupId);
@@ -174,6 +183,7 @@ public class UserGroupCacheModel implements CacheModel<UserGroup>,
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		mvccVersion = objectInput.readLong();
 		uuid = objectInput.readUTF();
+		externalReferenceCode = objectInput.readUTF();
 
 		userGroupId = objectInput.readLong();
 
@@ -201,6 +211,13 @@ public class UserGroupCacheModel implements CacheModel<UserGroup>,
 		}
 		else {
 			objectOutput.writeUTF(uuid);
+		}
+
+		if (externalReferenceCode == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(externalReferenceCode);
 		}
 
 		objectOutput.writeLong(userGroupId);
@@ -240,6 +257,7 @@ public class UserGroupCacheModel implements CacheModel<UserGroup>,
 
 	public long mvccVersion;
 	public String uuid;
+	public String externalReferenceCode;
 	public long userGroupId;
 	public long companyId;
 	public long userId;

@@ -15,7 +15,7 @@
 package com.liferay.source.formatter.checks;
 
 import com.liferay.petra.string.CharPool;
-import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -65,7 +65,7 @@ public class JSPStringBundlerCheck extends BaseFileCheck {
 
 			addMessage(
 				fileName, "Incorrect use of '+' inside StringBundler",
-				getLineCount(content, matcher.start(1)));
+				getLineNumber(content, matcher.start(1)));
 		}
 
 		matcher = _sbAppendWithStartingSpacePattern.matcher(content);

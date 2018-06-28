@@ -17,6 +17,7 @@ package com.liferay.portlet.asset.service.impl;
 import com.liferay.asset.kernel.model.AssetCategoryConstants;
 import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.asset.kernel.model.AssetVocabularyDisplay;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
@@ -139,7 +140,7 @@ public class AssetVocabularyServiceImpl extends AssetVocabularyServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	@Override
@@ -190,21 +191,9 @@ public class AssetVocabularyServiceImpl extends AssetVocabularyServiceBaseImpl {
 			long groupId, boolean createDefaultVocabulary)
 		throws PortalException {
 
-		List<AssetVocabulary> vocabularies =
-			assetVocabularyPersistence.filterFindByGroupId(groupId);
-
-		if (!vocabularies.isEmpty() || !createDefaultVocabulary) {
-			return vocabularies;
-		}
-
-		vocabularies = new ArrayList<>();
-
-		AssetVocabulary vocabulary =
-			assetVocabularyLocalService.addDefaultVocabulary(groupId);
-
-		vocabularies.add(vocabulary);
-
-		return vocabularies;
+		return getGroupVocabularies(
+			groupId, createDefaultVocabulary, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, null);
 	}
 
 	@Override
@@ -321,7 +310,7 @@ public class AssetVocabularyServiceImpl extends AssetVocabularyServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Wilberforce, replaced by {@link
 	 *             AssetUtil#filterVocabularyIds(PermissionChecker, long[])}
 	 */
 	@Deprecated
@@ -403,7 +392,7 @@ public class AssetVocabularyServiceImpl extends AssetVocabularyServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	protected List<AssetVocabulary> filterVocabularies(

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.model.impl;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -64,7 +65,6 @@ import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.RemotePreference;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TimeZoneUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -272,7 +272,8 @@ public class UserImpl extends UserBaseImpl {
 	 * @param      portalURL the portal's URL
 	 * @param      mainPath the main path
 	 * @return     the user's display URL
-	 * @deprecated As of 7.0.0, replaced by {@link #getDisplayURL(ThemeDisplay)}
+	 * @deprecated As of Wilberforce, replaced by {@link
+	 *             #getDisplayURL(ThemeDisplay)}
 	 */
 	@Deprecated
 	@Override
@@ -313,7 +314,8 @@ public class UserImpl extends UserBaseImpl {
 	 *             is available for the user's profile
 	 * @return     the user's display URL
 	 * @throws     PortalException
-	 * @deprecated As of 7.0.0, replaced by {@link #getDisplayURL(ThemeDisplay)}
+	 * @deprecated As of Wilberforce, replaced by {@link
+	 *             #getDisplayURL(ThemeDisplay)}
 	 */
 	@Deprecated
 	@Override
@@ -406,11 +408,11 @@ public class UserImpl extends UserBaseImpl {
 			return StringPool.BLANK;
 		}
 
-		String portalURL = themeDisplay.getPortalURL();
-
 		String profileFriendlyURL = getProfileFriendlyURL();
 
 		if (profileFriendlyURL != null) {
+			String portalURL = themeDisplay.getPortalURL();
+
 			return PortalUtil.addPreservedParameters(
 				themeDisplay,
 				portalURL.concat(

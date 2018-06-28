@@ -12,9 +12,9 @@
 		<execute macro="User#firstLoginPG" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -24,8 +24,8 @@
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Wiki Test Page" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -119,9 +119,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPrivatePage">
@@ -131,13 +131,13 @@
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Child Site Page" />
-			<var name="privacy" value="Private" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Private Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Page#view">
 			<var name="pageName" value="Child Site Page" />
-			<var name="privacy" value="Private" />
+			<var name="privacy" value="Private Pages" />
 		</execute>
 
 		<execute macro="Navigator#gotoSpecificURLPage">
@@ -232,7 +232,7 @@
 			<var name="wikiPageTitle" value="FrontPage" />
 		</execute>
 
-		<for list="Document_1.jpg,Document_2.mp3,Document_3.doc" param="attachmentFileName" >
+		<for list="Document_1.jpg,Document_2.mp3,Document_3.doc" param="attachmentFileName">
 			<execute macro="WikiPage#addAttachmentViaPageEdit">
 				<var name="attachmentFileName" value="${attachmentFileName}" />
 				<var name="wikiPageTitle" value="FrontPage" />
@@ -393,7 +393,7 @@
 			<var name="wikiPageTitle" value="FrontPage" />
 		</execute>
 
-		<for list="1,2,3" param="childPageCount" >
+		<for list="1,2,3" param="childPageCount">
 			<execute macro="WikiPage#addChildPagePG">
 				<var name="wikiChildPageContent" value="Wiki FrontPage Child Page${childPageCount} Content" />
 				<var name="wikiChildPageTitle" value="Wiki FrontPage Child Page${childPageCount} Title" />
@@ -405,7 +405,7 @@
 			<var name="pageName" value="Wiki Test Page" />
 		</execute>
 
-		<for list="1,2,3" param="childPageCount" >
+		<for list="1,2,3" param="childPageCount">
 			<execute macro="WikiNavigator#gotoPG">
 				<var name="wikiPageTitle" value="FrontPage" />
 			</execute>
@@ -791,88 +791,6 @@
 		</execute>
 	</command>
 
-	<command name="AddWikiPageFormatJSPWiki" priority="4">
-		<property name="osgi.app.includes" value="wiki-engine-jspwiki" />
-		<property name="test.assert.warning.exceptions" value="true" />
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Apps" />
-			<var name="panel" value="Control Panel" />
-			<var name="portlet" value="App Manager" />
-		</execute>
-
-		<execute macro="Search#searchCP">
-			<var name="searchTerm" value="Creole" />
-		</execute>
-
-		<execute macro="AppManager#deactivateAppCP">
-			<var name="appName" value="Creole" />
-		</execute>
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Apps" />
-			<var name="panel" value="Control Panel" />
-			<var name="portlet" value="App Manager" />
-		</execute>
-
-		<execute macro="Search#searchCP">
-			<var name="searchTerm" value="Creole" />
-		</execute>
-
-		<var name="key_appName" value="Creole" />
-		<var name="key_appStatus" value="Resolved" />
-
-		<execute function="AssertTextEquals#assertPartialText" locator1="AppManager#APP_STATUS" value1="Resolved" />
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Wiki Test Page" />
-		</execute>
-
-		<execute macro="WikiNavigator#gotoAllPagesPG" />
-
-		<execute macro="WikiNavigator#gotoAddPageViaPG" />
-
-		<execute function="AssertElementNotPresent" locator1="Message#ERROR" />
-		<execute function="AssertTextNotPresent" value1="The format of this page is not supported. The page content will be shown unformatted." />
-
-		<execute macro="WikiEntry#viewPageFormat">
-			<var name="pageFormat" value="Creole" />
-		</execute>
-
-		<execute macro="WikiEntry#addPageTitle">
-			<var name="wikiPageTitle" value="Wiki Page With JSPWiki Content" />
-		</execute>
-
-		<execute macro="AlloyEditor#addSourceContent">
-			<var name="content" value="!JSPWiki Header" />
-		</execute>
-
-		<execute function="KeyPress" locator1="TextArea#ACE_EDITOR" value1="\RETURN" />
-
-		<execute function="Type#sendKeysAceEditor" locator1="TextArea#ACE_EDITOR" value1="__JSPWiki Bold Text__" />
-
-		<execute macro="PortletEntry#publish" />
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Wiki Test Page" />
-		</execute>
-
-		<execute macro="WikiNavigator#gotoAllPagesPG" />
-
-		<execute macro="WikiTable#viewEntry">
-			<var name="draftStatus" value="Approved" />
-			<var name="wikiPageTitle" value="Wiki Page With JSPWiki Content" />
-		</execute>
-
-		<execute macro="WikiNavigator#gotoEntryViaPGTable">
-			<var name="wikiPageTitle" value="Wiki Page With JSPWiki Content" />
-		</execute>
-
-		<execute function="AssertTextEquals" locator1="WikiEntry#BODY_HEADER" value1="JSPWiki Header#" />
-
-		<execute function="AssertTextEquals" locator1="WikiEntry#BODY_BOLD_TEXT" value1="JSPWiki Bold Text" />
-	</command>
-
 	<command name="AddWikiPages" priority="5">
 		<property name="portal.acceptance" value="false" />
 		<property name="testray.component.names" value="Training" />
@@ -883,7 +801,7 @@
 
 		<execute macro="WikiNavigator#gotoAllPagesPG" />
 
-		<for list="1,2,3" param="entryCount" >
+		<for list="1,2,3" param="entryCount">
 			<execute macro="WikiPage#addPG">
 				<var name="wikiPageContent" value="Wiki Page${entryCount} Content" />
 				<var name="wikiPageTitle" value="Wiki Page${entryCount} Title" />
@@ -892,7 +810,7 @@
 			<execute function="Refresh" />
 		</for>
 
-		<for list="1,2,3" param="entryCount" >
+		<for list="1,2,3" param="entryCount">
 			<execute macro="Navigator#gotoPage">
 				<var name="pageName" value="Wiki Test Page" />
 			</execute>
@@ -950,7 +868,7 @@
 		</execute>
 
 		<execute macro="WikiPage#addInlineImageViaEdit">
-			<var name="navTab" value="Page Attachments" />
+			<var name="navTab" value="Upload Image" />
 			<var name="uploadFileName" value="Document_1.jpg" />
 		</execute>
 
@@ -1300,89 +1218,6 @@
 		<execute macro="WikiPage#viewPG">
 			<var name="wikiPageContent" value="Wiki FrontPage Content Edit" />
 			<var name="wikiPageTitle" value="FrontPage" />
-		</execute>
-	</command>
-
-	<command name="EditWikiPageFormatMediaWiki" priority="5">
-		<property name="osgi.app.includes" value="wiki-engine-mediawiki" />
-		<property name="test.assert.warning.exceptions" value="true" />
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Wiki Test Page" />
-		</execute>
-
-		<execute macro="WikiNavigator#gotoAllPagesPG" />
-
-		<execute macro="WikiNavigator#gotoAddPageViaPG" />
-
-		<execute macro="WikiEntry#selectPageFormat">
-			<var name="pageFormat" value="MediaWiki" />
-		</execute>
-
-		<execute macro="WikiEntry#confirmMediaWiki" />
-
-		<execute macro="WikiEntry#addMediaWikiDescription">
-			<var name="wikiPageContent" value="Wiki Page Content Media Wiki" />
-		</execute>
-
-		<execute macro="WikiEntry#addPageTitle">
-			<var name="wikiPageTitle" value="Wiki Page Title" />
-		</execute>
-
-		<execute macro="PortletEntry#publish" />
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Wiki Test Page" />
-		</execute>
-
-		<execute macro="WikiNavigator#gotoAllPagesPG" />
-
-		<execute macro="WikiTable#viewEntry">
-			<var name="draftStatus" value="Approved" />
-			<var name="wikiPageTitle" value="Wiki Page Title" />
-		</execute>
-
-		<execute macro="WikiNavigator#gotoEntryViaPGTable">
-			<var name="wikiPageTitle" value="Wiki Page Title" />
-		</execute>
-
-		<execute macro="WikiEntry#viewPageContentBody">
-			<var name="wikiPageContent" value="Wiki Page Content Media Wiki" />
-		</execute>
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Wiki Test Page" />
-		</execute>
-
-		<execute macro="WikiNavigator#gotoAllPagesPG" />
-
-		<execute macro="WikiNavigator#gotoEntryEditViaPGTable">
-			<var name="wikiPageTitle" value="Wiki Page Title" />
-		</execute>
-
-		<execute macro="WikiEntry#addMediaWikiDescription">
-			<var name="wikiPageContent" value="Wiki Page Content Media Wiki Edited" />
-		</execute>
-
-		<execute macro="PortletEntry#publish" />
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Wiki Test Page" />
-		</execute>
-
-		<execute macro="WikiNavigator#gotoAllPagesPG" />
-
-		<execute macro="WikiTable#viewEntry">
-			<var name="draftStatus" value="Approved" />
-			<var name="wikiPageTitle" value="Wiki Page Title" />
-		</execute>
-
-		<execute macro="WikiNavigator#gotoEntryViaPGTable">
-			<var name="wikiPageTitle" value="Wiki Page Title" />
-		</execute>
-
-		<execute macro="WikiEntry#viewPageContentBody">
-			<var name="wikiPageContent" value="Wiki Page Content Media Wiki Edited" />
 		</execute>
 	</command>
 

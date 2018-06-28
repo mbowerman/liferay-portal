@@ -22,15 +22,12 @@ import com.liferay.knowledge.base.model.KBTemplate;
 import com.liferay.knowledge.base.service.KBArticleLocalService;
 import com.liferay.knowledge.base.service.KBCommentLocalService;
 import com.liferay.knowledge.base.service.KBTemplateLocalService;
-import com.liferay.knowledge.base.service.permission.KBArticlePermission;
-import com.liferay.knowledge.base.service.permission.KBTemplatePermission;
 import com.liferay.knowledge.base.util.KnowledgeBaseUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.util.AggregateResourceBundleLoader;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
-import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.social.kernel.model.BaseSocialActivityInterpreter;
@@ -39,13 +36,15 @@ import com.liferay.social.kernel.model.SocialActivityInterpreter;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Peter Shin
  * @author Brian Wing Shun Chan
  */
 @Component(
-	property = {"javax.portlet.name=" + KBPortletKeys.KNOWLEDGE_BASE_ADMIN},
+	property = "javax.portlet.name=" + KBPortletKeys.KNOWLEDGE_BASE_ADMIN,
 	service = SocialActivityInterpreter.class
 )
 public class KBActivityInterpreter extends BaseSocialActivityInterpreter {
@@ -224,7 +223,7 @@ public class KBActivityInterpreter extends BaseSocialActivityInterpreter {
 			KBArticle kbArticle = _kbArticleLocalService.getLatestKBArticle(
 				activity.getClassPK(), WorkflowConstants.STATUS_APPROVED);
 
-			return KBArticlePermission.contains(
+			return _kbArticleModelResourcePermission.contains(
 				permissionChecker, kbArticle, KBActionKeys.VIEW);
 		}
 		else if (className.equals(KBComment.class.getName())) {
@@ -234,7 +233,7 @@ public class KBActivityInterpreter extends BaseSocialActivityInterpreter {
 			KBTemplate kbTemplate = _kbTemplateLocalService.getKBTemplate(
 				activity.getClassPK());
 
-			return KBTemplatePermission.contains(
+			return _kbTemplateModelResourcePermission.contains(
 				permissionChecker, kbTemplate, KBActionKeys.VIEW);
 		}
 
@@ -262,26 +261,33 @@ public class KBActivityInterpreter extends BaseSocialActivityInterpreter {
 		_kbTemplateLocalService = kbTemplateLocalService;
 	}
 
-	@Reference(
-		target = "(bundle.symbolic.name=com.liferay.knowledge.base.web)",
-		unbind = "-"
-	)
-	protected void setResourceBundleLoader(
-		ResourceBundleLoader resourceBundleLoader) {
-
-		_resourceBundleLoader = new AggregateResourceBundleLoader(
-			resourceBundleLoader,
-			ResourceBundleLoaderUtil.getPortalResourceBundleLoader());
-	}
-
 	private static final String[] _CLASS_NAMES = {
 		KBArticle.class.getName(), KBComment.class.getName(),
 		KBTemplate.class.getName()
 	};
 
 	private KBArticleLocalService _kbArticleLocalService;
+
+	@Reference(
+		target = "(model.class.name=com.liferay.knowledge.base.model.KBArticle)"
+	)
+	private ModelResourcePermission<KBArticle>
+		_kbArticleModelResourcePermission;
+
 	private KBCommentLocalService _kbCommentLocalService;
 	private KBTemplateLocalService _kbTemplateLocalService;
-	private ResourceBundleLoader _resourceBundleLoader;
+
+	@Reference(
+		target = "(model.class.name=com.liferay.knowledge.base.model.KBTemplate)"
+	)
+	private ModelResourcePermission<KBTemplate>
+		_kbTemplateModelResourcePermission;
+
+	@Reference(
+		policy = ReferencePolicy.DYNAMIC,
+		policyOption = ReferencePolicyOption.GREEDY,
+		target = "(bundle.symbolic.name=com.liferay.knowledge.base.web)"
+	)
+	private volatile ResourceBundleLoader _resourceBundleLoader;
 
 }

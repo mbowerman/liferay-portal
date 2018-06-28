@@ -30,6 +30,8 @@ public class JavaEmptyLinesCheck extends EmptyLinesCheck {
 
 		content = fixMissingEmptyLines(absolutePath, content);
 
+		content = fixMissingEmptyLinesAroundComments(content);
+
 		content = fixRedundantEmptyLines(content);
 
 		content = fixIncorrectEmptyLineBeforeCloseCurlyBrace(content);
@@ -67,14 +69,14 @@ public class JavaEmptyLinesCheck extends EmptyLinesCheck {
 			}
 
 			String lineBefore = StringUtil.trim(
-				getLine(content, getLineCount(content, previousPos)));
+				getLine(content, getLineNumber(content, previousPos)));
 
 			if (lineBefore.startsWith("//")) {
 				continue;
 			}
 
 			String lineAfter = StringUtil.trim(
-				getLine(content, getLineCount(content, pos + 2)));
+				getLine(content, getLineNumber(content, pos + 2)));
 
 			if (lineAfter.startsWith("//")) {
 				continue;

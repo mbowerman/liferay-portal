@@ -15,6 +15,7 @@
 package com.liferay.portal.model.impl;
 
 import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -23,6 +24,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.CustomizedPages;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutTemplate;
 import com.liferay.portal.kernel.model.LayoutTypeAccessPolicy;
@@ -58,7 +60,6 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
@@ -110,6 +111,7 @@ public class LayoutTypePortletImpl
 		setModeConfig(StringUtil.add(getModeConfig(), portletId));
 	}
 
+	@Override
 	public void addModeCustomPortletId(String portletId, String portletMode) {
 		removeModesPortletId(portletId);
 		setModeCustom(
@@ -260,6 +262,7 @@ public class LayoutTypePortletImpl
 		return list;
 	}
 
+	@Override
 	public String getAddedCustomPortletMode() {
 		return _addedCustomPortletMode;
 	}
@@ -417,6 +420,7 @@ public class LayoutTypePortletImpl
 		return getTypeSettingsProperty(LayoutTypePortletConstants.MODE_CONFIG);
 	}
 
+	@Override
 	public String getModeCustom(String portletMode) {
 		return getTypeSettingsProperty("mode-" + portletMode);
 	}
@@ -543,6 +547,7 @@ public class LayoutTypePortletImpl
 		return StringUtil.contains(getModeConfig(), portletId);
 	}
 
+	@Override
 	public boolean hasModeCustomPortletId(
 		String portletId, String portletMode) {
 
@@ -1221,6 +1226,7 @@ public class LayoutTypePortletImpl
 			LayoutTypePortletConstants.MODE_CONFIG, modeConfig);
 	}
 
+	@Override
 	public void setModeCustom(String modeCustom, String portletMode) {
 		setTypeSettingsProperty("mode-" + portletMode, modeCustom);
 	}
@@ -1524,11 +1530,19 @@ public class LayoutTypePortletImpl
 		Layout layout = getLayout();
 
 		if (layout.isTypePortlet()) {
-			LayoutTemplate layoutTemplate = getLayoutTemplate();
+			if (Objects.equals(
+					layout.getType(),
+					LayoutConstants.TYPE_FULL_PAGE_APPLICATION)) {
 
-			columns.addAll(layoutTemplate.getColumns());
+				columns.add("fullPageApplicationPortlet");
+			}
+			else {
+				LayoutTemplate layoutTemplate = getLayoutTemplate();
 
-			Collections.addAll(columns, getNestedColumns());
+				columns.addAll(layoutTemplate.getColumns());
+
+				Collections.addAll(columns, getNestedColumns());
+			}
 		}
 		else if (layout.isTypePanel()) {
 			columns.add("panelSelectedPortlets");

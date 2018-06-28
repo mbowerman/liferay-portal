@@ -57,7 +57,7 @@
 
 		<execute macro="Alert#viewRequestFailedToComplete" />
 
-		<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_2" value1="Please enter a valid email address." />
+		<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_ENTER_A_VALID_EMAIL_ADDRESS" value1="Please enter a valid email address." />
 
 		<execute function="Type" locator1="ReportsAdminEditReportEntry#EMAIL_NOTIFICATIONS_FIELD" value1="liferay.qa1@gmail.com" />
 		<execute function="Type" locator1="ReportsAdminEditReportEntry#EMAIL_RECIPIENT_FIELD" value1="InvalidEmail" />
@@ -65,7 +65,7 @@
 
 		<execute macro="Alert#viewRequestFailedToComplete" />
 
-		<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_2" value1="Please enter a valid email address." />
+		<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_ENTER_A_VALID_EMAIL_ADDRESS" value1="Please enter a valid email address." />
 	</command>
 
 	<command name="AddSchedule" priority="4">
@@ -282,7 +282,9 @@
 			<var name="subject" value="New Report: reports_admin_template_source_sample_class_name.pdf" />
 		</execute>
 
-		<execute function="Open" locator1="${portalURL}" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${portalURL}" />
+		</execute>
 	</command>
 
 	<command name="DownloadReportCSV" priority="4">
@@ -610,7 +612,7 @@
 		<execute macro="PortletEntry#save" />
 	</command>
 
-	<command name="ViewEmailNotificationDelivery" priority="4">
+	<command ignore="true" name="ViewEmailNotificationDelivery" priority="4">
 		<property name="test.assert.javascript.errors" value="false" />
 		<property name="test.name.skip.portal.instance" value="CPReportsadmin#ViewEmailNotificationDelivery" />
 
@@ -696,7 +698,9 @@
 			<var name="gmailMessageTitleList" value="New Report: Custom Report Name.pdf,Your New Account,Your New Password" />
 		</execute>
 
-		<execute function="Open" locator1="${portalURL}" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${portalURL}" />
+		</execute>
 	</command>
 
 	<command ignore="true" name="ViewEmailRecipientDelivery" priority="4">
@@ -769,7 +773,9 @@
 			<var name="gmailMessageTitleList" value="New Report: reports_admin_template_source_sample_class_name.pdf,Your New Account,Your New Password" />
 		</execute>
 
-		<execute function="Open" locator1="${portalURL}" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${portalURL}" />
+		</execute>
 	</command>
 
 	<command name="ViewReportDefinitionParametersFields" priority="3">

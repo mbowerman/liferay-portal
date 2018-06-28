@@ -39,16 +39,6 @@
 	<td></td>
 </tr>
 <tr>
-	<td>CONTENT_ALL_CONTENT</td>
-	<td>//option[contains(@id,'allContent')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>CONTENT_CHOOSE_CONTENT</td>
-	<td>//option[contains(@id,'chooseContent')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>COUNTRY</td>
 	<td>//div[label[contains(.,'Country')]]/select</td>
 	<td></td>
@@ -110,7 +100,7 @@
 </tr>
 <tr>
 	<td>GENERIC_SELECT_FIELD</td>
-	<td>//div[label[contains(.,'${key_fieldLabel}')]//select</td>
+	<td>//div[label[contains(.,'${key_fieldLabel}')]]/select</td>
 	<td></td>
 </tr>
 <tr>
@@ -136,11 +126,6 @@
 <tr>
 	<td>LAST_TIME</td>
 	<td>//select[contains(@id, 'last')]/option[contains(.,'${key_lastDateRange}')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>LENGTH</td>
-	<td>//select[contains(@id,'length')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -226,11 +211,6 @@
 <tr>
 	<td>TYPE</td>
 	<td>//div[label[contains(.,'Type')]]/select</td>
-	<td></td>
-</tr>
-<tr>
-	<td>USER_STATUS</td>
-	<td>//select[contains(@id,'StatusSelect')]</td>
 	<td></td>
 </tr>
 <tr>

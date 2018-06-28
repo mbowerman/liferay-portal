@@ -14,12 +14,17 @@
 
 package com.liferay.poshi.runner.elements;
 
+import java.util.List;
+import java.util.regex.Pattern;
+
+import org.dom4j.Attribute;
 import org.dom4j.Element;
+import org.dom4j.Node;
 
 /**
  * @author Kenji Heigel
  */
-public class EchoPoshiElement extends BasePoshiElement {
+public class EchoPoshiElement extends PoshiElement {
 
 	@Override
 	public PoshiElement clone(Element element) {
@@ -32,27 +37,27 @@ public class EchoPoshiElement extends BasePoshiElement {
 
 	@Override
 	public PoshiElement clone(
-		PoshiElement parentPoshiElement, String readableSyntax) {
+		PoshiElement parentPoshiElement, String poshiScript) {
 
-		if (_isElementType(readableSyntax)) {
-			return new EchoPoshiElement(readableSyntax);
+		if (_isElementType(poshiScript)) {
+			return new EchoPoshiElement(parentPoshiElement, poshiScript);
 		}
 
 		return null;
 	}
 
 	@Override
-	public void parseReadableSyntax(String readableSyntax) {
-		String content = getQuotedContent(readableSyntax);
+	public void parsePoshiScript(String poshiScript) {
+		String content = getQuotedContent(poshiScript);
 
 		addAttribute("message", content);
 	}
 
 	@Override
-	public String toReadableSyntax() {
+	public String toPoshiScript() {
 		String message = attributeValue("message");
 
-		return createReadableBlock(message);
+		return createPoshiScriptSnippet(message);
 	}
 
 	protected EchoPoshiElement() {
@@ -62,20 +67,34 @@ public class EchoPoshiElement extends BasePoshiElement {
 		super(_ELEMENT_NAME, element);
 	}
 
-	protected EchoPoshiElement(String readableSyntax) {
-		super(_ELEMENT_NAME, readableSyntax);
+	protected EchoPoshiElement(List<Attribute> attributes, List<Node> nodes) {
+		this(_ELEMENT_NAME, attributes, nodes);
+	}
+
+	protected EchoPoshiElement(
+		PoshiElement parentPoshiElement, String poshiScript) {
+
+		super(_ELEMENT_NAME, parentPoshiElement, poshiScript);
 	}
 
 	protected EchoPoshiElement(String name, Element element) {
 		super(name, element);
 	}
 
-	protected EchoPoshiElement(String name, String readableSyntax) {
-		super(name, readableSyntax);
+	protected EchoPoshiElement(
+		String elementName, List<Attribute> attributes, List<Node> nodes) {
+
+		super(elementName, attributes, nodes);
+	}
+
+	protected EchoPoshiElement(
+		String name, PoshiElement parentPoshiElement, String poshiScript) {
+
+		super(name, parentPoshiElement, poshiScript);
 	}
 
 	@Override
-	protected String createReadableBlock(String content) {
+	protected String createPoshiScriptSnippet(String content) {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("\n\n");
@@ -93,24 +112,15 @@ public class EchoPoshiElement extends BasePoshiElement {
 		return "echo";
 	}
 
-	private boolean _isElementType(String readableSyntax) {
-		readableSyntax = readableSyntax.trim();
-
-		if (!isBalancedReadableSyntax(readableSyntax)) {
-			return false;
-		}
-
-		if (!readableSyntax.endsWith(");")) {
-			return false;
-		}
-
-		if (!readableSyntax.startsWith("echo(")) {
-			return false;
-		}
-
-		return true;
+	private boolean _isElementType(String poshiScript) {
+		return isValidPoshiScriptStatement(_statementPattern, poshiScript);
 	}
 
 	private static final String _ELEMENT_NAME = "echo";
+
+	private static final String _POSHI_SCRIPT_KEYWORD = _ELEMENT_NAME;
+
+	private static final Pattern _statementPattern = Pattern.compile(
+		"^" + _POSHI_SCRIPT_KEYWORD + PARAMETER_REGEX + STATEMENT_END_REGEX);
 
 }

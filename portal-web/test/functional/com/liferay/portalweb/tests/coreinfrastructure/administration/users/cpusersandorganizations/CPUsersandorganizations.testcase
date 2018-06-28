@@ -345,9 +345,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPrivatePage">
@@ -361,7 +361,7 @@
 
 		<execute macro="Page#view">
 			<var name="pageName" value="Private Page" />
-			<var name="privacy" value="Private" />
+			<var name="privacy" value="Private Pages" />
 		</execute>
 	</command>
 
@@ -396,9 +396,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -412,22 +412,22 @@
 
 		<execute macro="Page#view">
 			<var name="pageName" value="Public Page" />
-			<var name="privacy" value="Public" />
+			<var name="privacy" value="Public Pages" />
 		</execute>
 	</command>
 
 	<command name="AddOrganizationTeam" priority="5">
-		<property name="portal.acceptance" value="pending" />
+		<property name="portal.acceptance" value="false" />
 		<property name="test.name.skip.portal.instance" value="CPUsersandorganizations#AddOrganizationTeam" />
 		<property name="testray.component.names" value="Training" />
 
 		<execute macro="ProductMenu#gotoPortlet">
 			<var name="category" value="Configuration" />
 			<var name="panel" value="Control Panel" />
-			<var name="portlet" value="Server Administration" />
+			<var name="portlet" value="Search" />
 		</execute>
 
-		<execute macro="ServerAdministration#executeServerResourcesActions">
+		<execute macro="SearchAdministration#executeSearchActions">
 			<var name="actionsDescription" value="Reindex all search indexes." />
 		</execute>
 
@@ -488,9 +488,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -1293,9 +1293,21 @@
 		</execute>
 
 		<execute macro="User#deactivateCP">
+			<var name="deactivateType" value="Actions" />
 			<var name="userFirstName" value="userfn" />
-			<var name="userScreenName" value="usersn" />
 		</execute>
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Users" />
+			<var name="panel" value="Control Panel" />
+			<var name="portlet" value="Users and Organizations" />
+		</execute>
+
+		<execute macro="User#searchCP">
+			<var name="searchTerm" value="usersn" />
+		</execute>
+
+		<execute macro="User#viewNoUsersFoundCP" />
 
 		<execute macro="ProductMenu#gotoPortlet">
 			<var name="category" value="Users" />
@@ -1311,6 +1323,12 @@
 			<var name="category" value="Users" />
 			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="Users and Organizations" />
+		</execute>
+
+		<execute function="Click" locator1="Dropdown#FILTER_AND_ORDER" />
+
+		<execute function="Click" locator1="MenuItem#ANY_MENU_ITEM" value1="Inactive">
+			<var name="key_menuItem" value="Inactive" />
 		</execute>
 
 		<execute macro="User#searchCP">
@@ -1462,9 +1480,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -1957,7 +1975,6 @@
 		<execute macro="User#deactivateCP">
 			<var name="deactivateType" value="Actions" />
 			<var name="userFirstName" value="userfn" />
-			<var name="userScreenName" value="usersn" />
 		</execute>
 
 		<execute macro="User#logoutPG" />
@@ -1971,7 +1988,7 @@
 	</command>
 
 	<command name="ViewLoginForActivatedUser" priority="5">
-		<property name="portal.acceptance" value="pending" />
+		<property name="portal.acceptance" value="false" />
 		<property name="testray.component.names" value="Training" />
 
 		<execute macro="ProductMenu#gotoPortlet">
@@ -2007,7 +2024,6 @@
 		<execute macro="User#deactivateCP">
 			<var name="deactivateType" value="Actions" />
 			<var name="userFirstName" value="userfn" />
-			<var name="userScreenName" value="usersn" />
 		</execute>
 
 		<execute macro="User#activateCP">
@@ -2061,9 +2077,7 @@
 		</execute>
 
 		<execute macro="User#deactivateCP">
-			<var name="deactivateType" value="Deactivate Button" />
 			<var name="userFirstName" value="userfn" />
-			<var name="userScreenName" value="usersn" />
 		</execute>
 
 		<execute macro="Navigator#openSpecificURL">
@@ -2084,9 +2098,9 @@
 
 	<command name="ViewOrganizationSiteViaSitesDirectory" priority="4">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -2129,9 +2143,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">

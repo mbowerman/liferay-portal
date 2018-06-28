@@ -14,6 +14,7 @@
 
 package com.liferay.adaptive.media.upload.web.internal.attachment;
 
+import com.liferay.adaptive.media.image.html.constants.AMImageHTMLConstants;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.upload.AttachmentElementReplacer;
 
@@ -41,14 +42,15 @@ public class AMHTMLImageAttachmentElementReplacer
 
 	@Override
 	public String replace(String originalElement, FileEntry fileEntry) {
-		Element image = _parseImgTag(
+		Element imageElement = _parseImgTag(
 			_defaultAttachmentElementReplacer.replace(
 				originalElement, fileEntry));
 
-		image.attr(
-			"data-fileEntryId", String.valueOf(fileEntry.getFileEntryId()));
+		imageElement.attr(
+			AMImageHTMLConstants.ATTRIBUTE_NAME_FILE_ENTRY_ID,
+			String.valueOf(fileEntry.getFileEntryId()));
 
-		return image.toString();
+		return imageElement.toString();
 	}
 
 	protected AMHTMLImageAttachmentElementReplacer(
@@ -58,12 +60,12 @@ public class AMHTMLImageAttachmentElementReplacer
 	}
 
 	private Element _parseImgTag(String originalImgTag) {
+		Document document = Jsoup.parseBodyFragment(originalImgTag);
+
 		Document.OutputSettings outputSettings = new Document.OutputSettings();
 
 		outputSettings.prettyPrint(false);
 		outputSettings.syntax(Document.OutputSettings.Syntax.xml);
-
-		Document document = Jsoup.parseBodyFragment(originalImgTag);
 
 		document.outputSettings(outputSettings);
 

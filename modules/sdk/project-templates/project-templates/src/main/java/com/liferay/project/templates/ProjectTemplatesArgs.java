@@ -18,6 +18,9 @@ import com.beust.jcommander.Parameter;
 
 import java.io.File;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Andrea Di Giorgi
  */
@@ -28,8 +31,8 @@ public class ProjectTemplatesArgs {
 		_destinationDir = new File(System.getProperty("user.dir"));
 	}
 
-	public File getArchetypesDir() {
-		return _archetypesDir;
+	public List<File> getArchetypesDirs() {
+		return _archetypesDirs;
 	}
 
 	public String getAuthor() {
@@ -46,6 +49,10 @@ public class ProjectTemplatesArgs {
 
 	public File getDestinationDir() {
 		return _destinationDir;
+	}
+
+	public String getGroupId() {
+		return _groupId;
 	}
 
 	public String getHostBundleSymbolicName() {
@@ -88,8 +95,12 @@ public class ProjectTemplatesArgs {
 		return _maven;
 	}
 
-	public void setArchetypesDir(File archetypesDir) {
-		_archetypesDir = archetypesDir;
+	public void setArchetypesDirs(List<File> archetypesDirs) {
+		_archetypesDirs = archetypesDirs;
+	}
+
+	public void setAuthor(String author) {
+		_author = author;
 	}
 
 	public void setClassName(String className) {
@@ -110,6 +121,10 @@ public class ProjectTemplatesArgs {
 
 	public void setGradle(boolean gradle) {
 		_gradle = gradle;
+	}
+
+	public void setGroupId(String groupId) {
+		_groupId = groupId;
 	}
 
 	public void setHostBundleSymbolicName(String hostBundleSymbolicName) {
@@ -152,8 +167,8 @@ public class ProjectTemplatesArgs {
 		return _list;
 	}
 
-	@Parameter(hidden = true, names = "--archetypes-dir")
-	private File _archetypesDir;
+	@Parameter(hidden = true, names = {"--archetypes-dir", "--archetypes-dirs"})
+	private List<File> _archetypesDirs = new ArrayList<>();
 
 	@Parameter(
 		description = "The name of the user associated with the code.",
@@ -191,6 +206,12 @@ public class ProjectTemplatesArgs {
 		names = "--gradle"
 	)
 	private boolean _gradle = true;
+
+	@Parameter(
+		description = "The group ID to use in the project.",
+		names = "--group-id"
+	)
+	private String _groupId;
 
 	@Parameter(
 		description = "Print this message.", help = true,

@@ -44,10 +44,10 @@
 
 package com.liferay.portal.kernel.cal;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.TimeZoneUtil;
 
 import java.io.Serializable;
@@ -214,7 +214,6 @@ public class Recurrence implements Serializable {
 			throw new IllegalArgumentException("Current time before DtStart");
 		}
 
-		int minInterval = getMinimumInterval();
 		Calendar candidate = (Calendar)current.clone();
 
 		if (true) {
@@ -237,6 +236,8 @@ public class Recurrence implements Serializable {
 		reduce_constant_length_field(Calendar.SECOND, dtStart, candidate);
 		reduce_constant_length_field(Calendar.MINUTE, dtStart, candidate);
 		reduce_constant_length_field(Calendar.HOUR_OF_DAY, dtStart, candidate);
+
+		int minInterval = getMinimumInterval();
 
 		if (minInterval == WEEKLY) {
 			reduce_constant_length_field(
@@ -504,6 +505,7 @@ public class Recurrence implements Serializable {
 		tempEnd.clear(Calendar.ZONE_OFFSET);
 		tempEnd.clear(Calendar.DST_OFFSET);
 		tempEnd.setTimeZone(TimeZoneUtil.getTimeZone(StringPool.UTC));
+
 		duration.setInterval(
 			tempEnd.getTime().getTime() - dtStart.getTime().getTime());
 	}
@@ -737,10 +739,12 @@ public class Recurrence implements Serializable {
 			throw new IllegalArgumentException("Not a constant length field");
 		}
 
-		int fieldLength = start.getMaximum(field) - start.getMinimum(field) + 1;
 		int delta = start.get(field) - candidate.get(field);
 
 		if (delta > 0) {
+			int fieldLength =
+				start.getMaximum(field) - start.getMinimum(field) + 1;
+
 			delta -= fieldLength;
 		}
 
@@ -767,6 +771,7 @@ public class Recurrence implements Serializable {
 
 		while (start.get(Calendar.DATE) != candidate.get(Calendar.DATE)) {
 			tempCal.add(Calendar.MONTH, -1);
+
 			candidate.add(
 				Calendar.DATE, -tempCal.getActualMaximum(Calendar.DATE));
 		}
@@ -929,8 +934,8 @@ public class Recurrence implements Serializable {
 			return true;
 		}
 
-		for (int i = 0; i < byDay.length; i++) {
-			if (matchesIndividualByDay(candidate, byDay[i])) {
+		for (DayAndPosition dayAndPosition : byDay) {
+			if (matchesIndividualByDay(candidate, dayAndPosition)) {
 				return true;
 			}
 		}
@@ -953,19 +958,19 @@ public class Recurrence implements Serializable {
 			return true;
 		}
 
-		for (int i = 0; i < array.length; i++) {
+		for (int i : array) {
 			int val = 0;
 
-			if (allowNegative && (array[i] < 0)) {
+			if (allowNegative && (i < 0)) {
 
 				// byMonthDay = -1, in a 31-day month, means 31
 
 				int max = candidate.getActualMaximum(field);
 
-				val = (max + 1) + array[i];
+				val = (max + 1) + i;
 			}
 			else {
-				val = array[i];
+				val = i;
 			}
 
 			if (val == candidate.get(field)) {

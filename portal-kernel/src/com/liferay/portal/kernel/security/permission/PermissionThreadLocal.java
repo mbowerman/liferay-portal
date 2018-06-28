@@ -15,7 +15,7 @@
 package com.liferay.portal.kernel.security.permission;
 
 import com.liferay.petra.lang.CentralizedThreadLocal;
-import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.petra.string.StringPool;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -36,7 +36,7 @@ public class PermissionThreadLocal {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	public static boolean isFlushResourceBlockEnabled(
@@ -58,7 +58,7 @@ public class PermissionThreadLocal {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	public static void setFlushResourceBlockEnabled(

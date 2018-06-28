@@ -16,6 +16,23 @@ directory path of the module.
 
 ---
 
+For modules ending with `-impl`, the `Bundle-Name` should end with
+`Implementation`.
+
+### Example
+
+    Bundle-Name: Liferay Users Admin Implementation
+    Bundle-SymbolicName: com.liferay.users.admin.impl
+
+For modules ending with `-util`, the `Bundle-Name` should end with `Utilities`.
+
+### Example
+
+    Bundle-Name: Liferay Users Admin Utilities
+    Bundle-SymbolicName: com.liferay.users.admin.util
+
+---
+
 For web modules (modules ending with `-web`), the `Web-ContextPath` should also
 match the directory path of the module.
 
@@ -34,7 +51,7 @@ have the `Web-ContextPath` header. The header should match the `name` in the
 
 ### Example
 
-`\apps\foundation\frontend-js\frontend-js-web\bnd.bnd` contains the following
+`\apps\frontend-js\frontend-js-web\bnd.bnd` contains the following
 `Web-ContextPath`:
 
     Web-ContextPath: /frontend-js-web

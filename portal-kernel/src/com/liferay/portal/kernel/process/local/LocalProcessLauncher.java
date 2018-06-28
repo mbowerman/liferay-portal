@@ -14,13 +14,13 @@
 
 package com.liferay.portal.kernel.process.local;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedOutputStream;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.portal.kernel.io.unsync.UnsyncPrintWriter;
 import com.liferay.portal.kernel.process.ProcessCallable;
 import com.liferay.portal.kernel.process.ProcessException;
 import com.liferay.portal.kernel.util.ClassLoaderObjectInputStream;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.File;
@@ -189,8 +189,8 @@ public class LocalProcessLauncher {
 		}
 
 		/**
-		 * @deprecated As of 7.0.0, replaced by {@link #writeProcessCallable(
-		 *             ProcessCallable) }
+		 * @deprecated As of Judson, replaced by {@link
+		 *             #writeProcessCallable(ProcessCallable) }
 		 */
 		@Deprecated
 		public static com.liferay.portal.kernel.process.log.ProcessOutputStream

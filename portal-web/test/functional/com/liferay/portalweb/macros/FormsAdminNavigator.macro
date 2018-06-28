@@ -3,7 +3,7 @@
 	<var name="rowIndexNumber" value="1" />
 
 	<command name="gotoAddDataProvider">
-		<execute function="Click" locator1="FormsAdmin#DATA_PROVIDER_PLUS_BUTTON" />
+		<execute macro="LexiconEntry#gotoAdd" />
 	</command>
 
 	<command name="gotoAddForm">
@@ -21,53 +21,20 @@
 		</if>
 	</command>
 
-	<command name="gotoDataProviders">
-		<execute function="Click" locator1="Icon#HEADER_VERTICAL_ELLIPSIS" />
-
-		<execute function="AssertClick" locator1="MenuItem#ANY_MENU_ITEM" value1="Data Providers">
-			<var name="key_menuItem" value="Data Providers" />
-		</execute>
-	</command>
-
 	<command name="gotoDeleteField">
-		<toggle name="LPS-75355">
-			<on>
-				<execute macro="FormsAdminNavigator#gotoEditField">
-					<var name="fieldName" value="${fieldName}" />
-				</execute>
-
-				<var name="key_fieldName" value="${fieldName}" />
-
-				<execute function="Click" locator1="Form#SIDEBAR_ELLIPSIS" />
-
-				<execute function="Click" locator1="Form#SIDEBAR_MENUITEM_REMOVE_FIELD" />
-
-				<execute function="Click" locator1="Button#DELETE" />
-
-				<execute function="AssertNotVisible" locator1="Form#SIDEBAR_CLOSE" />
-			</on>
-
-			<off>
-				<execute macro="FormsAdminNavigator#gotoEditField">
-					<var name="fieldName" value="${fieldName}" />
-				</execute>
-
-				<var name="key_fieldName" value="${fieldName}" />
-
-				<execute function="Click" locator1="Form#SIDEBAR_ELLIPSIS" />
-
-				<execute function="Click" locator1="Form#SIDEBAR_MENUITEM_REMOVE_FIELD" />
-
-				<execute function="AssertNotVisible" locator1="Form#SIDEBAR_CLOSE" />
-			</off>
-		</toggle>
-	</command>
-
-	<command name="gotoEdit">
-		<execute macro="LexiconEntry#gotoEntryMenuItem">
-			<var name="menuItem" value="Edit" />
-			<var name="rowEntry" value="${formName}" />
+		<execute macro="FormsAdminNavigator#gotoEditField">
+			<var name="fieldName" value="${fieldName}" />
 		</execute>
+
+		<var name="key_fieldName" value="${fieldName}" />
+
+		<execute function="Click" locator1="Form#SIDEBAR_ELLIPSIS" />
+
+		<execute function="Click" locator1="Form#SIDEBAR_MENUITEM_REMOVE_FIELD" />
+
+		<execute function="Click" locator1="Button#DELETE" />
+
+		<execute function="AssertElementNotPresent" locator1="Form#SIDEBAR_CLOSE" />
 	</command>
 
 	<command name="gotoEditDuplicateField">
@@ -95,7 +62,7 @@
 	<command name="gotoFormBuilder">
 		<var name="key_assetTitle" value="Builder" />
 
-		<execute function="AssertClick" locator1="NavBar#ASSET_TITLE" value1="Builder" />
+		<execute function="AssertClick" locator1="NavBar#ASSET_TITLE_LINK" value1="Builder" />
 	</command>
 
 	<command name="gotoPermissions">
@@ -131,16 +98,14 @@
 	<command name="gotoRules">
 		<var name="key_assetTitle" value="Rules" />
 
-		<execute function="AssertClick" locator1="NavBar#ASSET_TITLE" value1="Rules" />
+		<execute function="AssertClick" locator1="NavBar#ASSET_TITLE_LINK" value1="Rules" />
 	</command>
 
 	<command name="gotoSettings">
 		<execute function="AssertElementPresent" locator1="Form#NAME_FIELD" />
 
-		<execute function="Click" locator1="Icon#HEADER_VERTICAL_ELLIPSIS" />
-
-		<execute function="AssertClick" locator1="MenuItem#ANY_MENU_ITEM" value1="Settings">
-			<var name="key_menuItem" value="Settings" />
+		<execute macro="LexiconEntry#gotoHeaderMenuItem">
+			<var name="menuItem" value="Settings" />
 		</execute>
 	</command>
 
@@ -149,30 +114,23 @@
 
 		<execute function="AssertElementPresent" locator1="Icon#ROW_VERTICAL_ELLIPSIS_N" />
 
-		<execute function="Click#waitForMenuToggleJSClick" locator1="Icon#ROW_VERTICAL_ELLIPSIS_N" />
-
-		<execute function="AssertClick" locator1="MenuItem#ANY_MENU_ITEM" value1="View">
-			<var name="key_menuItem" value="View" />
+		<execute macro="LexiconEntry#gotoEllipsisMenuItem">
+			<var name="menuItem" value="View" />
 		</execute>
 	</command>
 
 	<command name="gotoViewEntries">
 		<execute function="AssertElementPresent" locator1="Icon#BODY_VERTICAL_ELLIPSIS" />
 
-		<execute function="Click#waitForMenuToggleJSClick" locator1="Icon#BODY_VERTICAL_ELLIPSIS" />
-
-		<execute function="AssertClick" locator1="MenuItem#ANY_MENU_ITEM" value1="View Entries">
-			<var name="key_menuItem" value="View Entries" />
+		<execute macro="LexiconEntry#gotoEllipsisMenuItem">
+			<var name="menuItem" value="View Entries" />
 		</execute>
 	</command>
 
 	<command name="gotoViewEntriesViaIcon">
-		<execute function="Click#waitForMenuToggleJSClick" locator1="Icon#ROW_VERTICAL_ELLIPSIS">
-			<var name="key_rowEntry" value="${formName}" />
-		</execute>
-
-		<execute function="AssertClick" locator1="MenuItem#ANY_MENU_ITEM" value1="View Entries">
-			<var name="key_menuItem" value="View Entries" />
+		<execute macro="LexiconEntry#gotoEntryMenuItem">
+			<var name="menuItem" value="View Entries" />
+			<var name="rowEntry" value="${formName}" />
 		</execute>
 	</command>
 

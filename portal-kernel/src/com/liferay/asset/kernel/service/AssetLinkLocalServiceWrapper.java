@@ -340,6 +340,10 @@ public class AssetLinkLocalServiceWrapper implements AssetLinkLocalService,
 			excludeInvisibleLinks);
 	}
 
+	/**
+	* @deprecated As of Judson, with no direct replacement
+	*/
+	@Deprecated
 	@Override
 	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionbleDynamicQuery(
 		com.liferay.exportimport.kernel.lar.PortletDataContext portletDataContext) {
@@ -363,6 +367,14 @@ public class AssetLinkLocalServiceWrapper implements AssetLinkLocalService,
 	public java.util.List<com.liferay.asset.kernel.model.AssetLink> getLinks(
 		long entryId) {
 		return _assetLinkLocalService.getLinks(entryId);
+	}
+
+	@Override
+	public java.util.List<com.liferay.asset.kernel.model.AssetLink> getLinks(
+		long groupId, java.util.Date startDate, java.util.Date endDate,
+		int start, int end) {
+		return _assetLinkLocalService.getLinks(groupId, startDate, endDate,
+			start, end);
 	}
 
 	/**
@@ -403,7 +415,7 @@ public class AssetLinkLocalServiceWrapper implements AssetLinkLocalService,
 	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getOSGiServiceIdentifier() {
+	public String getOSGiServiceIdentifier() {
 		return _assetLinkLocalService.getOSGiServiceIdentifier();
 	}
 

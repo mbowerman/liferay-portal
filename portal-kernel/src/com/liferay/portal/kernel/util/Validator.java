@@ -15,6 +15,7 @@
 package com.liferay.portal.kernel.util;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -34,7 +35,7 @@ import java.util.regex.Pattern;
 public class Validator {
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	public static boolean equals(boolean boolean1, boolean boolean2) {
@@ -47,7 +48,7 @@ public class Validator {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	public static boolean equals(byte byte1, byte byte2) {
@@ -60,7 +61,7 @@ public class Validator {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	public static boolean equals(char char1, char char2) {
@@ -73,7 +74,7 @@ public class Validator {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	public static boolean equals(double double1, double double2) {
@@ -86,7 +87,7 @@ public class Validator {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	public static boolean equals(float float1, float float2) {
@@ -99,7 +100,7 @@ public class Validator {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	public static boolean equals(int int1, int int2) {
@@ -112,7 +113,7 @@ public class Validator {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	public static boolean equals(long long1, long long2) {
@@ -125,7 +126,7 @@ public class Validator {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	public static boolean equals(Object obj1, Object obj2) {
@@ -141,7 +142,7 @@ public class Validator {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	public static boolean equals(short short1, short short2) {
@@ -730,7 +731,7 @@ public class Validator {
 		if (month == 1) {
 			int febMax = 28;
 
-			if (((year % 4) == 0) && ((year % 100) != 0) ||
+			if ((((year % 4) == 0) && ((year % 100) != 0)) ||
 				((year % 400) == 0)) {
 
 				febMax = 29;

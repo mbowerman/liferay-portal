@@ -32,7 +32,7 @@ public class UserGroupSearchContainerResultsTag<R> extends IncludeTag {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	public void setUseIndexer(boolean useIndexer) {
@@ -46,6 +46,8 @@ public class UserGroupSearchContainerResultsTag<R> extends IncludeTag {
 
 	@Override
 	protected void cleanUp() {
+		super.cleanUp();
+
 		_searchTerms = null;
 		_userGroupParams = null;
 	}

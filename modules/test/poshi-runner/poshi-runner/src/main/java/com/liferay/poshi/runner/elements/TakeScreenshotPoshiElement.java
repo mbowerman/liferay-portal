@@ -14,12 +14,17 @@
 
 package com.liferay.poshi.runner.elements;
 
+import java.util.List;
+import java.util.regex.Pattern;
+
+import org.dom4j.Attribute;
 import org.dom4j.Element;
+import org.dom4j.Node;
 
 /**
  * @author Kenji Heigel
  */
-public class TakeScreenshotPoshiElement extends BasePoshiElement {
+public class TakeScreenshotPoshiElement extends PoshiElement {
 
 	@Override
 	public PoshiElement clone(Element element) {
@@ -32,24 +37,25 @@ public class TakeScreenshotPoshiElement extends BasePoshiElement {
 
 	@Override
 	public PoshiElement clone(
-		PoshiElement parentPoshiElement, String readableSyntax) {
+		PoshiElement parentPoshiElement, String poshiScript) {
 
-		if (_isElementType(readableSyntax)) {
-			return new TakeScreenshotPoshiElement(readableSyntax);
+		if (_isElementType(poshiScript)) {
+			return new TakeScreenshotPoshiElement(
+				parentPoshiElement, poshiScript);
 		}
 
 		return null;
 	}
 
 	@Override
-	public void parseReadableSyntax(String readableSyntax) {
+	public void parsePoshiScript(String poshiScript) {
 	}
 
 	@Override
-	public String toReadableSyntax() {
-		String readableSyntax = super.toReadableSyntax();
+	public String toPoshiScript() {
+		String poshiScript = super.toPoshiScript();
 
-		return createReadableBlock(readableSyntax);
+		return createPoshiScriptSnippet(poshiScript);
 	}
 
 	protected TakeScreenshotPoshiElement() {
@@ -59,12 +65,20 @@ public class TakeScreenshotPoshiElement extends BasePoshiElement {
 		super(_ELEMENT_NAME, element);
 	}
 
-	protected TakeScreenshotPoshiElement(String readableSyntax) {
-		super(_ELEMENT_NAME, readableSyntax);
+	protected TakeScreenshotPoshiElement(
+		List<Attribute> attributes, List<Node> nodes) {
+
+		super(_ELEMENT_NAME, attributes, nodes);
+	}
+
+	protected TakeScreenshotPoshiElement(
+		PoshiElement parentPoshiElement, String poshiScript) {
+
+		super(_ELEMENT_NAME, parentPoshiElement, poshiScript);
 	}
 
 	@Override
-	protected String createReadableBlock(String content) {
+	protected String createPoshiScriptSnippet(String content) {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("\n\n");
@@ -77,17 +91,18 @@ public class TakeScreenshotPoshiElement extends BasePoshiElement {
 
 	@Override
 	protected String getBlockName() {
-		return "takeScreenshot";
+		return _POSHI_SCRIPT_KEYWORD;
 	}
 
-	private boolean _isElementType(String readableSyntax) {
-		if (readableSyntax.startsWith(getBlockName())) {
-			return true;
-		}
-
-		return false;
+	private boolean _isElementType(String poshiScript) {
+		return isValidPoshiScriptStatement(_statementPattern, poshiScript);
 	}
 
 	private static final String _ELEMENT_NAME = "take-screenshot";
+
+	private static final String _POSHI_SCRIPT_KEYWORD = "takeScreenshot";
+
+	private static final Pattern _statementPattern = Pattern.compile(
+		"^" + _POSHI_SCRIPT_KEYWORD + PARAMETER_REGEX + STATEMENT_END_REGEX);
 
 }

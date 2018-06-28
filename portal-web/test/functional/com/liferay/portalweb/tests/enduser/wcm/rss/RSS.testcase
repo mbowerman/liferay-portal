@@ -1,4 +1,6 @@
 <definition component-name="portal-rss">
+	<property name="osgi.module.configuration.file.names" value="com.liferay.rss.web.internal.configuration.RSSWebCacheConfiguration.config" />
+	<property name="osgi.module.configurations" value="com.liferay.portlet.display-category=&quot;category.cms&quot;" />
 	<property name="portal.release" value="true" />
 	<property name="portal.upstream" value="true" />
 	<property name="testray.main.component.name" value="RSS" />
@@ -19,9 +21,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -85,7 +87,7 @@
 
 		<execute macro="RSSPortlet#addFeed">
 			<var name="buttonRowIndexNumber" value="1" />
-			<var name="feedRowIndexNumber" value="2" />
+			<var name="feedRowIndexNumber" value="1" />
 			<var name="feedTitle" value="Latimes > Technology News" />
 			<var name="feedType" value="file" />
 			<var name="feedUrlLink" value="rss2.0.xml" />
@@ -105,7 +107,7 @@
 
 		<execute macro="RSSPortlet#addFeed">
 			<var name="buttonRowIndexNumber" value="1" />
-			<var name="feedRowIndexNumber" value="3" />
+			<var name="feedRowIndexNumber" value="2" />
 			<var name="feedTitle" value="Reuters > Sports News" />
 			<var name="feedType" value="file" />
 			<var name="feedUrlLink" value="reuters_sports_news.xml" />
@@ -189,9 +191,22 @@
 		<property name="portal.acceptance" value="quarantine" />
 		<property name="testray.component.names" value="RSS" />
 
-		<execute macro="Navigator#gotoSitePage">
-			<var name="pageName" value="Site Page Name" />
-			<var name="siteName" value="Site Name" />
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Welcome" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Build" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
+			<var name="pageName" value="Page Name" />
+		</execute>
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Page Name" />
 		</execute>
 
 		<execute macro="Portlet#addPG">
@@ -214,9 +229,8 @@
 
 		<execute macro="PortletEntry#save" />
 
-		<execute macro="Navigator#gotoSitePage">
-			<var name="pageName" value="Site Page Name" />
-			<var name="siteName" value="Site Name" />
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Page Name" />
 		</execute>
 
 		<execute macro="RSSPortlet#viewDisplayFeedTitle">
@@ -224,7 +238,7 @@
 		</execute>
 	</command>
 
-	<command name="AddWebContentFeed" priority="3">
+	<command ignore="true" name="AddWebContentFeed" priority="3">
 		<property name="test.name.skip.portal.instance" value="RSS#AddWebContentFeed" />
 		<property name="testray.component.names" value="Asset Publisher,RSS" />
 
@@ -402,7 +416,7 @@
 
 		<execute macro="RSSPortlet#addFeed">
 			<var name="buttonRowIndexNumber" value="1" />
-			<var name="feedRowIndexNumber" value="2" />
+			<var name="feedRowIndexNumber" value="1" />
 			<var name="feedTitle" value="NBA" />
 			<var name="feedType" value="file" />
 			<var name="feedUrlLink" value="nba.xml" />
@@ -471,9 +485,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -588,7 +602,7 @@
 		</execute>
 	</command>
 
-	<command name="EnableRSSFeedFromAssetpublisher" priority="3">
+	<command ignore="true" name="EnableRSSFeedFromAssetpublisher" priority="3">
 		<property name="test.name.skip.portal.instance" value="RSS#EnableRSSFeedFromAssetpublisher" />
 		<property name="testray.component.names" value="Asset Publisher,RSS" />
 
@@ -598,9 +612,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -695,9 +709,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -746,12 +760,10 @@
 			<var name="portlet" value="System Settings" />
 		</execute>
 
-		<execute macro="SystemSettings#gotoCategory">
-			<var name="category" value="Web Experience" />
-		</execute>
-
-		<execute macro="SystemSettings#editConfiguration">
+		<execute macro="SystemSettings#gotoConfiguration">
+			<var name="configurationCategory" value="RSS" />
 			<var name="configurationName" value="RSS Cache" />
+			<var name="configurationScope" value="System Scope" />
 		</execute>
 
 		<execute macro="RSSPortlet#updateFeedTime">
@@ -759,9 +771,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">

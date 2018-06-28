@@ -16,25 +16,23 @@ package com.liferay.knowledge.base.web.internal.exportimport.data.handler;
 
 import com.liferay.exportimport.kernel.lar.BasePortletDataHandler;
 import com.liferay.exportimport.kernel.lar.DataLevel;
+import com.liferay.exportimport.kernel.lar.ExportImportDateUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataHandler;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerBoolean;
+import com.liferay.exportimport.kernel.lar.PortletDataHandlerControl;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
-import com.liferay.exportimport.kernel.xstream.XStreamAliasRegistryUtil;
+import com.liferay.exportimport.kernel.staging.Staging;
 import com.liferay.knowledge.base.constants.KBConstants;
 import com.liferay.knowledge.base.constants.KBPortletKeys;
 import com.liferay.knowledge.base.model.KBArticle;
 import com.liferay.knowledge.base.model.KBComment;
 import com.liferay.knowledge.base.model.KBTemplate;
-import com.liferay.knowledge.base.model.impl.KBArticleImpl;
-import com.liferay.knowledge.base.model.impl.KBCommentImpl;
-import com.liferay.knowledge.base.model.impl.KBTemplateImpl;
 import com.liferay.knowledge.base.service.KBArticleLocalService;
 import com.liferay.knowledge.base.service.KBCommentLocalService;
 import com.liferay.knowledge.base.service.KBFolderLocalService;
 import com.liferay.knowledge.base.service.KBTemplateLocalService;
-import com.liferay.knowledge.base.service.permission.AdminPermission;
 import com.liferay.knowledge.base.util.comparator.KBArticleVersionComparator;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
@@ -55,7 +53,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  */
 @Component(
-	property = {"javax.portlet.name=" + KBPortletKeys.KNOWLEDGE_BASE_ADMIN},
+	property = "javax.portlet.name=" + KBPortletKeys.KNOWLEDGE_BASE_ADMIN,
 	service = PortletDataHandler.class
 )
 public class AdminPortletDataHandler extends BasePortletDataHandler {
@@ -72,18 +70,17 @@ public class AdminPortletDataHandler extends BasePortletDataHandler {
 			new StagedModelType(KBTemplate.class));
 		setExportControls(
 			new PortletDataHandlerBoolean(
-				NAMESPACE, "kb-articles", true, true, null,
+				NAMESPACE, "kb-articles", true, false,
+				new PortletDataHandlerControl[] {
+					new PortletDataHandlerBoolean(
+						NAMESPACE, "kb-comments", true, false, null,
+						KBComment.class.getName())
+				},
 				KBArticle.class.getName()),
 			new PortletDataHandlerBoolean(
-				NAMESPACE, "kb-templates", true, true, null,
-				KBTemplate.class.getName()),
-			new PortletDataHandlerBoolean(
-				NAMESPACE, "kb-comments", true, true, null,
-				KBComment.class.getName()));
-
-		XStreamAliasRegistryUtil.register(KBArticleImpl.class, "KBArticle");
-		XStreamAliasRegistryUtil.register(KBCommentImpl.class, "KBComment");
-		XStreamAliasRegistryUtil.register(KBTemplateImpl.class, "KBTemplate");
+				NAMESPACE, "kb-templates", true, false, null,
+				KBTemplate.class.getName()));
+		setStagingControls(getExportControls());
 	}
 
 	@Override
@@ -124,28 +121,35 @@ public class AdminPortletDataHandler extends BasePortletDataHandler {
 			PortletPreferences portletPreferences)
 		throws Exception {
 
-		portletDataContext.addPortletPermissions(AdminPermission.RESOURCE_NAME);
+		portletDataContext.addPortletPermissions(
+			KBConstants.RESOURCE_NAME_ADMIN);
 
 		Element rootElement = addExportDataRootElement(portletDataContext);
 
 		rootElement.addAttribute(
 			"group-id", String.valueOf(portletDataContext.getScopeGroupId()));
 
-		ActionableDynamicQuery kbArticleActionableDynamicQuery =
-			getKBArticleActionableDynamicQuery(portletDataContext);
+		if (portletDataContext.getBooleanParameter(NAMESPACE, "kb-articles")) {
+			ActionableDynamicQuery kbArticleActionableDynamicQuery =
+				getKBArticleActionableDynamicQuery(portletDataContext);
 
-		kbArticleActionableDynamicQuery.performActions();
+			kbArticleActionableDynamicQuery.performActions();
+		}
 
-		ActionableDynamicQuery kbTemplateActionableDynamicQuery =
-			_kbTemplateLocalService.getExportActionableDynamicQuery(
-				portletDataContext);
+		if (portletDataContext.getBooleanParameter(NAMESPACE, "kb-templates")) {
+			ActionableDynamicQuery kbTemplateActionableDynamicQuery =
+				_kbTemplateLocalService.getExportActionableDynamicQuery(
+					portletDataContext);
 
-		kbTemplateActionableDynamicQuery.performActions();
+			kbTemplateActionableDynamicQuery.performActions();
+		}
 
-		ActionableDynamicQuery kbCommentActionableDynamicQuery =
-			getKBCommentActionableDynamicQuery(portletDataContext);
+		if (portletDataContext.getBooleanParameter(NAMESPACE, "kb-comments")) {
+			ActionableDynamicQuery kbCommentActionableDynamicQuery =
+				getKBCommentActionableDynamicQuery(portletDataContext);
 
-		kbCommentActionableDynamicQuery.performActions();
+			kbCommentActionableDynamicQuery.performActions();
+		}
 
 		return getExportDataRootElementString(rootElement);
 	}
@@ -157,36 +161,42 @@ public class AdminPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		portletDataContext.importPortletPermissions(
-			AdminPermission.RESOURCE_NAME);
+			KBConstants.RESOURCE_NAME_ADMIN);
 
-		Element kbArticlesElement =
-			portletDataContext.getImportDataGroupElement(KBArticle.class);
+		if (portletDataContext.getBooleanParameter(NAMESPACE, "kb-articles")) {
+			Element kbArticlesElement =
+				portletDataContext.getImportDataGroupElement(KBArticle.class);
 
-		List<Element> kbArticleElements = kbArticlesElement.elements();
+			List<Element> kbArticleElements = kbArticlesElement.elements();
 
-		for (Element kbArticleElement : kbArticleElements) {
-			StagedModelDataHandlerUtil.importStagedModel(
-				portletDataContext, kbArticleElement);
+			for (Element kbArticleElement : kbArticleElements) {
+				StagedModelDataHandlerUtil.importStagedModel(
+					portletDataContext, kbArticleElement);
+			}
 		}
 
-		Element kbTemplatesElement =
-			portletDataContext.getImportDataGroupElement(KBTemplate.class);
+		if (portletDataContext.getBooleanParameter(NAMESPACE, "kb-templates")) {
+			Element kbTemplatesElement =
+				portletDataContext.getImportDataGroupElement(KBTemplate.class);
 
-		List<Element> kbTemplateElements = kbTemplatesElement.elements();
+			List<Element> kbTemplateElements = kbTemplatesElement.elements();
 
-		for (Element kbTemplateElement : kbTemplateElements) {
-			StagedModelDataHandlerUtil.importStagedModel(
-				portletDataContext, kbTemplateElement);
+			for (Element kbTemplateElement : kbTemplateElements) {
+				StagedModelDataHandlerUtil.importStagedModel(
+					portletDataContext, kbTemplateElement);
+			}
 		}
 
-		Element kbCommentsElement =
-			portletDataContext.getImportDataGroupElement(KBComment.class);
+		if (portletDataContext.getBooleanParameter(NAMESPACE, "kb-comments")) {
+			Element kbCommentsElement =
+				portletDataContext.getImportDataGroupElement(KBComment.class);
 
-		List<Element> kbCommentElements = kbCommentsElement.elements();
+			List<Element> kbCommentElements = kbCommentsElement.elements();
 
-		for (Element kbCommentElement : kbCommentElements) {
-			StagedModelDataHandlerUtil.importStagedModel(
-				portletDataContext, kbCommentElement);
+			for (Element kbCommentElement : kbCommentElements) {
+				StagedModelDataHandlerUtil.importStagedModel(
+					portletDataContext, kbCommentElement);
+			}
 		}
 
 		return null;
@@ -197,6 +207,20 @@ public class AdminPortletDataHandler extends BasePortletDataHandler {
 			PortletDataContext portletDataContext,
 			PortletPreferences portletPreferences)
 		throws Exception {
+
+		if (ExportImportDateUtil.isRangeFromLastPublishDate(
+				portletDataContext)) {
+
+			_staging.populateLastPublishDateCounts(
+				portletDataContext,
+				new StagedModelType[] {
+					new StagedModelType(KBArticle.class.getName()),
+					new StagedModelType(KBComment.class.getName()),
+					new StagedModelType(KBTemplate.class.getName())
+				});
+
+			return;
+		}
 
 		ActionableDynamicQuery kbArticleActionableDynamicQuery =
 			_kbArticleLocalService.getExportActionableDynamicQuery(
@@ -300,5 +324,8 @@ public class AdminPortletDataHandler extends BasePortletDataHandler {
 	private KBFolderLocalService _kbFolderLocalService;
 	private KBTemplateLocalService _kbTemplateLocalService;
 	private Portal _portal;
+
+	@Reference
+	private Staging _staging;
 
 }

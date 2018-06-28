@@ -16,11 +16,11 @@ package com.liferay.portal.kernel.dao.orm;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.cache.key.CacheKeyGenerator;
 import com.liferay.portal.kernel.cache.key.CacheKeyGeneratorUtil;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
@@ -90,7 +90,7 @@ public class FinderPath {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #encodeCacheKey(String)}
+	 * @deprecated As of Judson, replaced by {@link #encodeCacheKey(String)}
 	 */
 	@Deprecated
 	public Serializable encodeCacheKey(Object[] arguments) {
@@ -113,7 +113,8 @@ public class FinderPath {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #encodeLocalCacheKey(String)}
+	 * @deprecated As of Judson, replaced by {@link
+	 *             #encodeLocalCacheKey(String)}
 	 */
 	@Deprecated
 	public Serializable encodeLocalCacheKey(Object[] arguments) {

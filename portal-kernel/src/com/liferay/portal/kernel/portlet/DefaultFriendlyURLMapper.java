@@ -14,11 +14,11 @@
 
 package com.liferay.portal.kernel.portlet;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.HashMap;
@@ -292,7 +292,8 @@ public class DefaultFriendlyURLMapper extends BaseFriendlyURLMapper {
 	 *             <code>instanceId</code>.
 	 * @return     the portlet ID, including the instance ID if applicable, or
 	 *             <code>null</code> if it cannot be determined
-	 * @deprecated As of 7.0.0, replaced by {@link #getPortletInstanceKey(Map)}
+	 * @deprecated As of Wilberforce, replaced by {@link
+	 *             #getPortletInstanceKey(Map)}
 	 */
 	@Deprecated
 	protected String getPortletId(Map<String, String> routeParameters) {

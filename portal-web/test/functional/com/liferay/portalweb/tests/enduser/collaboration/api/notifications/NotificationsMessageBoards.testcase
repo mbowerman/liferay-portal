@@ -13,13 +13,21 @@
 		<execute macro="User#firstLoginPG" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Message Boards Page" />
+			<var name="sitePageType" value="Widget Page" />
+		</execute>
+
+		<execute macro="SitePages#configurePage">
+			<var name="columnName" value="1 Column" />
+			<var name="pageName" value="Message Boards Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -138,13 +146,13 @@
 		<execute macro="Notifications#gotoNotifications" />
 
 		<execute macro="Notifications#goToFilterValues">
-			<var name="filterValue" value="Read" />
+			<var name="filterValues" value="Read" />
 		</execute>
 
 		<execute macro="Notifications#viewDefaultContent" />
 
 		<execute macro="Notifications#goToFilterValues">
-			<var name="filterValue" value="Unread" />
+			<var name="filterValues" value="Unread" />
 		</execute>
 
 		<execute macro="Notifications#viewNewContent">
@@ -159,7 +167,7 @@
 			<var name="user" value="userfn userln" />
 		</execute>
 
-		<execute function="Check#checkAll" locator1="Checkbox#SELECT_ALL" />
+		<execute macro="PortletEntry#selectAll" />
 
 		<execute function="Click" locator1="Icon#MARK_AS_READ" />
 
@@ -177,7 +185,7 @@
 			<var name="portlet" value="Notifications" />
 		</execute>
 
-		<execute function="Check#checkAll" locator1="Checkbox#SELECT_ALL" />
+		<execute macro="PortletEntry#selectAll" />
 
 		<execute function="Click" locator1="Icon#MARK_AS_UNREAD" />
 
@@ -312,13 +320,14 @@
 
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="lastPostUserName" value="Test Test" />
-			<var name="postCount" value="1" />
+			<var name="replyCount" value="0" />
 			<var name="threadBody" value="MB Thread Message Body" />
 			<var name="threadSubject" value="MB Thread Message Subject" />
 		</execute>
 
 		<execute macro="MessageboardsThread#editPG">
 			<var name="threadBodyEdit" value="MB Thread Message Body Edit" />
+			<var name="threadSubject" value="MB Thread Message Subject" />
 			<var name="threadSubjectEdit" value="MB Thread Message Subject Edit" />
 		</execute>
 
@@ -456,13 +465,14 @@
 
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="lastPostUserName" value="Test Test" />
-			<var name="postCount" value="1" />
+			<var name="replyCount" value="0" />
 			<var name="threadBody" value="MB Thread Message Body" />
 			<var name="threadSubject" value="MB Thread Message Subject" />
 		</execute>
 
 		<execute macro="MessageboardsThread#editPG">
 			<var name="threadBodyEdit" value="MB Thread Message Body Edit" />
+			<var name="threadSubject" value="MB Thread Message Subject" />
 			<var name="threadSubjectEdit" value="MB Thread Message Subject Edit" />
 		</execute>
 

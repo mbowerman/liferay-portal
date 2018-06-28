@@ -55,7 +55,7 @@ public class StubHttpServletResponse implements HttpServletResponse {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Override
@@ -69,7 +69,7 @@ public class StubHttpServletResponse implements HttpServletResponse {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Override
@@ -182,6 +182,10 @@ public class StubHttpServletResponse implements HttpServletResponse {
 		throw new UnsupportedOperationException();
 	}
 
+	public void setContentLengthLong(long contentLengthLong) {
+		throw new UnsupportedOperationException();
+	}
+
 	@Override
 	public void setContentType(String contentType) {
 		throw new UnsupportedOperationException();
@@ -213,7 +217,7 @@ public class StubHttpServletResponse implements HttpServletResponse {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Override

@@ -21,6 +21,8 @@ import com.liferay.portal.kernel.settings.LocalizedValuesMap;
 import com.liferay.portal.kernel.settings.Settings;
 import com.liferay.portal.kernel.xml.Document;
 
+import java.io.Serializable;
+
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
@@ -84,6 +86,19 @@ public interface Localization {
 	 */
 	public Locale getDefaultImportLocale(
 		String className, long classPK, Locale contentDefaultLocale,
+		Locale[] contentAvailableLocales);
+
+	/**
+	 * Returns a valid default locale for importing a localized entity.
+	 *
+	 * @param  className the class name of the entity
+	 * @param  primaryKey the primary keys of the entity
+	 * @param  contentDefaultLocale the default Locale of the entity
+	 * @param  contentAvailableLocales the available locales of the entity
+	 * @return the valid locale
+	 */
+	public Locale getDefaultImportLocale(
+		String className, Serializable primaryKey, Locale contentDefaultLocale,
 		Locale[] contentAvailableLocales);
 
 	public String getDefaultLanguageId(Document document);
@@ -333,8 +348,8 @@ public interface Localization {
 	 * @param      key the preferences key
 	 * @param      languageId the ID of the language
 	 * @return     the localized preferences key
-	 * @deprecated As of 7.0.0, replaced by {@link #getLocalizedName(String,
-	 *             String)}
+	 * @deprecated As of Wilberforce, replaced by {@link
+	 *             #getLocalizedName(String, String)}
 	 */
 	@Deprecated
 	public String getPreferencesKey(String key, String languageId);

@@ -36,12 +36,15 @@ import com.liferay.portal.kernel.service.persistence.ResourcePermissionPersisten
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.impl.ResourcePermissionImpl;
 import com.liferay.portal.model.impl.ResourcePermissionModelImpl;
 
 import java.io.Serializable;
+
+import java.lang.reflect.InvocationHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -4641,11 +4644,7 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 				return Collections.emptyList();
 			}
 			else {
-				List<ResourcePermission> list = new ArrayList<ResourcePermission>(1);
-
-				list.add(resourcePermission);
-
-				return list;
+				return Collections.singletonList(resourcePermission);
 			}
 		}
 
@@ -4691,100 +4690,28 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 		}
 
 		if (list == null) {
-			StringBundler query = new StringBundler();
-
-			query.append(_SQL_SELECT_RESOURCEPERMISSION_WHERE);
-
-			query.append(_FINDER_COLUMN_C_N_S_P_R_COMPANYID_2);
-
-			boolean bindName = false;
-
-			if (name == null) {
-				query.append(_FINDER_COLUMN_C_N_S_P_R_NAME_1);
-			}
-			else if (name.equals("")) {
-				query.append(_FINDER_COLUMN_C_N_S_P_R_NAME_3);
-			}
-			else {
-				bindName = true;
-
-				query.append(_FINDER_COLUMN_C_N_S_P_R_NAME_2);
-			}
-
-			query.append(_FINDER_COLUMN_C_N_S_P_R_SCOPE_2);
-
-			boolean bindPrimKey = false;
-
-			if (primKey == null) {
-				query.append(_FINDER_COLUMN_C_N_S_P_R_PRIMKEY_1);
-			}
-			else if (primKey.equals("")) {
-				query.append(_FINDER_COLUMN_C_N_S_P_R_PRIMKEY_3);
-			}
-			else {
-				bindPrimKey = true;
-
-				query.append(_FINDER_COLUMN_C_N_S_P_R_PRIMKEY_2);
-			}
-
-			if (roleIds.length > 0) {
-				query.append("(");
-
-				query.append(_FINDER_COLUMN_C_N_S_P_R_ROLEID_7);
-
-				query.append(StringUtil.merge(roleIds));
-
-				query.append(")");
-
-				query.append(")");
-			}
-
-			query.setStringAt(removeConjunction(query.stringAt(query.index() -
-						1)), query.index() - 1);
-
-			if (orderByComparator != null) {
-				appendOrderByComparator(query, _ORDER_BY_ENTITY_ALIAS,
-					orderByComparator);
-			}
-			else
-			 if (pagination) {
-				query.append(ResourcePermissionModelImpl.ORDER_BY_JPQL);
-			}
-
-			String sql = query.toString();
-
-			Session session = null;
-
 			try {
-				session = openSession();
+				if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+						(databaseInMaxParameters > 0) &&
+						(roleIds.length > databaseInMaxParameters)) {
+					list = new ArrayList<ResourcePermission>();
 
-				Query q = session.createQuery(sql);
+					long[][] roleIdsPages = (long[][])ArrayUtil.split(roleIds,
+							databaseInMaxParameters);
 
-				QueryPos qPos = QueryPos.getInstance(q);
+					for (long[] roleIdsPage : roleIdsPages) {
+						list.addAll(_findByC_N_S_P_R(companyId, name, scope,
+								primKey, roleIdsPage, start, end,
+								orderByComparator, pagination));
+					}
 
-				qPos.add(companyId);
-
-				if (bindName) {
-					qPos.add(name);
-				}
-
-				qPos.add(scope);
-
-				if (bindPrimKey) {
-					qPos.add(primKey);
-				}
-
-				if (!pagination) {
-					list = (List<ResourcePermission>)QueryUtil.list(q,
-							getDialect(), start, end, false);
-
-					Collections.sort(list);
+					Collections.sort(list, orderByComparator);
 
 					list = Collections.unmodifiableList(list);
 				}
 				else {
-					list = (List<ResourcePermission>)QueryUtil.list(q,
-							getDialect(), start, end);
+					list = _findByC_N_S_P_R(companyId, name, scope, primKey,
+							roleIds, start, end, orderByComparator, pagination);
 				}
 
 				cacheResult(list);
@@ -4798,9 +4725,118 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 
 				throw processException(e);
 			}
-			finally {
-				closeSession(session);
+		}
+
+		return list;
+	}
+
+	private List<ResourcePermission> _findByC_N_S_P_R(long companyId,
+		String name, int scope, String primKey, long[] roleIds, int start,
+		int end, OrderByComparator<ResourcePermission> orderByComparator,
+		boolean pagination) {
+		List<ResourcePermission> list = null;
+
+		StringBundler query = new StringBundler();
+
+		query.append(_SQL_SELECT_RESOURCEPERMISSION_WHERE);
+
+		query.append(_FINDER_COLUMN_C_N_S_P_R_COMPANYID_2);
+
+		boolean bindName = false;
+
+		if (name == null) {
+			query.append(_FINDER_COLUMN_C_N_S_P_R_NAME_1);
+		}
+		else if (name.equals("")) {
+			query.append(_FINDER_COLUMN_C_N_S_P_R_NAME_3);
+		}
+		else {
+			bindName = true;
+
+			query.append(_FINDER_COLUMN_C_N_S_P_R_NAME_2);
+		}
+
+		query.append(_FINDER_COLUMN_C_N_S_P_R_SCOPE_2);
+
+		boolean bindPrimKey = false;
+
+		if (primKey == null) {
+			query.append(_FINDER_COLUMN_C_N_S_P_R_PRIMKEY_1);
+		}
+		else if (primKey.equals("")) {
+			query.append(_FINDER_COLUMN_C_N_S_P_R_PRIMKEY_3);
+		}
+		else {
+			bindPrimKey = true;
+
+			query.append(_FINDER_COLUMN_C_N_S_P_R_PRIMKEY_2);
+		}
+
+		if (roleIds.length > 0) {
+			query.append("(");
+
+			query.append(_FINDER_COLUMN_C_N_S_P_R_ROLEID_7);
+
+			query.append(StringUtil.merge(roleIds));
+
+			query.append(")");
+
+			query.append(")");
+		}
+
+		query.setStringAt(removeConjunction(query.stringAt(query.index() - 1)),
+			query.index() - 1);
+
+		if (orderByComparator != null) {
+			appendOrderByComparator(query, _ORDER_BY_ENTITY_ALIAS,
+				orderByComparator);
+		}
+		else
+		 if (pagination) {
+			query.append(ResourcePermissionModelImpl.ORDER_BY_JPQL);
+		}
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(companyId);
+
+			if (bindName) {
+				qPos.add(name);
 			}
+
+			qPos.add(scope);
+
+			if (bindPrimKey) {
+				qPos.add(primKey);
+			}
+
+			if (!pagination) {
+				list = (List<ResourcePermission>)QueryUtil.list(q,
+						getDialect(), start, end, false);
+
+				Collections.sort(list);
+
+				list = Collections.unmodifiableList(list);
+			}
+			else {
+				list = (List<ResourcePermission>)QueryUtil.list(q,
+						getDialect(), start, end);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
 		}
 
 		return list;
@@ -4985,17 +5021,6 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 					result = resourcePermission;
 
 					cacheResult(resourcePermission);
-
-					if ((resourcePermission.getCompanyId() != companyId) ||
-							(resourcePermission.getName() == null) ||
-							!resourcePermission.getName().equals(name) ||
-							(resourcePermission.getScope() != scope) ||
-							(resourcePermission.getPrimKey() == null) ||
-							!resourcePermission.getPrimKey().equals(primKey) ||
-							(resourcePermission.getRoleId() != roleId)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_C_N_S_P_R,
-							finderArgs, resourcePermission);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -5169,81 +5194,23 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 				finderArgs, this);
 
 		if (count == null) {
-			StringBundler query = new StringBundler();
-
-			query.append(_SQL_COUNT_RESOURCEPERMISSION_WHERE);
-
-			query.append(_FINDER_COLUMN_C_N_S_P_R_COMPANYID_2);
-
-			boolean bindName = false;
-
-			if (name == null) {
-				query.append(_FINDER_COLUMN_C_N_S_P_R_NAME_1);
-			}
-			else if (name.equals("")) {
-				query.append(_FINDER_COLUMN_C_N_S_P_R_NAME_3);
-			}
-			else {
-				bindName = true;
-
-				query.append(_FINDER_COLUMN_C_N_S_P_R_NAME_2);
-			}
-
-			query.append(_FINDER_COLUMN_C_N_S_P_R_SCOPE_2);
-
-			boolean bindPrimKey = false;
-
-			if (primKey == null) {
-				query.append(_FINDER_COLUMN_C_N_S_P_R_PRIMKEY_1);
-			}
-			else if (primKey.equals("")) {
-				query.append(_FINDER_COLUMN_C_N_S_P_R_PRIMKEY_3);
-			}
-			else {
-				bindPrimKey = true;
-
-				query.append(_FINDER_COLUMN_C_N_S_P_R_PRIMKEY_2);
-			}
-
-			if (roleIds.length > 0) {
-				query.append("(");
-
-				query.append(_FINDER_COLUMN_C_N_S_P_R_ROLEID_7);
-
-				query.append(StringUtil.merge(roleIds));
-
-				query.append(")");
-
-				query.append(")");
-			}
-
-			query.setStringAt(removeConjunction(query.stringAt(query.index() -
-						1)), query.index() - 1);
-
-			String sql = query.toString();
-
-			Session session = null;
-
 			try {
-				session = openSession();
+				if ((databaseInMaxParameters > 0) &&
+						(roleIds.length > databaseInMaxParameters)) {
+					count = Long.valueOf(0);
 
-				Query q = session.createQuery(sql);
+					long[][] roleIdsPages = (long[][])ArrayUtil.split(roleIds,
+							databaseInMaxParameters);
 
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(companyId);
-
-				if (bindName) {
-					qPos.add(name);
+					for (long[] roleIdsPage : roleIdsPages) {
+						count += Long.valueOf(_countByC_N_S_P_R(companyId,
+								name, scope, primKey, roleIdsPage));
+					}
 				}
-
-				qPos.add(scope);
-
-				if (bindPrimKey) {
-					qPos.add(primKey);
+				else {
+					count = Long.valueOf(_countByC_N_S_P_R(companyId, name,
+								scope, primKey, roleIds));
 				}
-
-				count = (Long)q.uniqueResult();
 
 				finderCache.putResult(FINDER_PATH_WITH_PAGINATION_COUNT_BY_C_N_S_P_R,
 					finderArgs, count);
@@ -5254,9 +5221,96 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 
 				throw processException(e);
 			}
-			finally {
-				closeSession(session);
+		}
+
+		return count.intValue();
+	}
+
+	private int _countByC_N_S_P_R(long companyId, String name, int scope,
+		String primKey, long[] roleIds) {
+		Long count = null;
+
+		StringBundler query = new StringBundler();
+
+		query.append(_SQL_COUNT_RESOURCEPERMISSION_WHERE);
+
+		query.append(_FINDER_COLUMN_C_N_S_P_R_COMPANYID_2);
+
+		boolean bindName = false;
+
+		if (name == null) {
+			query.append(_FINDER_COLUMN_C_N_S_P_R_NAME_1);
+		}
+		else if (name.equals("")) {
+			query.append(_FINDER_COLUMN_C_N_S_P_R_NAME_3);
+		}
+		else {
+			bindName = true;
+
+			query.append(_FINDER_COLUMN_C_N_S_P_R_NAME_2);
+		}
+
+		query.append(_FINDER_COLUMN_C_N_S_P_R_SCOPE_2);
+
+		boolean bindPrimKey = false;
+
+		if (primKey == null) {
+			query.append(_FINDER_COLUMN_C_N_S_P_R_PRIMKEY_1);
+		}
+		else if (primKey.equals("")) {
+			query.append(_FINDER_COLUMN_C_N_S_P_R_PRIMKEY_3);
+		}
+		else {
+			bindPrimKey = true;
+
+			query.append(_FINDER_COLUMN_C_N_S_P_R_PRIMKEY_2);
+		}
+
+		if (roleIds.length > 0) {
+			query.append("(");
+
+			query.append(_FINDER_COLUMN_C_N_S_P_R_ROLEID_7);
+
+			query.append(StringUtil.merge(roleIds));
+
+			query.append(")");
+
+			query.append(")");
+		}
+
+		query.setStringAt(removeConjunction(query.stringAt(query.index() - 1)),
+			query.index() - 1);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(companyId);
+
+			if (bindName) {
+				qPos.add(name);
 			}
+
+			qPos.add(scope);
+
+			if (bindPrimKey) {
+				qPos.add(primKey);
+			}
+
+			count = (Long)q.uniqueResult();
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
 		}
 
 		return count.intValue();
@@ -5449,7 +5503,7 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 							(scope != resourcePermission.getScope()) ||
 							(primKeyId != resourcePermission.getPrimKeyId()) ||
 							(roleId != resourcePermission.getRoleId()) ||
-							(viewActionId != resourcePermission.getViewActionId())) {
+							(viewActionId != resourcePermission.isViewActionId())) {
 						list = null;
 
 						break;
@@ -6066,7 +6120,7 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 							(primKeyId != resourcePermission.getPrimKeyId()) ||
 							!ArrayUtil.contains(roleIds,
 								resourcePermission.getRoleId()) ||
-							(viewActionId != resourcePermission.getViewActionId())) {
+							(viewActionId != resourcePermission.isViewActionId())) {
 						list = null;
 
 						break;
@@ -6076,92 +6130,29 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 		}
 
 		if (list == null) {
-			StringBundler query = new StringBundler();
-
-			query.append(_SQL_SELECT_RESOURCEPERMISSION_WHERE);
-
-			query.append(_FINDER_COLUMN_C_N_S_P_R_V_COMPANYID_2);
-
-			boolean bindName = false;
-
-			if (name == null) {
-				query.append(_FINDER_COLUMN_C_N_S_P_R_V_NAME_1);
-			}
-			else if (name.equals("")) {
-				query.append(_FINDER_COLUMN_C_N_S_P_R_V_NAME_3);
-			}
-			else {
-				bindName = true;
-
-				query.append(_FINDER_COLUMN_C_N_S_P_R_V_NAME_2);
-			}
-
-			query.append(_FINDER_COLUMN_C_N_S_P_R_V_SCOPE_2);
-
-			query.append(_FINDER_COLUMN_C_N_S_P_R_V_PRIMKEYID_2);
-
-			if (roleIds.length > 0) {
-				query.append("(");
-
-				query.append(_FINDER_COLUMN_C_N_S_P_R_V_ROLEID_7);
-
-				query.append(StringUtil.merge(roleIds));
-
-				query.append(")");
-
-				query.append(")");
-
-				query.append(WHERE_AND);
-			}
-
-			query.append(_FINDER_COLUMN_C_N_S_P_R_V_VIEWACTIONID_2);
-
-			query.setStringAt(removeConjunction(query.stringAt(query.index() -
-						1)), query.index() - 1);
-
-			if (orderByComparator != null) {
-				appendOrderByComparator(query, _ORDER_BY_ENTITY_ALIAS,
-					orderByComparator);
-			}
-			else
-			 if (pagination) {
-				query.append(ResourcePermissionModelImpl.ORDER_BY_JPQL);
-			}
-
-			String sql = query.toString();
-
-			Session session = null;
-
 			try {
-				session = openSession();
+				if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+						(databaseInMaxParameters > 0) &&
+						(roleIds.length > databaseInMaxParameters)) {
+					list = new ArrayList<ResourcePermission>();
 
-				Query q = session.createQuery(sql);
+					long[][] roleIdsPages = (long[][])ArrayUtil.split(roleIds,
+							databaseInMaxParameters);
 
-				QueryPos qPos = QueryPos.getInstance(q);
+					for (long[] roleIdsPage : roleIdsPages) {
+						list.addAll(_findByC_N_S_P_R_V(companyId, name, scope,
+								primKeyId, roleIdsPage, viewActionId, start,
+								end, orderByComparator, pagination));
+					}
 
-				qPos.add(companyId);
-
-				if (bindName) {
-					qPos.add(name);
-				}
-
-				qPos.add(scope);
-
-				qPos.add(primKeyId);
-
-				qPos.add(viewActionId);
-
-				if (!pagination) {
-					list = (List<ResourcePermission>)QueryUtil.list(q,
-							getDialect(), start, end, false);
-
-					Collections.sort(list);
+					Collections.sort(list, orderByComparator);
 
 					list = Collections.unmodifiableList(list);
 				}
 				else {
-					list = (List<ResourcePermission>)QueryUtil.list(q,
-							getDialect(), start, end);
+					list = _findByC_N_S_P_R_V(companyId, name, scope,
+							primKeyId, roleIds, viewActionId, start, end,
+							orderByComparator, pagination);
 				}
 
 				cacheResult(list);
@@ -6175,9 +6166,111 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 
 				throw processException(e);
 			}
-			finally {
-				closeSession(session);
+		}
+
+		return list;
+	}
+
+	private List<ResourcePermission> _findByC_N_S_P_R_V(long companyId,
+		String name, int scope, long primKeyId, long[] roleIds,
+		boolean viewActionId, int start, int end,
+		OrderByComparator<ResourcePermission> orderByComparator,
+		boolean pagination) {
+		List<ResourcePermission> list = null;
+
+		StringBundler query = new StringBundler();
+
+		query.append(_SQL_SELECT_RESOURCEPERMISSION_WHERE);
+
+		query.append(_FINDER_COLUMN_C_N_S_P_R_V_COMPANYID_2);
+
+		boolean bindName = false;
+
+		if (name == null) {
+			query.append(_FINDER_COLUMN_C_N_S_P_R_V_NAME_1);
+		}
+		else if (name.equals("")) {
+			query.append(_FINDER_COLUMN_C_N_S_P_R_V_NAME_3);
+		}
+		else {
+			bindName = true;
+
+			query.append(_FINDER_COLUMN_C_N_S_P_R_V_NAME_2);
+		}
+
+		query.append(_FINDER_COLUMN_C_N_S_P_R_V_SCOPE_2);
+
+		query.append(_FINDER_COLUMN_C_N_S_P_R_V_PRIMKEYID_2);
+
+		if (roleIds.length > 0) {
+			query.append("(");
+
+			query.append(_FINDER_COLUMN_C_N_S_P_R_V_ROLEID_7);
+
+			query.append(StringUtil.merge(roleIds));
+
+			query.append(")");
+
+			query.append(")");
+
+			query.append(WHERE_AND);
+		}
+
+		query.append(_FINDER_COLUMN_C_N_S_P_R_V_VIEWACTIONID_2);
+
+		query.setStringAt(removeConjunction(query.stringAt(query.index() - 1)),
+			query.index() - 1);
+
+		if (orderByComparator != null) {
+			appendOrderByComparator(query, _ORDER_BY_ENTITY_ALIAS,
+				orderByComparator);
+		}
+		else
+		 if (pagination) {
+			query.append(ResourcePermissionModelImpl.ORDER_BY_JPQL);
+		}
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(companyId);
+
+			if (bindName) {
+				qPos.add(name);
 			}
+
+			qPos.add(scope);
+
+			qPos.add(primKeyId);
+
+			qPos.add(viewActionId);
+
+			if (!pagination) {
+				list = (List<ResourcePermission>)QueryUtil.list(q,
+						getDialect(), start, end, false);
+
+				Collections.sort(list);
+
+				list = Collections.unmodifiableList(list);
+			}
+			else {
+				list = (List<ResourcePermission>)QueryUtil.list(q,
+						getDialect(), start, end);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
 		}
 
 		return list;
@@ -6328,73 +6421,24 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 				finderArgs, this);
 
 		if (count == null) {
-			StringBundler query = new StringBundler();
-
-			query.append(_SQL_COUNT_RESOURCEPERMISSION_WHERE);
-
-			query.append(_FINDER_COLUMN_C_N_S_P_R_V_COMPANYID_2);
-
-			boolean bindName = false;
-
-			if (name == null) {
-				query.append(_FINDER_COLUMN_C_N_S_P_R_V_NAME_1);
-			}
-			else if (name.equals("")) {
-				query.append(_FINDER_COLUMN_C_N_S_P_R_V_NAME_3);
-			}
-			else {
-				bindName = true;
-
-				query.append(_FINDER_COLUMN_C_N_S_P_R_V_NAME_2);
-			}
-
-			query.append(_FINDER_COLUMN_C_N_S_P_R_V_SCOPE_2);
-
-			query.append(_FINDER_COLUMN_C_N_S_P_R_V_PRIMKEYID_2);
-
-			if (roleIds.length > 0) {
-				query.append("(");
-
-				query.append(_FINDER_COLUMN_C_N_S_P_R_V_ROLEID_7);
-
-				query.append(StringUtil.merge(roleIds));
-
-				query.append(")");
-
-				query.append(")");
-
-				query.append(WHERE_AND);
-			}
-
-			query.append(_FINDER_COLUMN_C_N_S_P_R_V_VIEWACTIONID_2);
-
-			query.setStringAt(removeConjunction(query.stringAt(query.index() -
-						1)), query.index() - 1);
-
-			String sql = query.toString();
-
-			Session session = null;
-
 			try {
-				session = openSession();
+				if ((databaseInMaxParameters > 0) &&
+						(roleIds.length > databaseInMaxParameters)) {
+					count = Long.valueOf(0);
 
-				Query q = session.createQuery(sql);
+					long[][] roleIdsPages = (long[][])ArrayUtil.split(roleIds,
+							databaseInMaxParameters);
 
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(companyId);
-
-				if (bindName) {
-					qPos.add(name);
+					for (long[] roleIdsPage : roleIdsPages) {
+						count += Long.valueOf(_countByC_N_S_P_R_V(companyId,
+								name, scope, primKeyId, roleIdsPage,
+								viewActionId));
+					}
 				}
-
-				qPos.add(scope);
-
-				qPos.add(primKeyId);
-
-				qPos.add(viewActionId);
-
-				count = (Long)q.uniqueResult();
+				else {
+					count = Long.valueOf(_countByC_N_S_P_R_V(companyId, name,
+								scope, primKeyId, roleIds, viewActionId));
+				}
 
 				finderCache.putResult(FINDER_PATH_WITH_PAGINATION_COUNT_BY_C_N_S_P_R_V,
 					finderArgs, count);
@@ -6405,9 +6449,88 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 
 				throw processException(e);
 			}
-			finally {
-				closeSession(session);
+		}
+
+		return count.intValue();
+	}
+
+	private int _countByC_N_S_P_R_V(long companyId, String name, int scope,
+		long primKeyId, long[] roleIds, boolean viewActionId) {
+		Long count = null;
+
+		StringBundler query = new StringBundler();
+
+		query.append(_SQL_COUNT_RESOURCEPERMISSION_WHERE);
+
+		query.append(_FINDER_COLUMN_C_N_S_P_R_V_COMPANYID_2);
+
+		boolean bindName = false;
+
+		if (name == null) {
+			query.append(_FINDER_COLUMN_C_N_S_P_R_V_NAME_1);
+		}
+		else if (name.equals("")) {
+			query.append(_FINDER_COLUMN_C_N_S_P_R_V_NAME_3);
+		}
+		else {
+			bindName = true;
+
+			query.append(_FINDER_COLUMN_C_N_S_P_R_V_NAME_2);
+		}
+
+		query.append(_FINDER_COLUMN_C_N_S_P_R_V_SCOPE_2);
+
+		query.append(_FINDER_COLUMN_C_N_S_P_R_V_PRIMKEYID_2);
+
+		if (roleIds.length > 0) {
+			query.append("(");
+
+			query.append(_FINDER_COLUMN_C_N_S_P_R_V_ROLEID_7);
+
+			query.append(StringUtil.merge(roleIds));
+
+			query.append(")");
+
+			query.append(")");
+
+			query.append(WHERE_AND);
+		}
+
+		query.append(_FINDER_COLUMN_C_N_S_P_R_V_VIEWACTIONID_2);
+
+		query.setStringAt(removeConjunction(query.stringAt(query.index() - 1)),
+			query.index() - 1);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(companyId);
+
+			if (bindName) {
+				qPos.add(name);
 			}
+
+			qPos.add(scope);
+
+			qPos.add(primKeyId);
+
+			qPos.add(viewActionId);
+
+			count = (Long)q.uniqueResult();
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
 		}
 
 		return count.intValue();
@@ -6638,8 +6761,6 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 	@Override
 	protected ResourcePermission removeImpl(
 		ResourcePermission resourcePermission) {
-		resourcePermission = toUnwrappedModel(resourcePermission);
-
 		Session session = null;
 
 		try {
@@ -6670,9 +6791,23 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 
 	@Override
 	public ResourcePermission updateImpl(ResourcePermission resourcePermission) {
-		resourcePermission = toUnwrappedModel(resourcePermission);
-
 		boolean isNew = resourcePermission.isNew();
+
+		if (!(resourcePermission instanceof ResourcePermissionModelImpl)) {
+			InvocationHandler invocationHandler = null;
+
+			if (ProxyUtil.isProxyClass(resourcePermission.getClass())) {
+				invocationHandler = ProxyUtil.getInvocationHandler(resourcePermission);
+
+				throw new IllegalArgumentException(
+					"Implement ModelWrapper in resourcePermission proxy " +
+					invocationHandler.getClass());
+			}
+
+			throw new IllegalArgumentException(
+				"Implement ModelWrapper in custom ResourcePermission implementation " +
+				resourcePermission.getClass());
+		}
 
 		ResourcePermissionModelImpl resourcePermissionModelImpl = (ResourcePermissionModelImpl)resourcePermission;
 
@@ -6771,7 +6906,7 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 					resourcePermissionModelImpl.getScope(),
 					resourcePermissionModelImpl.getPrimKeyId(),
 					resourcePermissionModelImpl.getRoleId(),
-					resourcePermissionModelImpl.getViewActionId()
+					resourcePermissionModelImpl.isViewActionId()
 				};
 
 			finderCache.removeResult(FINDER_PATH_COUNT_BY_C_N_S_P_R_V, args);
@@ -6954,7 +7089,7 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 						resourcePermissionModelImpl.getScope(),
 						resourcePermissionModelImpl.getPrimKeyId(),
 						resourcePermissionModelImpl.getRoleId(),
-						resourcePermissionModelImpl.getViewActionId()
+						resourcePermissionModelImpl.isViewActionId()
 					};
 
 				finderCache.removeResult(FINDER_PATH_COUNT_BY_C_N_S_P_R_V, args);
@@ -6973,32 +7108,6 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 		resourcePermission.resetOriginalValues();
 
 		return resourcePermission;
-	}
-
-	protected ResourcePermission toUnwrappedModel(
-		ResourcePermission resourcePermission) {
-		if (resourcePermission instanceof ResourcePermissionImpl) {
-			return resourcePermission;
-		}
-
-		ResourcePermissionImpl resourcePermissionImpl = new ResourcePermissionImpl();
-
-		resourcePermissionImpl.setNew(resourcePermission.isNew());
-		resourcePermissionImpl.setPrimaryKey(resourcePermission.getPrimaryKey());
-
-		resourcePermissionImpl.setMvccVersion(resourcePermission.getMvccVersion());
-		resourcePermissionImpl.setResourcePermissionId(resourcePermission.getResourcePermissionId());
-		resourcePermissionImpl.setCompanyId(resourcePermission.getCompanyId());
-		resourcePermissionImpl.setName(resourcePermission.getName());
-		resourcePermissionImpl.setScope(resourcePermission.getScope());
-		resourcePermissionImpl.setPrimKey(resourcePermission.getPrimKey());
-		resourcePermissionImpl.setPrimKeyId(resourcePermission.getPrimKeyId());
-		resourcePermissionImpl.setRoleId(resourcePermission.getRoleId());
-		resourcePermissionImpl.setOwnerId(resourcePermission.getOwnerId());
-		resourcePermissionImpl.setActionIds(resourcePermission.getActionIds());
-		resourcePermissionImpl.setViewActionId(resourcePermission.isViewActionId());
-
-		return resourcePermissionImpl;
 	}
 
 	/**

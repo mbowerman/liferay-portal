@@ -14,7 +14,12 @@
 
 package com.liferay.poshi.runner.elements;
 
+import java.util.List;
+import java.util.regex.Pattern;
+
+import org.dom4j.Attribute;
 import org.dom4j.Element;
+import org.dom4j.Node;
 
 /**
  * @author Kenji Heigel
@@ -32,39 +37,24 @@ public class ElseIfPoshiElement extends IfPoshiElement {
 
 	@Override
 	public PoshiElement clone(
-		PoshiElement parentPoshiElement, String readableSyntax) {
+		PoshiElement parentPoshiElement, String poshiScript) {
 
-		if (_isElementType(readableSyntax)) {
-			return new ElseIfPoshiElement(readableSyntax);
+		if (_isElementType(parentPoshiElement, poshiScript)) {
+			return new ElseIfPoshiElement(parentPoshiElement, poshiScript);
 		}
 
 		return null;
 	}
 
 	@Override
-	public void parseReadableSyntax(String readableSyntax) {
-		for (String readableBlock : getReadableBlocks(readableSyntax)) {
-			if (readableBlock.startsWith("else if (")) {
-				add(
-					PoshiElementFactory.newPoshiElement(
-						this, getParentheticalContent(readableBlock)));
-
-				continue;
-			}
-
-			add(PoshiElementFactory.newPoshiElement(this, readableBlock));
-		}
-	}
-
-	@Override
-	public String toReadableSyntax() {
+	public String toPoshiScript() {
 		StringBuilder sb = new StringBuilder();
 
 		PoshiElement thenElement = (PoshiElement)element("then");
 
-		String thenReadableSyntax = thenElement.toReadableSyntax();
+		String thenPoshiScript = thenElement.toPoshiScript();
 
-		sb.append(createReadableBlock(thenReadableSyntax));
+		sb.append(createPoshiScriptSnippet(thenPoshiScript));
 
 		return sb.toString();
 	}
@@ -76,33 +66,46 @@ public class ElseIfPoshiElement extends IfPoshiElement {
 		super(_ELEMENT_NAME, element);
 	}
 
-	protected ElseIfPoshiElement(String readableSyntax) {
-		super(_ELEMENT_NAME, readableSyntax);
+	protected ElseIfPoshiElement(List<Attribute> attributes, List<Node> nodes) {
+		super(_ELEMENT_NAME, attributes, nodes);
+	}
+
+	protected ElseIfPoshiElement(
+		PoshiElement parentPoshiElement, String poshiScript) {
+
+		super(_ELEMENT_NAME, parentPoshiElement, poshiScript);
 	}
 
 	@Override
-	protected String getReadableName() {
+	protected String getPoshiScriptKeyword() {
 		return "else if";
 	}
 
-	private boolean _isElementType(String readableSyntax) {
-		readableSyntax = readableSyntax.trim();
+	protected static final Pattern blockNamePattern;
 
-		if (!isBalancedReadableSyntax(readableSyntax)) {
+	private boolean _isElementType(
+		PoshiElement parentPoshiElement, String poshiScript) {
+
+		if (ElseIfPoshiElement.class.equals(parentPoshiElement.getClass())) {
 			return false;
 		}
 
-		if (!readableSyntax.startsWith("else if (")) {
-			return false;
-		}
-
-		if (!readableSyntax.endsWith("}")) {
-			return false;
-		}
-
-		return true;
+		return isValidPoshiScriptBlock(blockNamePattern, poshiScript);
 	}
 
 	private static final String _ELEMENT_NAME = "elseif";
+
+	private static final String _POSHI_SCRIPT_KEYWORD = "else if";
+
+	private static final String _POSHI_SCRIPT_KEYWORD_REGEX;
+
+	static {
+		_POSHI_SCRIPT_KEYWORD_REGEX = _POSHI_SCRIPT_KEYWORD.replace(
+			" ", "[\\s]*");
+
+		blockNamePattern = Pattern.compile(
+			"^" + _POSHI_SCRIPT_KEYWORD_REGEX + BLOCK_NAME_PARAMETER_REGEX,
+			Pattern.DOTALL);
+	}
 
 }

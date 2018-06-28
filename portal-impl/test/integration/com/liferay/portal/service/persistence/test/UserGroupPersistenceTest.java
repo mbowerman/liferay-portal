@@ -121,6 +121,8 @@ public class UserGroupPersistenceTest {
 
 		newUserGroup.setUuid(RandomTestUtil.randomString());
 
+		newUserGroup.setExternalReferenceCode(RandomTestUtil.randomString());
+
 		newUserGroup.setCompanyId(RandomTestUtil.nextLong());
 
 		newUserGroup.setUserId(RandomTestUtil.nextLong());
@@ -146,6 +148,8 @@ public class UserGroupPersistenceTest {
 		Assert.assertEquals(existingUserGroup.getMvccVersion(),
 			newUserGroup.getMvccVersion());
 		Assert.assertEquals(existingUserGroup.getUuid(), newUserGroup.getUuid());
+		Assert.assertEquals(existingUserGroup.getExternalReferenceCode(),
+			newUserGroup.getExternalReferenceCode());
 		Assert.assertEquals(existingUserGroup.getUserGroupId(),
 			newUserGroup.getUserGroupId());
 		Assert.assertEquals(existingUserGroup.getCompanyId(),
@@ -165,8 +169,8 @@ public class UserGroupPersistenceTest {
 		Assert.assertEquals(existingUserGroup.getName(), newUserGroup.getName());
 		Assert.assertEquals(existingUserGroup.getDescription(),
 			newUserGroup.getDescription());
-		Assert.assertEquals(existingUserGroup.getAddedByLDAPImport(),
-			newUserGroup.getAddedByLDAPImport());
+		Assert.assertEquals(existingUserGroup.isAddedByLDAPImport(),
+			newUserGroup.isAddedByLDAPImport());
 	}
 
 	@Test
@@ -212,6 +216,15 @@ public class UserGroupPersistenceTest {
 	}
 
 	@Test
+	public void testCountByC_ERC() throws Exception {
+		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+
+		_persistence.countByC_ERC(0L, "null");
+
+		_persistence.countByC_ERC(0L, (String)null);
+	}
+
+	@Test
 	public void testFindByPrimaryKeyExisting() throws Exception {
 		UserGroup newUserGroup = addUserGroup();
 
@@ -235,10 +248,10 @@ public class UserGroupPersistenceTest {
 
 	protected OrderByComparator<UserGroup> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("UserGroup", "mvccVersion",
-			true, "uuid", true, "userGroupId", true, "companyId", true,
-			"userId", true, "userName", true, "createDate", true,
-			"modifiedDate", true, "parentUserGroupId", true, "name", true,
-			"description", true, "addedByLDAPImport", true);
+			true, "uuid", true, "externalReferenceCode", true, "userGroupId",
+			true, "companyId", true, "userId", true, "userName", true,
+			"createDate", true, "modifiedDate", true, "parentUserGroupId",
+			true, "name", true, "description", true, "addedByLDAPImport", true);
 	}
 
 	@Test
@@ -447,6 +460,14 @@ public class UserGroupPersistenceTest {
 		Assert.assertTrue(Objects.equals(existingUserGroup.getName(),
 				ReflectionTestUtil.invoke(existingUserGroup, "getOriginalName",
 					new Class<?>[0])));
+
+		Assert.assertEquals(Long.valueOf(existingUserGroup.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(existingUserGroup,
+				"getOriginalCompanyId", new Class<?>[0]));
+		Assert.assertTrue(Objects.equals(
+				existingUserGroup.getExternalReferenceCode(),
+				ReflectionTestUtil.invoke(existingUserGroup,
+					"getOriginalExternalReferenceCode", new Class<?>[0])));
 	}
 
 	protected UserGroup addUserGroup() throws Exception {
@@ -457,6 +478,8 @@ public class UserGroupPersistenceTest {
 		userGroup.setMvccVersion(RandomTestUtil.nextLong());
 
 		userGroup.setUuid(RandomTestUtil.randomString());
+
+		userGroup.setExternalReferenceCode(RandomTestUtil.randomString());
 
 		userGroup.setCompanyId(RandomTestUtil.nextLong());
 

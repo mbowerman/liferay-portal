@@ -17,12 +17,15 @@ package com.liferay.gradle.plugins;
 import com.liferay.gradle.plugins.extensions.AppServer;
 import com.liferay.gradle.plugins.extensions.LiferayExtension;
 import com.liferay.gradle.plugins.internal.LangBuilderDefaultsPlugin;
-import com.liferay.gradle.plugins.internal.NodeDefaultsPlugin;
 import com.liferay.gradle.plugins.internal.util.FileUtil;
 import com.liferay.gradle.plugins.internal.util.GradleUtil;
 import com.liferay.gradle.plugins.tasks.DirectDeployTask;
+import com.liferay.gradle.plugins.util.PortalTools;
+import com.liferay.gradle.util.Validator;
 
 import java.io.File;
+
+import java.net.URL;
 
 import java.util.concurrent.Callable;
 
@@ -55,8 +58,9 @@ public class LiferayBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		LiferayExtension liferayExtension = _addLiferayExtension(project);
 
+		GradleUtil.applyPlugin(project, NodeDefaultsPlugin.class);
+
 		LangBuilderDefaultsPlugin.INSTANCE.apply(project);
-		NodeDefaultsPlugin.INSTANCE.apply(project);
 		SourceFormatterDefaultsPlugin.INSTANCE.apply(project);
 
 		_addConfigurationPortal(project, liferayExtension);
@@ -138,10 +142,18 @@ public class LiferayBasePlugin implements Plugin<Project> {
 		LiferayExtension liferayExtension = GradleUtil.addExtension(
 			project, LiferayPlugin.PLUGIN_NAME, LiferayExtension.class);
 
-		GradleUtil.applyScript(
-			project,
-			"com/liferay/gradle/plugins/dependencies/config-liferay.gradle",
-			project);
+		String name = _getConfigLiferayScriptName(
+			PortalTools.getPortalVersion(project));
+
+		ClassLoader classLoader = LiferayBasePlugin.class.getClassLoader();
+
+		URL url = classLoader.getResource(name);
+
+		if (url == null) {
+			name = _getConfigLiferayScriptName(null);
+		}
+
+		GradleUtil.applyScript(project, name, project);
 
 		return liferayExtension;
 	}
@@ -289,6 +301,21 @@ public class LiferayBasePlugin implements Plugin<Project> {
 				}
 
 			});
+	}
+
+	private String _getConfigLiferayScriptName(String portalVersion) {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("com/liferay/gradle/plugins/dependencies/config-liferay");
+
+		if (Validator.isNotNull(portalVersion)) {
+			sb.append('-');
+			sb.append(portalVersion);
+		}
+
+		sb.append(".gradle");
+
+		return sb.toString();
 	}
 
 }

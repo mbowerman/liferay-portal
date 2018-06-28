@@ -27,7 +27,7 @@ public class PublicRenderParameterConfiguration {
 	public static final String MAPPING_PREFIX = "lfr-prp-mapping-";
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #getIgnoreKey(String)}
+	 * @deprecated As of Judson, replaced by {@link #getIgnoreKey(String)}
 	 */
 	@Deprecated
 	public static String getIgnoreKey(
@@ -45,7 +45,7 @@ public class PublicRenderParameterConfiguration {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #getMappingKey(String)}
+	 * @deprecated As of Judson, replaced by {@link #getMappingKey(String)}
 	 */
 	@Deprecated
 	public static String getMappingKey(
@@ -67,11 +67,12 @@ public class PublicRenderParameterConfiguration {
 		boolean ignoreValue) {
 
 		_publicRenderParameter = publicRenderParameter;
+		_mappingValue = mappingValue;
+		_ignoreValue = ignoreValue;
+
 		_publicRenderParameterName =
 			PortletQNameUtil.getPublicRenderParameterName(
 				publicRenderParameter.getQName());
-		_mappingValue = mappingValue;
-		_ignoreValue = ignoreValue;
 	}
 
 	public String getIgnoreKey() {

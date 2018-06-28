@@ -14,12 +14,12 @@
 
 package com.liferay.portal.kernel.process;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.concurrent.BaseFutureListener;
 import com.liferay.portal.kernel.concurrent.DefaultNoticeableFuture;
 import com.liferay.portal.kernel.concurrent.NoticeableFuture;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.IOException;
 
@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicMarkableReference;
 public class ProcessUtil {
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Judson, replaced by {@link
 	 *             CollectorOutputProcessor#INSTANCE}
 	 */
 	@Deprecated
@@ -43,7 +43,7 @@ public class ProcessUtil {
 		new CollectorOutputProcessor();
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Judson, replaced by {@link
 	 *             ConsumerOutputProcessor#INSTANCE}
 	 */
 	@Deprecated
@@ -51,14 +51,15 @@ public class ProcessUtil {
 		new ConsumerOutputProcessor();
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link EchoOutputProcessor#INSTANCE}
+	 * @deprecated As of Judson, replaced by {@link
+	 *             EchoOutputProcessor#INSTANCE}
 	 */
 	@Deprecated
 	public static final EchoOutputProcessor ECHO_OUTPUT_PROCESSOR =
 		new EchoOutputProcessor();
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Judson, replaced by {@link
 	 *             LoggingOutputProcessor#INSTANCE}
 	 */
 	@Deprecated
@@ -108,7 +109,7 @@ public class ProcessUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	public void destroy() {
@@ -194,9 +195,9 @@ public class ProcessUtil {
 
 					boolean[] markHolder = new boolean[1];
 
-					E stdErr = stdErrReference.get(markHolder);
-
 					if (markHolder[0]) {
+						E stdErr = stdErrReference.get(markHolder);
+
 						defaultNoticeableFuture.set(
 							new ObjectValuePair<>(stdOut, stdErr));
 					}
@@ -225,9 +226,9 @@ public class ProcessUtil {
 
 					boolean[] markHolder = new boolean[1];
 
-					O stdOut = stdOutReference.get(markHolder);
-
 					if (markHolder[0]) {
+						O stdOut = stdOutReference.get(markHolder);
+
 						defaultNoticeableFuture.set(
 							new ObjectValuePair<>(stdOut, stdErr));
 					}

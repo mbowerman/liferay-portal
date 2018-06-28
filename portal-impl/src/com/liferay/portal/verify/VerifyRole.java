@@ -60,13 +60,6 @@ public class VerifyRole extends VerifyProcess {
 			role.getRoleId(), ActionKeys.VIEW_SITE_ADMINISTRATION);
 	}
 
-	protected void deleteImplicitAssociations(Role role) throws Exception {
-		runSQL(
-			"delete from UserGroupGroupRole where roleId = " +
-				role.getRoleId());
-		runSQL("delete from UserGroupRole where roleId = " + role.getRoleId());
-	}
-
 	@Override
 	protected void doVerify() throws Exception {
 		long[] companyIds = PortalInstances.getCompanyIdsBySQL();
@@ -80,23 +73,6 @@ public class VerifyRole extends VerifyProcess {
 		try (LoggingTimer loggingTimer =
 				new LoggingTimer(String.valueOf(companyId))) {
 
-			RoleLocalServiceUtil.checkSystemRoles(companyId);
-
-			try {
-				Role organizationUserRole = RoleLocalServiceUtil.getRole(
-					companyId, RoleConstants.ORGANIZATION_USER);
-
-				deleteImplicitAssociations(organizationUserRole);
-			}
-			catch (NoSuchRoleException nsre) {
-
-				// LPS-52675
-
-				if (_log.isDebugEnabled()) {
-					_log.debug(nsre);
-				}
-			}
-
 			try {
 				Role powerUserRole = RoleLocalServiceUtil.getRole(
 					companyId, RoleConstants.POWER_USER);
@@ -108,22 +84,7 @@ public class VerifyRole extends VerifyProcess {
 				// LPS-52675
 
 				if (_log.isDebugEnabled()) {
-					_log.debug(nsre);
-				}
-			}
-
-			try {
-				Role siteMemberRole = RoleLocalServiceUtil.getRole(
-					companyId, RoleConstants.SITE_MEMBER);
-
-				deleteImplicitAssociations(siteMemberRole);
-			}
-			catch (NoSuchRoleException nsre) {
-
-				// LPS-52675
-
-				if (_log.isDebugEnabled()) {
-					_log.debug(nsre);
+					_log.debug(nsre, nsre);
 				}
 			}
 		}

@@ -15,12 +15,12 @@
 package com.liferay.portal.servlet;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.servlet.BrowserMetadata;
 import com.liferay.portal.kernel.servlet.BrowserSniffer;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -399,7 +399,7 @@ public class BrowserSnifferImpl implements BrowserSniffer {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link BrowserMetadata#isIe()}
+	 * @deprecated As of Judson, replaced by {@link BrowserMetadata#isIe()}
 	 */
 	@Deprecated
 	protected boolean isIe(String userAgent) {

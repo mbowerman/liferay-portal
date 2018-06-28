@@ -84,9 +84,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * @author Daniel Kocsis
- * @author Mate Thurzo
+ * @author     Daniel Kocsis
+ * @author     Mate Thurzo
+ * @deprecated As of Judson, replaced by {@link
+ *             com.liferay.exportimport.test.util.lar.BaseStagedModelDataHandlerTestCase}
  */
+@Deprecated
 public abstract class BaseStagedModelDataHandlerTestCase {
 
 	@Before

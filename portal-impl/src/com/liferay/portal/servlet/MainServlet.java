@@ -14,6 +14,7 @@
 
 package com.liferay.portal.servlet;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.events.EventsProcessorUtil;
 import com.liferay.portal.events.StartupAction;
 import com.liferay.portal.events.StartupHelperUtil;
@@ -68,7 +69,6 @@ import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.ServiceProxyFactory;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -99,7 +99,6 @@ import com.liferay.registry.ServiceRegistration;
 import com.liferay.registry.dependency.ServiceDependencyListener;
 import com.liferay.registry.dependency.ServiceDependencyManager;
 import com.liferay.social.kernel.util.SocialConfigurationUtil;
-import com.liferay.util.servlet.EncryptedServletRequest;
 
 import java.io.IOException;
 
@@ -144,8 +143,10 @@ public class MainServlet extends ActionServlet {
 			_log.debug("Destroy plugins");
 		}
 
-		_moduleServiceLifecycleServiceRegistration.unregister();
+		_portalInitializedModuleServiceLifecycleServiceRegistration.
+			unregister();
 		_servletContextServiceRegistration.unregister();
+		_systemCheckModuleServiceLifecycleServiceRegistration.unregister();
 
 		PortalLifecycleUtil.flushDestroys();
 
@@ -665,6 +666,7 @@ public class MainServlet extends ActionServlet {
 		PropsValues.SESSION_TIMEOUT = timeout;
 
 		I18nServlet.setLanguageIds(root);
+
 		I18nFilter.setLanguageIds(I18nServlet.getLanguageIds());
 	}
 
@@ -1002,7 +1004,7 @@ public class MainServlet extends ActionServlet {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	protected void initServerDetector() throws Exception {
@@ -1110,7 +1112,7 @@ public class MainServlet extends ActionServlet {
 			return false;
 		}
 
-		_inactiveRequesthandler.processInactiveRequest(
+		_inactiveRequestHandler.processInactiveRequest(
 			request, response,
 			"this-instance-is-inactive-please-contact-the-administrator");
 
@@ -1148,7 +1150,7 @@ public class MainServlet extends ActionServlet {
 			return false;
 		}
 
-		_inactiveRequesthandler.processInactiveRequest(
+		_inactiveRequestHandler.processInactiveRequest(
 			request, response,
 			"this-site-is-inactive-please-contact-the-administrator");
 
@@ -1156,7 +1158,7 @@ public class MainServlet extends ActionServlet {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	protected void processInactiveRequest(
@@ -1321,7 +1323,7 @@ public class MainServlet extends ActionServlet {
 			messageKey = "the-system-is-shutdown-please-try-again-later";
 		}
 
-		_inactiveRequesthandler.processInactiveRequest(
+		_inactiveRequestHandler.processInactiveRequest(
 			request, response, messageKey);
 
 		return true;
@@ -1342,32 +1344,30 @@ public class MainServlet extends ActionServlet {
 		properties.put("service.vendor", ReleaseInfo.getVendor());
 		properties.put("service.version", ReleaseInfo.getVersion());
 
-		_moduleServiceLifecycleServiceRegistration = registry.registerService(
-			ModuleServiceLifecycle.class, new ModuleServiceLifecycle() {},
-			properties);
-
-		ServletContext servletContext = getServletContext();
+		_portalInitializedModuleServiceLifecycleServiceRegistration =
+			registry.registerService(
+				ModuleServiceLifecycle.class, new ModuleServiceLifecycle() {},
+				properties);
 
 		properties = new HashMap<>();
-
-		Object serverContainer = servletContext.getAttribute(
-			"javax.websocket.server.ServerContainer");
-
-		if (serverContainer != null) {
-			properties.put("websocket.active", Boolean.TRUE);
-		}
-		else {
-			if (_log.isInfoEnabled()) {
-				_log.info("A WebSocket server container is not registered");
-			}
-		}
 
 		properties.put("bean.id", ServletContext.class.getName());
 		properties.put("original.bean", Boolean.TRUE);
 		properties.put("service.vendor", ReleaseInfo.getVendor());
 
 		_servletContextServiceRegistration = registry.registerService(
-			ServletContext.class, servletContext, properties);
+			ServletContext.class, getServletContext(), properties);
+
+		properties = new HashMap<>();
+
+		properties.put("module.service.lifecycle", "system.check");
+		properties.put("service.vendor", ReleaseInfo.getVendor());
+		properties.put("service.version", ReleaseInfo.getVersion());
+
+		_systemCheckModuleServiceLifecycleServiceRegistration =
+			registry.registerService(
+				ModuleServiceLifecycle.class, new ModuleServiceLifecycle() {},
+				properties);
 	}
 
 	protected void sendError(
@@ -1406,14 +1406,16 @@ public class MainServlet extends ActionServlet {
 
 	private static final Log _log = LogFactoryUtil.getLog(MainServlet.class);
 
-	private static volatile InactiveRequestHandler _inactiveRequesthandler =
+	private static volatile InactiveRequestHandler _inactiveRequestHandler =
 		ServiceProxyFactory.newServiceTrackedInstance(
 			InactiveRequestHandler.class, MainServlet.class,
-			"_inactiveRequesthandler", false);
+			"_inactiveRequestHandler", false);
 
 	private ServiceRegistration<ModuleServiceLifecycle>
-		_moduleServiceLifecycleServiceRegistration;
+		_portalInitializedModuleServiceLifecycleServiceRegistration;
 	private ServiceRegistration<ServletContext>
 		_servletContextServiceRegistration;
+	private ServiceRegistration<ModuleServiceLifecycle>
+		_systemCheckModuleServiceLifecycleServiceRegistration;
 
 }

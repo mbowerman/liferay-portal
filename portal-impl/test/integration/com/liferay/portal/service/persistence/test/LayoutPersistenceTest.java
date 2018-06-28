@@ -195,8 +195,8 @@ public class LayoutPersistenceTest {
 		Assert.assertEquals(Time.getShortTimestamp(
 				existingLayout.getModifiedDate()),
 			Time.getShortTimestamp(newLayout.getModifiedDate()));
-		Assert.assertEquals(existingLayout.getPrivateLayout(),
-			newLayout.getPrivateLayout());
+		Assert.assertEquals(existingLayout.isPrivateLayout(),
+			newLayout.isPrivateLayout());
 		Assert.assertEquals(existingLayout.getLayoutId(),
 			newLayout.getLayoutId());
 		Assert.assertEquals(existingLayout.getParentLayoutId(),
@@ -211,7 +211,7 @@ public class LayoutPersistenceTest {
 		Assert.assertEquals(existingLayout.getType(), newLayout.getType());
 		Assert.assertEquals(existingLayout.getTypeSettings(),
 			newLayout.getTypeSettings());
-		Assert.assertEquals(existingLayout.getHidden(), newLayout.getHidden());
+		Assert.assertEquals(existingLayout.isHidden(), newLayout.isHidden());
 		Assert.assertEquals(existingLayout.getFriendlyURL(),
 			newLayout.getFriendlyURL());
 		Assert.assertEquals(existingLayout.getIconImageId(),
@@ -224,8 +224,8 @@ public class LayoutPersistenceTest {
 			newLayout.getPriority());
 		Assert.assertEquals(existingLayout.getLayoutPrototypeUuid(),
 			newLayout.getLayoutPrototypeUuid());
-		Assert.assertEquals(existingLayout.getLayoutPrototypeLinkEnabled(),
-			newLayout.getLayoutPrototypeLinkEnabled());
+		Assert.assertEquals(existingLayout.isLayoutPrototypeLinkEnabled(),
+			newLayout.isLayoutPrototypeLinkEnabled());
 		Assert.assertEquals(existingLayout.getSourcePrototypeLayoutUuid(),
 			newLayout.getSourcePrototypeLayoutUuid());
 		Assert.assertEquals(Time.getShortTimestamp(
@@ -308,6 +308,15 @@ public class LayoutPersistenceTest {
 			RandomTestUtil.randomBoolean());
 
 		_persistence.countByG_P(0L, RandomTestUtil.randomBoolean());
+	}
+
+	@Test
+	public void testCountByG_T() throws Exception {
+		_persistence.countByG_T(RandomTestUtil.nextLong(), "");
+
+		_persistence.countByG_T(0L, "null");
+
+		_persistence.countByG_T(0L, (String)null);
 	}
 
 	@Test

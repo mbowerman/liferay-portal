@@ -21,13 +21,14 @@ import java.io.InputStream;
 
 /**
  * @author     Tina Tian
- * @deprecated As of 7.0.0, with no direct replacement
+ * @deprecated As of Judson, with no direct replacement
  */
 @Deprecated
 public class Base64InputStream extends InputStream {
 
 	public Base64InputStream(InputStream inputStream) {
 		_inputStream = inputStream;
+
 		_unitBufferIndex = 0;
 		_avaiableBytes = 0;
 		_unitBuffer = new byte[3];

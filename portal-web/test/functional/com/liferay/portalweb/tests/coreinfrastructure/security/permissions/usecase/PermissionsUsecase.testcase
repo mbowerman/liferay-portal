@@ -34,9 +34,9 @@
 		<var name="url2" value="${portalURL}/testxxx/?p_p_id=com_liferay_users_admin_web_portlet_UsersAdminPortlet&amp;p_p_state=maximized" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -45,11 +45,19 @@
 
 		<execute macro="User#logoutPG" />
 
-		<execute function="Open" locator1="${url1}" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${url1}" />
+		</execute>
 
-		<execute function="AssertTextEquals" locator1="Message#ERROR_2" value1="You do not have the required permissions." />
+		<execute function="AssertTextEquals" locator1="Message#ERROR_1" value1="You do not have the required permissions." />
 
-		<execute function="Open" locator1="${url2}" />
+		<!-- Ignore following step until LPS-73530 is fixed -->
+
+		<!-- <execute function="AssertConsoleTextNotPresent" value1="must have com.liferay.portal.kernel.model.Portlet,com_liferay_users_admin_web_portlet_UsersAdminPortlet,CONFIGURATION permission for null" /> -->
+
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${url2}" />
+		</execute>
 
 		<execute function="AssertTextEquals" locator1="Message#ERROR" value1="You do not have the roles required to access this portlet." />
 	</command>

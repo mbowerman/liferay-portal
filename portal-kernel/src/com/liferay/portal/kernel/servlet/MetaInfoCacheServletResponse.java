@@ -15,8 +15,8 @@
 package com.liferay.portal.kernel.servlet;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -87,7 +87,7 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 			}
 
 			if (metaInfoDataBag._contentLength != -1) {
-				response.setContentLength(metaInfoDataBag._contentLength);
+				response.setContentLengthLong(metaInfoDataBag._contentLength);
 			}
 
 			if (metaInfoDataBag._contentType != null) {
@@ -200,13 +200,13 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #finishResponse()}}
+	 * @deprecated As of Judson, replaced by {@link #finishResponse()}}
 	 */
 	@Deprecated
 	public void finishResponse(boolean reapplyMetaData) throws IOException {
-		HttpServletResponse response = (HttpServletResponse)getResponse();
-
 		if (reapplyMetaData) {
+			HttpServletResponse response = (HttpServletResponse)getResponse();
+
 			finishResponse(_metaData, response);
 		}
 
@@ -458,6 +458,17 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 	}
 
 	@Override
+	public void setContentLengthLong(long contentLength) {
+		if (isCommitted()) {
+			return;
+		}
+
+		_metaData._contentLength = contentLength;
+
+		super.setContentLengthLong(contentLength);
+	}
+
+	@Override
 	public void setContentType(String contentType) {
 		if (isCommitted()) {
 			return;
@@ -611,7 +622,7 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 
 		private int _bufferSize;
 		private String _charsetName;
-		private int _contentLength = -1;
+		private long _contentLength = -1;
 		private String _contentType;
 		private boolean _error;
 		private String _errorMessage;

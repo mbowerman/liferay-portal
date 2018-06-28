@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.model.Country;
 import com.liferay.portal.kernel.service.persistence.CountryPersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.model.impl.CountryImpl;
@@ -40,6 +41,7 @@ import com.liferay.portal.model.impl.CountryModelImpl;
 import java.io.Serializable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -208,12 +210,6 @@ public class CountryPersistenceImpl extends BasePersistenceImpl<Country>
 					result = country;
 
 					cacheResult(country);
-
-					if ((country.getName() == null) ||
-							!country.getName().equals(name)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_NAME,
-							finderArgs, country);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -439,12 +435,6 @@ public class CountryPersistenceImpl extends BasePersistenceImpl<Country>
 					result = country;
 
 					cacheResult(country);
-
-					if ((country.getA2() == null) ||
-							!country.getA2().equals(a2)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_A2,
-							finderArgs, country);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -670,12 +660,6 @@ public class CountryPersistenceImpl extends BasePersistenceImpl<Country>
 					result = country;
 
 					cacheResult(country);
-
-					if ((country.getA3() == null) ||
-							!country.getA3().equals(a3)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_A3,
-							finderArgs, country);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -885,7 +869,7 @@ public class CountryPersistenceImpl extends BasePersistenceImpl<Country>
 
 			if ((list != null) && !list.isEmpty()) {
 				for (Country country : list) {
-					if ((active != country.getActive())) {
+					if ((active != country.isActive())) {
 						list = null;
 
 						break;
@@ -1529,8 +1513,6 @@ public class CountryPersistenceImpl extends BasePersistenceImpl<Country>
 
 	@Override
 	protected Country removeImpl(Country country) {
-		country = toUnwrappedModel(country);
-
 		Session session = null;
 
 		try {
@@ -1561,9 +1543,23 @@ public class CountryPersistenceImpl extends BasePersistenceImpl<Country>
 
 	@Override
 	public Country updateImpl(Country country) {
-		country = toUnwrappedModel(country);
-
 		boolean isNew = country.isNew();
+
+		if (!(country instanceof CountryModelImpl)) {
+			InvocationHandler invocationHandler = null;
+
+			if (ProxyUtil.isProxyClass(country.getClass())) {
+				invocationHandler = ProxyUtil.getInvocationHandler(country);
+
+				throw new IllegalArgumentException(
+					"Implement ModelWrapper in country proxy " +
+					invocationHandler.getClass());
+			}
+
+			throw new IllegalArgumentException(
+				"Implement ModelWrapper in custom Country implementation " +
+				country.getClass());
+		}
 
 		CountryModelImpl countryModelImpl = (CountryModelImpl)country;
 
@@ -1595,7 +1591,7 @@ public class CountryPersistenceImpl extends BasePersistenceImpl<Country>
 		}
 		else
 		 if (isNew) {
-			Object[] args = new Object[] { countryModelImpl.getActive() };
+			Object[] args = new Object[] { countryModelImpl.isActive() };
 
 			finderCache.removeResult(FINDER_PATH_COUNT_BY_ACTIVE, args);
 			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ACTIVE,
@@ -1617,7 +1613,7 @@ public class CountryPersistenceImpl extends BasePersistenceImpl<Country>
 				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ACTIVE,
 					args);
 
-				args = new Object[] { countryModelImpl.getActive() };
+				args = new Object[] { countryModelImpl.isActive() };
 
 				finderCache.removeResult(FINDER_PATH_COUNT_BY_ACTIVE, args);
 				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ACTIVE,
@@ -1634,29 +1630,6 @@ public class CountryPersistenceImpl extends BasePersistenceImpl<Country>
 		country.resetOriginalValues();
 
 		return country;
-	}
-
-	protected Country toUnwrappedModel(Country country) {
-		if (country instanceof CountryImpl) {
-			return country;
-		}
-
-		CountryImpl countryImpl = new CountryImpl();
-
-		countryImpl.setNew(country.isNew());
-		countryImpl.setPrimaryKey(country.getPrimaryKey());
-
-		countryImpl.setMvccVersion(country.getMvccVersion());
-		countryImpl.setCountryId(country.getCountryId());
-		countryImpl.setName(country.getName());
-		countryImpl.setA2(country.getA2());
-		countryImpl.setA3(country.getA3());
-		countryImpl.setNumber(country.getNumber());
-		countryImpl.setIdd(country.getIdd());
-		countryImpl.setZipRequired(country.isZipRequired());
-		countryImpl.setActive(country.isActive());
-
-		return countryImpl;
 	}
 
 	/**

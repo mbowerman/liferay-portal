@@ -15,6 +15,7 @@
 package com.liferay.portal.kernel.servlet;
 
 import com.liferay.petra.nio.CharsetEncoderUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -27,7 +28,6 @@ import com.liferay.portal.kernel.util.RandomAccessInputStream;
 import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.StreamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.kernel.util.Validator;
@@ -413,12 +413,12 @@ public class ServletResponseUtil {
 						ByteBuffer.wrap(bytes, offset, contentLength));
 				}
 				else {
-					ServletOutputStream servletOutputStream =
-						response.getOutputStream();
-
 					if ((contentLength == 0) && ServerDetector.isJetty()) {
 					}
 					else {
+						ServletOutputStream servletOutputStream =
+							response.getOutputStream();
+
 						servletOutputStream.write(bytes, offset, contentLength);
 					}
 				}
@@ -429,7 +429,7 @@ public class ServletResponseUtil {
 				isClientAbortException(ioe)) {
 
 				if (_log.isWarnEnabled()) {
-					_log.warn(ioe);
+					_log.warn(ioe, ioe);
 				}
 			}
 			else {
@@ -469,7 +469,7 @@ public class ServletResponseUtil {
 				isClientAbortException(ioe)) {
 
 				if (_log.isWarnEnabled()) {
-					_log.warn(ioe);
+					_log.warn(ioe, ioe);
 				}
 			}
 			else {
@@ -597,7 +597,7 @@ public class ServletResponseUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	protected static InputStream copyRange(
@@ -690,7 +690,7 @@ public class ServletResponseUtil {
 
 				contentDispositionType = HttpHeaders.CONTENT_DISPOSITION_INLINE;
 
-				contentType = MimeTypesUtil.getContentType(fileName);
+				contentType = MimeTypesUtil.getExtensionContentType(extension);
 
 				response.setContentType(contentType);
 			}

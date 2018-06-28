@@ -16,6 +16,7 @@ package com.liferay.adaptive.media.blogs.internal.exportimport.data.handler.test
 
 import com.liferay.adaptive.media.image.configuration.AMImageConfigurationHelper;
 import com.liferay.adaptive.media.image.html.AMImageHTMLTagFactory;
+import com.liferay.adaptive.media.test.util.html.HTMLAssert;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.blogs.service.BlogsEntryLocalService;
@@ -23,6 +24,7 @@ import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.test.util.lar.BaseWorkflowedStagedModelDataHandlerTestCase;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.StagedModel;
@@ -35,7 +37,6 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -47,7 +48,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -81,20 +81,6 @@ public class AMBlogsEntryStagedModelDataHandlerTest
 			StringUtil.randomString(), StringUtil.randomString(), properties);
 	}
 
-	@Test(expected = Exception.class)
-	public void testExportFailsWithInvalidReferences() throws Exception {
-		int invalidFileEntryId = 9999999;
-
-		String content = _getImgTag(invalidFileEntryId);
-
-		BlogsEntry blogsEntry = _addBlogsEntry(content, _getServiceContext());
-
-		initExport();
-
-		StagedModelDataHandlerUtil.exportStagedModel(
-			portletDataContext, blogsEntry);
-	}
-
 	@Test
 	public void testExportImportContentWithMultipleDynamicReferences()
 		throws Exception {
@@ -113,7 +99,7 @@ public class AMBlogsEntryStagedModelDataHandlerTest
 		BlogsEntry importedEntry = (BlogsEntry)getStagedModel(
 			blogsEntry.getUuid(), liveGroup);
 
-		Assert.assertEquals(
+		HTMLAssert.assertHTMLEquals(
 			_getExpectedDynamicContent(fileEntry1, fileEntry2),
 			importedEntry.getContent());
 	}
@@ -136,7 +122,7 @@ public class AMBlogsEntryStagedModelDataHandlerTest
 		BlogsEntry importedEntry = (BlogsEntry)getStagedModel(
 			blogsEntry.getUuid(), liveGroup);
 
-		_assertHTMLEquals(
+		HTMLAssert.assertHTMLEquals(
 			_getExpectedStaticContent(fileEntry1, fileEntry2),
 			importedEntry.getContent());
 	}
@@ -152,8 +138,22 @@ public class AMBlogsEntryStagedModelDataHandlerTest
 		BlogsEntry importedEntry = (BlogsEntry)getStagedModel(
 			blogsEntry.getUuid(), liveGroup);
 
-		Assert.assertEquals(
+		HTMLAssert.assertHTMLEquals(
 			blogsEntry.getContent(), importedEntry.getContent());
+	}
+
+	@Test
+	public void testExportSucceedsWithInvalidReferences() throws Exception {
+		int invalidFileEntryId = 9999999;
+
+		String content = _getImgTag(invalidFileEntryId);
+
+		BlogsEntry blogsEntry = _addBlogsEntry(content, _getServiceContext());
+
+		initExport();
+
+		StagedModelDataHandlerUtil.exportStagedModel(
+			portletDataContext, blogsEntry);
 	}
 
 	@Override
@@ -216,14 +216,6 @@ public class AMBlogsEntryStagedModelDataHandlerTest
 			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 			StringUtil.randomString(), ContentTypes.IMAGE_JPEG,
 			FileUtil.getBytes(getClass(), "image.jpg"), serviceContext);
-	}
-
-	private void _assertHTMLEquals(String expectedHTML, String actualHTML)
-		throws Exception {
-
-		Assert.assertEquals(
-			_removeSpacing(StringUtil.toLowerCase(expectedHTML)),
-			_removeSpacing(StringUtil.toLowerCase(actualHTML)));
 	}
 
 	private String _getDynamicContent(FileEntry... fileEntries)
@@ -314,10 +306,6 @@ public class AMBlogsEntryStagedModelDataHandlerTest
 		}
 
 		return sb.toString();
-	}
-
-	private String _removeSpacing(String text) {
-		return text.replaceAll("\\s", StringPool.BLANK);
 	}
 
 	@Inject

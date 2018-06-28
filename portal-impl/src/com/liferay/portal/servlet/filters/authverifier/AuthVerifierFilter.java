@@ -14,6 +14,7 @@
 
 package com.liferay.portal.servlet.filters.authverifier;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.access.control.AccessControlUtil;
@@ -25,7 +26,6 @@ import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.security.auth.AuthVerifierPipeline;
@@ -81,6 +81,13 @@ public class AuthVerifierFilter extends BasePortalFilter {
 				_initParametersMap.put(
 					(String)entry.getKey(), entry.getValue());
 			}
+		}
+
+		if (_initParametersMap.containsKey("guest.allowed")) {
+			_guestAllowed = GetterUtil.getBoolean(
+				_initParametersMap.get("guest.allowed"), true);
+
+			_initParametersMap.remove("guest.allowed");
 		}
 
 		if (_initParametersMap.containsKey("hosts.allowed")) {
@@ -143,13 +150,25 @@ public class AuthVerifierFilter extends BasePortalFilter {
 
 		if (state == AuthVerifierResult.State.INVALID_CREDENTIALS) {
 			if (_log.isDebugEnabled()) {
-				_log.debug("Result state doesn't allow us to continue.");
+				_log.debug("Result state doesn't allow us to continue");
 			}
 		}
 		else if (state == AuthVerifierResult.State.NOT_APPLICABLE) {
 			_log.error("Invalid state " + state);
 		}
-		else if (state == AuthVerifierResult.State.SUCCESS) {
+		else if (!_guestAllowed &&
+				 (state == AuthVerifierResult.State.UNSUCCESSFUL)) {
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"Guest is not allowed to access " +
+						request.getRequestURI());
+			}
+
+			response.sendError(
+				HttpServletResponse.SC_FORBIDDEN, "Authorization required");
+		}
+		else if (_guestAllowed || (state == AuthVerifierResult.State.SUCCESS)) {
 			long userId = authVerifierResult.getUserId();
 
 			AccessControlUtil.initContextUser(userId);
@@ -239,6 +258,7 @@ public class AuthVerifierFilter extends BasePortalFilter {
 	private static final Log _log = LogFactoryUtil.getLog(
 		AuthVerifierFilter.class.getName());
 
+	private boolean _guestAllowed = true;
 	private final Set<String> _hostsAllowed = new HashSet<>();
 	private boolean _httpsRequired;
 	private final Map<String, Object> _initParametersMap = new HashMap<>();

@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.model.RepositoryModel;
 import com.liferay.portal.kernel.model.RepositorySoap;
@@ -110,7 +111,7 @@ public class RepositoryModelImpl extends BaseModelImpl<Repository>
 		TABLE_COLUMNS_MAP.put("lastPublishDate", Types.TIMESTAMP);
 	}
 
-	public static final String TABLE_SQL_CREATE = "create table Repository (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,repositoryId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,classNameId LONG,name VARCHAR(75) null,description STRING null,portletId VARCHAR(200) null,typeSettings TEXT null,dlFolderId LONG,lastPublishDate DATE null)";
+	public static final String TABLE_SQL_CREATE = "create table Repository (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,repositoryId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,classNameId LONG,name VARCHAR(200) null,description STRING null,portletId VARCHAR(200) null,typeSettings TEXT null,dlFolderId LONG,lastPublishDate DATE null)";
 	public static final String TABLE_SQL_DROP = "drop table Repository";
 	public static final String ORDER_BY_JPQL = " ORDER BY repository.repositoryId ASC";
 	public static final String ORDER_BY_SQL = " ORDER BY Repository.repositoryId ASC";
@@ -999,7 +1000,7 @@ public class RepositoryModelImpl extends BaseModelImpl<Repository>
 
 	private static final ClassLoader _classLoader = Repository.class.getClassLoader();
 	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
-			Repository.class
+			Repository.class, ModelWrapper.class
 		};
 	private long _mvccVersion;
 	private String _uuid;

@@ -16,6 +16,7 @@ package com.liferay.portlet.asset.service.impl;
 
 import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.asset.kernel.model.AssetTagDisplay;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -27,7 +28,6 @@ import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.Autocomplete;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portlet.asset.service.base.AssetTagServiceBaseImpl;
 import com.liferay.portlet.asset.service.permission.AssetTagsPermission;
@@ -58,7 +58,7 @@ public class AssetTagServiceImpl extends AssetTagServiceBaseImpl {
 		throws PortalException {
 
 		AssetTagsPermission.check(
-			getPermissionChecker(), groupId, ActionKeys.ADD_TAG);
+			getPermissionChecker(), groupId, ActionKeys.MANAGE_TAG);
 
 		return assetTagLocalService.addTag(
 			getUserId(), groupId, name, serviceContext);
@@ -72,6 +72,12 @@ public class AssetTagServiceImpl extends AssetTagServiceBaseImpl {
 	@Override
 	public void deleteTags(long[] tagIds) throws PortalException {
 		for (long tagId : tagIds) {
+			AssetTag tag = assetTagLocalService.getTag(tagId);
+
+			AssetTagsPermission.check(
+				getPermissionChecker(), tag.getGroupId(),
+				ActionKeys.MANAGE_TAG);
+
 			assetTagLocalService.deleteTag(tagId);
 		}
 	}
@@ -216,6 +222,11 @@ public class AssetTagServiceImpl extends AssetTagServiceBaseImpl {
 
 	@Override
 	public void mergeTags(long fromTagId, long toTagId) throws PortalException {
+		AssetTag tag = assetTagLocalService.getTag(fromTagId);
+
+		AssetTagsPermission.check(
+			getPermissionChecker(), tag.getGroupId(), ActionKeys.MANAGE_TAG);
+
 		assetTagLocalService.mergeTags(fromTagId, toTagId);
 	}
 
@@ -245,6 +256,11 @@ public class AssetTagServiceImpl extends AssetTagServiceBaseImpl {
 			long tagId, String name, ServiceContext serviceContext)
 		throws PortalException {
 
+		AssetTag tag = assetTagLocalService.getTag(tagId);
+
+		AssetTagsPermission.check(
+			getPermissionChecker(), tag.getGroupId(), ActionKeys.MANAGE_TAG);
+
 		return assetTagLocalService.updateTag(
 			getUserId(), tagId, name, serviceContext);
 	}
@@ -264,7 +280,7 @@ public class AssetTagServiceImpl extends AssetTagServiceBaseImpl {
 			}
 		}
 		catch (PrincipalException pe) {
-			_log.error(pe);
+			_log.error(pe, pe);
 		}
 
 		tag.setUserId(0);

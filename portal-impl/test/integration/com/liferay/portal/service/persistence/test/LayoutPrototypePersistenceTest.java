@@ -165,8 +165,8 @@ public class LayoutPrototypePersistenceTest {
 			newLayoutPrototype.getDescription());
 		Assert.assertEquals(existingLayoutPrototype.getSettings(),
 			newLayoutPrototype.getSettings());
-		Assert.assertEquals(existingLayoutPrototype.getActive(),
-			newLayoutPrototype.getActive());
+		Assert.assertEquals(existingLayoutPrototype.isActive(),
+			newLayoutPrototype.isActive());
 	}
 
 	@Test
@@ -228,8 +228,7 @@ public class LayoutPrototypePersistenceTest {
 		return OrderByComparatorFactoryUtil.create("LayoutPrototype",
 			"mvccVersion", true, "uuid", true, "layoutPrototypeId", true,
 			"companyId", true, "userId", true, "userName", true, "createDate",
-			true, "modifiedDate", true, "name", true, "description", true,
-			"settings", true, "active", true);
+			true, "modifiedDate", true, "settings", true, "active", true);
 	}
 
 	@Test

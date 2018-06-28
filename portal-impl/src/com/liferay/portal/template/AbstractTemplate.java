@@ -14,11 +14,11 @@
 
 package com.liferay.portal.template;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.template.TemplateException;
 import com.liferay.portal.kernel.template.TemplateResource;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.Writer;
 
@@ -151,7 +151,7 @@ public abstract class AbstractTemplate implements Template {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #write(Writer)}
+	 * @deprecated As of Wilberforce, replaced by {@link #write(Writer)}
 	 */
 	@Deprecated
 	protected void _write(Writer writer) throws TemplateException {

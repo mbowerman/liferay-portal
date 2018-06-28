@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.portlet;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.LayoutConstants;
@@ -24,7 +25,6 @@ import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.PortletCategoryKeys;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.util.List;
 
@@ -53,8 +53,8 @@ public abstract class BaseControlPanelEntry implements ControlPanelEntry {
 	}
 
 	/**
-	 * @deprecated As of 6.2.0, with no direct replacement.<p>This method was
-	 *             originally defined to determine if a portlet should be
+	 * @deprecated As of Wilberforce, with no direct replacement.<p>This method
+	 *             was originally defined to determine if a portlet should be
 	 *             displayed in the Control Panel. In this version, this method
 	 *             should always return <code>false</code> and remains only to
 	 *             preserve binary compatibility. This method will be
@@ -73,8 +73,8 @@ public abstract class BaseControlPanelEntry implements ControlPanelEntry {
 	}
 
 	/**
-	 * @deprecated As of 6.2.0, with no direct replacement.<p>This method was
-	 *             originally defined to determine if a portlet should be
+	 * @deprecated As of Wilberforce, with no direct replacement.<p>This method
+	 *             was originally defined to determine if a portlet should be
 	 *             displayed in the Control Panel. In this version, this method
 	 *             should always return <code>false</code> and remains only to
 	 *             preserve binary compatibility. This method will be

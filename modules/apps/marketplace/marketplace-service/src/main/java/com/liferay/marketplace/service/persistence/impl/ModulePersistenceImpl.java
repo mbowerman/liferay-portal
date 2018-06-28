@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.service.persistence.CompanyProvider;
 import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -45,6 +46,7 @@ import com.liferay.portal.spring.extender.service.ServiceReference;
 import java.io.Serializable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -2968,13 +2970,6 @@ public class ModulePersistenceImpl extends BasePersistenceImpl<Module>
 					result = module;
 
 					cacheResult(module);
-
-					if ((module.getAppId() != appId) ||
-							(module.getContextName() == null) ||
-							!module.getContextName().equals(contextName)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_A_CN,
-							finderArgs, module);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -3269,16 +3264,6 @@ public class ModulePersistenceImpl extends BasePersistenceImpl<Module>
 					result = module;
 
 					cacheResult(module);
-
-					if ((module.getAppId() != appId) ||
-							(module.getBundleSymbolicName() == null) ||
-							!module.getBundleSymbolicName()
-									   .equals(bundleSymbolicName) ||
-							(module.getBundleVersion() == null) ||
-							!module.getBundleVersion().equals(bundleVersion)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_A_BSN_BV,
-							finderArgs, module);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -3667,8 +3652,6 @@ public class ModulePersistenceImpl extends BasePersistenceImpl<Module>
 
 	@Override
 	protected Module removeImpl(Module module) {
-		module = toUnwrappedModel(module);
-
 		Session session = null;
 
 		try {
@@ -3699,9 +3682,23 @@ public class ModulePersistenceImpl extends BasePersistenceImpl<Module>
 
 	@Override
 	public Module updateImpl(Module module) {
-		module = toUnwrappedModel(module);
-
 		boolean isNew = module.isNew();
+
+		if (!(module instanceof ModuleModelImpl)) {
+			InvocationHandler invocationHandler = null;
+
+			if (ProxyUtil.isProxyClass(module.getClass())) {
+				invocationHandler = ProxyUtil.getInvocationHandler(module);
+
+				throw new IllegalArgumentException(
+					"Implement ModelWrapper in module proxy " +
+					invocationHandler.getClass());
+			}
+
+			throw new IllegalArgumentException(
+				"Implement ModelWrapper in custom Module implementation " +
+				module.getClass());
+		}
 
 		ModuleModelImpl moduleModelImpl = (ModuleModelImpl)module;
 
@@ -3875,27 +3872,6 @@ public class ModulePersistenceImpl extends BasePersistenceImpl<Module>
 		module.resetOriginalValues();
 
 		return module;
-	}
-
-	protected Module toUnwrappedModel(Module module) {
-		if (module instanceof ModuleImpl) {
-			return module;
-		}
-
-		ModuleImpl moduleImpl = new ModuleImpl();
-
-		moduleImpl.setNew(module.isNew());
-		moduleImpl.setPrimaryKey(module.getPrimaryKey());
-
-		moduleImpl.setUuid(module.getUuid());
-		moduleImpl.setModuleId(module.getModuleId());
-		moduleImpl.setCompanyId(module.getCompanyId());
-		moduleImpl.setAppId(module.getAppId());
-		moduleImpl.setBundleSymbolicName(module.getBundleSymbolicName());
-		moduleImpl.setBundleVersion(module.getBundleVersion());
-		moduleImpl.setContextName(module.getContextName());
-
-		return moduleImpl;
 	}
 
 	/**

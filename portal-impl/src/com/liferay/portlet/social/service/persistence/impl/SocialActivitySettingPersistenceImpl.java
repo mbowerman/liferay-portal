@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.service.persistence.CompanyProvider;
 import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 
@@ -43,6 +44,8 @@ import com.liferay.social.kernel.model.SocialActivitySetting;
 import com.liferay.social.kernel.service.persistence.SocialActivitySettingPersistence;
 
 import java.io.Serializable;
+
+import java.lang.reflect.InvocationHandler;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -2477,15 +2480,6 @@ public class SocialActivitySettingPersistenceImpl extends BasePersistenceImpl<So
 					result = socialActivitySetting;
 
 					cacheResult(socialActivitySetting);
-
-					if ((socialActivitySetting.getGroupId() != groupId) ||
-							(socialActivitySetting.getClassNameId() != classNameId) ||
-							(socialActivitySetting.getActivityType() != activityType) ||
-							(socialActivitySetting.getName() == null) ||
-							!socialActivitySetting.getName().equals(name)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_G_C_A_N,
-							finderArgs, socialActivitySetting);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -2831,8 +2825,6 @@ public class SocialActivitySettingPersistenceImpl extends BasePersistenceImpl<So
 	@Override
 	protected SocialActivitySetting removeImpl(
 		SocialActivitySetting socialActivitySetting) {
-		socialActivitySetting = toUnwrappedModel(socialActivitySetting);
-
 		Session session = null;
 
 		try {
@@ -2864,9 +2856,23 @@ public class SocialActivitySettingPersistenceImpl extends BasePersistenceImpl<So
 	@Override
 	public SocialActivitySetting updateImpl(
 		SocialActivitySetting socialActivitySetting) {
-		socialActivitySetting = toUnwrappedModel(socialActivitySetting);
-
 		boolean isNew = socialActivitySetting.isNew();
+
+		if (!(socialActivitySetting instanceof SocialActivitySettingModelImpl)) {
+			InvocationHandler invocationHandler = null;
+
+			if (ProxyUtil.isProxyClass(socialActivitySetting.getClass())) {
+				invocationHandler = ProxyUtil.getInvocationHandler(socialActivitySetting);
+
+				throw new IllegalArgumentException(
+					"Implement ModelWrapper in socialActivitySetting proxy " +
+					invocationHandler.getClass());
+			}
+
+			throw new IllegalArgumentException(
+				"Implement ModelWrapper in custom SocialActivitySetting implementation " +
+				socialActivitySetting.getClass());
+		}
 
 		SocialActivitySettingModelImpl socialActivitySettingModelImpl = (SocialActivitySettingModelImpl)socialActivitySetting;
 
@@ -3033,28 +3039,6 @@ public class SocialActivitySettingPersistenceImpl extends BasePersistenceImpl<So
 		socialActivitySetting.resetOriginalValues();
 
 		return socialActivitySetting;
-	}
-
-	protected SocialActivitySetting toUnwrappedModel(
-		SocialActivitySetting socialActivitySetting) {
-		if (socialActivitySetting instanceof SocialActivitySettingImpl) {
-			return socialActivitySetting;
-		}
-
-		SocialActivitySettingImpl socialActivitySettingImpl = new SocialActivitySettingImpl();
-
-		socialActivitySettingImpl.setNew(socialActivitySetting.isNew());
-		socialActivitySettingImpl.setPrimaryKey(socialActivitySetting.getPrimaryKey());
-
-		socialActivitySettingImpl.setActivitySettingId(socialActivitySetting.getActivitySettingId());
-		socialActivitySettingImpl.setGroupId(socialActivitySetting.getGroupId());
-		socialActivitySettingImpl.setCompanyId(socialActivitySetting.getCompanyId());
-		socialActivitySettingImpl.setClassNameId(socialActivitySetting.getClassNameId());
-		socialActivitySettingImpl.setActivityType(socialActivitySetting.getActivityType());
-		socialActivitySettingImpl.setName(socialActivitySetting.getName());
-		socialActivitySettingImpl.setValue(socialActivitySetting.getValue());
-
-		return socialActivitySettingImpl;
 	}
 
 	/**

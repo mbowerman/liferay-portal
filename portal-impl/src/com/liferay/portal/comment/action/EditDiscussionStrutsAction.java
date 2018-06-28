@@ -18,6 +18,7 @@ import com.liferay.message.boards.kernel.exception.DiscussionMaxCommentsExceptio
 import com.liferay.message.boards.kernel.exception.MessageBodyException;
 import com.liferay.message.boards.kernel.exception.NoSuchMessageException;
 import com.liferay.message.boards.kernel.exception.RequiredMessageException;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.comment.Comment;
 import com.liferay.portal.kernel.comment.CommentManagerUtil;
 import com.liferay.portal.kernel.comment.DiscussionPermission;
@@ -40,7 +41,6 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.Function;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -53,7 +53,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author     Adolfo Pérez
- * @deprecated As of 7.0.0, replaced by {@link
+ * @deprecated As of Judson, replaced by {@link
  *             com.liferay.comment.taglib.internal.action.
  *             EditDiscussionStrutsAction}
  */
@@ -84,8 +84,6 @@ public class EditDiscussionStrutsAction extends BaseStrutsAction {
 				ParamUtil.getString(request, "redirect"));
 
 			if (cmd.equals(Constants.ADD) || cmd.equals(Constants.UPDATE)) {
-				long commentId = updateComment(namespacedRequest);
-
 				boolean ajax = ParamUtil.getBoolean(request, "ajax", true);
 
 				if (ajax) {
@@ -94,7 +92,10 @@ public class EditDiscussionStrutsAction extends BaseStrutsAction {
 
 					JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
+					long commentId = updateComment(namespacedRequest);
+
 					jsonObject.put("commentId", commentId);
+
 					jsonObject.put("randomNamespace", randomNamespace);
 
 					writeJSON(namespacedRequest, response, jsonObject);

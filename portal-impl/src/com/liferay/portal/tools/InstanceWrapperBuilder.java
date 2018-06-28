@@ -14,9 +14,9 @@
 
 package com.liferay.portal.tools;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
@@ -285,8 +285,8 @@ public class InstanceWrapperBuilder {
 		sb.append(type.getValue());
 		sb.append("<");
 
-		for (int i = 0; i < actualTypeArguments.length; i++) {
-			sb.append(_getTypeGenericsName(actualTypeArguments[i]));
+		for (Type actualTypeArgument : actualTypeArguments) {
+			sb.append(_getTypeGenericsName(actualTypeArgument));
 			sb.append(", ");
 		}
 

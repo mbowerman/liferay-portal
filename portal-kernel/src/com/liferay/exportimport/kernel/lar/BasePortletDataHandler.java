@@ -14,6 +14,7 @@
 
 package com.liferay.exportimport.kernel.lar;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Portlet;
@@ -22,7 +23,6 @@ import com.liferay.portal.kernel.service.PortletPreferencesLocalServiceUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Document;
@@ -352,11 +352,7 @@ public abstract class BasePortletDataHandler implements PortletDataHandler {
 
 	@Override
 	public PortletDataHandlerControl[] getStagingControls() {
-		if (ArrayUtil.isNotEmpty(_stagingControls)) {
-			return _stagingControls;
-		}
-
-		return _exportControls;
+		return _stagingControls;
 	}
 
 	@Override
@@ -480,7 +476,7 @@ public abstract class BasePortletDataHandler implements PortletDataHandler {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	@Override
@@ -502,7 +498,7 @@ public abstract class BasePortletDataHandler implements PortletDataHandler {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	@Override
@@ -844,7 +840,7 @@ public abstract class BasePortletDataHandler implements PortletDataHandler {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	protected void setSupportsDataStrategyCopyAsNew(
@@ -867,11 +863,9 @@ public abstract class BasePortletDataHandler implements PortletDataHandler {
 			pde.setPortletId(portletId);
 		}
 
-		if (pde.getType() != PortletDataException.DEFAULT) {
-			return pde;
+		if (pde.getType() == PortletDataException.DEFAULT) {
+			pde.setType(type);
 		}
-
-		pde.setType(type);
 
 		return pde;
 	}

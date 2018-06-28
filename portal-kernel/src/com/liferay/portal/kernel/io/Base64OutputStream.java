@@ -21,13 +21,14 @@ import java.io.OutputStream;
 
 /**
  * @author     Tina Tian
- * @deprecated As of 7.0.0, with no direct replacement
+ * @deprecated As of Judson, with no direct replacement
  */
 @Deprecated
 public class Base64OutputStream extends OutputStream {
 
 	public Base64OutputStream(OutputStream outputStream) {
 		_outputStream = outputStream;
+
 		_unitBuffer = new byte[3];
 		_unitBufferIndex = 0;
 		_outputBuffer = new byte[4];

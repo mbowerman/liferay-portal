@@ -14,9 +14,9 @@
 
 package com.liferay.portal.kernel.settings;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.IOException;
@@ -124,7 +124,7 @@ public class PortletPreferencesSettings extends BaseModifiableSettings {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	protected boolean isNull(String value) {
@@ -136,7 +136,7 @@ public class PortletPreferencesSettings extends BaseModifiableSettings {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	protected String normalizeValue(String value) {
@@ -148,7 +148,7 @@ public class PortletPreferencesSettings extends BaseModifiableSettings {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	protected String[] normalizeValues(String[] values) {

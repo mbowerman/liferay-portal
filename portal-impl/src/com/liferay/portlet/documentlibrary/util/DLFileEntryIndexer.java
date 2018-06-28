@@ -33,6 +33,7 @@ import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
 import com.liferay.expando.kernel.util.ExpandoBridgeIndexerUtil;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.comment.Comment;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
@@ -65,22 +66,21 @@ import com.liferay.portal.kernel.search.filter.QueryFilter;
 import com.liferay.portal.kernel.search.generic.BooleanQueryImpl;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
-import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.ServiceProxyFactory;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileEntry;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portlet.documentlibrary.service.permission.DLFileEntryPermission;
 import com.liferay.trash.kernel.util.TrashUtil;
 
 import java.io.IOException;
@@ -95,16 +95,13 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 
 /**
- * @author Brian Wing Shun Chan
- * @author Raymond Augé
- * @author Alexander Chow
+ * @author     Brian Wing Shun Chan
+ * @author     Raymond Augé
+ * @author     Alexander Chow
+ * @deprecated As of Judson, replaced by {@link
+ *             com.liferay.document.library.internal.search.DLFileEntryIndexer}
  */
-@OSGiBeanProperties(
-	property = {
-		"related.entry.indexer.class.name=com.liferay.document.library.kernel.model.DLFileEntry"
-	},
-	service = {Indexer.class, RelatedEntryIndexer.class}
-)
+@Deprecated
 public class DLFileEntryIndexer
 	extends BaseIndexer<DLFileEntry> implements RelatedEntryIndexer {
 
@@ -166,7 +163,7 @@ public class DLFileEntryIndexer
 			long entryClassPK, String actionId)
 		throws Exception {
 
-		return DLFileEntryPermission.contains(
+		return _dlFileEntryModelResourcePermission.contains(
 			permissionChecker, entryClassPK, ActionKeys.VIEW);
 	}
 
@@ -741,6 +738,13 @@ public class DLFileEntryIndexer
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DLFileEntryIndexer.class);
+
+	private static volatile ModelResourcePermission<DLFileEntry>
+		_dlFileEntryModelResourcePermission =
+			ServiceProxyFactory.newServiceTrackedInstance(
+				ModelResourcePermission.class, DLFileEntryIndexer.class,
+				"_dlFileEntryModelResourcePermission",
+				"(model.class.name=" + DLFileEntry.class.getName() + ")", true);
 
 	private final RelatedEntryIndexer _relatedEntryIndexer =
 		new BaseRelatedEntryIndexer();

@@ -47,12 +47,11 @@ public class ExportImportLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated As of 7.0.0
+	* @deprecated As of Judson
 	*/
 	@Deprecated
 	public static java.io.File exportLayoutsAsFile(long userId, long groupId,
-		boolean privateLayout,
-		java.util.Map<java.lang.String, java.lang.String[]> parameterMap)
+		boolean privateLayout, java.util.Map<String, String[]> parameterMap)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .exportLayoutsAsFile(userId, groupId, privateLayout,
@@ -102,7 +101,7 @@ public class ExportImportLocalServiceUtil {
 	*
 	* @return the OSGi service identifier
 	*/
-	public static java.lang.String getOSGiServiceIdentifier() {
+	public static String getOSGiServiceIdentifier() {
 		return getService().getOSGiServiceIdentifier();
 	}
 
@@ -121,12 +120,11 @@ public class ExportImportLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated As of 7.0.0
+	* @deprecated As of Judson
 	*/
 	@Deprecated
 	public static void importLayouts(long userId, long groupId,
-		boolean privateLayout,
-		java.util.Map<java.lang.String, java.lang.String[]> parameterMap,
+		boolean privateLayout, java.util.Map<String, String[]> parameterMap,
 		java.io.File file)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService()

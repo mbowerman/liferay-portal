@@ -19,7 +19,9 @@ import com.liferay.petra.process.ProcessCallable;
 import com.liferay.petra.process.ProcessChannel;
 import com.liferay.petra.process.ProcessException;
 import com.liferay.petra.process.ProcessExecutor;
+import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
@@ -31,10 +33,8 @@ import com.liferay.portal.kernel.util.Digester;
 import com.liferay.portal.kernel.util.DigesterUtil;
 import com.liferay.portal.kernel.util.FileComparator;
 import com.liferay.portal.kernel.util.PwdGenerator;
-import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.StreamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.Time;
@@ -146,20 +146,20 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 
 		File[] fileArray = source.listFiles();
 
-		for (int i = 0; i < fileArray.length; i++) {
-			if (fileArray[i].isDirectory()) {
+		for (File file : fileArray) {
+			if (file.isDirectory()) {
 				copyDirectory(
-					fileArray[i],
+					file,
 					new File(
 						destination.getPath() + File.separator +
-							fileArray[i].getName()));
+							file.getName()));
 			}
 			else {
 				copyFile(
-					fileArray[i],
+					file,
 					new File(
 						destination.getPath() + File.separator +
-							fileArray[i].getName()));
+							file.getName()));
 			}
 		}
 	}
@@ -339,12 +339,12 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 		if (directory.exists() && directory.isDirectory()) {
 			File[] fileArray = directory.listFiles();
 
-			for (int i = 0; i < fileArray.length; i++) {
-				if (fileArray[i].isDirectory()) {
-					deltree(fileArray[i]);
+			for (File file : fileArray) {
+				if (file.isDirectory()) {
+					deltree(file);
 				}
 				else {
-					fileArray[i].delete();
+					file.delete();
 				}
 			}
 
@@ -861,12 +861,12 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 		List<File> directoryList = new ArrayList<>();
 		List<File> fileList = new ArrayList<>();
 
-		for (int i = 0; i < files.length; i++) {
-			if (files[i].isDirectory()) {
-				directoryList.add(files[i]);
+		for (File file : files) {
+			if (file.isDirectory()) {
+				directoryList.add(file);
 			}
 			else {
-				fileList.add(files[i]);
+				fileList.add(file);
 			}
 		}
 

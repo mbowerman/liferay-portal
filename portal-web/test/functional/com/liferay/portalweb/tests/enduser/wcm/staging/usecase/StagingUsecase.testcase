@@ -19,9 +19,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -63,7 +63,7 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Categorization" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Tags" />
 		</execute>
@@ -71,7 +71,7 @@
 		<execute macro="Staging#viewAddButtonDoesNotExist" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Categorization" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Categories" />
 		</execute>
@@ -84,7 +84,9 @@
 			<var name="portlet" value="Web Content" />
 		</execute>
 
-		<execute macro="WebContentNavigator#gotoManageTemplates" />
+		<execute macro="Navigator#gotoNavItem">
+			<var name="navItem" value="Templates" />
+		</execute>
 
 		<execute macro="Staging#viewAddButtonDoesNotExist" />
 
@@ -94,7 +96,9 @@
 			<var name="portlet" value="Web Content" />
 		</execute>
 
-		<execute macro="WebContentNavigator#gotoManageStructures" />
+		<execute macro="Navigator#gotoNavItem">
+			<var name="navItem" value="Structures" />
+		</execute>
 
 		<execute macro="Staging#viewAddButtonDoesNotExist" />
 	</command>
@@ -109,9 +113,9 @@
 		<execute macro="Navigator#gotoStagedView" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -133,9 +137,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#deletePage">
@@ -174,9 +178,9 @@
 		<execute macro="Navigator#gotoStagedView" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -285,7 +289,7 @@
 		</execute>
 
 		<execute macro="Staging#configurePublishToLive">
-			<var name="checkAllContent" value="true" />
+			<var name="checkContentNameList" value="Blogs" />
 			<var name="checkPageName" value="Public Pages" />
 		</execute>
 
@@ -295,7 +299,7 @@
 		</execute>
 
 		<execute macro="Staging#publishToLivePublishTemplate">
-			<var name="publishTemplateName" value="Publish Template Name" />
+			<var name="publishTemplateName" value="Publish Template Name Edit" />
 			<var name="siteName" value="Site Name" />
 		</execute>
 
@@ -332,7 +336,7 @@
 	</command>
 
 	<command name="ImportLARsOnStagedSite" priority="5">
-		<property name="portal.acceptance" value="pending" />
+		<property name="portal.acceptance" value="false" />
 		<property name="testray.component.names" value="Training" />
 
 		<execute macro="Navigator#gotoStagedSitePage">
@@ -359,7 +363,7 @@
 
 		<execute macro="Staging#gotoPublishToLive" />
 
-		<execute macro="Staging#publishToLive" >
+		<execute macro="Staging#publishToLive">
 			<var name="publicationName" value="Content Update" />
 		</execute>
 
@@ -571,7 +575,7 @@
 		<execute macro="Navigator#gotoStagedView" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Recycle Bin" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Recycle Bin" />
 		</execute>
@@ -605,7 +609,7 @@
 	</command>
 
 	<command name="PublishPortlet" priority="5">
-		<property name="portal.acceptance" value="pending" />
+		<property name="portal.acceptance" value="false" />
 		<property name="testray.component.names" value="Training" />
 
 		<execute macro="ProductMenu#gotoSite">
@@ -859,9 +863,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -901,9 +905,9 @@
 		<execute macro="Navigator#gotoStagedView" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -1018,7 +1022,7 @@
 	</command>
 
 	<command name="TrashEntryReferencePublishing" priority="5">
-		<property name="portal.acceptance" value="pending" />
+		<property name="portal.acceptance" value="false" />
 		<property name="testray.component.names" value="Training" />
 
 		<execute macro="Navigator#gotoStagedSitePage">
@@ -1118,6 +1122,7 @@
 
 		<execute macro="Staging#configurePublishToLive">
 			<var name="contentDateRange" value="All" />
+			<var name="mainContent" value="Documents and Media" />
 			<var name="uncheckContentNameList" value="Documents and Media" />
 			<var name="uncheckSubContent" value="Web Content" />
 		</execute>

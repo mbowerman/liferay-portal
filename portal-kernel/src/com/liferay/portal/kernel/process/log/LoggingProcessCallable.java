@@ -14,16 +14,16 @@
 
 package com.liferay.portal.kernel.process.log;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.process.ProcessCallable;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.IOException;
 
 /**
- * @author Shuyang Zhou
- * @deprecated As of 7.0.0, with no direct replacement
+ * @author     Shuyang Zhou
+ * @deprecated As of Judson, with no direct replacement
  */
 @Deprecated
 public class LoggingProcessCallable implements ProcessCallable<String> {

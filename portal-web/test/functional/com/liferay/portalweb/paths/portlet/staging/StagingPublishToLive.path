@@ -41,12 +41,12 @@
 <!--DATE-->
 <tr>
 	<td>DATE_NOW_RADIO</td>
-	<td>//input[contains(@id,'publishingEventNow')]</td>
+	<td>//input[contains(@id,'publishingEventNow')]//following-sibling::span</td>
 	<td></td>
 </tr>
 <tr>
 	<td>DATE_SCHEDULE_RADIO</td>
-	<td>//input[contains(@id,'publishingEventSchedule')]</td>
+	<td>//span[contains(@class,'custom-control-label-text') and contains(.,'Schedule')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -98,7 +98,7 @@
 <!--CONTENT-->
 <tr>
 	<td>CONTENT_CHOOSE_CONTENT_DELETION_CHECKBOX</td>
-	<td>//input[contains(@name,'DELETIONS')]</td>
+	<td>//input[contains(@name,'DELETIONS')]//following-sibling::span</td>
 	<td></td>
 </tr>
 <tr>
@@ -172,6 +172,26 @@
 <tr>
 	<td>PUBLISH_TEMPLATES_TABLE_PUBLISH_TO_LIVE_ARROW_BUTTON</td>
 	<td>//ul[contains(@aria-labelledby,'ConfigurationsSearchContainer')]/li/a[contains(.,'Publish')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CONTENT_LAST</td>
+	<td>//span[contains(.,'Last...')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CONTENT_DATE_RANGE</td>
+	<td>//span[contains(@class,'custom-control-label-text') and contains(.,'Date Range')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CONTENT_ALL</td>
+	<td>//span[contains(.,'All')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CONTENT_LAST_PUBLISH_DATE</td>
+	<td>//span[contains(.,'From Last Publish Date')]</td>
 	<td></td>
 </tr>
 </tbody>

@@ -74,12 +74,12 @@ public class UserGroupServiceUtil {
 	* @param name the user group's name
 	* @param description the user group's description
 	* @return the user group
-	* @deprecated As of 6.2.0, replaced by {@link #addUserGroup(String, String,
-	ServiceContext)}
+	* @deprecated As of Newton, replaced by {@link #addUserGroup(String,
+	String, ServiceContext)}
 	*/
 	@Deprecated
 	public static com.liferay.portal.kernel.model.UserGroup addUserGroup(
-		java.lang.String name, java.lang.String description)
+		String name, String description)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().addUserGroup(name, description);
 	}
@@ -100,8 +100,7 @@ public class UserGroupServiceUtil {
 	* @return the user group
 	*/
 	public static com.liferay.portal.kernel.model.UserGroup addUserGroup(
-		java.lang.String name, java.lang.String description,
-		ServiceContext serviceContext)
+		String name, String description, ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().addUserGroup(name, description, serviceContext);
 	}
@@ -133,7 +132,7 @@ public class UserGroupServiceUtil {
 	*
 	* @return the OSGi service identifier
 	*/
-	public static java.lang.String getOSGiServiceIdentifier() {
+	public static String getOSGiServiceIdentifier() {
 		return getService().getOSGiServiceIdentifier();
 	}
 
@@ -156,8 +155,7 @@ public class UserGroupServiceUtil {
 	* @return the user group with the name
 	*/
 	public static com.liferay.portal.kernel.model.UserGroup getUserGroup(
-		java.lang.String name)
-		throws com.liferay.portal.kernel.exception.PortalException {
+		String name) throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().getUserGroup(name);
 	}
 
@@ -207,12 +205,12 @@ public class UserGroupServiceUtil {
 	* @param name the user group's name
 	* @param description the the user group's description
 	* @return the user group
-	* @deprecated As of 6.2.0, replaced by {@link #updateUserGroup(long,
+	* @deprecated As of Newton, replaced by {@link #updateUserGroup(long,
 	String, String, ServiceContext)}
 	*/
 	@Deprecated
 	public static com.liferay.portal.kernel.model.UserGroup updateUserGroup(
-		long userGroupId, java.lang.String name, java.lang.String description)
+		long userGroupId, String name, String description)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().updateUserGroup(userGroupId, name, description);
 	}
@@ -229,7 +227,7 @@ public class UserGroupServiceUtil {
 	* @return the user group
 	*/
 	public static com.liferay.portal.kernel.model.UserGroup updateUserGroup(
-		long userGroupId, java.lang.String name, java.lang.String description,
+		long userGroupId, String name, String description,
 		ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()

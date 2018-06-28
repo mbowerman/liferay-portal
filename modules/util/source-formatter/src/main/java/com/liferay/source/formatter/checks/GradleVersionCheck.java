@@ -60,11 +60,12 @@ public class GradleVersionCheck extends BaseFileCheck {
 			!name.equals("com.liferay.portal.test") &&
 			!name.equals("com.liferay.portal.test.integration") &&
 			!name.equals("com.liferay.util.bridges") &&
+			!name.equals("com.liferay.util.java") &&
 			!name.equals("com.liferay.util.taglib")) {
 
 			addMessage(
 				fileName, "Do not use 'default' version for '" + name + "'",
-				"gradle_versioning.markdown", getLineCount(content, pos));
+				"gradle_versioning.markdown", getLineNumber(content, pos));
 		}
 	}
 

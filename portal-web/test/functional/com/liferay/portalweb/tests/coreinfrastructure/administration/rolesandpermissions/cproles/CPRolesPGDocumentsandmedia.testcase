@@ -59,7 +59,7 @@
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="Toolbar#ADD" value1="Add" />
+		<execute function="AssertElementNotPresent" locator1="Toolbar#ADD" />
 	</command>
 
 	<command name="AddDMDocumentRegRoleDefinePermissions" priority="5">
@@ -115,7 +115,7 @@
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="Toolbar#ADD" value1="Add" />
+		<execute function="AssertElementNotPresent" locator1="Toolbar#ADD" />
 	</command>
 
 	<command name="AddDMDocumentSiteMemberRoleInline" priority="4">
@@ -178,7 +178,7 @@
 			<var name="portletName" value="Documents and Media" />
 		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="MenuItem#ANY_MENU_ITEM" value1="Basic Document">
+		<execute function="AssertElementNotPresent" locator1="MenuItem#ANY_MENU_ITEM">
 			<var name="key_menuItem" value="Basic Document" />
 		</execute>
 
@@ -255,7 +255,7 @@
 			<var name="portletName" value="Documents and Media" />
 		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="MenuItem#ANY_MENU_ITEM" value1="Basic Document">
+		<execute function="AssertElementNotPresent" locator1="MenuItem#ANY_MENU_ITEM">
 			<var name="key_menuItem" value="Basic Document" />
 		</execute>
 
@@ -312,7 +312,7 @@
 			<var name="portletName" value="Documents and Media" />
 		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="MenuItem#ANY_MENU_ITEM" value1="Basic Document">
+		<execute function="AssertElementNotPresent" locator1="MenuItem#ANY_MENU_ITEM">
 			<var name="key_menuItem" value="Basic Document" />
 		</execute>
 	</command>
@@ -368,8 +368,8 @@
 			<var name="key_dmFolderName" value="DM Folder Name" />
 		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="MenuItem#ANY_MENU_ITEM" value1="Move to the Recycle Bin">
-			<var name="key_menuItem" value="Move to the Recycle Bin" />
+		<execute function="AssertElementNotPresent" locator1="MenuItem#ANY_MENU_ITEM">
+			<var name="key_menuItem" value="Move to Recycle Bin" />
 		</execute>
 
 		<execute macro="User#logoutAndLoginPG">
@@ -419,9 +419,9 @@
 		<description message="This is a use case for LPS-43104." />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -463,7 +463,7 @@
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
-		<execute macro="Portlet#changeDisplayStyle">
+		<execute macro="LexiconEntry#changeDisplayStyle">
 			<var name="displayStyle" value="list" />
 		</execute>
 
@@ -472,9 +472,9 @@
 
 	<command name="ViewDMFolderGuestInline" priority="4">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -504,8 +504,8 @@
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
-		<execute macro="Portlet#changeDisplayStyle">
-			<var name="displayStyle" value="descriptive" />
+		<execute macro="LexiconEntry#changeDisplayStyle">
+			<var name="displayStyle" value="list" />
 		</execute>
 
 		<var name="key_dmFolderName" value="DM Folder Name" />
@@ -514,7 +514,7 @@
 
 		<var method="StringUtil#upperCase('DM Folder Name')" name="dmFolderNameUpperCase" />
 
-		<execute function="AssertTextEquals#assertPartialText" locator1="DocumentsAndMedia#BREADCRUMB_FOLDER_NAME" value1="${dmFolderNameUpperCase}" />
+		<execute function="AssertTextEquals#assertTextCaseInsensitive" locator1="DocumentsAndMedia#BREADCRUMB_FOLDER_NAME" value1="${dmFolderNameUpperCase}" />
 
 		<execute macro="User#loginPG">
 			<var name="password" value="test" />
@@ -574,8 +574,8 @@
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
-		<execute macro="Portlet#changeDisplayStyle">
-			<var name="displayStyle" value="descriptive" />
+		<execute macro="LexiconEntry#changeDisplayStyle">
+			<var name="displayStyle" value="list" />
 		</execute>
 
 		<var name="key_dmFolderName" value="DM Folder Name" />
@@ -584,6 +584,6 @@
 
 		<var method="StringUtil#upperCase('DM Folder Name')" name="dmFolderNameUpperCase" />
 
-		<execute function="AssertTextEquals#assertPartialText" locator1="DocumentsAndMedia#BREADCRUMB_FOLDER_NAME" value1="${dmFolderNameUpperCase}" />
+		<execute function="AssertTextEquals#assertTextCaseInsensitive" locator1="DocumentsAndMedia#BREADCRUMB_FOLDER_NAME" value1="${dmFolderNameUpperCase}" />
 	</command>
 </definition>

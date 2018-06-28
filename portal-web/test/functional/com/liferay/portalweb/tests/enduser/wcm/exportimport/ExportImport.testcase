@@ -140,7 +140,9 @@
 			<var name="portlet" value="Export" />
 		</execute>
 
-		<execute macro="LAR#gotoExportTemplateCP" />
+		<execute macro="LexiconEntry#gotoHeaderMenuItem">
+			<var name="menuItem" value="Export Templates" />
+		</execute>
 
 		<execute macro="LAR#editExportTemplateCP">
 			<var name="exportTemplateDescriptionEdit" value="Export Template Description Edit" />
@@ -208,9 +210,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -259,7 +261,7 @@
 			<var name="ddlDataDefinitionName" value="DDL Definition" />
 		</execute>
 
-		<execute macro="DDLList#save" />
+		<execute macro="DDLDataDefinition#save" />
 
 		<execute macro="DDLRecord#addCP">
 			<var name="ddlDataDefinitionName" value="DDL Definition" />
@@ -332,7 +334,7 @@
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Configuration" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Application Display Templates" />
 		</execute>
@@ -343,9 +345,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -379,8 +381,8 @@
 
 		<var name="key_entryTitle" value="Blogs Entry Title" />
 
-		<execute function="AssertElementNotPresent" locator1="Link#EDIT" value1="Edit" />
-		<execute function="AssertElementNotPresent" locator1="Link#MOVE_TO_THE_RECYCLING_BIN" value1="Move to the Recycle Bin" />
+		<execute function="AssertElementNotPresent" locator1="Link#EDIT" />
+		<execute function="AssertElementNotPresent" locator1="Link#MOVE_TO_RECYCLING_BIN" />
 
 		<execute macro="LAR#configureExportSiteCP" />
 
@@ -418,18 +420,18 @@
 
 		<var name="key_entryTitle" value="Blogs Entry Title" />
 
-		<execute function="AssertElementNotPresent" locator1="Link#EDIT" value1="Edit" />
-		<execute function="AssertElementNotPresent" locator1="Link#MOVE_TO_THE_RECYCLING_BIN" value1="Move to the Recycle Bin" />
+		<execute function="AssertElementNotPresent" locator1="Link#EDIT" />
+		<execute function="AssertElementNotPresent" locator1="Link#MOVE_TO_RECYCLING_BIN" />
 	</command>
 
 	<command name="ExportImportPrivatePage" priority="5">
-		<property name="portal.acceptance" value="pending" />
+		<property name="portal.acceptance" value="false" />
 		<property name="testray.component.names" value="Training" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPrivatePage">
@@ -488,9 +490,9 @@
 		<property name="portlet.plugins.includes" value="sample-lar-portlet" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -530,9 +532,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -563,14 +565,12 @@
 	</command>
 
 	<command name="ExportImportSmoke" priority="5">
-		<property name="portal.acceptance" value="pending" />
+		<property name="portal.acceptance" value="false" />
 		<property name="testray.component.names" value="Training" />
 
 		<execute macro="User#firstLoginPG" />
 
-		<execute macro="LAR#configureExportSiteCP" />
-
-		<execute function="AssertClick" locator1="SitePagesExport#EXPORT_BUTTON" value1="Export" />
+		<execute macro="LAR#exportSiteCP" />
 
 		<var name="key_larFileName" value="${larFileName}" />
 
@@ -614,9 +614,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -624,7 +624,7 @@
 		</execute>
 
 		<execute macro="Page#changeCurrentTheme">
-			<var name="themeName" value="User Profile" />
+			<var name="themeName" value="Fjord" />
 		</execute>
 
 		<execute macro="LAR#configureExportSiteCP">
@@ -669,12 +669,12 @@
 
 		<execute macro="Page#viewCurrentTheme">
 			<var name="page" value="Public Pages" />
-			<var name="themeName" value="User Profile" />
+			<var name="themeName" value="Fjord" />
 		</execute>
 	</command>
 
 	<command name="ExportImportValidation" priority="5">
-		<property name="portal.acceptance" value="pending" />
+		<property name="portal.acceptance" value="quarantine" />
 		<property name="test.name.skip.portal.instance" value="ExportImport#ExportImportValidation" />
 		<property name="testray.component.names" value="Training" />
 
@@ -727,6 +727,7 @@
 
 		<execute macro="ItemSelector#selectDMImage">
 			<var name="imageFileName" value="DM Document Title" />
+			<var name="navTab" value="Documents and Media" />
 		</execute>
 
 		<execute macro="PortletEntry#publish" />
@@ -831,124 +832,6 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 	</command>
-
-	<!-- LRQA-26034 -->
-
-	<!--command name="ExportImportWSRPUnitConverter" priority="3">
-		<property name="portlet.plugins.includes" value="wsrp-portlet" />
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Apps" />
-			<var name="panel" value="Control Panel" />
-			<var name="portlet" value="WSRP Admin" />
-		</execute>
-
-		<execute macro="WSRP#addProducerCP">
-			<var name="portletsAvailableSelect" value="Unit Converter" />
-			<var name="producerName" value="Producer Demo" />
-		</execute>
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Apps" />
-			<var name="panel" value="Control Panel" />
-			<var name="portlet" value="WSRP Admin" />
-		</execute>
-
-		<execute macro="WSRP#addConsumerCP">
-			<var name="consumerName" value="Consumer Demo" />
-			<var name="producerName" value="Producer Demo" />
-		</execute>
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Apps" />
-			<var name="panel" value="Control Panel" />
-			<var name="portlet" value="WSRP Admin" />
-		</execute>
-
-		<execute macro="WSRP#addConsumerPortletCP">
-			<var name="consumerName" value="Consumer Demo" />
-			<var name="consumerPortletName" value="WSRP Unit Converter" />
-			<var name="consumerPortletType" value="Unit Converter" />
-		</execute>
-
-		<var name="key_consumerPortletName" value="WSRP Unit Converter" />
-
-		<execute function="AssertTextEquals" locator1="WSRPAdminManagePortlets#PORTLET_TABLE_NAME" value1="WSRP Unit Converter" />
-		<execute function="AssertTextEquals" locator1="WSRPAdminManagePortlets#PORTLET_TABLE_REMOTE_PORTLET" value1="Unit Converter" />
-		<execute function="AssertElementPresent" locator1="WSRPAdminManagePortlets#PORTLET_TABLE_DELETE" value1="Delete" />
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
-			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
-		</execute>
-
-		<execute macro="SitePages#addPublicPage">
-			<var name="pageName" value="WSRP Page" />
-		</execute>
-
-		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="WSRP Page" />
-		</execute>
-
-		<execute macro="Portlet#addPG">
-			<var name="portletName" value="WSRP Unit Converter" />
-		</execute>
-
-		<execute macro="WSRP#wsrpUnitConverterConvertPG">
-			<var name="initialUnit" value="Inch" />
-			<var name="initialValue" value="12" />
-			<var name="targetUnit" value="Foot" />
-			<var name="targetValue" value="1.0" />
-			<var name="unitType" value="Length" />
-		</execute>
-
-		<execute macro="LAR#configureExportSiteCP" />
-
-		<execute function="AssertClick" locator1="SitePagesExport#EXPORT_BUTTON" value1="Export" />
-
-		<var name="key_larFileName" value="${larFileName}" />
-
-		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
-
-		<var method="selenium#getText('//ul/li/div/h5')" name="valueName" />
-
-		<echo message="value name ${valueName}" />
-
-		<var method="RegexUtil#replace('${valueName}', '([a-zA-z0-9_.-]*)[(0-9KB)]*', '1')" name="larFileName" />
-
-		<echo message="lar file name ${larFileName}" />
-
-		<execute macro="LAR#downloadLar" />
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Sites" />
-			<var name="panel" value="Control Panel" />
-			<var name="portlet" value="Sites" />
-		</execute>
-
-		<execute macro="Site#addBlankCP">
-			<var name="siteName" value="Site Name" />
-		</execute>
-
-		<execute macro="LAR#importSiteCP">
-			<var name="larFileName" value="${larFileName}" />
-			<var name="siteName" value="Site Name" />
-		</execute>
-
-		<execute macro="Navigator#gotoSitePage">
-			<var name="pageName" value="WSRP Page" />
-			<var name="siteName" value="Site Name" />
-		</execute>
-
-		<execute macro="WSRP#wsrpUnitConverterConvertPG">
-			<var name="initialUnit" value="Inch" />
-			<var name="initialValue" value="12" />
-			<var name="targetUnit" value="Foot" />
-			<var name="targetValue" value="1.0" />
-			<var name="unitType" value="Length" />
-		</execute>
-	</command-->
 
 	<command name="ImportCorruptedFile" priority="5">
 		<property name="portal.acceptance" value="quarantine" />

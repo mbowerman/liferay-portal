@@ -14,7 +14,7 @@
 
 package com.liferay.portal.kernel.trash;
 
-import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.trash.kernel.util.TrashUtil;
 
 import java.util.Locale;
@@ -34,7 +34,7 @@ public abstract class BaseTrashRenderer implements TrashRenderer {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	@Override
@@ -48,8 +48,8 @@ public abstract class BaseTrashRenderer implements TrashRenderer {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #getSummary(PortletRequest,
-	 *             javax.portlet.PortletResponse)}
+	 * @deprecated As of Wilberforce, replaced by {@link
+	 *             #getSummary(PortletRequest, javax.portlet.PortletResponse)}
 	 */
 	@Deprecated
 	@Override

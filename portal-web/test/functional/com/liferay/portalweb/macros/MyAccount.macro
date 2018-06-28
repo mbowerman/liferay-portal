@@ -52,9 +52,7 @@
 	</command>
 
 	<command name="editPasswordInvalidCP">
-		<execute macro="Panel#expandPanel">
-			<var name="panelHeading" value="Password" />
-		</execute>
+		<execute macro="UserNavigator#gotoPassword" />
 
 		<if>
 			<isset var="currentPassword" />
@@ -76,19 +74,25 @@
 			<then>
 				<execute macro="Alert#viewRequestFailedToComplete" />
 
-				<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_2" value1="Passwords may not be changed under the current password policy." />
+				<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_1" value1="Passwords may not be changed under the current password policy." />
 			</then>
 			<else>
 				<execute macro="Alert#viewRequestFailedToComplete" />
 
-				<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_2" value1="That password is invalid. Please enter in a different password." />
+				<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_1" value1="That password is invalid. Please enter in a different password." />
 			</else>
 		</if>
 	</command>
 
 	<command name="view">
-		<for list="Password,Organizations,Sites,User Groups,Roles,Categorization" param="key_panelHeading">
-			<execute function="AssertElementPresent" locator1="Panel#PANEL_HEADING_COLLAPSED" />
-		</for>
+		<execute function="AssertElementPresent" locator1="UsersAndOrganizationsEditUser#CATEGORIZATION_LABEL" />
+
+		<execute macro="UserNavigator#gotoOrganizations" />
+
+		<execute macro="UserNavigator#gotoMemberships" />
+
+		<execute macro="UserNavigator#gotoRoles" />
+
+		<execute macro="UserNavigator#gotoPassword" />
 	</command>
 </definition>

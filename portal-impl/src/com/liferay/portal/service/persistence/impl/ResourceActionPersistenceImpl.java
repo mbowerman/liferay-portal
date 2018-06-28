@@ -32,11 +32,14 @@ import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.service.persistence.ResourceActionPersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.model.impl.ResourceActionImpl;
 import com.liferay.portal.model.impl.ResourceActionModelImpl;
 
 import java.io.Serializable;
+
+import java.lang.reflect.InvocationHandler;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -782,14 +785,6 @@ public class ResourceActionPersistenceImpl extends BasePersistenceImpl<ResourceA
 					result = resourceAction;
 
 					cacheResult(resourceAction);
-
-					if ((resourceAction.getName() == null) ||
-							!resourceAction.getName().equals(name) ||
-							(resourceAction.getActionId() == null) ||
-							!resourceAction.getActionId().equals(actionId)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_N_A,
-							finderArgs, resourceAction);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -1113,8 +1108,6 @@ public class ResourceActionPersistenceImpl extends BasePersistenceImpl<ResourceA
 
 	@Override
 	protected ResourceAction removeImpl(ResourceAction resourceAction) {
-		resourceAction = toUnwrappedModel(resourceAction);
-
 		Session session = null;
 
 		try {
@@ -1145,9 +1138,23 @@ public class ResourceActionPersistenceImpl extends BasePersistenceImpl<ResourceA
 
 	@Override
 	public ResourceAction updateImpl(ResourceAction resourceAction) {
-		resourceAction = toUnwrappedModel(resourceAction);
-
 		boolean isNew = resourceAction.isNew();
+
+		if (!(resourceAction instanceof ResourceActionModelImpl)) {
+			InvocationHandler invocationHandler = null;
+
+			if (ProxyUtil.isProxyClass(resourceAction.getClass())) {
+				invocationHandler = ProxyUtil.getInvocationHandler(resourceAction);
+
+				throw new IllegalArgumentException(
+					"Implement ModelWrapper in resourceAction proxy " +
+					invocationHandler.getClass());
+			}
+
+			throw new IllegalArgumentException(
+				"Implement ModelWrapper in custom ResourceAction implementation " +
+				resourceAction.getClass());
+		}
 
 		ResourceActionModelImpl resourceActionModelImpl = (ResourceActionModelImpl)resourceAction;
 
@@ -1219,25 +1226,6 @@ public class ResourceActionPersistenceImpl extends BasePersistenceImpl<ResourceA
 		resourceAction.resetOriginalValues();
 
 		return resourceAction;
-	}
-
-	protected ResourceAction toUnwrappedModel(ResourceAction resourceAction) {
-		if (resourceAction instanceof ResourceActionImpl) {
-			return resourceAction;
-		}
-
-		ResourceActionImpl resourceActionImpl = new ResourceActionImpl();
-
-		resourceActionImpl.setNew(resourceAction.isNew());
-		resourceActionImpl.setPrimaryKey(resourceAction.getPrimaryKey());
-
-		resourceActionImpl.setMvccVersion(resourceAction.getMvccVersion());
-		resourceActionImpl.setResourceActionId(resourceAction.getResourceActionId());
-		resourceActionImpl.setName(resourceAction.getName());
-		resourceActionImpl.setActionId(resourceAction.getActionId());
-		resourceActionImpl.setBitwiseValue(resourceAction.getBitwiseValue());
-
-		return resourceActionImpl;
 	}
 
 	/**

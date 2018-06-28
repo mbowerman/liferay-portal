@@ -17,8 +17,10 @@ package com.liferay.portal.kernel.upgrade.dao.orm;
 import com.liferay.portal.kernel.dao.db.DBType;
 
 /**
- * @author Cristina González
+ * @author     Cristina González
+ * @deprecated As of Judson, with no direct replacement
  */
+@Deprecated
 public interface UpgradeOptimizedConnectionProviderRegistry {
 
 	public UpgradeOptimizedConnectionProvider

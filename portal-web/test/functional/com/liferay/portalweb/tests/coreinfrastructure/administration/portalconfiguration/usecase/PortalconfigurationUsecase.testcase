@@ -74,9 +74,37 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
+		</execute>
+
+		<execute macro="SitePages#addPublicPage">
+			<var name="pageName" value="landing" />
+		</execute>
+
+		<execute macro="User#logoutPG" />
+
+		<execute macro="User#loginPG">
+			<var name="password" value="test" />
+			<var name="userEmailAddress" value="test@liferay.com" />
+		</execute>
+
+		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
+
+		<execute function="AssertLocation" value1="${portalURL}/web/guest/landing" />
+	</command>
+
+	<command name="DefaultPortalLandingPageSetByProperty" priority="5">
+		<description message="This is a use case for LPS-39744." />
+
+		<property name="custom.properties" value="default.landing.page.path=/web/guest/landing" />
+		<property name="test.name.skip.portal.instance" value="PortalconfigurationUsecase#DefaultPortalLandingPageSetByProperty" />
+
+		<execute macro="ProductMenu#gotoPortlet">
+			<var name="category" value="Build" />
+			<var name="panel" value="Site Administration" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -182,7 +210,7 @@
 
 		<execute macro="Alert#viewRequestFailedToComplete" />
 
-		<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_2" value1="You do not have the required permissions." />
+		<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_1" value1="You do not have the required permissions." />
 	</command>
 
 	<command name="ViewDeactivatedPortalInstance" priority="5">
@@ -194,16 +222,14 @@
 			<var name="portlet" value="System Settings" />
 		</execute>
 
-		<execute macro="Navigator#gotoNavItem">
-			<var name="navItem" value="Foundation" />
-		</execute>
-
-		<execute macro="SystemSettings#editConfiguration">
+		<execute macro="SystemSettings#gotoConfiguration">
+			<var name="configurationCategory" value="Infrastructure" />
 			<var name="configurationName" value="Inactive Request Handler" />
+			<var name="configurationScope" value="System Scope" />
 		</execute>
 
-		<execute macro="SystemSettings#enableSetting">
-			<var name="checkboxSetting" value="SHOW_INACTIVE_REQUEST_MESSAGE" />
+		<execute macro="FormFields#enableCheckbox">
+			<var name="fieldName" value="show.inactive.request.message" />
 		</execute>
 
 		<execute macro="SystemSettings#saveConfiguration" />
@@ -223,9 +249,9 @@
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -241,9 +267,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -259,9 +285,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -301,9 +327,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -392,9 +418,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -409,9 +435,9 @@
 			<var name="url" value="http://www.charlie.com:8080" />
 		</execute>
 
-		<var name="key_pageName" value="Welcome" />
-
-		<execute function="AssertElementPresent" locator1="Home#PAGE" value1="Welcome" />
+		<execute function="AssertElementPresent" locator1="Home#PAGE">
+			<var name="key_pageName" value="Welcome" />
+		</execute>
 
 		<execute macro="User#loginPG">
 			<var name="password" value="test" />
@@ -419,9 +445,9 @@
 			<var name="userEmailAddress" value="test@liferay.com" />
 		</execute>
 
-		<var name="key_pageName" value="Private Page" />
-
-		<execute function="AssertTextEquals" locator1="Home#PAGE" value1="Private Page" />
+		<execute function="AssertTextEquals" locator1="Home#PAGE" value1="Private Page">
+			<var name="key_pageName" value="Private Page" />
+		</execute>
 
 		<execute macro="User#logoutPG" />
 
@@ -440,16 +466,14 @@
 			<var name="portlet" value="System Settings" />
 		</execute>
 
-		<execute macro="SystemSettings#gotoCategory">
-			<var name="category" value="Foundation" />
-		</execute>
-
-		<execute macro="SystemSettings#editConfiguration">
+		<execute macro="SystemSettings#gotoConfiguration">
+			<var name="configurationCategory" value="LDAP" />
 			<var name="configurationName" value="LDAP Auth" />
+			<var name="configurationScope" value="Virtual Instance Scope" />
 		</execute>
 
-		<execute macro="SystemSettings#enableSetting">
-			<var name="checkboxSetting" value="ENABLED_CHECKBOX" />
+		<execute macro="FormFields#enableCheckbox">
+			<var name="fieldName" value="enabled" />
 		</execute>
 
 		<execute macro="SystemSettings#saveConfiguration" />
@@ -482,8 +506,8 @@
 
 		<execute macro="PortalSettingsNavigator#gotoLDAP" />
 
-		<execute macro="PortalSettings#viewEnabledLDAPSetting">
-			<var name="enableCheckboxKey" value="ENABLED" />
+		<execute macro="FormFields#viewCheckboxChecked">
+			<var name="fieldName" value="PortalSettingsPortlet_enabled" />
 		</execute>
 	</command>
 </definition>

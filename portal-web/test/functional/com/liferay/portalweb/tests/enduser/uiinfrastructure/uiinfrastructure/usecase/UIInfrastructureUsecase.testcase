@@ -25,9 +25,9 @@
 		<property name="test.name.skip.portal.instance" value="UIInfrastructureUsecase#RightToLeftSmoke" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -43,7 +43,8 @@
 		</execute>
 
 		<execute macro="LanguagePortlet#selectLanguagePG">
-			<var name="language" value="Hebrew (Israel)" />
+			<var name="locale" value="iw_IL" />
+			<var name="textIcon" value="עברית-ישראל" />
 		</execute>
 
 		<execute macro="ProductMenuHelper#openProductMenu" />
@@ -51,7 +52,8 @@
 		<execute macro="Page#viewRTLLayout" />
 
 		<execute macro="LanguagePortlet#selectLanguagePG">
-			<var name="language" value="English (United States)" />
+			<var name="locale" value="en_US" />
+			<var name="textIcon" value="English-United States" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
@@ -62,26 +64,26 @@
 
 		<execute macro="WebContentNavigator#gotoAddCP" />
 
-		<!-- LRQA-36070 -->
-
-		<!-- <execute macro="WebContent#addLocale">
-			<var name="language" value="Hebrew (Israel)" />
-			<var name="locale" value="iw-IL" />
-		</execute> -->
-
-		<execute function="Click" locator1="Translation#ADD" />
-
-		<execute function="AssertClick" locator1="MenuItem#ANY_MENU_ITEM" value1="Hebrew (Israel)">
-			<var name="key_menuItem" value="Hebrew (Israel)" />
+		<execute macro="Navigator#ensureLocaleURL">
+			<var name="locale" value="iw" />
 		</execute>
 
-		<execute function="Click" locator1="//ul[contains(@class,'nav-tabs')]//span[contains(@data-locale-id,'iw_IL')]" />
+		<execute macro="PortletEntry#changeLocale">
+			<var name="fieldName" value="כותרת" />
+			<var name="locale" value="iw_IL" />
+		</execute>
 
 		<execute macro="WebContent#addCP">
 			<var name="webContentTitle" value="WC Title" />
 		</execute>
 
 		<execute macro="WebContent#viewRTLLayout" />
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="Navigator#ensureLocaleURL">
+			<var name="locale" value="en" />
+		</execute>
 	</command>
 
 	<command name="Smoke" priority="5">
@@ -90,9 +92,9 @@
 		<property name="portal.acceptance" value="true" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -169,6 +171,10 @@
 			<execute macro="Portlet#deletePG">
 				<var name="portletName" value="Hello World" />
 			</execute>
+
+			<execute macro="Portlet#viewNoSpecificPG">
+				<var name="portletName" value="Hello World" />
+			</execute>
 		</task>
 	</command>
 
@@ -200,27 +206,6 @@
 			<var name="userFirstName" value="Skändi" />
 			<var name="userLastName" value="Ääkkönen" />
 			<var name="userScreenName" value="uskandi" />
-		</execute>
-	</command>
-
-	<command name="ViewSuccessMessageText" priority="5">
-		<property name="portal.acceptance" value="true" />
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
-			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Blogs" />
-		</execute>
-
-		<execute macro="BlogsNavigator#gotoAddEntry" />
-
-		<execute macro="BlogsEntry#addEntryContent">
-			<var name="entryContent" value="Blogs Content" />
-			<var name="entryTitle" value="Blogs Title" />
-		</execute>
-
-		<execute macro="Alert#viewSuccessMessageText">
-			<var name="sucessMessage" value="Your request completed successfully." />
 		</execute>
 	</command>
 </definition>

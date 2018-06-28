@@ -114,8 +114,8 @@ public class UserNotificationEventLocalServiceImpl
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, {@link #addUserNotificationEvent(long, String,
-	 *             long, int, long, String, boolean, ServiceContext)}
+	 * @deprecated As of Wilberforce, {@link #addUserNotificationEvent(long,
+	 *             String, long, int, long, String, boolean, ServiceContext)}
 	 */
 	@Deprecated
 	@Override
@@ -193,6 +193,11 @@ public class UserNotificationEventLocalServiceImpl
 		for (String uuid : uuids) {
 			deleteUserNotificationEvent(uuid, companyId);
 		}
+	}
+
+	@Override
+	public void deleteUserNotificationEvents(long userId) {
+		userNotificationEventPersistence.removeByUserId(userId);
 	}
 
 	@Override

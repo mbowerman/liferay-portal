@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.portlet.bridges.mvc;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.portlet.LiferayPortletConfig;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
@@ -22,18 +23,30 @@ import com.liferay.portal.kernel.portlet.bridges.mvc.bundle.mvcactioncommand.Tes
 import com.liferay.portal.kernel.portlet.bridges.mvc.bundle.mvcactioncommand.TestPortlet;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.util.JavaConstants;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.SyntheticBundleRule;
 
+import java.io.IOException;
+
+import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Map;
 
+import javax.portlet.ActionParameters;
 import javax.portlet.ActionRequest;
 import javax.portlet.PortletConfig;
+import javax.portlet.PortletContext;
+import javax.portlet.PortletException;
+import javax.portlet.PortletMode;
 import javax.portlet.PortletResponse;
+import javax.portlet.RenderParameters;
+import javax.portlet.WindowState;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
+
+import javax.xml.namespace.QName;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -154,6 +167,21 @@ public class MVCActionCommandTest {
 		}
 
 		@Override
+		public Enumeration<PortletMode> getPortletModes(String mimeType) {
+			return null;
+		}
+
+		@Override
+		public Map<String, QName> getPublicRenderParameterDefinitions() {
+			return null;
+		}
+
+		@Override
+		public Enumeration<WindowState> getWindowStates(String mimeType) {
+			return null;
+		}
+
+		@Override
 		public boolean isCopyRequestParameters() {
 			return false;
 		}
@@ -176,6 +204,10 @@ public class MVCActionCommandTest {
 		}
 
 		@Override
+		public void cleanUp() {
+		}
+
+		@Override
 		public Map<String, String[]> clearRenderParameters() {
 			return null;
 		}
@@ -183,6 +215,11 @@ public class MVCActionCommandTest {
 		@Override
 		public void defineObjects(
 			PortletConfig portletConfig, PortletResponse portletResponse) {
+		}
+
+		@Override
+		public ActionParameters getActionParameters() {
+			return null;
 		}
 
 		@Override
@@ -195,13 +232,35 @@ public class MVCActionCommandTest {
 		}
 
 		@Override
+		public long getContentLengthLong() {
+			return 0;
+		}
+
+		@Override
 		public HttpServletRequest getHttpServletRequest() {
 			return _mockHttpServletRequest;
 		}
 
 		@Override
+		public String getLifecycle() {
+			return null;
+		}
+
+		@Override
 		public HttpServletRequest getOriginalHttpServletRequest() {
 			return _mockHttpServletRequest;
+		}
+
+		@Override
+		public Part getPart(String name) throws IOException, PortletException {
+			return null;
+		}
+
+		@Override
+		public Collection<Part> getParts()
+			throws IOException, PortletException {
+
+			return null;
 		}
 
 		@Override
@@ -215,8 +274,37 @@ public class MVCActionCommandTest {
 		}
 
 		@Override
+		public PortletContext getPortletContext() {
+			return null;
+		}
+
+		@Override
 		public String getPortletName() {
 			return null;
+		}
+
+		@Override
+		public HttpServletRequest getPortletRequestDispatcherRequest() {
+			return null;
+		}
+
+		@Override
+		public RenderParameters getRenderParameters() {
+			return null;
+		}
+
+		@Override
+		public String getUserAgent() {
+			return null;
+		}
+
+		@Override
+		public void invalidateSession() {
+		}
+
+		@Override
+		public void setPortletRequestDispatcherRequest(
+			HttpServletRequest request) {
 		}
 
 		private final MockHttpServletRequest _mockHttpServletRequest =

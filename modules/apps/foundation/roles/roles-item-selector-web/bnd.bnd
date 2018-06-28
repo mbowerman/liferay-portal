@@ -1,4 +1,0 @@
-Bundle-Name: Liferay Roles Item Selector Web
-Bundle-SymbolicName: com.liferay.roles.item.selector.web
-Bundle-Version: 1.0.0
-Web-ContextPath: /roles-item-selector-web

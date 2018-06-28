@@ -66,7 +66,7 @@ import java.rmi.RemoteException;
 @ProviderType
 public class AnnouncementsDeliveryServiceSoap {
 	public static com.liferay.announcements.kernel.model.AnnouncementsDeliverySoap updateDelivery(
-		long userId, java.lang.String type, boolean email, boolean sms)
+		long userId, String type, boolean email, boolean sms)
 		throws RemoteException {
 		try {
 			com.liferay.announcements.kernel.model.AnnouncementsDelivery returnValue =
@@ -83,13 +83,13 @@ public class AnnouncementsDeliveryServiceSoap {
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link
-	#updateDelivery(long, String, boolean, boolean)}
+	* @deprecated As of Judson, replaced by {@link #updateDelivery(long,
+	String, boolean, boolean)}
 	*/
 	@Deprecated
 	public static com.liferay.announcements.kernel.model.AnnouncementsDeliverySoap updateDelivery(
-		long userId, java.lang.String type, boolean email, boolean sms,
-		boolean website) throws RemoteException {
+		long userId, String type, boolean email, boolean sms, boolean website)
+		throws RemoteException {
 		try {
 			com.liferay.announcements.kernel.model.AnnouncementsDelivery returnValue =
 				AnnouncementsDeliveryServiceUtil.updateDelivery(userId, type,

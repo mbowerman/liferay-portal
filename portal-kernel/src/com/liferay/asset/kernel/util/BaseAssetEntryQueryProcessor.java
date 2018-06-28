@@ -14,7 +14,7 @@
 
 package com.liferay.asset.kernel.util;
 
-import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.petra.string.StringPool;
 
 import java.io.IOException;
 
@@ -25,14 +25,14 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author     Julio Camarero
- * @deprecated As of 7.0.0
+ * @deprecated As of Judson
  */
 @Deprecated
 public abstract class BaseAssetEntryQueryProcessor
 	implements AssetEntryQueryProcessor {
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	@Override
@@ -43,7 +43,7 @@ public abstract class BaseAssetEntryQueryProcessor
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	@Override
@@ -53,7 +53,7 @@ public abstract class BaseAssetEntryQueryProcessor
 
 	/**
 	 * @throws     IOException
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Judson
 	 */
 	@Deprecated
 	@Override

@@ -15,6 +15,7 @@
 package com.liferay.portal.servlet.filters.cache;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -35,7 +36,6 @@ import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -93,10 +93,15 @@ public class CacheFilter extends BasePortalFilter {
 	}
 
 	protected String getCacheKey(HttpServletRequest request) {
-		StringBundler sb = new StringBundler(9);
+		StringBundler sb = new StringBundler(11);
 
-		// Url
+		// Method
 
+		sb.append(request.getMethod());
+
+		// URL
+
+		sb.append(StringPool.POUND);
 		sb.append(request.getRequestURL());
 
 		String queryString = request.getQueryString();
@@ -239,7 +244,7 @@ public class CacheFilter extends BasePortalFilter {
 				return plid;
 			}
 			catch (Exception e) {
-				_log.warn(e);
+				_log.warn(e, e);
 
 				return 0;
 			}

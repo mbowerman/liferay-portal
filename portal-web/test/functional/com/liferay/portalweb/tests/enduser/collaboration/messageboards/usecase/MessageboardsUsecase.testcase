@@ -37,20 +37,21 @@
 
 	<command name="CopyAndPasteTextInAlloyEditor" priority="4">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Message Boards Page" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Message Boards Page" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -65,7 +66,7 @@
 			<var name="pageName" value="Message Boards Page" />
 		</execute>
 
-		<execute function="AssertClick" locator1="Button#POST_NEW_THREAD" value1="Post New Thread" />
+		<execute function="AssertClick" locator1="Button#NEW_THREAD" value1="New Thread" />
 
 		<execute function="AssertElementPresent" locator1="TextInput#SUBJECT" />
 
@@ -90,7 +91,7 @@
 
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="lastPostUserName" value="Test Test" />
-			<var name="postCount" value="1" />
+			<var name="replyCount" value="0" />
 			<var name="threadBody" value="Message Boards Subject" />
 			<var name="threadSubject" value="Message Boards Subject" />
 		</execute>
@@ -136,7 +137,7 @@
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Recycle Bin" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Recycle Bin" />
 		</execute>
@@ -149,7 +150,7 @@
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Recycle Bin" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Recycle Bin" />
 		</execute>
@@ -168,88 +169,6 @@
 
 		<execute macro="MessageboardsThread#viewDefaultCP">
 			<var name="threadSubject" value="MB Thread Message Subject" />
-		</execute>
-	</command>
-
-	<command name="ImportLAR" priority="5">
-		<property name="portal.acceptance" value="false" />
-		<property name="testray.component.names" value="Training" />
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Sites" />
-			<var name="panel" value="Control Panel" />
-			<var name="portlet" value="Sites" />
-		</execute>
-
-		<execute macro="Site#addBlankCP">
-			<var name="siteName" value="Site Name" />
-		</execute>
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
-			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
-		</execute>
-
-		<execute macro="SitePages#addPublicPage">
-			<var name="pageName" value="Site Page Name" />
-		</execute>
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
-			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Message Boards" />
-		</execute>
-
-		<execute macro="LAR#importPortlet">
-			<var name="larFileName" value="space-message-boards.lar" />
-			<var name="uploadFrom" value="dependencies" />
-		</execute>
-
-		<execute macro="Navigator#openSiteURL">
-			<var name="siteName" value="Site Name" />
-		</execute>
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
-			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Message Boards" />
-		</execute>
-
-		<execute macro="MessageboardsCategory#viewCP">
-			<var name="categoryName" value="General Discussion" />
-			<var name="subcategoriesNumber" value="0" />
-			<var name="threadsNumber" value="1" />
-		</execute>
-
-		<execute macro="MessageboardsThread#viewReplyWithUpvote">
-			<var name="postCount" value="5" />
-			<var name="threadBody" value="Super embarrassing, but does anybody know what to do when the Anti-Gravity Chamber door gets stuck and maintenance has gone for the day? Yesterday was the second time I’ve been in there all night, and I have to say, not liking the ambience." />
-			<var name="threadReplyBodyList" value="Couldn’t you just call somebody?,lol Jonny never has his cell,dude seriously creepy,As the Anti-Gravity Chamber handbook" />
-			<var name="threadSubject" value="Stuck in the Anti-Gravity Chamber" />
-		</execute>
-
-		<execute macro="Navigator#openSiteURL">
-			<var name="siteName" value="Site Name" />
-		</execute>
-
-		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
-			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Message Boards" />
-		</execute>
-
-		<execute macro="MessageboardsCategory#viewCP">
-			<var name="categoryName" value="Homework Discussion" />
-			<var name="subcategoriesNumber" value="0" />
-			<var name="threadsNumber" value="1" />
-		</execute>
-
-		<execute macro="MessageboardsThread#viewReplyWithUpvote">
-			<var name="postCount" value="4" />
-			<var name="threadBody" value="I’m writing a paper called Mars on a Budget, and I’d be curious to hear from other departments about their thoughts on reducing overall costs of missions and how that can happen at every level without compromising safety or efficiency. After the economic downturn of 2062, budgetary restrictions remain an important concern. Thanks!" />
-			<var name="threadReplyBodyList" value="dr novola has some thoughts,one barrier is the inflated cost of materials combined with worker compensation,Are you factoring in environmental impact?" />
-			<var name="threadSubject" value="Cost Reduction for Mars" />
 		</execute>
 	</command>
 
@@ -283,7 +202,7 @@
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Recycle Bin" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Recycle Bin" />
 		</execute>
@@ -297,7 +216,7 @@
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Recycle Bin" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Recycle Bin" />
 		</execute>
@@ -315,7 +234,7 @@
 		</execute>
 
 		<execute macro="MessageboardsThread#viewCP">
-			<var name="postsNumber" value="1" />
+			<var name="replyCount" value="0" />
 			<var name="threadBody" value="MB Thread Message Body" />
 			<var name="threadSubject" value="MB Thread Message Subject" />
 		</execute>
@@ -323,20 +242,21 @@
 
 	<command name="SearchMessageBoardsAttachment" priority="3">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Message Boards Page" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Message Boards Page" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -361,7 +281,8 @@
 			<var name="pageName" value="Message Boards Page" />
 		</execute>
 
-		<execute macro="MessageboardsPortlet#searchPG">
+		<execute macro="Search#searchPG">
+			<var name="portletName" value="Message Boards" />
 			<var name="searchTerm" value="This is a *.docx file." />
 		</execute>
 
@@ -376,20 +297,21 @@
 
 	<command name="SplitMBThread" priority="3">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Message Boards Page" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Message Boards Page" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -425,7 +347,7 @@
 
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="lastPostUserName" value="Test Test" />
-			<var name="postCount" value="2" />
+			<var name="replyCount" value="1" />
 			<var name="threadSubject" value="MB Thread Message Subject" />
 		</execute>
 
@@ -459,20 +381,21 @@
 		<property name="custom.properties" value="message.boards.message.formats.default=bbcode" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Message Boards Page" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Message Boards Page" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -493,8 +416,8 @@
 		</execute>
 
 		<execute macro="JSONMBMessage#addMessage">
-			<var name="threadBody"><![CDATA[<script>alert(2)</script>]]></var>
-			<var name="threadSubject"><![CDATA[<script>alert(1)</script>]]></var>
+			<var name="threadBody"><![CDATA[<script>alert(123);</script>]]></var>
+			<var name="threadSubject"><![CDATA[<script>alert(123);</script>]]></var>
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -503,34 +426,41 @@
 
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="lastPostUserName" value="Anonymous" />
-			<var name="postCount" value="2" />
+			<var name="replyCount" value="1" />
 			<var name="threadBody" value="MB Thread Message Body" />
 			<var name="threadSubject" value="MB Thread Message Subject" />
 		</execute>
 
 		<execute macro="MessageboardsThread#viewBBCodeNoXSS">
-			<var name="threadBody"><![CDATA[<script>alert(2)</script>]]></var>
-			<var name="threadSubject"><![CDATA[<script>alert(1)</script>]]></var>
+			<var name="threadBody"><![CDATA[<script>alert(123);</script>]]></var>
+			<var name="threadSubject"><![CDATA[<script>alert(123);</script>]]></var>
 			<var name="userName" value="Anonymous" />
 		</execute>
+
+		<var name="actualScript"><![CDATA[<script>alert(123);</script>]]></var>
+		<var name="escapedScript"><![CDATA[&lt;script&gt;alert(123);&lt;/script&gt;]]></var>
+
+		<execute function="AssertHTMLSourceTextNotPresent" value1="${actualScript}" />
+		<execute function="AssertHTMLSourceTextPresent" value1="${escapedScript}" />
 	</command>
 
 	<command name="ViewCategoriesAndThreadsOnTwoScopes" priority="3">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Message Boards Page" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Message Boards Page" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -542,20 +472,21 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Message Boards Page 2" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Message Boards Page 2" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -579,20 +510,21 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Message Boards Page 3" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Message Boards Page 3" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -650,7 +582,7 @@
 
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="lastPostUserName" value="Test Test" />
-			<var name="postCount" value="1" />
+			<var name="replyCount" value="0" />
 			<var name="threadBody" value="MB Root Thread Message Body" />
 			<var name="threadSubject" value="MB Root Thread Message Subject" />
 		</execute>
@@ -722,7 +654,7 @@
 
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="lastPostUserName" value="Test Test" />
-			<var name="postCount" value="1" />
+			<var name="replyCount" value="0" />
 			<var name="threadBody" value="MB Thread1 Message Body" />
 			<var name="threadSubject" value="MB Thread1 Message Subject" />
 		</execute>
@@ -744,7 +676,7 @@
 
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="lastPostUserName" value="Test Test" />
-			<var name="postCount" value="1" />
+			<var name="replyCount" value="0" />
 			<var name="threadBody" value="MB Thread2 Message Body" />
 			<var name="threadSubject" value="MB Thread2 Message Subject" />
 		</execute>
@@ -789,7 +721,7 @@
 
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="lastPostUserName" value="Test Test" />
-			<var name="postCount" value="1" />
+			<var name="replyCount" value="0" />
 			<var name="threadBody" value="MB Root Thread2 Message Body" />
 			<var name="threadSubject" value="MB Root Thread2 Message Subject" />
 		</execute>
@@ -861,7 +793,7 @@
 
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="lastPostUserName" value="Test Test" />
-			<var name="postCount" value="1" />
+			<var name="replyCount" value="0" />
 			<var name="threadBody" value="MB Thread3 Message Body" />
 			<var name="threadSubject" value="MB Thread3 Message Subject" />
 		</execute>
@@ -884,7 +816,7 @@
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="categoryDescription" value="MB Category4 Description" />
 			<var name="lastPostUserName" value="Test Test" />
-			<var name="postCount" value="1" />
+			<var name="replyCount" value="0" />
 			<var name="threadBody" value="MB Thread4 Message Body" />
 			<var name="threadSubject" value="MB Thread4 Message Subject" />
 		</execute>
@@ -900,7 +832,7 @@
 
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="lastPostUserName" value="Test Test" />
-			<var name="postCount" value="1" />
+			<var name="replyCount" value="0" />
 			<var name="threadBody" value="MB Root Thread2 Message Body" />
 			<var name="threadSubject" value="MB Root Thread2 Message Subject" />
 		</execute>
@@ -946,7 +878,7 @@
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="categoryDescription" value="MB Category3 Description" />
 			<var name="lastPostUserName" value="Test Test" />
-			<var name="postCount" value="1" />
+			<var name="replyCount" value="0" />
 			<var name="threadBody" value="MB Thread3 Message Body" />
 			<var name="threadSubject" value="MB Thread3 Message Subject" />
 		</execute>
@@ -969,7 +901,7 @@
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="categoryDescription" value="MB Category4 Description" />
 			<var name="lastPostUserName" value="Test Test" />
-			<var name="postCount" value="1" />
+			<var name="replyCount" value="0" />
 			<var name="threadBody" value="MB Thread4 Message Body" />
 			<var name="threadSubject" value="MB Thread4 Message Subject" />
 		</execute>
@@ -1041,7 +973,7 @@
 
 		<execute macro="MessageboardsThread#viewReplyPG">
 			<var name="mbThreadAttachment" value="Document_4.jpeg" />
-			<var name="postCount" value="2" />
+			<var name="replyCount" value="1" />
 			<var name="threadBody" value="MB Thread3 Message Body" />
 			<var name="threadReplyBody" value="MB Thread1 Reply Body" />
 			<var name="threadSubject" value="MB Thread3 Message Subject" />
@@ -1051,7 +983,8 @@
 			<var name="pageName" value="Message Boards Page 2" />
 		</execute>
 
-		<execute macro="MessageboardsPortlet#searchPG">
+		<execute macro="Search#searchPG">
+			<var name="portletName" value="Message Boards" />
 			<var name="searchTerm" value="MB Thread3 Message Subject" />
 		</execute>
 
@@ -1065,7 +998,8 @@
 			<var name="pageName" value="Message Boards Page 2" />
 		</execute>
 
-		<execute macro="MessageboardsPortlet#searchPG">
+		<execute macro="Search#searchPG">
+			<var name="portletName" value="Message Boards" />
 			<var name="searchTerm" value="MB Thread4 Message Subject" />
 		</execute>
 
@@ -1079,7 +1013,8 @@
 			<var name="pageName" value="Message Boards Page 2" />
 		</execute>
 
-		<execute macro="MessageboardsPortlet#searchPG">
+		<execute macro="Search#searchPG">
+			<var name="portletName" value="Message Boards" />
 			<var name="searchTerm" value="MB Thread1 Message Subject" />
 		</execute>
 
@@ -1091,7 +1026,8 @@
 			<var name="pageName" value="Message Boards Page 2" />
 		</execute>
 
-		<execute macro="MessageboardsPortlet#searchPG">
+		<execute macro="Search#searchPG">
+			<var name="portletName" value="Message Boards" />
 			<var name="searchTerm" value="MB Thread2 Message Subject" />
 		</execute>
 
@@ -1103,7 +1039,8 @@
 			<var name="pageName" value="Message Boards Page" />
 		</execute>
 
-		<execute macro="MessageboardsPortlet#searchPG">
+		<execute macro="Search#searchPG">
+			<var name="portletName" value="Message Boards" />
 			<var name="searchTerm" value="MB Thread1 Message Subject" />
 		</execute>
 
@@ -1117,7 +1054,8 @@
 			<var name="pageName" value="Message Boards Page" />
 		</execute>
 
-		<execute macro="MessageboardsPortlet#searchPG">
+		<execute macro="Search#searchPG">
+			<var name="portletName" value="Message Boards" />
 			<var name="searchTerm" value="MB Thread2 Message Subject" />
 		</execute>
 
@@ -1131,7 +1069,8 @@
 			<var name="pageName" value="Message Boards Page" />
 		</execute>
 
-		<execute macro="MessageboardsPortlet#searchPG">
+		<execute macro="Search#searchPG">
+			<var name="portletName" value="Message Boards" />
 			<var name="searchTerm" value="MB Thread3 Message Subject" />
 		</execute>
 
@@ -1143,7 +1082,8 @@
 			<var name="pageName" value="Message Boards Page" />
 		</execute>
 
-		<execute macro="MessageboardsPortlet#searchPG">
+		<execute macro="Search#searchPG">
+			<var name="portletName" value="Message Boards" />
 			<var name="searchTerm" value="MB Thread4 Message Subject" />
 		</execute>
 
@@ -1165,20 +1105,21 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Site Page Name" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Site Page Name" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoSitePage">
@@ -1232,7 +1173,7 @@
 		</execute>
 	</command>
 
-	<command name="ViewMBThreadAndReplyThreadInGmail" priority="4">
+	<command ignore="true" name="ViewMBThreadAndReplyThreadInGmail" priority="4">
 		<property name="custom.properties" value="message.boards.message.formats.default=html${line.separator}pop.server.notifications.enabled=true${line.separator}pop.server.subdomain=${line.separator}mail.session.mail.smtp.auth=true${line.separator}mail.session.mail.store.protocol=pop3${line.separator}mail.session.mail.transport.protocol=smtp" />
 		<property name="test.name.skip.portal.instance" value="MessageboardsUsecase#ViewMBThreadAndReplyThreadInGmail" />
 
@@ -1314,20 +1255,21 @@
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Message Boards Page" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Message Boards Page" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -1403,7 +1345,9 @@
 			<var name="gmailReplyMessage" value="MB Thread Message Subject GMMB1 Reply" />
 		</execute>
 
-		<execute function="Open" locator1="${portalURL}" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${portalURL}" />
+		</execute>
 
 		<execute function="Pause" locator1="60000" />
 
@@ -1420,7 +1364,7 @@
 		</execute>
 
 		<execute macro="MessageboardsThread#viewReplyPG">
-			<var name="postCount" value="2" />
+			<var name="replyCount" value="2" />
 			<var name="threadBody" value="MB Thread Message Body" />
 			<var name="threadReplyBody" value="MB Thread Message Subject GMMB1 Reply" />
 			<var name="threadSubject" value="MB Thread Message Subject GMMB1" />
@@ -1436,20 +1380,21 @@
 
 	<command name="ViewMessageBoardsBannedUsers" priority="3">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Message Boards Page" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Message Boards Page" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -1516,7 +1461,7 @@
 			<var name="pageName" value="Message Boards Page" />
 		</execute>
 
-		<for list="INLINE_PERMISSIONS_REPLY_TO_MESSAGE_CHECKBOX,INLINE_PERMISSIONS_VIEW_CHECKBOX" param="permissionDefinitionKey" >
+		<for list="INLINE_PERMISSIONS_REPLY_TO_MESSAGE_CHECKBOX,INLINE_PERMISSIONS_VIEW_CHECKBOX" param="permissionDefinitionKey">
 			<execute macro="Role#definePermissionPG">
 				<var name="permissionDefinitionKey" value="${permissionDefinitionKey}" />
 				<var name="roleTitle" value="User" />
@@ -1574,7 +1519,7 @@
 
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="lastPostUserName" value="userfn2 userln2" />
-			<var name="postCount" value="3" />
+			<var name="replyCount" value="2" />
 			<var name="threadBody" value="MB Thread Message Body" />
 			<var name="threadSubject" value="MB Thread Message Subject" />
 		</execute>
@@ -1590,7 +1535,7 @@
 
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="lastPostUserName" value="userfn2 userln2" />
-			<var name="postCount" value="3" />
+			<var name="replyCount" value="2" />
 			<var name="threadBody" value="MB Thread Message Body" />
 			<var name="threadSubject" value="MB Thread Message Subject" />
 		</execute>
@@ -1604,7 +1549,7 @@
 			<var name="pageName" value="Message Boards Page" />
 		</execute>
 
-		<execute macro="MessageboardsPortlet#viewBannedUserPG">
+		<execute macro="MessageboardsPortlet#viewBannedUserCP">
 			<var name="userScreenName" value="userfn1 userln1" />
 		</execute>
 
@@ -1612,7 +1557,7 @@
 			<var name="pageName" value="Message Boards Page" />
 		</execute>
 
-		<execute macro="MessageboardsPortlet#viewBannedUserPG">
+		<execute macro="MessageboardsPortlet#viewBannedUserCP">
 			<var name="userScreenName" value="userfn2 userln2" />
 		</execute>
 	</command>
@@ -1624,15 +1569,21 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
+			<var name="pageName" value="Message Boards Page" />
+			<var name="sitePageType" value="Widget Page" />
+		</execute>
+
+		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Message Boards Page" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -1648,6 +1599,10 @@
 			<var name="threadSubject" value="MB Thread Message Subject 1" />
 		</execute>
 
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Message Boards Page" />
+		</execute>
+
 		<execute macro="MessageboardsThread#addPG">
 			<var name="threadBody" value="MB Thread Message Body 2" />
 			<var name="threadSubject" value="MB Thread Message Subject 2" />
@@ -1656,49 +1611,56 @@
 		<execute macro="RSS#viewFeed">
 			<var name="entryContent" value="MB Thread Message Body 2" />
 			<var name="entryTitle" value="MB Thread Message Subject 2" />
+			<var name="feedSubtitle" value="MB Thread Message Subject 2" />
+			<var name="feedTitle" value="MB Thread Message Subject 2" />
 			<var name="rssURL" value="message_boards" />
-			<var name="siteName" value="${siteName}" />
 		</execute>
 
 		<execute function="Click" locator1="NavBar#HOME" />
 
-		<execute function="Click" locator1="ListGroupItem#ITEM_ACTIONS">
-			<var name="key_itemName" value="MB Thread Message Subject 1" />
+		<execute macro="MessageboardsThread#gotoPG">
+			<var name="lastPostUserName" value="Test Test" />
+			<var name="replyCount" value="0" />
+			<var name="threadSubject" value="MB Thread Message Subject 1" />
 		</execute>
 
 		<execute macro="RSS#viewFeed">
 			<var name="entryContent" value="MB Thread Message Body 1" />
 			<var name="entryTitle" value="MB Thread Message Subject 1" />
+			<var name="feedSubtitle" value="MB Thread Message Subject 1" />
+			<var name="feedTitle" value="MB Thread Message Subject 1" />
 			<var name="rssURL" value="message_boards" />
-			<var name="siteName" value="${siteName}" />
 		</execute>
 
 		<execute function="Click" locator1="NavBar#HOME" />
 
-		<execute macro="RSS#viewFeed">
+		<execute macro="RSS#gotoFeed">
+			<var name="rssURL" value="message_boards" />
+		</execute>
+
+		<execute macro="RSS#viewFeedEntry">
 			<var name="entryContent" value="MB Thread Message Body 1,MB Thread Message Body 2" />
 			<var name="entryTitle" value="MB Thread Message Subject 1,MB Thread Message Subject 2" />
-			<var name="rssURL" value="message_boards" />
-			<var name="siteName" value="${siteName}" />
 		</execute>
 	</command>
 
 	<command name="ViewMessageBoardsThreadStatistics" priority="4">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Message Boards Page" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Message Boards Page" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -1733,7 +1695,7 @@
 
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="lastPostUserName" value="Test Test" />
-			<var name="postCount" value="1" />
+			<var name="replyCount" value="0" />
 			<var name="threadBody" value="MB Thread1 Message Body" />
 			<var name="threadSubject" value="MB Thread1 Message Subject" />
 		</execute>
@@ -1805,20 +1767,21 @@
 		<property name="custom.properties" value="message.boards.message.formats.default=html" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Message Boards Page" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Message Boards Page" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -1834,32 +1797,39 @@
 		</execute>
 
 		<execute macro="MessageboardsThread#addPG">
-			<var name="threadBody" value="" />
-			<var name="threadSubject"><![CDATA[<script>alert(1)</script>]]></var>
+			<var name="threadBody"><![CDATA[<script>alert(123);</script>]]></var>
+			<var name="threadSubject"><![CDATA[<script>alert(123);</script>]]></var>
 		</execute>
 
 		<execute macro="MessageboardsThread#viewNoXSSPG">
-			<var name="threadBody" value="" />
-			<var name="threadSubject"><![CDATA[<script>alert(1)</script>]]></var>
+			<var name="threadBody"><![CDATA[<script>alert(123);</script>]]></var>
+			<var name="threadSubject"><![CDATA[<script>alert(123);</script>]]></var>
 		</execute>
+
+		<var name="actualScript"><![CDATA[<script>alert(123);</script>]]></var>
+		<var name="escapedScript"><![CDATA[&lt;script&gt;alert(123);&lt;/script&gt;]]></var>
+
+		<execute function="AssertHTMLSourceTextNotPresent" value1="${actualScript}" />
+		<execute function="AssertHTMLSourceTextPresent" value1="${escapedScript}" />
 	</command>
 
 	<command name="ViewNoMBThreadXSS" priority="4">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Message Boards Page" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Message Boards Page" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -1881,6 +1851,7 @@
 		</execute>
 
 		<execute macro="MessageboardsThread#viewNoXSSPG">
+			<var name="sourceContent" value="true" />
 			<var name="threadBody" value="[img]asd[font= onerror=alert(/This is an XSS Message/.source)//]FF[/font][/img]" />
 			<var name="threadSubject" value="MB Thread Message Subject" />
 		</execute>
@@ -1888,20 +1859,21 @@
 
 	<command name="ViewNoSubscribeLinksNoWithEmailNotificationsDisabled" priority="4">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Message Boards Page" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Message Boards Page" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -1934,13 +1906,15 @@
 		<var name="key_categoryName" value="MB Category Name" />
 		<var name="key_threadSubject" value="MB Thread Message Subject" />
 
-		<execute function="AssertTextEquals" locator1="MessageBoards#SUBSCRIBE_LINK" value1="Subscribe" />
 		<execute function="Click" locator1="MessageBoards#CATEGORY_LIST_ACTIONS" />
 		<execute function="AssertTextEquals" locator1="MenuItem#ANY_MENU_ITEM" value1="Subscribe">
 			<var name="key_menuItem" value="Subscribe" />
 		</execute>
 
 		<execute function="AssertClick" locator1="MessageBoards#CATEGORY_LIST_CATEGORY" value1="MB Category Name" />
+
+		<execute function="Click" locator1="Icon#BODY_VERTICAL_ELLIPSIS" />
+
 		<execute function="AssertTextEquals" locator1="Link#SUBSCRIBE" value1="Subscribe" />
 
 		<execute macro="Navigator#gotoPage">
@@ -1953,7 +1927,12 @@
 		</execute>
 
 		<execute function="AssertClick" locator1="MessageBoards#THREAD_LIST_THREAD" value1="MB Thread Message Subject" />
-		<execute function="AssertTextEquals" locator1="MessageBoardsThread#THREAD_ACTIONS_UNSUBSCRIBE" value1="Unsubscribe" />
+
+		<execute function="Click" locator1="Icon#BODY_VERTICAL_ELLIPSIS" />
+
+		<execute function="AssertTextEquals" locator1="MenuItem#ANY_MENU_ITEM" value1="Unsubscribe">
+			<var name="key_menuItem" value="Unsubscribe" />
+		</execute>
 
 		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Message Boards Page" />
@@ -1975,44 +1954,51 @@
 			<var name="pageName" value="Message Boards Page" />
 		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="MessageBoards#SUBSCRIBE_LINK" />
 		<execute function="Click" locator1="MessageBoards#CATEGORY_LIST_ACTIONS" />
-		<execute function="AssertElementNotPresent" locator1="MenuItem#ANY_MENU_ITEM" value1="Subscribe">
+
+		<execute function="AssertElementNotPresent" locator1="MenuItem#ANY_MENU_ITEM">
 			<var name="key_menuItem" value="Subscribe" />
 		</execute>
 
 		<execute function="AssertClick" locator1="MessageBoards#CATEGORY_LIST_CATEGORY" value1="MB Category Name" />
-		<execute function="AssertElementNotPresent" locator1="Link#SUBSCRIBE" value1="Subscribe" />
+
+		<execute function="AssertElementNotPresent" locator1="Link#SUBSCRIBE" />
 
 		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Message Boards Page" />
 		</execute>
 
 		<execute function="Click" locator1="MessageBoards#VERTICAL_ELLIPSIS" />
-		<execute function="AssertElementNotPresent" locator1="MenuItem#ANY_MENU_ITEM" value1="Unsubscribe">
+		<execute function="AssertElementNotPresent" locator1="MenuItem#ANY_MENU_ITEM">
 			<var name="key_menuItem" value="Unsubscribe" />
 		</execute>
 
 		<execute function="AssertClick" locator1="MessageBoards#THREAD_LIST_THREAD" value1="MB Thread Message Subject" />
-		<execute function="AssertElementNotPresent" locator1="MessageBoardsThread#THREAD_ACTIONS_UNSUBSCRIBE" value1="Unsubscribe" />
+
+		<execute function="Click" locator1="Icon#BODY_VERTICAL_ELLIPSIS" />
+
+		<execute function="AssertElementNotPresent" locator1="MenuItem#ANY_MENU_ITEM" value1="Unsubscribe">
+			<var name="key_menuItem" value="Unsubscribe" />
+		</execute>
 	</command>
 
 	<command name="ViewQuestionOnSplitThread" priority="3">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Message Boards Page" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Message Boards Page" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -2028,6 +2014,7 @@
 		</execute>
 
 		<execute macro="MessageboardsThread#addPGAsQuestion">
+			<var name="breadcrumbName" value="Home" />
 			<var name="threadBody" value="MB Thread Message Body" />
 			<var name="threadSubject" value="MB Thread Message Subject" />
 		</execute>
@@ -2051,7 +2038,7 @@
 
 		<execute macro="MessageboardsThread#gotoPG">
 			<var name="lastPostUserName" value="Test Test" />
-			<var name="postCount" value="2" />
+			<var name="replyCount" value="1" />
 			<var name="threadSubject" value="MB Thread Message Subject" />
 		</execute>
 
@@ -2088,20 +2075,21 @@
 
 	<command name="ViewThreadDefaultQuestion" priority="3">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
 			<var name="pageName" value="Message Boards Page" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="SitePages#configurePage">
 			<var name="columnName" value="1 Column" />
 			<var name="pageName" value="Message Boards Page" />
-			<var name="privacy" value="Public" />
-			<var name="sitePageType" value="Empty Page" />
+			<var name="privacy" value="Public Pages" />
+			<var name="sitePageType" value="Widget Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -2120,7 +2108,7 @@
 			<var name="portlet" value="Message Boards" />
 		</execute>
 
-		<execute macro="MessageboardsThread#viewMarkAsQuestionNotCheckedCP" >
+		<execute macro="MessageboardsThread#viewMarkAsQuestionNotCheckedCP">
 			<var name="threadSubject" value="Thread Subject" />
 		</execute>
 
@@ -2136,7 +2124,7 @@
 			<var name="portlet" value="Message Boards" />
 		</execute>
 
-		<execute macro="MessageboardsThread#viewMarkAsQuestionCheckedCP" >
+		<execute macro="MessageboardsThread#viewMarkAsQuestionCheckedCP">
 			<var name="threadSubject" value="Thread Subject" />
 		</execute>
 

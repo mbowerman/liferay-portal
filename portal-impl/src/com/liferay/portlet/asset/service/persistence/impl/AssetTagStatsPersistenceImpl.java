@@ -36,12 +36,15 @@ import com.liferay.portal.kernel.service.persistence.CompanyProvider;
 import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 
 import com.liferay.portlet.asset.model.impl.AssetTagStatsImpl;
 import com.liferay.portlet.asset.model.impl.AssetTagStatsModelImpl;
 
 import java.io.Serializable;
+
+import java.lang.reflect.InvocationHandler;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,8 +64,8 @@ import java.util.Set;
  * @author Brian Wing Shun Chan
  * @see AssetTagStatsPersistence
  * @see com.liferay.asset.kernel.service.persistence.AssetTagStatsUtil
- * @deprecated As of 7.0.0, replaced by {@link
-            com.liferay.asset.tags.model.impl.AssetTagStatsImpl}
+ * @deprecated As of Judson, replaced by {@link
+            com.liferay.asset.tag.stats.model.impl.AssetTagStatsImpl}
  * @generated
  */
 @Deprecated
@@ -1225,12 +1228,6 @@ public class AssetTagStatsPersistenceImpl extends BasePersistenceImpl<AssetTagSt
 					result = assetTagStats;
 
 					cacheResult(assetTagStats);
-
-					if ((assetTagStats.getTagId() != tagId) ||
-							(assetTagStats.getClassNameId() != classNameId)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_T_C,
-							finderArgs, assetTagStats);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -1523,8 +1520,6 @@ public class AssetTagStatsPersistenceImpl extends BasePersistenceImpl<AssetTagSt
 
 	@Override
 	protected AssetTagStats removeImpl(AssetTagStats assetTagStats) {
-		assetTagStats = toUnwrappedModel(assetTagStats);
-
 		Session session = null;
 
 		try {
@@ -1555,9 +1550,23 @@ public class AssetTagStatsPersistenceImpl extends BasePersistenceImpl<AssetTagSt
 
 	@Override
 	public AssetTagStats updateImpl(AssetTagStats assetTagStats) {
-		assetTagStats = toUnwrappedModel(assetTagStats);
-
 		boolean isNew = assetTagStats.isNew();
+
+		if (!(assetTagStats instanceof AssetTagStatsModelImpl)) {
+			InvocationHandler invocationHandler = null;
+
+			if (ProxyUtil.isProxyClass(assetTagStats.getClass())) {
+				invocationHandler = ProxyUtil.getInvocationHandler(assetTagStats);
+
+				throw new IllegalArgumentException(
+					"Implement ModelWrapper in assetTagStats proxy " +
+					invocationHandler.getClass());
+			}
+
+			throw new IllegalArgumentException(
+				"Implement ModelWrapper in custom AssetTagStats implementation " +
+				assetTagStats.getClass());
+		}
 
 		AssetTagStatsModelImpl assetTagStatsModelImpl = (AssetTagStatsModelImpl)assetTagStats;
 
@@ -1652,25 +1661,6 @@ public class AssetTagStatsPersistenceImpl extends BasePersistenceImpl<AssetTagSt
 		assetTagStats.resetOriginalValues();
 
 		return assetTagStats;
-	}
-
-	protected AssetTagStats toUnwrappedModel(AssetTagStats assetTagStats) {
-		if (assetTagStats instanceof AssetTagStatsImpl) {
-			return assetTagStats;
-		}
-
-		AssetTagStatsImpl assetTagStatsImpl = new AssetTagStatsImpl();
-
-		assetTagStatsImpl.setNew(assetTagStats.isNew());
-		assetTagStatsImpl.setPrimaryKey(assetTagStats.getPrimaryKey());
-
-		assetTagStatsImpl.setTagStatsId(assetTagStats.getTagStatsId());
-		assetTagStatsImpl.setCompanyId(assetTagStats.getCompanyId());
-		assetTagStatsImpl.setTagId(assetTagStats.getTagId());
-		assetTagStatsImpl.setClassNameId(assetTagStats.getClassNameId());
-		assetTagStatsImpl.setAssetCount(assetTagStats.getAssetCount());
-
-		return assetTagStatsImpl;
 	}
 
 	/**

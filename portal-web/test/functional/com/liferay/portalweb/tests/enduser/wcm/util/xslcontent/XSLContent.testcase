@@ -1,4 +1,6 @@
 <definition component-name="portal-xsl">
+	<property name="osgi.module.configuration.file.names" value="com.liferay.xsl.content.web.configuration.XSLContentConfiguration.config" />
+	<property name="osgi.module.configurations" value="com.liferay.portlet.display-category=&quot;category.cms&quot;" />
 	<property name="portal.release" value="true" />
 	<property name="portal.upstream" value="true" />
 	<property name="testray.component.names" value="XSL" />
@@ -20,9 +22,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -42,6 +44,12 @@
 			<var name="category" value="Configuration" />
 			<var name="panel" value="Control Panel" />
 			<var name="portlet" value="System Settings" />
+		</execute>
+
+		<execute macro="SystemSettings#gotoConfiguration">
+			<var name="configurationCategory" value="XSL Content" />
+			<var name="configurationName" value="XSL Content Options" />
+			<var name="configurationScope" value="System Scope" />
 		</execute>
 
 		<execute macro="XSLContent#configureConfigurationAdminXSL" />

@@ -1,6 +1,4 @@
 Bundle-Name: Liferay My Subscriptions Web
 Bundle-SymbolicName: com.liferay.my.subscriptions.web
-Bundle-Version: 1.0.9
-Liferay-Releng-Module-Group-Description:
-Liferay-Releng-Module-Group-Title:
+Bundle-Version: 3.0.0
 Web-ContextPath: /my-subscriptions-web

@@ -19,6 +19,7 @@ import com.liferay.marketplace.model.App;
 import com.liferay.marketplace.model.Module;
 import com.liferay.marketplace.service.AppLocalService;
 import com.liferay.marketplace.service.ModuleLocalService;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
@@ -26,7 +27,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -83,7 +83,8 @@ public class AppDisplayFactoryUtil {
 		}
 
 		for (Bundle bundle : bundles) {
-			Dictionary<String, String> headers = bundle.getHeaders();
+			Dictionary<String, String> headers = bundle.getHeaders(
+				StringPool.BLANK);
 
 			String curAppTitle = GetterUtil.getString(
 				headers.get(BundleConstants.LIFERAY_RELENG_APP_TITLE));
@@ -190,7 +191,8 @@ public class AppDisplayFactoryUtil {
 		Collection<Bundle> bundles = bundlesMap.values();
 
 		for (Bundle bundle : bundles) {
-			Dictionary<String, String> headers = bundle.getHeaders();
+			Dictionary<String, String> headers = bundle.getHeaders(
+				StringPool.BLANK);
 
 			if (Validator.isNotNull(category)) {
 				String[] categories = StringUtil.split(

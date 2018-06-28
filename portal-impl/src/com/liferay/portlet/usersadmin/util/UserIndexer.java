@@ -59,7 +59,7 @@ import javax.portlet.PortletResponse;
  * @author     Raymond Augé
  * @author     Zsigmond Rab
  * @author     Hugo Huijser
- * @deprecated As of 7.0.0, replaced by {@link
+ * @deprecated As of Judson, replaced by {@link
  *             com.liferay.users.admin.internal.search.UserIndexer}
  */
 @Deprecated
@@ -107,7 +107,6 @@ public class UserIndexer extends BaseIndexer<User> {
 		}
 
 		for (Map.Entry<String, Object> entry : params.entrySet()) {
-			String key = entry.getKey();
 			Object value = entry.getValue();
 
 			if (value == null) {
@@ -125,7 +124,7 @@ public class UserIndexer extends BaseIndexer<User> {
 			}
 
 			addContextQueryParams(
-				contextBooleanFilter, searchContext, key, value);
+				contextBooleanFilter, searchContext, entry.getKey(), value);
 		}
 	}
 

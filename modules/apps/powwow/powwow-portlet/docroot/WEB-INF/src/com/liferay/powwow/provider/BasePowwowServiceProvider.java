@@ -14,13 +14,13 @@
 
 package com.liferay.powwow.provider;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.HttpUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.powwow.model.PowwowMeeting;
 import com.liferay.powwow.model.PowwowMeetingConstants;
 import com.liferay.powwow.model.PowwowServer;
@@ -270,7 +270,8 @@ public abstract class BasePowwowServiceProvider
 
 	public String sendRequest(Http.Options options) {
 		for (int i = 0;
-			i < PortletPropsValues.POWWOW_PROVIDER_API_RETRY_ATTEMPTS; i++) {
+				i < PortletPropsValues.POWWOW_PROVIDER_API_RETRY_ATTEMPTS;
+				i++) {
 
 			try {
 				return HttpUtil.URLtoString(options);

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.search.dummy;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.HitsImpl;
@@ -24,7 +25,6 @@ import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.generic.StringQuery;
 import com.liferay.portal.kernel.search.suggest.Suggester;
 import com.liferay.portal.kernel.search.suggest.SuggesterResults;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +47,7 @@ public class DummyIndexSearcher implements IndexSearcher {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #search(SearchContext,
+	 * @deprecated As of Wilberforce, replaced by {@link #search(SearchContext,
 	 *             Query)}
 	 */
 	@Deprecated

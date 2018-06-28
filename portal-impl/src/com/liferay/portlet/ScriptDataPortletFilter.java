@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.servlet.taglib.aui.ScriptData;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portlet.internal.MimeResponseImpl;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -123,7 +124,7 @@ public class ScriptDataPortletFilter implements RenderFilter, ResourceFilter {
 
 	private MimeResponseImpl _getMimeResponseImpl(MimeResponse mimeResponse) {
 		while (!(mimeResponse instanceof MimeResponseImpl) &&
-			(mimeResponse instanceof PortletResponseWrapper)) {
+			   (mimeResponse instanceof PortletResponseWrapper)) {
 
 			PortletResponseWrapper portletResponseWrapper =
 				(PortletResponseWrapper)mimeResponse;

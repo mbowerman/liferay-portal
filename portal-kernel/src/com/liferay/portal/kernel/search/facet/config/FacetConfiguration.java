@@ -14,9 +14,9 @@
 
 package com.liferay.portal.kernel.search.facet.config;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.util.StringPool;
 
 /**
  * @author Raymond Augé
@@ -36,7 +36,7 @@ public class FacetConfiguration {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	public String getDisplayStyle() {
@@ -76,7 +76,7 @@ public class FacetConfiguration {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	public void setDisplayStyle(String displayStyle) {

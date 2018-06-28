@@ -47,7 +47,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param uuid the uuid
 	* @return the matching asset tags
 	*/
-	public java.util.List<AssetTag> findByUuid(java.lang.String uuid);
+	public java.util.List<AssetTag> findByUuid(String uuid);
 
 	/**
 	* Returns a range of all the asset tags where uuid = &#63;.
@@ -61,8 +61,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param end the upper bound of the range of asset tags (not inclusive)
 	* @return the range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByUuid(java.lang.String uuid,
-		int start, int end);
+	public java.util.List<AssetTag> findByUuid(String uuid, int start, int end);
 
 	/**
 	* Returns an ordered range of all the asset tags where uuid = &#63;.
@@ -77,8 +76,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByUuid(java.lang.String uuid,
-		int start, int end,
+	public java.util.List<AssetTag> findByUuid(String uuid, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
 
 	/**
@@ -95,8 +93,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param retrieveFromCache whether to retrieve from the finder cache
 	* @return the ordered range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByUuid(java.lang.String uuid,
-		int start, int end,
+	public java.util.List<AssetTag> findByUuid(String uuid, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator,
 		boolean retrieveFromCache);
 
@@ -108,7 +105,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @return the first matching asset tag
 	* @throws NoSuchTagException if a matching asset tag could not be found
 	*/
-	public AssetTag findByUuid_First(java.lang.String uuid,
+	public AssetTag findByUuid_First(String uuid,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator)
 		throws NoSuchTagException;
 
@@ -119,7 +116,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the first matching asset tag, or <code>null</code> if a matching asset tag could not be found
 	*/
-	public AssetTag fetchByUuid_First(java.lang.String uuid,
+	public AssetTag fetchByUuid_First(String uuid,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
 
 	/**
@@ -130,7 +127,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @return the last matching asset tag
 	* @throws NoSuchTagException if a matching asset tag could not be found
 	*/
-	public AssetTag findByUuid_Last(java.lang.String uuid,
+	public AssetTag findByUuid_Last(String uuid,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator)
 		throws NoSuchTagException;
 
@@ -141,7 +138,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the last matching asset tag, or <code>null</code> if a matching asset tag could not be found
 	*/
-	public AssetTag fetchByUuid_Last(java.lang.String uuid,
+	public AssetTag fetchByUuid_Last(String uuid,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
 
 	/**
@@ -153,7 +150,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @return the previous, current, and next asset tag
 	* @throws NoSuchTagException if a asset tag with the primary key could not be found
 	*/
-	public AssetTag[] findByUuid_PrevAndNext(long tagId, java.lang.String uuid,
+	public AssetTag[] findByUuid_PrevAndNext(long tagId, String uuid,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator)
 		throws NoSuchTagException;
 
@@ -162,7 +159,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	*
 	* @param uuid the uuid
 	*/
-	public void removeByUuid(java.lang.String uuid);
+	public void removeByUuid(String uuid);
 
 	/**
 	* Returns the number of asset tags where uuid = &#63;.
@@ -170,7 +167,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param uuid the uuid
 	* @return the number of matching asset tags
 	*/
-	public int countByUuid(java.lang.String uuid);
+	public int countByUuid(String uuid);
 
 	/**
 	* Returns the asset tag where uuid = &#63; and groupId = &#63; or throws a {@link NoSuchTagException} if it could not be found.
@@ -180,7 +177,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @return the matching asset tag
 	* @throws NoSuchTagException if a matching asset tag could not be found
 	*/
-	public AssetTag findByUUID_G(java.lang.String uuid, long groupId)
+	public AssetTag findByUUID_G(String uuid, long groupId)
 		throws NoSuchTagException;
 
 	/**
@@ -190,7 +187,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param groupId the group ID
 	* @return the matching asset tag, or <code>null</code> if a matching asset tag could not be found
 	*/
-	public AssetTag fetchByUUID_G(java.lang.String uuid, long groupId);
+	public AssetTag fetchByUUID_G(String uuid, long groupId);
 
 	/**
 	* Returns the asset tag where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
@@ -200,7 +197,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param retrieveFromCache whether to retrieve from the finder cache
 	* @return the matching asset tag, or <code>null</code> if a matching asset tag could not be found
 	*/
-	public AssetTag fetchByUUID_G(java.lang.String uuid, long groupId,
+	public AssetTag fetchByUUID_G(String uuid, long groupId,
 		boolean retrieveFromCache);
 
 	/**
@@ -210,7 +207,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param groupId the group ID
 	* @return the asset tag that was removed
 	*/
-	public AssetTag removeByUUID_G(java.lang.String uuid, long groupId)
+	public AssetTag removeByUUID_G(String uuid, long groupId)
 		throws NoSuchTagException;
 
 	/**
@@ -220,7 +217,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param groupId the group ID
 	* @return the number of matching asset tags
 	*/
-	public int countByUUID_G(java.lang.String uuid, long groupId);
+	public int countByUUID_G(String uuid, long groupId);
 
 	/**
 	* Returns all the asset tags where uuid = &#63; and companyId = &#63;.
@@ -229,8 +226,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param companyId the company ID
 	* @return the matching asset tags
 	*/
-	public java.util.List<AssetTag> findByUuid_C(java.lang.String uuid,
-		long companyId);
+	public java.util.List<AssetTag> findByUuid_C(String uuid, long companyId);
 
 	/**
 	* Returns a range of all the asset tags where uuid = &#63; and companyId = &#63;.
@@ -245,8 +241,8 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param end the upper bound of the range of asset tags (not inclusive)
 	* @return the range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByUuid_C(java.lang.String uuid,
-		long companyId, int start, int end);
+	public java.util.List<AssetTag> findByUuid_C(String uuid, long companyId,
+		int start, int end);
 
 	/**
 	* Returns an ordered range of all the asset tags where uuid = &#63; and companyId = &#63;.
@@ -262,8 +258,8 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByUuid_C(java.lang.String uuid,
-		long companyId, int start, int end,
+	public java.util.List<AssetTag> findByUuid_C(String uuid, long companyId,
+		int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
 
 	/**
@@ -281,8 +277,8 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param retrieveFromCache whether to retrieve from the finder cache
 	* @return the ordered range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByUuid_C(java.lang.String uuid,
-		long companyId, int start, int end,
+	public java.util.List<AssetTag> findByUuid_C(String uuid, long companyId,
+		int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator,
 		boolean retrieveFromCache);
 
@@ -295,7 +291,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @return the first matching asset tag
 	* @throws NoSuchTagException if a matching asset tag could not be found
 	*/
-	public AssetTag findByUuid_C_First(java.lang.String uuid, long companyId,
+	public AssetTag findByUuid_C_First(String uuid, long companyId,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator)
 		throws NoSuchTagException;
 
@@ -307,7 +303,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the first matching asset tag, or <code>null</code> if a matching asset tag could not be found
 	*/
-	public AssetTag fetchByUuid_C_First(java.lang.String uuid, long companyId,
+	public AssetTag fetchByUuid_C_First(String uuid, long companyId,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
 
 	/**
@@ -319,7 +315,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @return the last matching asset tag
 	* @throws NoSuchTagException if a matching asset tag could not be found
 	*/
-	public AssetTag findByUuid_C_Last(java.lang.String uuid, long companyId,
+	public AssetTag findByUuid_C_Last(String uuid, long companyId,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator)
 		throws NoSuchTagException;
 
@@ -331,7 +327,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the last matching asset tag, or <code>null</code> if a matching asset tag could not be found
 	*/
-	public AssetTag fetchByUuid_C_Last(java.lang.String uuid, long companyId,
+	public AssetTag fetchByUuid_C_Last(String uuid, long companyId,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
 
 	/**
@@ -344,8 +340,8 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @return the previous, current, and next asset tag
 	* @throws NoSuchTagException if a asset tag with the primary key could not be found
 	*/
-	public AssetTag[] findByUuid_C_PrevAndNext(long tagId,
-		java.lang.String uuid, long companyId,
+	public AssetTag[] findByUuid_C_PrevAndNext(long tagId, String uuid,
+		long companyId,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator)
 		throws NoSuchTagException;
 
@@ -355,7 +351,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param uuid the uuid
 	* @param companyId the company ID
 	*/
-	public void removeByUuid_C(java.lang.String uuid, long companyId);
+	public void removeByUuid_C(String uuid, long companyId);
 
 	/**
 	* Returns the number of asset tags where uuid = &#63; and companyId = &#63;.
@@ -364,7 +360,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param companyId the company ID
 	* @return the number of matching asset tags
 	*/
-	public int countByUuid_C(java.lang.String uuid, long companyId);
+	public int countByUuid_C(String uuid, long companyId);
 
 	/**
 	* Returns all the asset tags where groupId = &#63;.
@@ -483,99 +479,6 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 		throws NoSuchTagException;
 
 	/**
-	* Returns all the asset tags that the user has permission to view where groupId = &#63;.
-	*
-	* @param groupId the group ID
-	* @return the matching asset tags that the user has permission to view
-	*/
-	public java.util.List<AssetTag> filterFindByGroupId(long groupId);
-
-	/**
-	* Returns a range of all the asset tags that the user has permission to view where groupId = &#63;.
-	*
-	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetTagModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
-	* </p>
-	*
-	* @param groupId the group ID
-	* @param start the lower bound of the range of asset tags
-	* @param end the upper bound of the range of asset tags (not inclusive)
-	* @return the range of matching asset tags that the user has permission to view
-	*/
-	public java.util.List<AssetTag> filterFindByGroupId(long groupId,
-		int start, int end);
-
-	/**
-	* Returns an ordered range of all the asset tags that the user has permissions to view where groupId = &#63;.
-	*
-	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetTagModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
-	* </p>
-	*
-	* @param groupId the group ID
-	* @param start the lower bound of the range of asset tags
-	* @param end the upper bound of the range of asset tags (not inclusive)
-	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	* @return the ordered range of matching asset tags that the user has permission to view
-	*/
-	public java.util.List<AssetTag> filterFindByGroupId(long groupId,
-		int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
-
-	/**
-	* Returns the asset tags before and after the current asset tag in the ordered set of asset tags that the user has permission to view where groupId = &#63;.
-	*
-	* @param tagId the primary key of the current asset tag
-	* @param groupId the group ID
-	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	* @return the previous, current, and next asset tag
-	* @throws NoSuchTagException if a asset tag with the primary key could not be found
-	*/
-	public AssetTag[] filterFindByGroupId_PrevAndNext(long tagId, long groupId,
-		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator)
-		throws NoSuchTagException;
-
-	/**
-	* Returns all the asset tags that the user has permission to view where groupId = any &#63;.
-	*
-	* @param groupIds the group IDs
-	* @return the matching asset tags that the user has permission to view
-	*/
-	public java.util.List<AssetTag> filterFindByGroupId(long[] groupIds);
-
-	/**
-	* Returns a range of all the asset tags that the user has permission to view where groupId = any &#63;.
-	*
-	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetTagModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
-	* </p>
-	*
-	* @param groupIds the group IDs
-	* @param start the lower bound of the range of asset tags
-	* @param end the upper bound of the range of asset tags (not inclusive)
-	* @return the range of matching asset tags that the user has permission to view
-	*/
-	public java.util.List<AssetTag> filterFindByGroupId(long[] groupIds,
-		int start, int end);
-
-	/**
-	* Returns an ordered range of all the asset tags that the user has permission to view where groupId = any &#63;.
-	*
-	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetTagModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
-	* </p>
-	*
-	* @param groupIds the group IDs
-	* @param start the lower bound of the range of asset tags
-	* @param end the upper bound of the range of asset tags (not inclusive)
-	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	* @return the ordered range of matching asset tags that the user has permission to view
-	*/
-	public java.util.List<AssetTag> filterFindByGroupId(long[] groupIds,
-		int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
-
-	/**
 	* Returns all the asset tags where groupId = any &#63;.
 	*
 	* <p>
@@ -662,28 +565,12 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	public int countByGroupId(long[] groupIds);
 
 	/**
-	* Returns the number of asset tags that the user has permission to view where groupId = &#63;.
-	*
-	* @param groupId the group ID
-	* @return the number of matching asset tags that the user has permission to view
-	*/
-	public int filterCountByGroupId(long groupId);
-
-	/**
-	* Returns the number of asset tags that the user has permission to view where groupId = any &#63;.
-	*
-	* @param groupIds the group IDs
-	* @return the number of matching asset tags that the user has permission to view
-	*/
-	public int filterCountByGroupId(long[] groupIds);
-
-	/**
 	* Returns all the asset tags where name = &#63;.
 	*
 	* @param name the name
 	* @return the matching asset tags
 	*/
-	public java.util.List<AssetTag> findByName(java.lang.String name);
+	public java.util.List<AssetTag> findByName(String name);
 
 	/**
 	* Returns a range of all the asset tags where name = &#63;.
@@ -697,8 +584,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param end the upper bound of the range of asset tags (not inclusive)
 	* @return the range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByName(java.lang.String name,
-		int start, int end);
+	public java.util.List<AssetTag> findByName(String name, int start, int end);
 
 	/**
 	* Returns an ordered range of all the asset tags where name = &#63;.
@@ -713,8 +599,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByName(java.lang.String name,
-		int start, int end,
+	public java.util.List<AssetTag> findByName(String name, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
 
 	/**
@@ -731,8 +616,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param retrieveFromCache whether to retrieve from the finder cache
 	* @return the ordered range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByName(java.lang.String name,
-		int start, int end,
+	public java.util.List<AssetTag> findByName(String name, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator,
 		boolean retrieveFromCache);
 
@@ -744,7 +628,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @return the first matching asset tag
 	* @throws NoSuchTagException if a matching asset tag could not be found
 	*/
-	public AssetTag findByName_First(java.lang.String name,
+	public AssetTag findByName_First(String name,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator)
 		throws NoSuchTagException;
 
@@ -755,7 +639,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the first matching asset tag, or <code>null</code> if a matching asset tag could not be found
 	*/
-	public AssetTag fetchByName_First(java.lang.String name,
+	public AssetTag fetchByName_First(String name,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
 
 	/**
@@ -766,7 +650,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @return the last matching asset tag
 	* @throws NoSuchTagException if a matching asset tag could not be found
 	*/
-	public AssetTag findByName_Last(java.lang.String name,
+	public AssetTag findByName_Last(String name,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator)
 		throws NoSuchTagException;
 
@@ -777,7 +661,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the last matching asset tag, or <code>null</code> if a matching asset tag could not be found
 	*/
-	public AssetTag fetchByName_Last(java.lang.String name,
+	public AssetTag fetchByName_Last(String name,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
 
 	/**
@@ -789,7 +673,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @return the previous, current, and next asset tag
 	* @throws NoSuchTagException if a asset tag with the primary key could not be found
 	*/
-	public AssetTag[] findByName_PrevAndNext(long tagId, java.lang.String name,
+	public AssetTag[] findByName_PrevAndNext(long tagId, String name,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator)
 		throws NoSuchTagException;
 
@@ -803,7 +687,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param names the names
 	* @return the matching asset tags
 	*/
-	public java.util.List<AssetTag> findByName(java.lang.String[] names);
+	public java.util.List<AssetTag> findByName(String[] names);
 
 	/**
 	* Returns a range of all the asset tags where name = any &#63;.
@@ -817,8 +701,8 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param end the upper bound of the range of asset tags (not inclusive)
 	* @return the range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByName(java.lang.String[] names,
-		int start, int end);
+	public java.util.List<AssetTag> findByName(String[] names, int start,
+		int end);
 
 	/**
 	* Returns an ordered range of all the asset tags where name = any &#63;.
@@ -833,8 +717,8 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByName(java.lang.String[] names,
-		int start, int end,
+	public java.util.List<AssetTag> findByName(String[] names, int start,
+		int end,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
 
 	/**
@@ -851,8 +735,8 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param retrieveFromCache whether to retrieve from the finder cache
 	* @return the ordered range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByName(java.lang.String[] names,
-		int start, int end,
+	public java.util.List<AssetTag> findByName(String[] names, int start,
+		int end,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator,
 		boolean retrieveFromCache);
 
@@ -861,7 +745,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	*
 	* @param name the name
 	*/
-	public void removeByName(java.lang.String name);
+	public void removeByName(String name);
 
 	/**
 	* Returns the number of asset tags where name = &#63;.
@@ -869,7 +753,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param name the name
 	* @return the number of matching asset tags
 	*/
-	public int countByName(java.lang.String name);
+	public int countByName(String name);
 
 	/**
 	* Returns the number of asset tags where name = any &#63;.
@@ -877,7 +761,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param names the names
 	* @return the number of matching asset tags
 	*/
-	public int countByName(java.lang.String[] names);
+	public int countByName(String[] names);
 
 	/**
 	* Returns the asset tag where groupId = &#63; and name = &#63; or throws a {@link NoSuchTagException} if it could not be found.
@@ -887,7 +771,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @return the matching asset tag
 	* @throws NoSuchTagException if a matching asset tag could not be found
 	*/
-	public AssetTag findByG_N(long groupId, java.lang.String name)
+	public AssetTag findByG_N(long groupId, String name)
 		throws NoSuchTagException;
 
 	/**
@@ -897,7 +781,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param name the name
 	* @return the matching asset tag, or <code>null</code> if a matching asset tag could not be found
 	*/
-	public AssetTag fetchByG_N(long groupId, java.lang.String name);
+	public AssetTag fetchByG_N(long groupId, String name);
 
 	/**
 	* Returns the asset tag where groupId = &#63; and name = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
@@ -907,7 +791,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param retrieveFromCache whether to retrieve from the finder cache
 	* @return the matching asset tag, or <code>null</code> if a matching asset tag could not be found
 	*/
-	public AssetTag fetchByG_N(long groupId, java.lang.String name,
+	public AssetTag fetchByG_N(long groupId, String name,
 		boolean retrieveFromCache);
 
 	/**
@@ -917,7 +801,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param name the name
 	* @return the asset tag that was removed
 	*/
-	public AssetTag removeByG_N(long groupId, java.lang.String name)
+	public AssetTag removeByG_N(long groupId, String name)
 		throws NoSuchTagException;
 
 	/**
@@ -927,7 +811,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param name the name
 	* @return the number of matching asset tags
 	*/
-	public int countByG_N(long groupId, java.lang.String name);
+	public int countByG_N(long groupId, String name);
 
 	/**
 	* Returns all the asset tags where groupId = &#63; and name LIKE &#63;.
@@ -936,8 +820,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param name the name
 	* @return the matching asset tags
 	*/
-	public java.util.List<AssetTag> findByG_LikeN(long groupId,
-		java.lang.String name);
+	public java.util.List<AssetTag> findByG_LikeN(long groupId, String name);
 
 	/**
 	* Returns a range of all the asset tags where groupId = &#63; and name LIKE &#63;.
@@ -952,8 +835,8 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param end the upper bound of the range of asset tags (not inclusive)
 	* @return the range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByG_LikeN(long groupId,
-		java.lang.String name, int start, int end);
+	public java.util.List<AssetTag> findByG_LikeN(long groupId, String name,
+		int start, int end);
 
 	/**
 	* Returns an ordered range of all the asset tags where groupId = &#63; and name LIKE &#63;.
@@ -969,8 +852,8 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByG_LikeN(long groupId,
-		java.lang.String name, int start, int end,
+	public java.util.List<AssetTag> findByG_LikeN(long groupId, String name,
+		int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
 
 	/**
@@ -988,8 +871,8 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param retrieveFromCache whether to retrieve from the finder cache
 	* @return the ordered range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByG_LikeN(long groupId,
-		java.lang.String name, int start, int end,
+	public java.util.List<AssetTag> findByG_LikeN(long groupId, String name,
+		int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator,
 		boolean retrieveFromCache);
 
@@ -1002,7 +885,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @return the first matching asset tag
 	* @throws NoSuchTagException if a matching asset tag could not be found
 	*/
-	public AssetTag findByG_LikeN_First(long groupId, java.lang.String name,
+	public AssetTag findByG_LikeN_First(long groupId, String name,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator)
 		throws NoSuchTagException;
 
@@ -1014,7 +897,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the first matching asset tag, or <code>null</code> if a matching asset tag could not be found
 	*/
-	public AssetTag fetchByG_LikeN_First(long groupId, java.lang.String name,
+	public AssetTag fetchByG_LikeN_First(long groupId, String name,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
 
 	/**
@@ -1026,7 +909,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @return the last matching asset tag
 	* @throws NoSuchTagException if a matching asset tag could not be found
 	*/
-	public AssetTag findByG_LikeN_Last(long groupId, java.lang.String name,
+	public AssetTag findByG_LikeN_Last(long groupId, String name,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator)
 		throws NoSuchTagException;
 
@@ -1038,7 +921,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the last matching asset tag, or <code>null</code> if a matching asset tag could not be found
 	*/
-	public AssetTag fetchByG_LikeN_Last(long groupId, java.lang.String name,
+	public AssetTag fetchByG_LikeN_Last(long groupId, String name,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
 
 	/**
@@ -1052,112 +935,9 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @throws NoSuchTagException if a asset tag with the primary key could not be found
 	*/
 	public AssetTag[] findByG_LikeN_PrevAndNext(long tagId, long groupId,
-		java.lang.String name,
+		String name,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator)
 		throws NoSuchTagException;
-
-	/**
-	* Returns all the asset tags that the user has permission to view where groupId = &#63; and name LIKE &#63;.
-	*
-	* @param groupId the group ID
-	* @param name the name
-	* @return the matching asset tags that the user has permission to view
-	*/
-	public java.util.List<AssetTag> filterFindByG_LikeN(long groupId,
-		java.lang.String name);
-
-	/**
-	* Returns a range of all the asset tags that the user has permission to view where groupId = &#63; and name LIKE &#63;.
-	*
-	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetTagModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
-	* </p>
-	*
-	* @param groupId the group ID
-	* @param name the name
-	* @param start the lower bound of the range of asset tags
-	* @param end the upper bound of the range of asset tags (not inclusive)
-	* @return the range of matching asset tags that the user has permission to view
-	*/
-	public java.util.List<AssetTag> filterFindByG_LikeN(long groupId,
-		java.lang.String name, int start, int end);
-
-	/**
-	* Returns an ordered range of all the asset tags that the user has permissions to view where groupId = &#63; and name LIKE &#63;.
-	*
-	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetTagModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
-	* </p>
-	*
-	* @param groupId the group ID
-	* @param name the name
-	* @param start the lower bound of the range of asset tags
-	* @param end the upper bound of the range of asset tags (not inclusive)
-	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	* @return the ordered range of matching asset tags that the user has permission to view
-	*/
-	public java.util.List<AssetTag> filterFindByG_LikeN(long groupId,
-		java.lang.String name, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
-
-	/**
-	* Returns the asset tags before and after the current asset tag in the ordered set of asset tags that the user has permission to view where groupId = &#63; and name LIKE &#63;.
-	*
-	* @param tagId the primary key of the current asset tag
-	* @param groupId the group ID
-	* @param name the name
-	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	* @return the previous, current, and next asset tag
-	* @throws NoSuchTagException if a asset tag with the primary key could not be found
-	*/
-	public AssetTag[] filterFindByG_LikeN_PrevAndNext(long tagId, long groupId,
-		java.lang.String name,
-		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator)
-		throws NoSuchTagException;
-
-	/**
-	* Returns all the asset tags that the user has permission to view where groupId = any &#63; and name LIKE &#63;.
-	*
-	* @param groupIds the group IDs
-	* @param name the name
-	* @return the matching asset tags that the user has permission to view
-	*/
-	public java.util.List<AssetTag> filterFindByG_LikeN(long[] groupIds,
-		java.lang.String name);
-
-	/**
-	* Returns a range of all the asset tags that the user has permission to view where groupId = any &#63; and name LIKE &#63;.
-	*
-	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetTagModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
-	* </p>
-	*
-	* @param groupIds the group IDs
-	* @param name the name
-	* @param start the lower bound of the range of asset tags
-	* @param end the upper bound of the range of asset tags (not inclusive)
-	* @return the range of matching asset tags that the user has permission to view
-	*/
-	public java.util.List<AssetTag> filterFindByG_LikeN(long[] groupIds,
-		java.lang.String name, int start, int end);
-
-	/**
-	* Returns an ordered range of all the asset tags that the user has permission to view where groupId = any &#63; and name LIKE &#63;.
-	*
-	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetTagModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
-	* </p>
-	*
-	* @param groupIds the group IDs
-	* @param name the name
-	* @param start the lower bound of the range of asset tags
-	* @param end the upper bound of the range of asset tags (not inclusive)
-	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	* @return the ordered range of matching asset tags that the user has permission to view
-	*/
-	public java.util.List<AssetTag> filterFindByG_LikeN(long[] groupIds,
-		java.lang.String name, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
 
 	/**
 	* Returns all the asset tags where groupId = any &#63; and name LIKE &#63;.
@@ -1170,8 +950,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param name the name
 	* @return the matching asset tags
 	*/
-	public java.util.List<AssetTag> findByG_LikeN(long[] groupIds,
-		java.lang.String name);
+	public java.util.List<AssetTag> findByG_LikeN(long[] groupIds, String name);
 
 	/**
 	* Returns a range of all the asset tags where groupId = any &#63; and name LIKE &#63;.
@@ -1186,8 +965,8 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param end the upper bound of the range of asset tags (not inclusive)
 	* @return the range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByG_LikeN(long[] groupIds,
-		java.lang.String name, int start, int end);
+	public java.util.List<AssetTag> findByG_LikeN(long[] groupIds, String name,
+		int start, int end);
 
 	/**
 	* Returns an ordered range of all the asset tags where groupId = any &#63; and name LIKE &#63;.
@@ -1203,8 +982,8 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByG_LikeN(long[] groupIds,
-		java.lang.String name, int start, int end,
+	public java.util.List<AssetTag> findByG_LikeN(long[] groupIds, String name,
+		int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator);
 
 	/**
@@ -1222,8 +1001,8 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param retrieveFromCache whether to retrieve from the finder cache
 	* @return the ordered range of matching asset tags
 	*/
-	public java.util.List<AssetTag> findByG_LikeN(long[] groupIds,
-		java.lang.String name, int start, int end,
+	public java.util.List<AssetTag> findByG_LikeN(long[] groupIds, String name,
+		int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<AssetTag> orderByComparator,
 		boolean retrieveFromCache);
 
@@ -1233,7 +1012,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param groupId the group ID
 	* @param name the name
 	*/
-	public void removeByG_LikeN(long groupId, java.lang.String name);
+	public void removeByG_LikeN(long groupId, String name);
 
 	/**
 	* Returns the number of asset tags where groupId = &#63; and name LIKE &#63;.
@@ -1242,7 +1021,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param name the name
 	* @return the number of matching asset tags
 	*/
-	public int countByG_LikeN(long groupId, java.lang.String name);
+	public int countByG_LikeN(long groupId, String name);
 
 	/**
 	* Returns the number of asset tags where groupId = any &#63; and name LIKE &#63;.
@@ -1251,25 +1030,7 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 	* @param name the name
 	* @return the number of matching asset tags
 	*/
-	public int countByG_LikeN(long[] groupIds, java.lang.String name);
-
-	/**
-	* Returns the number of asset tags that the user has permission to view where groupId = &#63; and name LIKE &#63;.
-	*
-	* @param groupId the group ID
-	* @param name the name
-	* @return the number of matching asset tags that the user has permission to view
-	*/
-	public int filterCountByG_LikeN(long groupId, java.lang.String name);
-
-	/**
-	* Returns the number of asset tags that the user has permission to view where groupId = any &#63; and name LIKE &#63;.
-	*
-	* @param groupIds the group IDs
-	* @param name the name
-	* @return the number of matching asset tags that the user has permission to view
-	*/
-	public int filterCountByG_LikeN(long[] groupIds, java.lang.String name);
+	public int countByG_LikeN(long[] groupIds, String name);
 
 	/**
 	* Caches the asset tag in the entity cache if it is enabled.
@@ -1556,5 +1317,5 @@ public interface AssetTagPersistence extends BasePersistence<AssetTag> {
 		java.util.List<com.liferay.asset.kernel.model.AssetEntry> assetEntries);
 
 	@Override
-	public java.util.Set<java.lang.String> getBadColumnNames();
+	public java.util.Set<String> getBadColumnNames();
 }

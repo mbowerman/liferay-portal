@@ -38,6 +38,7 @@ import com.liferay.portal.kernel.service.persistence.CompanyProvider;
 import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 
@@ -47,6 +48,7 @@ import com.liferay.portlet.asset.model.impl.AssetCategoryPropertyModelImpl;
 import java.io.Serializable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 
 import java.util.Collections;
 import java.util.Date;
@@ -68,8 +70,10 @@ import java.util.Set;
  * @author Brian Wing Shun Chan
  * @see AssetCategoryPropertyPersistence
  * @see com.liferay.asset.kernel.service.persistence.AssetCategoryPropertyUtil
+ * @deprecated
  * @generated
  */
+@Deprecated
 @ProviderType
 public class AssetCategoryPropertyPersistenceImpl extends BasePersistenceImpl<AssetCategoryProperty>
 	implements AssetCategoryPropertyPersistence {
@@ -1852,13 +1856,6 @@ public class AssetCategoryPropertyPersistenceImpl extends BasePersistenceImpl<As
 					result = assetCategoryProperty;
 
 					cacheResult(assetCategoryProperty);
-
-					if ((assetCategoryProperty.getCategoryId() != categoryId) ||
-							(assetCategoryProperty.getKey() == null) ||
-							!assetCategoryProperty.getKey().equals(key)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_CA_K,
-							finderArgs, assetCategoryProperty);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -2194,8 +2191,6 @@ public class AssetCategoryPropertyPersistenceImpl extends BasePersistenceImpl<As
 	@Override
 	protected AssetCategoryProperty removeImpl(
 		AssetCategoryProperty assetCategoryProperty) {
-		assetCategoryProperty = toUnwrappedModel(assetCategoryProperty);
-
 		Session session = null;
 
 		try {
@@ -2227,9 +2222,23 @@ public class AssetCategoryPropertyPersistenceImpl extends BasePersistenceImpl<As
 	@Override
 	public AssetCategoryProperty updateImpl(
 		AssetCategoryProperty assetCategoryProperty) {
-		assetCategoryProperty = toUnwrappedModel(assetCategoryProperty);
-
 		boolean isNew = assetCategoryProperty.isNew();
+
+		if (!(assetCategoryProperty instanceof AssetCategoryPropertyModelImpl)) {
+			InvocationHandler invocationHandler = null;
+
+			if (ProxyUtil.isProxyClass(assetCategoryProperty.getClass())) {
+				invocationHandler = ProxyUtil.getInvocationHandler(assetCategoryProperty);
+
+				throw new IllegalArgumentException(
+					"Implement ModelWrapper in assetCategoryProperty proxy " +
+					invocationHandler.getClass());
+			}
+
+			throw new IllegalArgumentException(
+				"Implement ModelWrapper in custom AssetCategoryProperty implementation " +
+				assetCategoryProperty.getClass());
+		}
 
 		AssetCategoryPropertyModelImpl assetCategoryPropertyModelImpl = (AssetCategoryPropertyModelImpl)assetCategoryProperty;
 
@@ -2384,30 +2393,6 @@ public class AssetCategoryPropertyPersistenceImpl extends BasePersistenceImpl<As
 		assetCategoryProperty.resetOriginalValues();
 
 		return assetCategoryProperty;
-	}
-
-	protected AssetCategoryProperty toUnwrappedModel(
-		AssetCategoryProperty assetCategoryProperty) {
-		if (assetCategoryProperty instanceof AssetCategoryPropertyImpl) {
-			return assetCategoryProperty;
-		}
-
-		AssetCategoryPropertyImpl assetCategoryPropertyImpl = new AssetCategoryPropertyImpl();
-
-		assetCategoryPropertyImpl.setNew(assetCategoryProperty.isNew());
-		assetCategoryPropertyImpl.setPrimaryKey(assetCategoryProperty.getPrimaryKey());
-
-		assetCategoryPropertyImpl.setCategoryPropertyId(assetCategoryProperty.getCategoryPropertyId());
-		assetCategoryPropertyImpl.setCompanyId(assetCategoryProperty.getCompanyId());
-		assetCategoryPropertyImpl.setUserId(assetCategoryProperty.getUserId());
-		assetCategoryPropertyImpl.setUserName(assetCategoryProperty.getUserName());
-		assetCategoryPropertyImpl.setCreateDate(assetCategoryProperty.getCreateDate());
-		assetCategoryPropertyImpl.setModifiedDate(assetCategoryProperty.getModifiedDate());
-		assetCategoryPropertyImpl.setCategoryId(assetCategoryProperty.getCategoryId());
-		assetCategoryPropertyImpl.setKey(assetCategoryProperty.getKey());
-		assetCategoryPropertyImpl.setValue(assetCategoryProperty.getValue());
-
-		return assetCategoryPropertyImpl;
 	}
 
 	/**

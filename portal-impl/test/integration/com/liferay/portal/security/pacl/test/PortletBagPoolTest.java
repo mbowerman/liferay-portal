@@ -16,7 +16,7 @@ package com.liferay.portal.security.pacl.test;
 
 import com.liferay.portal.kernel.portlet.PortletBagPool;
 import com.liferay.portal.test.rule.PACLTestRule;
-import com.liferay.portlet.PortletBagImpl;
+import com.liferay.portlet.internal.PortletBagImpl;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -57,22 +57,14 @@ public class PortletBagPoolTest {
 	public void test4() throws Exception {
 		PortletBagPool.put(
 			"1_WAR_pacl_testportlet",
-			new PortletBagImpl(
-				null, null, null, null, null, null, null, null, null, null,
-				null, null, null, null, null, null, null, null, null, null,
-				null, null, null, null, null, null, null, null, null, null));
+			new PortletBagImpl(null, null, null, null, null, null));
 	}
 
 	@Test
 	public void test5() throws Exception {
 		try {
 			PortletBagPool.put(
-				"fail",
-				new PortletBagImpl(
-					null, null, null, null, null, null, null, null, null, null,
-					null, null, null, null, null, null, null, null, null, null,
-					null, null, null, null, null, null, null, null, null,
-					null));
+				"fail", new PortletBagImpl(null, null, null, null, null, null));
 
 			Assert.fail();
 		}
@@ -84,10 +76,7 @@ public class PortletBagPoolTest {
 	public void test6() throws Exception {
 		PortletBagPool.put(
 			"pacl-test-portlet",
-			new PortletBagImpl(
-				null, null, null, null, null, null, null, null, null, null,
-				null, null, null, null, null, null, null, null, null, null,
-				null, null, null, null, null, null, null, null, null, null));
+			new PortletBagImpl(null, null, null, null, null, null));
 	}
 
 	@Test

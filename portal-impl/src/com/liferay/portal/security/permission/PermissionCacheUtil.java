@@ -15,6 +15,7 @@
 package com.liferay.portal.security.permission;
 
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.cache.MultiVMPoolUtil;
 import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.cache.PortalCacheHelperUtil;
@@ -31,7 +32,6 @@ import com.liferay.portal.kernel.security.permission.UserBag;
 import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
 import com.liferay.portal.kernel.util.MethodKey;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.util.PropsValues;
 
 import java.io.Serializable;
@@ -55,7 +55,7 @@ public class PermissionCacheUtil {
 		PermissionCacheUtil.class.getName() + "_PERMISSION_CHECKER_BAG";
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	public static final String RESOURCE_BLOCK_IDS_BAG_CACHE_NAME =
@@ -110,7 +110,7 @@ public class PermissionCacheUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	public static void clearResourceBlockCache(
@@ -163,7 +163,7 @@ public class PermissionCacheUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	public static ResourceBlockIdsBag getResourceBlockIdsBag(
@@ -286,7 +286,7 @@ public class PermissionCacheUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	public static void removeResourceBlockIdsBag(

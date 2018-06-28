@@ -22,10 +22,11 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
  * @author Peter Fellwock
  */
 @ExtendedObjectClassDefinition(
-	category = "other", scope = ExtendedObjectClassDefinition.Scope.COMPANY
+	category = "community-tools",
+	scope = ExtendedObjectClassDefinition.Scope.COMPANY
 )
 @Meta.OCD(
-	id = "com.liferay.chat.configuration.ChatConfiguration",
+	id = "com.liferay.chat.internal.configuration.ChatGroupServiceConfiguration",
 	localization = "content/Language", name = "chat-service-configuration-name"
 )
 public interface ChatGroupServiceConfiguration {

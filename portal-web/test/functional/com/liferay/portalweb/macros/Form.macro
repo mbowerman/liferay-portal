@@ -1,8 +1,18 @@
 <definition>
-	<var name="columnSize" value="12" />
 	<var name="formDescription" value="Created Form Description" />
 	<var name="formName" value="Created Form Name" />
 	<var name="rowNumber" value="1" />
+
+	<command name="_addField">
+		<if>
+			<condition function="IsElementNotPresent" locator1="Form#SIDEBAR_ELEMENTS_TAB" />
+			<then>
+				<execute function="MouseOver#mouseOverNotVisible" locator1="Form#ADD_FIELD" />
+
+				<execute function="Click" locator1="Form#ADD_FIELD" />
+			</then>
+		</if>
+	</command>
 
 	<command name="addColumn">
 		<var name="key_columnLineNumber" value="${columnLineNumber}" />
@@ -40,7 +50,7 @@
 
 		<execute function="Pause" locator1="1000" />
 
-		<execute function="AssertNotVisible" locator1="Form#SIDEBAR_CLOSE" />
+		<execute function="AssertElementNotPresent" locator1="Form#SIDEBAR_CLOSE" />
 	</command>
 
 	<command name="configureEmailNotifications">
@@ -103,6 +113,12 @@
 		<execute function="AssertElementNotPresent" locator1="FormPortlet#FORM_PAGE" />
 	</command>
 
+	<command name="disableAutocompleteConfiguration">
+		<execute macro="FormFields#disableSwitcher">
+			<var name="fieldName" value="autocomplete" />
+		</execute>
+	</command>
+
 	<command name="duplicate">
 		<execute macro="LexiconEntry#gotoEntryMenuItem">
 			<var name="menuItem" value="Duplicate" />
@@ -158,8 +174,6 @@
 	</command>
 
 	<command name="editName">
-		<var name="key_columnSize" value="${columnSize}" />
-
 		<execute function="AssertVisible" locator1="Form#ADD_FIELD" />
 		<execute function="AssertVisible" locator1="Form#NAME_FIELD" />
 		<execute function="AssertVisible" locator1="Form#DESCRIPTION_FIELD" />
@@ -173,8 +187,6 @@
 	</command>
 
 	<command name="editNameLocalized">
-		<var name="key_columnSize" value="${columnSize}" />
-
 		<execute function="AssertVisible" locator1="Form#ADD_FIELD" />
 		<execute function="AssertVisible" locator1="Form#NAME_FIELD" />
 		<execute function="AssertVisible" locator1="Form#DESCRIPTION_FIELD" />
@@ -200,54 +212,54 @@
 		<execute function="Type" locator1="Form#SUCCESS_PAGE_DESCRIPTION_FIELD" value1="${successPageDescription}" />
 	</command>
 
+	<command name="enableAutocompleteConfiguration">
+		<execute macro="FormFields#enableSwitcher">
+			<var name="fieldName" value="autocomplete" />
+		</execute>
+	</command>
+
 	<command name="getPublishedFormPublicURL" returns="publicURL">
 		<var method="selenium#getElementValue(Form#PUBLISH_FORM_PUBLIC_URL)" name="publicURL" />
 
 		<return name="publicURL" value="${publicURL}" />
 	</command>
 
+	<command name="gotoAddElementSet">
+		<execute macro="Form#_addField" />
+
+		<execute macro="Form#gotoElementSetsTab" />
+
+		<var name="key_fieldType" value="${elementSetTitle}" />
+
+		<execute function="DragAndDrop" locator1="Form#ADD_FIELD_TYPE" locator2="Form#ADD_FIELD_POSITION" value1="${elementSetTitle}" />
+	</command>
+
 	<command name="gotoAddField">
-		<toggle name="LPS-75358">
-			<on>
-				<var name="key_columnSize" value="${columnSize}" />
+		<execute macro="Form#_addField" />
 
-				<execute function="MouseOver#mouseOverNotVisible" locator1="Form#ADD_FIELD" />
+		<execute macro="Form#gotoElementsTab" />
 
-				<execute function="Click" locator1="Form#ADD_FIELD" />
+		<var name="key_fieldType" value="${fieldType}" />
 
-				<var name="key_fieldType" value="${fieldType}" />
+		<execute function="DragAndDrop" locator1="Form#ADD_FIELD_TYPE" locator2="Form#ADD_FIELD_POSITION" value1="${fieldType}" />
 
-				<execute function="DragAndDrop" locator1="Form#ADD_FIELD_TYPE" locator2="Form#ADD_FIELD_POSITION" value1="${fieldType}" />
-
-				<execute function="AssertElementPresent" locator1="Form#SIDEBAR_BASIC_TAB" />
-			</on>
-
-			<off>
-				<var name="key_columnSize" value="${columnSize}" />
-
-				<execute function="MouseOver#mouseOverNotVisible" locator1="Form#ADD_FIELD" />
-
-				<execute function="Click" locator1="Form#ADD_FIELD" />
-
-				<var name="key_fieldType" value="${fieldType}" />
-
-				<execute function="AssertClick" locator1="Form#ADD_FIELD_TYPE" value1="${fieldType}" />
-
-				<execute function="AssertElementPresent" locator1="Form#SIDEBAR_BASIC_TAB" />
-			</off>
-		</toggle>
+		<execute function="AssertElementPresent" locator1="Form#SIDEBAR_BASIC_TAB" />
 	</command>
 
 	<command name="gotoAdvancedTab">
 		<execute function="AssertClick" locator1="Form#SIDEBAR_PROPERTIES_TAB" value1="Properties" />
 	</command>
 
-	<command name="gotoAutocompleteConfiguration">
-		<execute function="Click" locator1="FormFields#AUTOCOMPLETE_PANEL" />
-	</command>
-
 	<command name="gotoBasicTab">
 		<execute function="AssertClick" locator1="Form#SIDEBAR_BASIC_TAB" value1="Basic" />
+	</command>
+
+	<command name="gotoElementSetsTab">
+		<execute function="AssertClick" locator1="Form#SIDEBAR_ELEMENT_SETS_TAB" value1="Element Sets" />
+	</command>
+
+	<command name="gotoElementsTab">
+		<execute function="AssertClick" locator1="Form#SIDEBAR_ELEMENTS_TAB" value1="Elements" />
 	</command>
 
 	<command name="gotoFormPage">
@@ -286,7 +298,7 @@
 			<var name="fieldValue" value="${fieldValue}" />
 		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="Button#SUBMIT" value1="Submit" />
+		<execute function="AssertElementNotPresent" locator1="Button#SUBMIT" />
 	</command>
 
 	<command name="publishForm">
@@ -313,6 +325,12 @@
 		<execute macro="Alert#viewSuccessMessage" />
 	</command>
 
+	<command name="saveElementSet">
+		<execute macro="Button#clickSave" />
+
+		<execute macro="Alert#viewSuccessMessage" />
+	</command>
+
 	<command name="saveLocalized">
 		<var name="key_saveButton" value="${saveButton}" />
 
@@ -333,7 +351,7 @@
 			<var name="fieldValue" value="${fieldValue}" />
 		</execute>
 
-		<execute function="AssertClick" locator1="Button#SUBMIT" value1="Submit" />
+		<execute function="AssertClick" locator1="Button#MAIN_CONTENT_SUBMIT" value1="Submit" />
 
 		<execute macro="Alert#viewSuccessMessage" />
 	</command>
@@ -351,7 +369,7 @@
 
 		<var name="key_uniqueSuccess" value="The form was unpublished successfully!" />
 
-		<execute function="AssertElementPresent" locator1="Message#UNIQUE_SUCCESS" value1="The form was unpublished successfully!" />
+		<execute function="AssertElementPresent" locator1="Message#UNIQUE_SUCCESS" />
 	</command>
 
 	<command name="viewAltPagePagination">
@@ -402,6 +420,6 @@
 	</command>
 
 	<command name="viewSaveNotification">
-		<execute function="AssertTextEquals#assertPartialText" locator1="Form#SAVE_NOTIFICATION" value1="Draft saved on" />
+		<execute function="AssertTextEquals#assertPartialText" locator1="Form#SAVE_NOTIFICATION" value1="Draft" />
 	</command>
 </definition>

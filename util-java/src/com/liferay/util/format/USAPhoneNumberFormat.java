@@ -14,18 +14,18 @@
 
 package com.liferay.util.format;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.format.PhoneNumberFormat;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 /**
  * @author     Brian Wing Shun Chan
  * @author     Manuel de la Peña
- * @deprecated As of 6.2.0, replaced by {@link
+ * @deprecated As of Newton, replaced by {@link
  *             com.liferay.portal.format.USAPhoneNumberFormatImpl}
  */
 @Deprecated

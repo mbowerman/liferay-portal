@@ -29,6 +29,7 @@ import com.liferay.document.library.kernel.store.DLStoreUtil;
 import com.liferay.document.library.kernel.util.DLValidatorUtil;
 import com.liferay.document.library.kernel.util.comparator.FolderIdComparator;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -60,7 +61,7 @@ import com.liferay.portal.kernel.tree.TreePathUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFolder;
@@ -150,7 +151,8 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #deleteAllByGroup(long)}
+	 * @deprecated As of Wilberforce, replaced by {@link
+	 *             #deleteAllByGroup(long)}
 	 */
 	@Deprecated
 	@Override
@@ -378,8 +380,8 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #getGroupFolderIds(long,
-	 *             long)}
+	 * @deprecated As of Wilberforce, replaced by {@link
+	 *             #getGroupFolderIds(long, long)}
 	 */
 	@Deprecated
 	@Override
@@ -591,8 +593,8 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #getGroupSubfolderIds(List,
-	 *             long, long)}
+	 * @deprecated As of Wilberforce, replaced by {@link
+	 *             #getGroupSubfolderIds(List, long, long)}
 	 */
 	@Deprecated
 	@Override
@@ -771,8 +773,8 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #updateFolder(long, long,
-	 *             String, String, long, List, int, ServiceContext)}
+	 * @deprecated As of Wilberforce, replaced by {@link #updateFolder(long,
+	 *             long, String, String, long, List, int, ServiceContext)}
 	 */
 	@Deprecated
 	@Override
@@ -914,7 +916,7 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced {@link #updateFolder(long, long,
+	 * @deprecated As of Wilberforce, replaced {@link #updateFolder(long, long,
 	 *             String, String, long, List, int, ServiceContext)}
 	 */
 	@Deprecated
@@ -961,7 +963,7 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #
+	 * @deprecated As of Wilberforce, replaced by {@link #
 	 *             updateFolderAndFileEntryTypes(long, long, long, String,
 	 *             String, long, List, int, ServiceContext)}
 	 */
@@ -1043,8 +1045,8 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 			dlFolder.setName(name);
 			dlFolder.setDescription(description);
 			dlFolder.setExpandoBridgeAttributes(serviceContext);
-			dlFolder.setRestrictionType(restrictionType);
 			dlFolder.setDefaultFileEntryTypeId(defaultFileEntryTypeId);
+			dlFolder.setRestrictionType(restrictionType);
 
 			dlFolderPersistence.update(dlFolder);
 
@@ -1415,14 +1417,16 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 			groupId, parentFolderId, name);
 
 		if (dlFileEntry != null) {
-			throw new DuplicateFileEntryException(name);
+			throw new DuplicateFileEntryException(
+				"A file entry already exists with title " + name);
 		}
 
 		DLFolder dlFolder = dlFolderPersistence.fetchByG_P_N(
 			groupId, parentFolderId, name);
 
 		if ((dlFolder != null) && (dlFolder.getFolderId() != folderId)) {
-			throw new DuplicateFolderNameException(name);
+			throw new DuplicateFolderNameException(
+				"A folder already exists with name " + name);
 		}
 	}
 
@@ -1439,7 +1443,10 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		throws PortalException {
 
 		if (folderName.contains(StringPool.SLASH)) {
-			throw new FolderNameException(folderName);
+			throw new FolderNameException(
+				StringBundler.concat(
+					"Folder name ", folderName,
+					" is invalid because it contains a ", StringPool.SLASH));
 		}
 	}
 

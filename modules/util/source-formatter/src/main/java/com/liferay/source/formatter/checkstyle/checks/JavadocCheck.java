@@ -14,7 +14,7 @@
 
 package com.liferay.source.formatter.checkstyle.checks;
 
-import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
@@ -45,7 +45,7 @@ public class JavadocCheck extends BaseCheck {
 		TextBlock javadoc = fileContents.getJavadocBefore(
 			detailAST.getLineNo());
 
-		if (javadoc == null) {
+		if ((javadoc == null) || _containsCopyright(javadoc)) {
 			return;
 		}
 
@@ -56,9 +56,16 @@ public class JavadocCheck extends BaseCheck {
 		if (javadoc != null) {
 			DetailAST nameAST = detailAST.findFirstToken(TokenTypes.IDENT);
 
-			log(
-				detailAST.getLineNo(), _MSG_MULTIPLE_JAVADOC,
-				nameAST.getText());
+			Object[] arguments = null;
+
+			if (nameAST == null) {
+				arguments = new Object[] {_getClassName()};
+			}
+			else {
+				arguments = new Object[] {nameAST.getText()};
+			}
+
+			log(detailAST.getLineNo(), _MSG_MULTIPLE_JAVADOC, arguments);
 		}
 	}
 
@@ -85,6 +92,33 @@ public class JavadocCheck extends BaseCheck {
 
 			log(javadoc.getStartLineNo() + lineNumber - 1, message);
 		}
+	}
+
+	private boolean _containsCopyright(TextBlock javadoc) {
+		int startLineNo = javadoc.getStartLineNo();
+
+		if ((startLineNo == 1) || (startLineNo == 2)) {
+			String[] text = javadoc.getText();
+
+			for (String line : text) {
+				if (line.contains("Copyright (c) 2000-present Liferay, Inc.")) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private String _getClassName() {
+		FileContents fileContents = getFileContents();
+
+		String fileName = StringUtil.replace(
+			fileContents.getFileName(), '\\', '/');
+
+		int pos = fileName.lastIndexOf('/');
+
+		return fileName.substring(pos + 1, fileName.length() - 5);
 	}
 
 	private static final String _MSG_EMPTY_LINE = "javadoc.empty.line";

@@ -14,6 +14,7 @@
 
 package com.liferay.lang.builder;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.OutputStreamWriter;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedWriter;
@@ -25,7 +26,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.NaturalOrderStringComparator;
 import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.tools.ArgumentsUtil;
@@ -40,7 +40,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -80,10 +79,9 @@ public class LangBuilder {
 			LangBuilderArgs.LANG_DIR_NAME);
 		String langFileName = GetterUtil.getString(
 			arguments.get("lang.file"), LangBuilderArgs.LANG_FILE_NAME);
-		boolean plugin = GetterUtil.getBoolean(
-			arguments.get("lang.plugin"), LangBuilderArgs.PLUGIN);
-		String portalLanguagePropertiesFileName = arguments.get(
-			"lang.portal.language.properties.file");
+		boolean titleCapitalization = GetterUtil.getBoolean(
+			arguments.get("lang.title.capitalization"),
+			LangBuilderArgs.TITLE_CAPITALIZATION);
 		boolean translate = GetterUtil.getBoolean(
 			arguments.get("lang.translate"), LangBuilderArgs.TRANSLATE);
 		String translateSubscriptionKey = arguments.get(
@@ -100,18 +98,16 @@ public class LangBuilder {
 				arguments, "git.working.branch.name", "master");
 
 			_processCurrentBranch(
-				excludedLanguageIds, langFileName, plugin,
-				portalLanguagePropertiesFileName, translate,
-				translateSubscriptionKey, gitWorkingBranchName);
+				excludedLanguageIds, langFileName, titleCapitalization,
+				translate, translateSubscriptionKey, gitWorkingBranchName);
 
 			return;
 		}
 
 		try {
 			new LangBuilder(
-				excludedLanguageIds, langDirName, langFileName, plugin,
-				portalLanguagePropertiesFileName, translate,
-				translateSubscriptionKey);
+				excludedLanguageIds, langDirName, langFileName,
+				titleCapitalization, translate, translateSubscriptionKey);
 		}
 		catch (Exception e) {
 			ArgumentsUtil.processMainException(arguments, e);
@@ -120,51 +116,19 @@ public class LangBuilder {
 
 	public LangBuilder(
 			String[] excludedLanguageIds, String langDirName,
-			String langFileName, boolean plugin,
-			String portalLanguagePropertiesFileName, boolean translate,
+			String langFileName, boolean titleCapitalization, boolean translate,
 			String translateSubscriptionKey)
 		throws Exception {
 
 		_excludedLanguageIds = excludedLanguageIds;
 		_langDirName = langDirName;
 		_langFileName = langFileName;
+		_titleCapitalization = titleCapitalization;
 		_translate = translate;
 
 		Translate.setSubscriptionKey(translateSubscriptionKey);
 
 		_initKeysWithUpdatedValues();
-
-		if (plugin) {
-			Class<?> clazz = getClass();
-
-			ClassLoader classLoader = clazz.getClassLoader();
-
-			InputStream inputStream = classLoader.getResourceAsStream(
-				"content/Language.properties");
-
-			if ((inputStream == null) &&
-				Validator.isNotNull(portalLanguagePropertiesFileName)) {
-
-				inputStream = new FileInputStream(
-					portalLanguagePropertiesFileName);
-			}
-
-			if (inputStream != null) {
-				try {
-					_portalLanguageProperties = PropertiesUtil.load(
-						inputStream, StringPool.UTF8);
-				}
-				finally {
-					inputStream.close();
-				}
-			}
-			else {
-				_portalLanguageProperties = null;
-			}
-		}
-		else {
-			_portalLanguageProperties = null;
-		}
 
 		File renameKeysFile = new File(_langDirName + "/rename.properties");
 
@@ -263,8 +227,8 @@ public class LangBuilder {
 	}
 
 	private static void _processCurrentBranch(
-			String[] excludedLanguageIds, String langFileName, boolean plugin,
-			String portalLanguagePropertiesFileName, boolean translate,
+			String[] excludedLanguageIds, String langFileName,
+			boolean titleCapitalization, boolean translate,
 			String translateSubscriptionKey, String gitWorkingBranchName)
 		throws Exception {
 
@@ -285,14 +249,17 @@ public class LangBuilder {
 				String langDirName = basedir + fileName.substring(0, pos + 7);
 
 				new LangBuilder(
-					excludedLanguageIds, langDirName, langFileName, plugin,
-					portalLanguagePropertiesFileName, translate,
-					translateSubscriptionKey);
+					excludedLanguageIds, langDirName, langFileName,
+					titleCapitalization, translate, translateSubscriptionKey);
 			}
 		}
 		catch (GitException ge) {
 			System.out.println(ge.getMessage());
 		}
+	}
+
+	private static boolean _startsWithIgnoreCase(String string, String prefix) {
+		return string.regionMatches(true, 0, prefix, 0, prefix.length());
 	}
 
 	private void _copyProperties(File file, String languageId)
@@ -492,15 +459,15 @@ public class LangBuilder {
 					}
 				}
 				else {
-					if (line.startsWith("## Language settings")) {
+					if (_startsWithIgnoreCase(line, "## Language settings")) {
 						if (state == 1) {
 							throw new RuntimeException(languageId);
 						}
 
 						state = 1;
 					}
-					else if (line.startsWith(
-								"## Portlet descriptions and titles")) {
+					else if (_startsWithIgnoreCase(
+								line, "## Portlet descriptions and titles")) {
 
 						if (state == 2) {
 							throw new RuntimeException(languageId);
@@ -508,49 +475,53 @@ public class LangBuilder {
 
 						state = 2;
 					}
-					else if (line.startsWith("## Category titles")) {
+					else if (_startsWithIgnoreCase(
+								line, "## Category titles")) {
+
 						if (state == 3) {
 							throw new RuntimeException(languageId);
 						}
 
 						state = 3;
 					}
-					else if (line.startsWith("## Model resources")) {
+					else if (_startsWithIgnoreCase(
+								line, "## Model resources")) {
+
 						if (state == 4) {
 							throw new RuntimeException(languageId);
 						}
 
 						state = 4;
 					}
-					else if (line.startsWith("## Action names")) {
+					else if (_startsWithIgnoreCase(line, "## Action names")) {
 						if (state == 5) {
 							throw new RuntimeException(languageId);
 						}
 
 						state = 5;
 					}
-					else if (line.startsWith("## Messages")) {
+					else if (_startsWithIgnoreCase(line, "## Messages")) {
 						if (state == 6) {
 							throw new RuntimeException(languageId);
 						}
 
 						state = 6;
 					}
-					else if (line.startsWith("## Country")) {
+					else if (_startsWithIgnoreCase(line, "## Country")) {
 						if (state == 7) {
 							throw new RuntimeException(languageId);
 						}
 
 						state = 7;
 					}
-					else if (line.startsWith("## Currency")) {
+					else if (_startsWithIgnoreCase(line, "## Currency")) {
 						if (state == 8) {
 							throw new RuntimeException(languageId);
 						}
 
 						state = 8;
 					}
-					else if (line.startsWith("## Language")) {
+					else if (_startsWithIgnoreCase(line, "## Language")) {
 						if (state == 9) {
 							throw new RuntimeException(languageId);
 						}
@@ -699,15 +670,8 @@ public class LangBuilder {
 					if (Validator.isNotNull(value)) {
 						value = _fixTranslation(line.substring(pos + 1));
 
-						value = _fixEnglishTranslation(key, value);
-
-						if (_portalLanguageProperties != null) {
-							String portalValue = String.valueOf(
-								_portalLanguageProperties.get(key));
-
-							if (value.equals(portalValue)) {
-								System.out.println("Duplicate key " + key);
-							}
+						if (_titleCapitalization) {
+							value = _fixEnglishTranslation(key, value);
 						}
 
 						messages.put(key, value);
@@ -721,6 +685,9 @@ public class LangBuilder {
 
 					if (line.equals(StringPool.BLANK)) {
 						begin = !begin;
+					}
+					else if (line.startsWith("##")) {
+						begin = false;
 					}
 
 					if (firstLine) {
@@ -844,8 +811,8 @@ public class LangBuilder {
 	private final Set<String> _keysWithUpdatedValues = new HashSet<>();
 	private final String _langDirName;
 	private final String _langFileName;
-	private final Properties _portalLanguageProperties;
 	private final Properties _renameKeys;
+	private final boolean _titleCapitalization;
 	private final boolean _translate;
 
 }

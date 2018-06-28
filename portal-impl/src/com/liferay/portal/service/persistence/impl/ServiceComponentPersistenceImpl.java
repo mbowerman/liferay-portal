@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.model.ServiceComponent;
 import com.liferay.portal.kernel.service.persistence.ServiceComponentPersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.model.impl.ServiceComponentImpl;
@@ -40,6 +41,7 @@ import com.liferay.portal.model.impl.ServiceComponentModelImpl;
 import java.io.Serializable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -791,14 +793,6 @@ public class ServiceComponentPersistenceImpl extends BasePersistenceImpl<Service
 					result = serviceComponent;
 
 					cacheResult(serviceComponent);
-
-					if ((serviceComponent.getBuildNamespace() == null) ||
-							!serviceComponent.getBuildNamespace()
-												 .equals(buildNamespace) ||
-							(serviceComponent.getBuildNumber() != buildNumber)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_BNS_BNU,
-							finderArgs, serviceComponent);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -1131,8 +1125,6 @@ public class ServiceComponentPersistenceImpl extends BasePersistenceImpl<Service
 
 	@Override
 	protected ServiceComponent removeImpl(ServiceComponent serviceComponent) {
-		serviceComponent = toUnwrappedModel(serviceComponent);
-
 		Session session = null;
 
 		try {
@@ -1163,9 +1155,23 @@ public class ServiceComponentPersistenceImpl extends BasePersistenceImpl<Service
 
 	@Override
 	public ServiceComponent updateImpl(ServiceComponent serviceComponent) {
-		serviceComponent = toUnwrappedModel(serviceComponent);
-
 		boolean isNew = serviceComponent.isNew();
+
+		if (!(serviceComponent instanceof ServiceComponentModelImpl)) {
+			InvocationHandler invocationHandler = null;
+
+			if (ProxyUtil.isProxyClass(serviceComponent.getClass())) {
+				invocationHandler = ProxyUtil.getInvocationHandler(serviceComponent);
+
+				throw new IllegalArgumentException(
+					"Implement ModelWrapper in serviceComponent proxy " +
+					invocationHandler.getClass());
+			}
+
+			throw new IllegalArgumentException(
+				"Implement ModelWrapper in custom ServiceComponent implementation " +
+				serviceComponent.getClass());
+		}
 
 		ServiceComponentModelImpl serviceComponentModelImpl = (ServiceComponentModelImpl)serviceComponent;
 
@@ -1243,27 +1249,6 @@ public class ServiceComponentPersistenceImpl extends BasePersistenceImpl<Service
 		serviceComponent.resetOriginalValues();
 
 		return serviceComponent;
-	}
-
-	protected ServiceComponent toUnwrappedModel(
-		ServiceComponent serviceComponent) {
-		if (serviceComponent instanceof ServiceComponentImpl) {
-			return serviceComponent;
-		}
-
-		ServiceComponentImpl serviceComponentImpl = new ServiceComponentImpl();
-
-		serviceComponentImpl.setNew(serviceComponent.isNew());
-		serviceComponentImpl.setPrimaryKey(serviceComponent.getPrimaryKey());
-
-		serviceComponentImpl.setMvccVersion(serviceComponent.getMvccVersion());
-		serviceComponentImpl.setServiceComponentId(serviceComponent.getServiceComponentId());
-		serviceComponentImpl.setBuildNamespace(serviceComponent.getBuildNamespace());
-		serviceComponentImpl.setBuildNumber(serviceComponent.getBuildNumber());
-		serviceComponentImpl.setBuildDate(serviceComponent.getBuildDate());
-		serviceComponentImpl.setData(serviceComponent.getData());
-
-		return serviceComponentImpl;
 	}
 
 	/**

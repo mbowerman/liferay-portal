@@ -14,25 +14,24 @@
 
 package com.liferay.portal.upgrade.v7_0_0;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.util.PropsValues;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Amadea Fejes
@@ -47,6 +46,7 @@ public class UpgradeMySQL extends UpgradeProcess {
 			(db.getDBType() == DBType.MYSQL)) {
 
 			upgradeDatetimePrecision();
+			upgradeTableEngine();
 		}
 	}
 
@@ -84,7 +84,7 @@ public class UpgradeMySQL extends UpgradeProcess {
 			while (rs.next()) {
 				String tableName = rs.getString("TABLE_NAME");
 
-				if (!_tableNames.contains(StringUtil.toLowerCase(tableName))) {
+				if (!isPortal62TableName(tableName)) {
 					continue;
 				}
 
@@ -103,6 +103,8 @@ public class UpgradeMySQL extends UpgradeProcess {
 		try (ResultSet rs = databaseMetaData.getColumns(
 				catalog, schemaPattern, tableName, null)) {
 
+			String modifyClause = StringPool.BLANK;
+
 			while (rs.next()) {
 				if (Types.TIMESTAMP != rs.getInt("DATA_TYPE")) {
 					continue;
@@ -117,78 +119,72 @@ public class UpgradeMySQL extends UpgradeProcess {
 					continue;
 				}
 
-				StringBundler sb = new StringBundler(5);
+				if (!modifyClause.equals(StringPool.BLANK)) {
+					modifyClause += StringPool.COMMA;
+				}
 
-				sb.append("ALTER TABLE ");
-				sb.append(tableName);
-				sb.append(" MODIFY ");
-				sb.append(columnName);
-				sb.append(" datetime(6)");
+				modifyClause +=
+					StringBundler.concat(
+						" MODIFY ", columnName, " datetime(6)");
+			}
 
-				String sql = sb.toString();
+			if (modifyClause.equals(StringPool.BLANK)) {
+				return;
+			}
+
+			if (_log.isInfoEnabled()) {
+				_log.info(
+					StringBundler.concat(
+						"Updating columns for table ", tableName,
+						" to datetime(6)"));
+			}
+
+			statement.executeUpdate(
+				StringBundler.concat("ALTER TABLE ", tableName, modifyClause));
+		}
+	}
+
+	protected void upgradeTableEngine() throws Exception {
+		try (LoggingTimer loggingTimer = new LoggingTimer();
+			Statement statement = connection.createStatement();
+			ResultSet rs = statement.executeQuery("show table status")) {
+
+			while (rs.next()) {
+				String tableName = rs.getString("Name");
+
+				if (!isPortal62TableName(tableName)) {
+					continue;
+				}
+
+				String comment = GetterUtil.getString(rs.getString("Comment"));
+
+				if (StringUtil.equalsIgnoreCase(comment, "VIEW")) {
+					continue;
+				}
+
+				String engine = GetterUtil.getString(rs.getString("Engine"));
+
+				if (StringUtil.equalsIgnoreCase(
+						engine, PropsValues.DATABASE_MYSQL_ENGINE)) {
+
+					continue;
+				}
 
 				if (_log.isInfoEnabled()) {
 					_log.info(
 						StringBundler.concat(
-							"Updating table ", tableName, " column ",
-							columnName, " to datetime(6)"));
+							"Updating table ", tableName, " to use engine ",
+							PropsValues.DATABASE_MYSQL_ENGINE));
 				}
 
-				statement.executeUpdate(sql);
+				statement.executeUpdate(
+					StringBundler.concat(
+						"alter table ", tableName, " engine ",
+						PropsValues.DATABASE_MYSQL_ENGINE));
 			}
 		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(UpgradeMySQL.class);
-
-	private static final Set<String> _tableNames = new HashSet<>(
-		Arrays.asList(
-			"account_", "address", "announcementsdelivery",
-			"announcementsentry", "announcementsflag", "assetcategory",
-			"assetcategoryproperty", "assetentries_assetcategories",
-			"assetentries_assettags", "assetentry", "assetlink", "assettag",
-			"assettagstats", "assetvocabulary", "backgroundtask", "blogsentry",
-			"blogsstatsuser", "bookmarksentry", "bookmarksfolder",
-			"browsertracker", "classname_", "clustergroup", "company",
-			"contact_", "counter", "country", "ddlrecord", "ddlrecordset",
-			"ddlrecordversion", "ddmcontent", "ddmstoragelink", "ddmstructure",
-			"ddmstructurelink", "ddmtemplate", "dlcontent", "dlfileentry",
-			"dlfileentrymetadata", "dlfileentrytype",
-			"dlfileentrytypes_dlfolders", "dlfilerank", "dlfileshortcut",
-			"dlfileversion", "dlfolder", "dlsyncevent", "emailaddress",
-			"expandocolumn", "expandorow", "expandotable", "expandovalue",
-			"exportimportconfiguration", "group_", "groups_orgs",
-			"groups_roles", "groups_usergroups", "image", "journalarticle",
-			"journalarticleimage", "journalarticleresource",
-			"journalcontentsearch", "journalfeed", "journalfolder", "layout",
-			"layoutbranch", "layoutfriendlyurl", "layoutprototype",
-			"layoutrevision", "layoutset", "layoutsetbranch",
-			"layoutsetprototype", "listtype", "lock_", "mbban", "mbcategory",
-			"mbdiscussion", "mbmailinglist", "mbmessage", "mbstatsuser",
-			"mbthread", "mbthreadflag", "mdraction", "mdrrule", "mdrrulegroup",
-			"mdrrulegroupinstance", "membershiprequest", "organization_",
-			"orggrouprole", "orglabor", "passwordpolicy", "passwordpolicyrel",
-			"passwordtracker", "phone", "pluginsetting", "pollschoice",
-			"pollsquestion", "pollsvote", "portalpreferences", "portlet",
-			"portletitem", "portletpreferences", "ratingsentry", "ratingsstats",
-			"recentlayoutbranch", "recentlayoutrevision",
-			"recentlayoutsetbranch", "region", "release_", "repository",
-			"repositoryentry", "resourceaction", "resourceblock",
-			"resourceblockpermission", "resourcepermission",
-			"resourcetypepermission", "role_", "servicecomponent",
-			"shoppingcart", "shoppingcategory", "shoppingcoupon",
-			"shoppingitem", "shoppingitemfield", "shoppingitemprice",
-			"shoppingorder", "shoppingorderitem", "socialactivity",
-			"socialactivityachievement", "socialactivitycounter",
-			"socialactivitylimit", "socialactivityset", "socialactivitysetting",
-			"socialrelation", "socialrequest", "subscription", "systemevent",
-			"team", "ticket", "trashentry", "trashversion",
-			"usernotificationdelivery", "user_", "usergroup",
-			"usergroupgrouprole", "usergrouprole", "usergroups_teams",
-			"useridmapper", "usernotificationevent", "users_groups",
-			"users_orgs", "users_roles", "users_teams", "users_usergroups",
-			"usertracker", "usertrackerpath", "virtualhost", "webdavprops",
-			"website", "wikinode", "wikipage", "wikipageresource",
-			"workflowdefinitionlink", "workflowinstancelink"));
 
 }

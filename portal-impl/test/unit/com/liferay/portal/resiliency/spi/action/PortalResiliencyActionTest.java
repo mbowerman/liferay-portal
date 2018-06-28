@@ -33,7 +33,7 @@ import com.liferay.portal.resiliency.spi.agent.SPIAgentResponse;
 import com.liferay.portal.test.rule.AdviseWith;
 import com.liferay.portal.test.rule.AspectJNewEnvTestRule;
 import com.liferay.portal.util.PropsImpl;
-import com.liferay.portlet.EventImpl;
+import com.liferay.portlet.internal.EventImpl;
 import com.liferay.registry.BasicRegistryImpl;
 import com.liferay.registry.RegistryUtil;
 
@@ -274,7 +274,7 @@ public class PortalResiliencyActionTest {
 		Assert.assertSame(_portlet, _mockPortletContainer.portlet);
 	}
 
-	@AdviseWith(adviceClasses = {LifecycleAdvice.class})
+	@AdviseWith(adviceClasses = LifecycleAdvice.class)
 	@NewEnv(type = NewEnv.Type.CLASSLOADER)
 	@Test
 	public void testUnknownPhase() throws Exception {

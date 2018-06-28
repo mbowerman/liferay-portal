@@ -15,7 +15,7 @@
 </tr>
 <tr>
 	<td>ACTIVE_NAV_ITEM_LINK</td>
-	<td>//div[contains(@class,'navbar')]//li[contains(@class,'active')]//a[normalize-space()='${key_navItem}'] | //div[contains(@class,'navbar')]//a[normalize-space()='${key_navItem}'][@aria-label='Current Page']</td>
+	<td>//div[contains(@class,'navbar')]//li[contains(@class,'active')]//a[normalize-space()='${key_navItem}'] | //div[contains(@class,'navbar')]//a[normalize-space()='${key_navItem}'] | //ul[contains(@class,'nav-stacked')]//a[contains(@class,'active') and normalize-space()='${key_navItem}']</td>
 	<td></td>
 </tr>
 <tr>
@@ -45,7 +45,12 @@
 </tr>
 <tr>
 	<td>ASSET_TITLE</td>
-	<td>//a[@title='${key_assetTitle}']</td>
+	<td>//a[contains(@class,'nav-link')]//span[contains(text(),'${key_assetTitle}')] | //a[@title='${key_assetTitle}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ASSET_TITLE_LINK</td>
+	<td>//a[contains(@class,'nav-link')]//span[contains(text(),'${key_assetTitle}')]/../../a</td>
 	<td></td>
 </tr>
 <tr>
@@ -60,17 +65,17 @@
 </tr>
 <tr>
 	<td>BASIC_SEARCH_FIELD</td>
-	<td>//div[contains(@class,'navbar-default')]//input[contains(@id,'keywords')]</td>
+	<td>//div[contains(@class,'basic-search')]//input[contains(@id,'keywords')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>BASIC_SEARCH_BUTTON</td>
-	<td>//div[contains(@class,'navbar-default')]//button[contains(.,'Search')]</td>
+	<td>//div[contains(@class,'basic-search')]//button</td>
 	<td></td>
 </tr>
 <tr>
 	<td>BASIC_SEARCH_ADVANCED</td>
-	<td>//div[contains(@class,'navbar-default')]//button[contains(@id,'Advanced')]</td>
+	<td>//div[contains(@class,'basic-search')]//button[contains(@id,'Advanced')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -80,7 +85,7 @@
 </tr>
 <tr>
 	<td>CONTAINER</td>
-	<td>//div[@class='navbar ' or contains(@class,'navbar-default')]//div[contains(@class,'container')]</td>
+	<td>//div[@class='navbar ' or contains(@class,'navbar-default')]//div[contains(@class,'container')] | //div[contains(@class,'navbar-collapse')]/div[contains(@class,'container')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -120,7 +125,7 @@
 </tr>
 <tr>
 	<td>HOME</td>
-	<td>//div[contains(@class,'navbar-default')]//a/span[contains(.,'Home')]</td>
+	<td>//ul[contains(@class,'breadcrumb')]/li//a[contains(.,'Home')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -155,7 +160,7 @@
 </tr>
 <tr>
 	<td>NAV_ITEM_LINK</td>
-	<td>//div[contains(@class,'navbar')]//a[normalize-space()='${key_navItem}']</td>
+	<td>//div[contains(@class,'navbar')]//a[normalize-space()='${key_navItem}'] | //ul[contains(@class,'nav-stacked')]//a[normalize-space()='${key_navItem}']</td>
 	<td></td>
 </tr>
 <tr>
@@ -216,6 +221,11 @@
 <tr>
 	<td>STRUCTURES</td>
 	<td>//*[@data-qa-id='navigation']//a[contains(.,'Structures')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TEMPLATES</td>
+	<td>//ul[contains(@class,'navbar-nav')]/li/a[contains(.,'Templates')]</td>
 	<td></td>
 </tr>
 <tr>

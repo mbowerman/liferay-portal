@@ -46,6 +46,7 @@ import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
@@ -55,6 +56,7 @@ import com.liferay.portal.spring.extender.service.ServiceReference;
 import java.io.Serializable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 
 import java.util.Collections;
 import java.util.Date;
@@ -782,13 +784,6 @@ public class KBTemplatePersistenceImpl extends BasePersistenceImpl<KBTemplate>
 					result = kbTemplate;
 
 					cacheResult(kbTemplate);
-
-					if ((kbTemplate.getUuid() == null) ||
-							!kbTemplate.getUuid().equals(uuid) ||
-							(kbTemplate.getGroupId() != groupId)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_UUID_G,
-							finderArgs, kbTemplate);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -2561,8 +2556,6 @@ public class KBTemplatePersistenceImpl extends BasePersistenceImpl<KBTemplate>
 
 	@Override
 	protected KBTemplate removeImpl(KBTemplate kbTemplate) {
-		kbTemplate = toUnwrappedModel(kbTemplate);
-
 		Session session = null;
 
 		try {
@@ -2593,9 +2586,23 @@ public class KBTemplatePersistenceImpl extends BasePersistenceImpl<KBTemplate>
 
 	@Override
 	public KBTemplate updateImpl(KBTemplate kbTemplate) {
-		kbTemplate = toUnwrappedModel(kbTemplate);
-
 		boolean isNew = kbTemplate.isNew();
+
+		if (!(kbTemplate instanceof KBTemplateModelImpl)) {
+			InvocationHandler invocationHandler = null;
+
+			if (ProxyUtil.isProxyClass(kbTemplate.getClass())) {
+				invocationHandler = ProxyUtil.getInvocationHandler(kbTemplate);
+
+				throw new IllegalArgumentException(
+					"Implement ModelWrapper in kbTemplate proxy " +
+					invocationHandler.getClass());
+			}
+
+			throw new IllegalArgumentException(
+				"Implement ModelWrapper in custom KBTemplate implementation " +
+				kbTemplate.getClass());
+		}
 
 		KBTemplateModelImpl kbTemplateModelImpl = (KBTemplateModelImpl)kbTemplate;
 
@@ -2771,31 +2778,6 @@ public class KBTemplatePersistenceImpl extends BasePersistenceImpl<KBTemplate>
 		kbTemplate.resetOriginalValues();
 
 		return kbTemplate;
-	}
-
-	protected KBTemplate toUnwrappedModel(KBTemplate kbTemplate) {
-		if (kbTemplate instanceof KBTemplateImpl) {
-			return kbTemplate;
-		}
-
-		KBTemplateImpl kbTemplateImpl = new KBTemplateImpl();
-
-		kbTemplateImpl.setNew(kbTemplate.isNew());
-		kbTemplateImpl.setPrimaryKey(kbTemplate.getPrimaryKey());
-
-		kbTemplateImpl.setUuid(kbTemplate.getUuid());
-		kbTemplateImpl.setKbTemplateId(kbTemplate.getKbTemplateId());
-		kbTemplateImpl.setGroupId(kbTemplate.getGroupId());
-		kbTemplateImpl.setCompanyId(kbTemplate.getCompanyId());
-		kbTemplateImpl.setUserId(kbTemplate.getUserId());
-		kbTemplateImpl.setUserName(kbTemplate.getUserName());
-		kbTemplateImpl.setCreateDate(kbTemplate.getCreateDate());
-		kbTemplateImpl.setModifiedDate(kbTemplate.getModifiedDate());
-		kbTemplateImpl.setTitle(kbTemplate.getTitle());
-		kbTemplateImpl.setContent(kbTemplate.getContent());
-		kbTemplateImpl.setLastPublishDate(kbTemplate.getLastPublishDate());
-
-		return kbTemplateImpl;
 	}
 
 	/**

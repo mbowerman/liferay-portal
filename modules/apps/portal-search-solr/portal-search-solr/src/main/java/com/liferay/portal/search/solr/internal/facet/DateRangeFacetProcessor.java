@@ -14,8 +14,6 @@
 
 package com.liferay.portal.search.solr.internal.facet;
 
-import com.liferay.portal.search.solr.facet.FacetProcessor;
-
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -23,9 +21,7 @@ import org.osgi.service.component.annotations.Component;
  */
 @Component(
 	immediate = true,
-	property = {
-		"class.name=com.liferay.portal.kernel.search.facet.DateRangeFacet"
-	},
+	property = "class.name=com.liferay.portal.kernel.search.facet.DateRangeFacet",
 	service = FacetProcessor.class
 )
 public class DateRangeFacetProcessor extends RangeFacetProcessor {

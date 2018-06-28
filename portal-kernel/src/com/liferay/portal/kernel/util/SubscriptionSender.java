@@ -23,6 +23,7 @@ import com.liferay.mail.kernel.template.MailTemplateContext;
 import com.liferay.mail.kernel.template.MailTemplateContextBuilder;
 import com.liferay.mail.kernel.template.MailTemplateFactoryUtil;
 import com.liferay.petra.lang.ClassLoaderPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -254,7 +255,7 @@ public class SubscriptionSender implements Serializable {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #getCurrentUserId()}
+	 * @deprecated As of Wilberforce, replaced by {@link #getCurrentUserId()}
 	 */
 	@Deprecated
 	public long getUserId() {
@@ -495,7 +496,8 @@ public class SubscriptionSender implements Serializable {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #setCurrentUserId(long)}
+	 * @deprecated As of Wilberforce, replaced by {@link
+	 *             #setCurrentUserId(long)}
 	 */
 	@Deprecated
 	public void setUserId(long userId) {
@@ -688,7 +690,7 @@ public class SubscriptionSender implements Serializable {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Wilberforce, replaced by {@link
 	 *             #notifyPersistedSubscriber(Subscription)}
 	 */
 	@Deprecated
@@ -743,7 +745,7 @@ public class SubscriptionSender implements Serializable {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	protected String replaceContent(String content, Locale locale)
@@ -753,7 +755,7 @@ public class SubscriptionSender implements Serializable {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	protected String replaceContent(

@@ -37,7 +37,7 @@ import java.util.concurrent.Future;
 
 /**
  * @author     Brian Wing Shun Chan
- * @deprecated As of 7.0.0, replaced by {@link
+ * @deprecated As of Judson, replaced by {@link
  *             com.liferay.portal.kernel.upgrade.BaseUpgradeCompanyId}
  */
 @Deprecated
@@ -98,8 +98,7 @@ public abstract class UpgradeCompanyId extends UpgradeProcess {
 		@Override
 		public final Void call() throws Exception {
 			try (LoggingTimer loggingTimer = new LoggingTimer(_tableName);
-				Connection connection =
-					DataAccess.getUpgradeOptimizedConnection()) {
+				Connection connection = DataAccess.getConnection()) {
 
 				if (_createCompanyIdColumn) {
 					if (_log.isInfoEnabled()) {

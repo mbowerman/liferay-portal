@@ -17,6 +17,7 @@ package com.liferay.social.kernel.model;
 import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
 import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -40,7 +41,6 @@ import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.social.kernel.service.SocialActivityLocalServiceUtil;
@@ -132,8 +132,8 @@ public abstract class BaseSocialActivityInterpreter
 		String viewEntryURL = getViewEntryURL(
 			className, classPK, serviceContext);
 
-		if (Validator.isNotNull(viewEntryURL)) {
-			return viewEntryURL;
+		if (Validator.isNull(viewEntryURL)) {
+			return url;
 		}
 
 		return HttpUtil.setParameter(url, "noSuchEntryRedirect", viewEntryURL);
@@ -152,7 +152,7 @@ public abstract class BaseSocialActivityInterpreter
 	}
 
 	/**
-	 * @deprecated As of 6.2.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	protected String cleanContent(String content) {
@@ -197,7 +197,7 @@ public abstract class BaseSocialActivityInterpreter
 	}
 
 	/**
-	 * @deprecated As of 6.2.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	protected SocialActivityFeedEntry doInterpret(
@@ -282,7 +282,7 @@ public abstract class BaseSocialActivityInterpreter
 	}
 
 	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getGroupName(long,
+	 * @deprecated As of Wilberforce, replaced by {@link #getGroupName(long,
 	 *             ServiceContext)}
 	 */
 	@Deprecated
@@ -490,7 +490,7 @@ public abstract class BaseSocialActivityInterpreter
 	}
 
 	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getUserName(long,
+	 * @deprecated As of Wilberforce, replaced by {@link #getUserName(long,
 	 *             ServiceContext)}
 	 */
 	@Deprecated
@@ -528,8 +528,8 @@ public abstract class BaseSocialActivityInterpreter
 	}
 
 	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getJSONValue(String, String,
-	 *             String)}
+	 * @deprecated As of Wilberforce, replaced by {@link #getJSONValue(String,
+	 *             String, String)}
 	 */
 	@Deprecated
 	protected String getValue(String json, String key, String defaultValue) {

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.layoutconfiguration.util.velocity;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
@@ -32,7 +33,6 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ClassUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.layoutconfiguration.util.PortletRenderer;
@@ -174,6 +174,9 @@ public class TemplateProcessor implements ColumnProcessor {
 	public String processMax() throws Exception {
 		BufferCacheServletResponse bufferCacheServletResponse =
 			new BufferCacheServletResponse(_response);
+
+		PortletContainerUtil.renderHeaders(
+			_request, bufferCacheServletResponse, _portlet);
 
 		PortletContainerUtil.render(
 			_request, bufferCacheServletResponse, _portlet);

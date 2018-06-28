@@ -45,7 +45,17 @@ public class CentralSubrepository {
 
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("/opt/dev/projects/github/");
+		Properties buildProperties = null;
+
+		try {
+			buildProperties = JenkinsResultsParserUtil.getBuildProperties();
+		}
+		catch (IOException ioe) {
+			throw new RuntimeException("Unable to get build properties", ioe);
+		}
+
+		sb.append(buildProperties.getProperty("base.repository.dir"));
+		sb.append("/");
 		sb.append(_subrepositoryName);
 
 		if (!_subrepositoryName.endsWith("-private")) {
@@ -76,12 +86,12 @@ public class CentralSubrepository {
 				gitWorkingDirectory.getRemote("upstream");
 
 			localUpstreamBranch = gitWorkingDirectory.getBranch(
-				_subrepositoryUpstreamBranchName, null);
+				_subrepositoryUpstreamBranchName, null, true);
 
 			gitWorkingDirectory.fetch(
 				localUpstreamBranch,
 				gitWorkingDirectory.getBranch(
-					_subrepositoryUpstreamBranchName, upstreamRemote));
+					_subrepositoryUpstreamBranchName, upstreamRemote, true));
 		}
 		finally {
 			if ((localUpstreamBranch != null) && (tempBranch != null) &&
@@ -121,7 +131,7 @@ public class CentralSubrepository {
 		return _subrepositoryUpstreamCommit;
 	}
 
-	public boolean isAutoPullEnabled() throws IOException {
+	public boolean isAutoPullEnabled() {
 		String mode = _gitrepoProperties.getProperty("mode", "push");
 
 		if (!mode.equals("pull")) {
@@ -156,10 +166,11 @@ public class CentralSubrepository {
 	private String _getMergePullRequestURL() throws IOException {
 		String subrepositoryUpstreamCommit = getSubrepositoryUpstreamCommit();
 
-		String url = JenkinsResultsParserUtil.combine(
-			"https://api.github.com/repos/", _subrepositoryUsername, "/",
-			_subrepositoryName, "/commits/", subrepositoryUpstreamCommit,
-			"/statuses");
+		String path = JenkinsResultsParserUtil.combine(
+			"commits/", subrepositoryUpstreamCommit, "/statuses");
+
+		String url = JenkinsResultsParserUtil.getGitHubApiUrl(
+			_subrepositoryName, _subrepositoryUsername, path);
 
 		for (int i = 0; i < 15; i++) {
 			JSONArray statusesJSONArray = new JSONArray(
@@ -218,10 +229,11 @@ public class CentralSubrepository {
 	}
 
 	private String _getSubrepositoryUpstreamCommit() throws IOException {
-		String url = JenkinsResultsParserUtil.combine(
-			"https://api.github.com/repos/", _subrepositoryUsername, "/",
-			_subrepositoryName, "/git/refs/heads/",
-			_subrepositoryUpstreamBranchName);
+		String path = JenkinsResultsParserUtil.combine(
+			"git/refs/heads/", _subrepositoryUpstreamBranchName);
+
+		String url = JenkinsResultsParserUtil.getGitHubApiUrl(
+			_subrepositoryName, _subrepositoryUsername, path);
 
 		JSONObject branchJSONObject = JenkinsResultsParserUtil.toJSONObject(
 			url, false);

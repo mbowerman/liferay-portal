@@ -116,6 +116,21 @@ if (layout != null) {
 		}
 	}
 
+	Iterator<Portlet> portletsIterator = portlets.iterator();
+
+	LayoutTypeAccessPolicy layoutTypeAccessPolicy = LayoutTypeAccessPolicyTracker.getLayoutTypeAccessPolicy(layout);
+
+	while (portletsIterator.hasNext()) {
+		Portlet portlet = portletsIterator.next();
+
+		try {
+			layoutTypeAccessPolicy.checkAccessAllowedToPortlet(request, layout, portlet);
+		}
+		catch (PrincipalException pe) {
+			portletsIterator.remove();
+		}
+	}
+
 	request.setAttribute(WebKeys.LAYOUT_PORTLETS, portlets);
 }
 %>
@@ -148,7 +163,7 @@ if (markupHeaders != null) {
 	}
 }
 
-StringBundler pageTopSB = OutputTag.getData(request, WebKeys.PAGE_TOP);
+com.liferay.petra.string.StringBundler pageTopSB = OutputTag.getDataSB(request, WebKeys.PAGE_TOP);
 %>
 
 <c:if test="<%= pageTopSB != null %>">
@@ -158,6 +173,16 @@ StringBundler pageTopSB = OutputTag.getData(request, WebKeys.PAGE_TOP);
 	%>
 
 </c:if>
+
+<script type="text/javascript">
+	var portlet = portlet || {};
+
+	portlet.impl = portlet.impl || {};
+
+	portlet.impl.getInitData = function() {
+		return <%= RenderStateUtil.generateJSON(request, themeDisplay) %>;
+	}
+</script>
 
 <%-- Theme CSS --%>
 

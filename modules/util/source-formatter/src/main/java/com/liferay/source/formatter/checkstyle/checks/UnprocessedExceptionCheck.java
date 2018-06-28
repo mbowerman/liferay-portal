@@ -15,8 +15,8 @@
 package com.liferay.source.formatter.checkstyle.checks;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.source.formatter.checks.util.JavaSourceUtil;
 import com.liferay.source.formatter.checkstyle.util.DetailASTUtil;
@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -90,7 +91,9 @@ public class UnprocessedExceptionCheck extends BaseCheck {
 
 		String exceptionClassName = _getExceptionClassName(parameterDefAST);
 
-		if (exceptionClassName == null) {
+		if ((exceptionClassName == null) ||
+			exceptionClassName.equals("JSONException")) {
+
 			return;
 		}
 
@@ -187,6 +190,12 @@ public class UnprocessedExceptionCheck extends BaseCheck {
 
 		DetailAST parameterDefAST = parentAST.findFirstToken(
 			TokenTypes.PARAMETER_DEF);
+
+		String exceptionClassName = _getExceptionClassName(parameterDefAST);
+
+		if (Objects.equals(exceptionClassName, "JSONException")) {
+			return;
+		}
 
 		String exceptionVariableName = _getName(parameterDefAST);
 

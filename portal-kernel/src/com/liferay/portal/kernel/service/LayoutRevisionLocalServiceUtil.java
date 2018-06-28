@@ -55,12 +55,10 @@ public class LayoutRevisionLocalServiceUtil {
 	public static com.liferay.portal.kernel.model.LayoutRevision addLayoutRevision(
 		long userId, long layoutSetBranchId, long layoutBranchId,
 		long parentLayoutRevisionId, boolean head, long plid,
-		long portletPreferencesPlid, boolean privateLayout,
-		java.lang.String name, java.lang.String title,
-		java.lang.String description, java.lang.String keywords,
-		java.lang.String robots, java.lang.String typeSettings,
-		boolean iconImage, long iconImageId, java.lang.String themeId,
-		java.lang.String colorSchemeId, java.lang.String css,
+		long portletPreferencesPlid, boolean privateLayout, String name,
+		String title, String description, String keywords, String robots,
+		String typeSettings, boolean iconImage, long iconImageId,
+		String themeId, String colorSchemeId, String css,
 		ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
@@ -234,7 +232,7 @@ public class LayoutRevisionLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated As of 7.0.0, with no direct replacement
+	* @deprecated As of Judson, with no direct replacement
 	*/
 	@Deprecated
 	public static com.liferay.portal.kernel.model.LayoutRevision fetchLayoutRevision(
@@ -294,7 +292,7 @@ public class LayoutRevisionLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated As of 7.0.0, with no direct replacement
+	* @deprecated As of Judson, with no direct replacement
 	*/
 	@Deprecated
 	public static com.liferay.portal.kernel.model.LayoutRevision getLayoutRevision(
@@ -334,6 +332,11 @@ public class LayoutRevisionLocalServiceUtil {
 	public static java.util.List<com.liferay.portal.kernel.model.LayoutRevision> getLayoutRevisions(
 		long layoutSetBranchId, boolean head) {
 		return getService().getLayoutRevisions(layoutSetBranchId, head);
+	}
+
+	public static java.util.List<com.liferay.portal.kernel.model.LayoutRevision> getLayoutRevisions(
+		long layoutSetBranchId, boolean head, int status) {
+		return getService().getLayoutRevisions(layoutSetBranchId, head, status);
 	}
 
 	public static java.util.List<com.liferay.portal.kernel.model.LayoutRevision> getLayoutRevisions(
@@ -394,7 +397,7 @@ public class LayoutRevisionLocalServiceUtil {
 	*
 	* @return the OSGi service identifier
 	*/
-	public static java.lang.String getOSGiServiceIdentifier() {
+	public static String getOSGiServiceIdentifier() {
 		return getService().getOSGiServiceIdentifier();
 	}
 
@@ -416,12 +419,10 @@ public class LayoutRevisionLocalServiceUtil {
 	}
 
 	public static com.liferay.portal.kernel.model.LayoutRevision updateLayoutRevision(
-		long userId, long layoutRevisionId, long layoutBranchId,
-		java.lang.String name, java.lang.String title,
-		java.lang.String description, java.lang.String keywords,
-		java.lang.String robots, java.lang.String typeSettings,
-		boolean iconImage, long iconImageId, java.lang.String themeId,
-		java.lang.String colorSchemeId, java.lang.String css,
+		long userId, long layoutRevisionId, long layoutBranchId, String name,
+		String title, String description, String keywords, String robots,
+		String typeSettings, boolean iconImage, long iconImageId,
+		String themeId, String colorSchemeId, String css,
 		ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()

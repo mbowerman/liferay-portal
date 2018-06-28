@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.theme;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutType;
@@ -24,7 +25,6 @@ import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PredicateFilter;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -64,7 +64,7 @@ public class NavItem implements Serializable {
 	 * @return     a single level of navigation items from the layouts, or
 	 *             <code>null</code> if the collection of layouts was
 	 *             <code>null</code>.
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Judson, replaced by {@link
 	 *             #fromLayouts(HttpServletRequest, ThemeDisplay, Map)}
 	 */
 	@Deprecated
@@ -381,7 +381,7 @@ public class NavItem implements Serializable {
 		StringBundler sb = new StringBundler(5);
 
 		sb.append(_themeDisplay.getPathImage());
-		sb.append("/layout_icon?img_id");
+		sb.append("/layout_icon?img_id=");
 		sb.append(_layout.getIconImageId());
 		sb.append("&t=");
 		sb.append(WebServerServletTokenUtil.getToken(_layout.getIconImageId()));
@@ -441,9 +441,10 @@ public class NavItem implements Serializable {
 		_request = request;
 		_themeDisplay = themeDisplay;
 		_layout = layout;
+		_contextObjects = contextObjects;
+
 		_children = _fromLayouts(
 			request, themeDisplay, childLayouts, contextObjects);
-		_contextObjects = contextObjects;
 	}
 
 	private List<NavItem> _browsableChildren;

@@ -307,6 +307,7 @@
 			<var name="roleTitle" value="${roleTitle}" />
 			<var name="roleType" value="${roleType}" />
 			<var name="roleUser" value="${roleUser}" />
+			<var name="siteNameScope" value="${siteNameScope}" />
 		</execute>
 
 		<execute macro="Role#viewPermissionCP">
@@ -589,9 +590,9 @@
 					</then>
 				</elseif>
 				<elseif>
-					<contains string="${permissionDefinitionKey}" substring="SITE_ADMIN_CONTENT_CATEGORIES" />
+					<contains string="${permissionDefinitionKey}" substring="SITE_ADMIN_CATEGORIES" />
 					<then>
-						<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_CATEGORIES" />
+						<var name="permissionNavigationKey" value="SITE_ADMIN_CATEGORIES" />
 						<var name="permissionNavigationValue" value="Categories" />
 					</then>
 				</elseif>
@@ -648,7 +649,7 @@
 					<contains string="${permissionDefinitionKey}" substring="SITE_ADMIN_PAGES_SITE_PAGES" />
 					<then>
 						<var name="permissionNavigationKey" value="SITE_ADMIN_PAGES_SITE_PAGES" />
-						<var name="permissionNavigationValue" value="Site Pages" />
+						<var name="permissionNavigationValue" value="Pages" />
 					</then>
 				</elseif>
 				<elseif>
@@ -1352,7 +1353,7 @@
 				<contains string="${permissionDefinitionKey}" substring="SITE_ADMIN_PAGES_SITE_PAGES" />
 				<then>
 					<var name="permissionNavigationKey" value="SITE_ADMIN_PAGES_SITE_PAGES" />
-					<var name="permissionNavigationValue" value="Site Pages" />
+					<var name="permissionNavigationValue" value="Pages" />
 				</then>
 			</elseif>
 			<elseif>
@@ -1390,8 +1391,8 @@
 		<if>
 			<equals arg1="${remove}" arg2="true" />
 			<then>
-				<execute function="AssertElementNotPresent" locator1="RolesPermissionsSummary#PERMISSION_TABLE_PERMISSIONS" value1="${permissionNavigationValue}" />
-				<execute function="AssertElementNotPresent" locator1="RolesPermissionsSummary#PERMISSION_TABLE_REMOVE" value1="Remove" />
+				<execute function="AssertElementNotPresent" locator1="RolesPermissionsSummary#PERMISSION_TABLE_PERMISSIONS" />
+				<execute function="AssertElementNotPresent" locator1="RolesPermissionsSummary#PERMISSION_TABLE_REMOVE" />
 			</then>
 			<else>
 				<while>

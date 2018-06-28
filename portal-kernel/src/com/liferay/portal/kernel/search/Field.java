@@ -16,12 +16,12 @@ package com.liferay.portal.kernel.search;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.search.geolocation.GeoLocationPoint;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.Serializable;
 
@@ -87,6 +87,8 @@ public class Field implements Serializable {
 
 	public static final String DESCRIPTION = "description";
 
+	public static final String DISPLAY_DATE = "displayDate";
+
 	public static final String ENTRY_CLASS_NAME = "entryClassName";
 
 	public static final String ENTRY_CLASS_PK = "entryClassPK";
@@ -106,9 +108,8 @@ public class Field implements Serializable {
 	public static final String KEYWORD_SEARCH = "keywordSearch";
 
 	public static final String[] KEYWORDS = {
-		Field.ASSET_CATEGORY_TITLES, Field.ASSET_TAG_NAMES, Field.COMMENTS,
-		Field.CONTENT, Field.DESCRIPTION, Field.PROPERTIES, Field.TITLE,
-		Field.URL, Field.USER_NAME
+		ASSET_CATEGORY_TITLES, ASSET_TAG_NAMES, COMMENTS, CONTENT, DESCRIPTION,
+		Field.PROPERTIES, Field.TITLE, Field.URL, Field.USER_NAME
 	};
 
 	public static final String LANGUAGE_ID = "languageId";
@@ -124,7 +125,7 @@ public class Field implements Serializable {
 	public static final String ORGANIZATION_ID = "organizationId";
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #ENTRY_CLASS_NAME}
+	 * @deprecated As of Wilberforce, replaced by {@link #ENTRY_CLASS_NAME}
 	 */
 	@Deprecated
 	public static final String PORTLET_ID = "portletId";
@@ -136,7 +137,7 @@ public class Field implements Serializable {
 	public static final String PUBLISH_DATE = "publishDate";
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	public static final String RATINGS = "ratings";
@@ -176,9 +177,9 @@ public class Field implements Serializable {
 	public static final String UID = "uid";
 
 	public static final String[] UNSCORED_FIELD_NAMES = {
-		Field.ASSET_CATEGORY_IDS, Field.COMPANY_ID, Field.ENTRY_CLASS_NAME,
-		Field.ENTRY_CLASS_PK, Field.FOLDER_ID, Field.GROUP_ID,
-		Field.GROUP_ROLE_ID, Field.ROLE_ID, Field.SCOPE_GROUP_ID, Field.USER_ID
+		ASSET_CATEGORY_IDS, COMPANY_ID, ENTRY_CLASS_NAME, ENTRY_CLASS_PK,
+		FOLDER_ID, GROUP_ID, GROUP_ROLE_ID, ROLE_ID, SCOPE_GROUP_ID,
+		Field.USER_ID
 	};
 
 	public static final String URL = "url";
@@ -194,7 +195,7 @@ public class Field implements Serializable {
 	public static final String VIEW_ACTION_ID = "viewActionId";
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	public static final String VIEW_COUNT = "viewCount";
@@ -215,6 +216,26 @@ public class Field implements Serializable {
 
 	public static String getSortableFieldName(String name) {
 		return name.concat(StringPool.UNDERLINE).concat(SORTABLE_FIELD_SUFFIX);
+	}
+
+	public static String getSortFieldName(Sort sort, String scoreFieldName) {
+		if (sort.getType() == Sort.SCORE_TYPE) {
+			return scoreFieldName;
+		}
+
+		String fieldName = sort.getFieldName();
+
+		if (isSortableFieldName(fieldName)) {
+			return fieldName;
+		}
+
+		if ((sort.getType() == Sort.STRING_TYPE) &&
+			!DocumentImpl.isSortableTextField(fieldName)) {
+
+			return scoreFieldName;
+		}
+
+		return getSortableFieldName(fieldName);
 	}
 
 	public static String getUID(String portletId, String field1) {
@@ -252,6 +273,10 @@ public class Field implements Serializable {
 		}
 
 		return uid;
+	}
+
+	public static boolean isSortableFieldName(String name) {
+		return name.endsWith(_SORTABLE_FIELD_SUFFIX);
 	}
 
 	public static boolean validateFieldName(String name) {
@@ -296,7 +321,7 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link Query#getBoost}
+	 * @deprecated As of Wilberforce, replaced by {@link Query#getBoost}
 	 */
 	@Deprecated
 	public float getBoost() {
@@ -391,7 +416,7 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link Query#setBoost(float)}
+	 * @deprecated As of Wilberforce, replaced by {@link Query#setBoost(float)}
 	 */
 	@Deprecated
 	public void setBoost(float boost) {
@@ -562,6 +587,8 @@ public class Field implements Serializable {
 					name));
 		}
 	}
+
+	private static final String _SORTABLE_FIELD_SUFFIX = "sortable";
 
 	private static final String _UID_FIELD = "_FIELD_";
 

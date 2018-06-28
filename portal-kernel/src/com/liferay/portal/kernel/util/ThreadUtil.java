@@ -17,6 +17,7 @@ package com.liferay.portal.kernel.util;
 import com.liferay.petra.concurrent.NoticeableFuture;
 import com.liferay.petra.process.CollectorOutputProcessor;
 import com.liferay.petra.process.ProcessUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 
@@ -140,9 +141,9 @@ public class ThreadUtil {
 			sb.append(thread.getState());
 			sb.append("\n");
 
-			for (int i = 0; i < elements.length; i++) {
+			for (StackTraceElement element : elements) {
 				sb.append("\t");
-				sb.append(elements[i]);
+				sb.append(element);
 				sb.append("\n");
 			}
 

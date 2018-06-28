@@ -19,6 +19,7 @@ import com.beust.jcommander.ParameterException;
 
 import com.liferay.project.templates.internal.Archetyper;
 import com.liferay.project.templates.internal.util.FileUtil;
+import com.liferay.project.templates.internal.util.ProjectTemplatesUtil;
 import com.liferay.project.templates.internal.util.StringUtil;
 import com.liferay.project.templates.internal.util.Validator;
 
@@ -31,7 +32,9 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -53,81 +56,84 @@ public class ProjectTemplates {
 		"com.liferay.project.templates.";
 
 	public static Map<String, String> getTemplates() throws Exception {
+		return getTemplates(new HashSet<>());
+	}
+
+	public static Map<String, String> getTemplates(
+			Collection<File> templatesFiles)
+		throws Exception {
+
 		Map<String, String> templates = new TreeMap<>();
 
-		File file = FileUtil.getJarFile(ProjectTemplates.class);
+		File projectTemplatesFile = FileUtil.getJarFile(ProjectTemplates.class);
 
-		if (file.isDirectory()) {
-			try (DirectoryStream<Path> directoryStream =
-					Files.newDirectoryStream(
-						file.toPath(), TEMPLATE_BUNDLE_PREFIX + "*")) {
+		if (!templatesFiles.contains(projectTemplatesFile)) {
+			templatesFiles.add(projectTemplatesFile);
+		}
 
-				Iterator<Path> iterator = directoryStream.iterator();
+		for (File templatesFile : templatesFiles) {
+			if (templatesFile.isDirectory()) {
+				try (DirectoryStream<Path> directoryStream =
+						Files.newDirectoryStream(
+							templatesFile.toPath(), "*.project.templates.*")) {
 
-				while (iterator.hasNext()) {
-					Path path = iterator.next();
+					Iterator<Path> iterator = directoryStream.iterator();
 
-					String template = String.valueOf(path.getFileName());
+					while (iterator.hasNext()) {
+						Path path = iterator.next();
 
-					template = template.substring(
-						TEMPLATE_BUNDLE_PREFIX.length(),
-						template.lastIndexOf('-'));
+						String fileName = String.valueOf(path.getFileName());
 
-					template = template.replace('.', '-');
+						String template = ProjectTemplatesUtil.getTemplateName(
+							fileName);
 
-					if (!template.startsWith(WorkspaceUtil.WORKSPACE)) {
-						try (JarFile jarFile = new JarFile(path.toFile())) {
-							Manifest manifest = jarFile.getManifest();
-
-							Attributes attributes =
-								manifest.getMainAttributes();
-
-							String bundleDescription = attributes.getValue(
-								"Bundle-Description");
+						if (!template.startsWith(WorkspaceUtil.WORKSPACE)) {
+							String bundleDescription =
+								FileUtil.getManifestProperty(
+									path.toFile(), "Bundle-Description");
 
 							templates.put(template, bundleDescription);
 						}
 					}
 				}
 			}
-		}
-		else {
-			try (JarFile jarFile = new JarFile(file)) {
-				Enumeration<JarEntry> enumeration = jarFile.entries();
+			else {
+				try (JarFile jarFile = new JarFile(templatesFile)) {
+					Enumeration<JarEntry> enumeration = jarFile.entries();
 
-				while (enumeration.hasMoreElements()) {
-					JarEntry jarEntry = enumeration.nextElement();
+					while (enumeration.hasMoreElements()) {
+						JarEntry jarEntry = enumeration.nextElement();
 
-					if (jarEntry.isDirectory()) {
-						continue;
-					}
+						if (jarEntry.isDirectory()) {
+							continue;
+						}
 
-					String template = jarEntry.getName();
+						String template = jarEntry.getName();
 
-					if (!template.startsWith(TEMPLATE_BUNDLE_PREFIX)) {
-						continue;
-					}
+						if (!template.startsWith(TEMPLATE_BUNDLE_PREFIX)) {
+							continue;
+						}
 
-					template = template.substring(
-						TEMPLATE_BUNDLE_PREFIX.length(), template.indexOf("-"));
+						template = ProjectTemplatesUtil.getTemplateName(
+							template);
 
-					template = template.replace('.', '-');
+						if (!template.startsWith(WorkspaceUtil.WORKSPACE)) {
+							try (InputStream inputStream =
+									jarFile.getInputStream(jarEntry);
+								JarInputStream jarInputStream =
+									new JarInputStream(inputStream)) {
 
-					if (!template.startsWith(WorkspaceUtil.WORKSPACE)) {
-						try (InputStream inputStream = jarFile.getInputStream(
-								jarEntry);
-							JarInputStream jarInputStream = new JarInputStream(
-								inputStream)) {
+								Manifest manifest =
+									jarInputStream.getManifest();
 
-							Manifest manifest = jarInputStream.getManifest();
+								Attributes attributes =
+									manifest.getMainAttributes();
 
-							Attributes attributes =
-								manifest.getMainAttributes();
+								String bundleDescription = attributes.getValue(
+									"Bundle-Description");
 
-							String bundleDescription = attributes.getValue(
-								"Bundle-Description");
-
-							templates.put(template, bundleDescription);
+								templates.put(template, bundleDescription);
+							}
 						}
 					}
 				}
@@ -155,10 +161,10 @@ public class ProjectTemplates {
 			jCommander.parse(args);
 
 			if (projectTemplatesArgs.isHelp()) {
-				_printHelp(jCommander);
+				_printHelp(jCommander, projectTemplatesArgs);
 			}
 			else if (projectTemplatesArgs.isList()) {
-				_printList();
+				_printList(projectTemplatesArgs);
 			}
 			else {
 				new ProjectTemplates(projectTemplatesArgs);
@@ -167,7 +173,7 @@ public class ProjectTemplates {
 		catch (ParameterException pe) {
 			System.err.println(pe.getMessage());
 
-			_printHelp(jCommander);
+			_printHelp(jCommander, projectTemplatesArgs);
 		}
 	}
 
@@ -227,14 +233,18 @@ public class ProjectTemplates {
 		}
 	}
 
-	private static void _printHelp(JCommander jCommander) throws Exception {
+	private static void _printHelp(
+			JCommander jCommander, ProjectTemplatesArgs projectTemplatesArgs)
+		throws Exception {
+
 		System.out.println();
 
 		System.out.println(
 			"Create a new Liferay module project from several available " +
 				"templates:");
 
-		Map<String, String> templates = getTemplates();
+		Map<String, String> templates = getTemplates(
+			projectTemplatesArgs.getArchetypesDirs());
 
 		int lineLength = 0;
 
@@ -270,8 +280,11 @@ public class ProjectTemplates {
 		jCommander.usage();
 	}
 
-	private static void _printList() throws Exception {
-		Map<String, String> templates = getTemplates();
+	private static void _printList(ProjectTemplatesArgs projectTemplatesArgs)
+		throws Exception {
+
+		Map<String, String> templates = getTemplates(
+			projectTemplatesArgs.getArchetypesDirs());
 
 		for (Map.Entry<String, String> entry : templates.entrySet()) {
 			System.out.println(entry.getKey() + " - " + entry.getValue());

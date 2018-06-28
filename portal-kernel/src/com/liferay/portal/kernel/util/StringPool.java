@@ -17,8 +17,11 @@ package com.liferay.portal.kernel.util;
 import java.nio.charset.Charset;
 
 /**
- * @author Brian Wing Shun Chan
+ * @author     Brian Wing Shun Chan
+ * @deprecated As of Judson, replaced by {@link
+ *             com.liferay.petra.string.StringPool}
  */
+@Deprecated
 public class StringPool {
 
 	public static final String AMPERSAND = "&";

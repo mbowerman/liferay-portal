@@ -102,7 +102,7 @@ public interface DestinationNames {
 	public static final String POLLER_RESPONSE = "liferay/poller_response";
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Judson, replaced by {@link
 	 *             com.liferay.push.notifications.messaging.DestinationNames#PUSH_NOTIFICATION}
 	 */
 	@Deprecated
@@ -143,7 +143,5 @@ public interface DestinationNames {
 	public static final String WORKFLOW_LOG = "liferay/workflow_log";
 
 	public static final String WORKFLOW_TASK = "liferay/workflow_task";
-
-	public static final String WSRP = "liferay/wsrp";
 
 }

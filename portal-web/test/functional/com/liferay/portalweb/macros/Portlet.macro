@@ -1,6 +1,16 @@
 <definition>
 	<command name="_clickAddPortlet">
-		<execute function="MouseOver" locator1="ControlMenuAddPanel#ADD_PORTLET_DRAG_LINK" />
+		<var method="TestPropsUtil#get('browser.type')" name="browserType" />
+
+		<if>
+			<equals arg1="${browserType}" arg2="safari" />
+			<then>
+				<execute function="Click" locator1="ControlMenuAddPanel#ADD_PORTLET_DRAG_LINK" />
+			</then>
+			<else>
+				<execute function="MouseOver" locator1="ControlMenuAddPanel#ADD_PORTLET_DRAG_LINK" />
+			</else>
+		</if>
 
 		<execute function="MouseOver" locator1="ControlMenuAddPanel#ADD_PORTLET_LINK" />
 
@@ -111,24 +121,12 @@
 		<if>
 			<condition function="IsNotVisible" locator1="ControlMenuAddPanel#CLOSE_ADD_PANEL" />
 			<then>
-				<var method="TestPropsUtil#get('browser.type')" name="browserType" />
-
-				<if>
-					<equals arg1="${browserType}" arg2="safari" />
-					<then>
-						<execute function="Pause" locator1="10000" />
-
-						<execute function="Click#clickAt" locator1="ControlMenu#ADD" />
-					</then>
-					<else>
-						<execute function="Click#clickAt" locator1="ControlMenu#ADD" />
-					</else>
-				</if>
+				<execute function="Click#clickAt" locator1="ControlMenu#ADD" />
 			</then>
 		</if>
 
 		<execute function="AssertElementPresent" locator1="ControlMenuAddPanel#APPLICATIONS_ACCORDION_PANEL_TITLE" />
-		<execute function="AssertVisible" locator1="ControlMenuAddPanel#APPLICATIONS_ACCORDION_PANEL_TITLE" value1="Applications" />
+		<execute function="AssertVisible" locator1="ControlMenuAddPanel#APPLICATIONS_ACCORDION_PANEL_TITLE" value1="Widgets" />
 
 		<execute function="Pause" locator1="5000" />
 
@@ -272,10 +270,10 @@
 	<command name="dragAndDropPortletToColumnPG" summary="Drag and drop the '${portletName}' portlet from column ${columnNumberFrom} to column ${columnNumberTo}">
 		<var name="key_portletTitleName" value="${portletName}" />
 
-		<execute function="AssertTextEquals" locator1="Home#PAGE_COLUMN_PORTLET_COLUMN_${columnNumberFrom}_PORTLET_TITLE" value1="${portletName}" />
+		<execute function="AssertTextEquals#assertTextCaseInsensitive" locator1="Home#PAGE_COLUMN_PORTLET_COLUMN_${columnNumberFrom}_PORTLET_TITLE" value1="${portletName}" />
 		<execute function="DragAndDrop#dragAndDropPortletToObject" locator1="Home#PAGE_COLUMN_PORTLET_COLUMN_${columnNumberFrom}_PORTLET_HEADER" locator2="Home#PAGE_COLUMN_${columnNumberTo}" value1="${portletName}" />
-		<execute function="AssertTextEquals" locator1="Home#PAGE_COLUMN_PORTLET_COLUMN_${columnNumberTo}_PORTLET_TITLE" value1="${portletName}" />
-		<execute function="AssertTextEquals" locator1="Home#PAGE_COLUMN_PORTLET_COLUMN_${columnNumberTo}_PORTLET_TITLE" value1="${portletName}" />
+		<execute function="AssertTextEquals#assertTextCaseInsensitive" locator1="Home#PAGE_COLUMN_PORTLET_COLUMN_${columnNumberTo}_PORTLET_TITLE" value1="${portletName}" />
+		<execute function="AssertTextEquals#assertTextCaseInsensitive" locator1="Home#PAGE_COLUMN_PORTLET_COLUMN_${columnNumberTo}_PORTLET_TITLE" value1="${portletName}" />
 	</command>
 
 	<command name="expandTree">
@@ -316,8 +314,16 @@
 		</if>
 	</command>
 
+	<command name="mouseOverPortletTitle">
+		<var name="key_portletTitleName" value="${portletTitleName}" />
+
+		<execute function="MouseOver" locator1="Portlet#SPECIFIC_TITLE" />
+	</command>
+
 	<command name="openAdminURL">
-		<execute function="Open" locator1="${adminURL}" />
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${adminURL}" />
+		</execute>
 	</command>
 
 	<command name="selectApplicationDecorator">
@@ -378,6 +384,12 @@
 			<then>
 				<execute function="AntCommand" locator1="build-test.xml" value1="start-app-server -Dapp.server.bundle.index=${bundleIndex} -Ddelete.liferay.home=false" />
 			</then>
+			<elseif>
+				<equals arg1="${keepCachedAppServerData}" arg2="true" />
+				<then>
+					<execute function="AntCommand" locator1="build-test.xml" value1="start-app-server -Dapp.server.bundle.index=${bundleIndex} -Dkeep.cached.app.server.data=true" />
+				</then>
+			</elseif>
 			<else>
 				<execute function="AntCommand" locator1="build-test.xml" value1="start-app-server -Dapp.server.bundle.index=${bundleIndex}" />
 			</else>
@@ -428,11 +440,11 @@
 	</command>
 
 	<command name="viewCannotPublish">
-		<execute function="AssertElementNotPresent" locator1="Button#PUBLISH" value1="Publish" />
+		<execute function="AssertElementNotPresent" locator1="Button#PUBLISH" />
 	</command>
 
 	<command name="viewCannotSaveAsDraft">
-		<execute function="AssertElementNotPresent" locator1="Button#SAVE_AS_DRAFT" value1="Save as Draft" />
+		<execute function="AssertElementNotPresent" locator1="Button#SAVE_AS_DRAFT" />
 	</command>
 
 	<command name="viewCustomStylesViaLookandfeelPG">
@@ -485,9 +497,9 @@
 	</command>
 
 	<command name="viewNoSpecificPG">
-		<var name="key_portletTitleName" value="${portletName}" />
-
-		<execute function="AssertElementNotPresent" locator1="Portlet#SPECIFIC_TITLE" value1="${portletName}" />
+		<execute function="AssertElementNotPresent" locator1="Portlet#SPECIFIC_TITLE">
+			<var name="key_portletTitleName" value="${portletName}" />
+		</execute>
 	</command>
 
 	<command name="viewPG">
@@ -547,13 +559,13 @@
 	<command name="viewSpecificPG">
 		<var name="key_portletTitleName" value="${portletName}" />
 
-		<execute function="AssertTextEquals" locator1="Portlet#SPECIFIC_TITLE" value1="${portletName}" />
+		<execute function="AssertTextEquals#assertTextCaseInsensitive" locator1="Portlet#SPECIFIC_TITLE" value1="${portletName}" />
 	</command>
 
 	<command name="viewTitle" summary="Assert that the ${portletName} portlet title has the text '${portletName}'">
 		<var name="key_portletName" value="${portletName}" />
 
-		<execute function="AssertTextEquals" locator1="Portlet#TITLE" value1="${portletName}" />
+		<execute function="AssertTextEquals#assertTextCaseInsensitive" locator1="Portlet#TITLE" value1="${portletName}" />
 	</command>
 
 	<command name="viewUndeployMessage">

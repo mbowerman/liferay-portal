@@ -14,14 +14,13 @@
 
 package com.liferay.source.formatter.checkstyle.checks;
 
-import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.source.formatter.checks.util.JavaSourceUtil;
 import com.liferay.source.formatter.checkstyle.util.DetailASTUtil;
 import com.liferay.source.formatter.parser.JavaClass;
 import com.liferay.source.formatter.parser.JavaClassParser;
 import com.liferay.source.formatter.parser.JavaTerm;
-import com.liferay.source.formatter.parser.JavaVariable;
 import com.liferay.source.formatter.util.FileUtil;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
@@ -51,9 +50,9 @@ public class PersistenceCallCheck extends BaseCheck {
 
 	@Override
 	protected void doVisitToken(DetailAST detailAST) {
-		DetailAST parent = detailAST.getParent();
+		DetailAST parentAST = detailAST.getParent();
 
-		if (parent != null) {
+		if (parentAST != null) {
 			return;
 		}
 
@@ -241,7 +240,7 @@ public class PersistenceCallCheck extends BaseCheck {
 		}
 
 		for (JavaTerm javaTerm : javaClass.getChildJavaTerms()) {
-			if (!(javaTerm instanceof JavaVariable)) {
+			if (!javaTerm.isJavaVariable()) {
 				continue;
 			}
 

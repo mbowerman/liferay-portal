@@ -15,9 +15,11 @@
 package com.liferay.portlet.asset.service.impl;
 
 import com.liferay.asset.kernel.exception.AssetTagException;
+import com.liferay.asset.kernel.exception.AssetTagNameException;
 import com.liferay.asset.kernel.exception.DuplicateTagException;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetTag;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCachable;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -42,8 +44,8 @@ import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portlet.asset.service.base.AssetTagLocalServiceBaseImpl;
 import com.liferay.portlet.asset.util.AssetUtil;
 import com.liferay.portlet.asset.util.comparator.AssetTagNameComparator;
@@ -52,6 +54,7 @@ import com.liferay.social.kernel.util.SocialCounterPeriodUtil;
 import java.io.Serializable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,10 +113,6 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		tag.setName(name);
 
 		assetTagPersistence.update(tag);
-
-		// Resources
-
-		resourceLocalService.addModelResources(tag, serviceContext);
 
 		return tag;
 	}
@@ -524,7 +523,14 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 	 */
 	@Override
 	public List<AssetTag> getTags(long classNameId, long classPK) {
-		return assetTagFinder.findByC_C(classNameId, classPK);
+		AssetEntry entry = assetEntryPersistence.fetchByC_C(
+			classNameId, classPK);
+
+		if (entry == null) {
+			return Collections.emptyList();
+		}
+
+		return assetEntryPersistence.getAssetTags(entry.getEntryId());
 	}
 
 	@Override
@@ -813,6 +819,11 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 	}
 
 	protected void validate(String name) throws PortalException {
+		if (Validator.isNull(name)) {
+			throw new AssetTagNameException(
+				"Tag name cannot be an empty string");
+		}
+
 		if (!AssetUtil.isValidWord(name)) {
 			throw new AssetTagException(
 				StringUtil.merge(

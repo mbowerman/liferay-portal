@@ -16,12 +16,12 @@ package com.liferay.adaptive.media.image.taglib.servlet.taglib;
 
 import com.liferay.adaptive.media.image.html.AMImageHTMLTagFactory;
 import com.liferay.document.library.kernel.util.DLUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.taglib.util.AttributesTagSupport;
 
@@ -31,6 +31,7 @@ import java.util.Map;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
+import javax.servlet.jsp.tagext.BodyTag;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -40,7 +41,7 @@ import org.osgi.framework.ServiceReference;
 /**
  * @author Adolfo Pérez
  */
-public class AMImageImgTag extends AttributesTagSupport {
+public class AMImageImgTag extends AttributesTagSupport implements BodyTag {
 
 	@Override
 	public int doEndTag() throws JspException {

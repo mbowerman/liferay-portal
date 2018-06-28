@@ -23,6 +23,7 @@ import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.blogs.service.BlogsEntryLocalService;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
@@ -38,7 +39,6 @@ import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
@@ -290,10 +290,7 @@ public class BlogsAMImageOptimizerTest {
 	}
 
 	private byte[] _getImageBytes() throws Exception {
-		return FileUtil.getBytes(
-			BlogsAMImageOptimizerTest.class,
-			"/com/liferay/adaptive/media/blogs/web/internal/optimizer/test" +
-				"/dependencies/image.jpg");
+		return FileUtil.getBytes(BlogsAMImageOptimizerTest.class, "image.jpg");
 	}
 
 	@Inject

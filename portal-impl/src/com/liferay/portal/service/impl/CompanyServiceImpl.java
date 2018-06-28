@@ -107,6 +107,16 @@ public class CompanyServiceImpl extends CompanyServiceBaseImpl {
 	}
 
 	/**
+	 * Returns all the companies.
+	 *
+	 * @return the companies
+	 */
+	@Override
+	public List<Company> getCompanies() {
+		return companyLocalService.getCompanies();
+	}
+
+	/**
 	 * Returns the company with the primary key.
 	 *
 	 * @param  companyId the primary key of the company
@@ -361,9 +371,9 @@ public class CompanyServiceImpl extends CompanyServiceBaseImpl {
 	 * @param      size the company's account size (optionally
 	 *             <code>null</code>)
 	 * @return     the the company with the primary key
-	 * @deprecated As of 7.0.0, replaced by {@link #updateCompany(long, String,
-	 *             String, String, boolean, byte[], String, String, String,
-	 *             String, String, String, String, String, String)}
+	 * @deprecated As of Wilberforce, replaced by {@link #updateCompany(long,
+	 *             String, String, String, boolean, byte[], String, String,
+	 *             String, String, String, String, String, String, String)}
 	 */
 	@Deprecated
 	@Override
@@ -412,10 +422,10 @@ public class CompanyServiceImpl extends CompanyServiceBaseImpl {
 	 * @param      websites the company's websites
 	 * @param      properties the company's properties
 	 * @return     the company with the primary key
-	 * @deprecated As of 7.0.0, replaced by {@link #updateCompany(long, String,
-	 *             String, String, boolean, byte[], String, String, String,
+	 * @deprecated As of Wilberforce, replaced by {@link #updateCompany(long,
+	 *             String, String, String, boolean, byte[], String, String,
 	 *             String, String, String, String, String, String, String,
-	 *             String, List, List, List, List, UnicodeProperties)}
+	 *             String, String, List, List, List, List, UnicodeProperties)}
 	 */
 	@Deprecated
 	@JSONWebService(mode = JSONWebServiceMode.IGNORE)

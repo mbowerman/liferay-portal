@@ -14,11 +14,11 @@
 
 package com.liferay.portal.comment.action;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.struts.BaseStrutsAction;
 import com.liferay.portal.kernel.struts.StrutsAction;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.servlet.NamespaceServletRequest;
 
@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author     Adolfo Pérez
- * @deprecated As of 7.0.0, replaced by {@link
+ * @deprecated As of Judson, replaced by {@link
  *             com.liferay.comment.taglib.internal.action.
  *             GetCommentsStrutsAction}
  */

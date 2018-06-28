@@ -97,19 +97,18 @@ public interface DLAppHelperLocalService extends BaseLocalService {
 	*
 	* @return the OSGi service identifier
 	*/
-	public java.lang.String getOSGiServiceIdentifier();
+	public String getOSGiServiceIdentifier();
 
 	public void moveDependentsToTrash(DLFolder dlFolder)
 		throws PortalException;
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link
+	* @deprecated As of Wilberforce, replaced by {@link
 	#moveDependentsToTrash(DLFolder)}
 	*/
-	@java.lang.Deprecated
-	public void moveDependentsToTrash(
-		List<java.lang.Object> dlFileEntriesAndDLFolders, long trashEntryId)
-		throws PortalException;
+	@Deprecated
+	public void moveDependentsToTrash(List<Object> dlFileEntriesAndDLFolders,
+		long trashEntryId) throws PortalException;
 
 	public FileEntry moveFileEntryFromTrash(long userId, FileEntry fileEntry,
 		long newFolderId, ServiceContext serviceContext)
@@ -157,21 +156,20 @@ public interface DLAppHelperLocalService extends BaseLocalService {
 		throws PortalException;
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link
+	* @deprecated As of Wilberforce, replaced by {@link
 	#restoreDependentsFromTrash(DLFolder)}
 	*/
-	@java.lang.Deprecated
+	@Deprecated
 	public void restoreDependentsFromTrash(
-		List<java.lang.Object> dlFileEntriesAndDLFolders)
-		throws PortalException;
+		List<Object> dlFileEntriesAndDLFolders) throws PortalException;
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link
+	* @deprecated As of Wilberforce, replaced by {@link
 	#restoreDependentsFromTrash(List)}
 	*/
-	@java.lang.Deprecated
+	@Deprecated
 	public void restoreDependentsFromTrash(
-		List<java.lang.Object> dlFileEntriesAndDLFolders, long trashEntryId)
+		List<Object> dlFileEntriesAndDLFolders, long trashEntryId)
 		throws PortalException;
 
 	public void restoreFileEntryFromTrash(long userId, FileEntry fileEntry)
@@ -188,11 +186,11 @@ public interface DLAppHelperLocalService extends BaseLocalService {
 
 	public AssetEntry updateAsset(long userId, FileEntry fileEntry,
 		FileVersion fileVersion, long[] assetCategoryIds,
-		java.lang.String[] assetTagNames, long[] assetLinkEntryIds)
+		String[] assetTagNames, long[] assetLinkEntryIds)
 		throws PortalException;
 
 	public AssetEntry updateAsset(long userId, Folder folder,
-		long[] assetCategoryIds, java.lang.String[] assetTagNames,
+		long[] assetCategoryIds, String[] assetTagNames,
 		long[] assetLinkEntryIds) throws PortalException;
 
 	public void updateFileEntry(long userId, FileEntry fileEntry,
@@ -208,7 +206,6 @@ public interface DLAppHelperLocalService extends BaseLocalService {
 
 	public void updateStatus(long userId, FileEntry fileEntry,
 		FileVersion latestFileVersion, int oldStatus, int newStatus,
-		ServiceContext serviceContext,
-		Map<java.lang.String, Serializable> workflowContext)
+		ServiceContext serviceContext, Map<String, Serializable> workflowContext)
 		throws PortalException;
 }

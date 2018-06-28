@@ -13,9 +13,9 @@
 		<execute macro="User#firstLoginPG" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -102,9 +102,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<for list="Home,Documents and Media,News" param="sitePageName">
@@ -116,10 +116,10 @@
 		<execute macro="ProductMenu#gotoPortlet">
 			<var name="category" value="Configuration" />
 			<var name="panel" value="Control Panel" />
-			<var name="portlet" value="Server Administration" />
+			<var name="portlet" value="Search" />
 		</execute>
 
-		<execute macro="ServerAdministration#executeServerResourcesActions">
+		<execute macro="SearchAdministration#executeSearchActions">
 			<var name="actionsDescription" value="Reindex all search indexes." />
 		</execute>
 
@@ -179,7 +179,7 @@
 		</execute>
 
 		<for list="Home,Documents and Media,News" param="sitePageName">
-			<execute function="AssertElementPresent" locator1="Home#PAGE" value1="${sitePageName}">
+			<execute function="AssertElementPresent" locator1="Home#PAGE">
 				<var name="key_pageName" value="${sitePageName}" />
 			</execute>
 		</for>
@@ -189,7 +189,7 @@
 		</execute>
 
 		<for list="Documents and Media,News" param="sitePageName">
-			<execute function="AssertElementNotPresent" locator1="Home#PAGE" value1="${sitePageName}">
+			<execute function="AssertElementNotPresent" locator1="Home#PAGE">
 				<var name="key_pageName" value="${sitePageName}" />
 			</execute>
 		</for>
@@ -205,9 +205,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -266,7 +266,7 @@
 			<var name="assetTitle" value="WC WebContent Title" />
 		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="SignIn#PORTLET_TITLE" value1="Sign" />
+		<execute function="AssertElementNotPresent" locator1="SignIn#PORTLET_TITLE" />
 
 		<execute macro="Navigator#gotoSpecificURLPage">
 			<var name="pageName" value="Web Content Page" />
@@ -376,40 +376,40 @@
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Categorization" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Categories" />
 		</execute>
 
 		<execute macro="Vocabulary#addCP">
+			<var name="locale" value="de_DE" />
+			<var name="locale2" value="fr_FR" />
 			<var name="localization2Name" value="Nom Vocabulaire" />
-			<var name="localization2NameKey" value="fr_FR" />
 			<var name="localizationName" value="Vokabular Namen" />
-			<var name="localizationNameKey" value="de_DE" />
 			<var name="vocabularyName" value="Vocabulary Name" />
 		</execute>
 
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Categorization" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Categories" />
 		</execute>
 
 		<execute macro="Category#addCategoryLocalizationCP">
 			<var name="categoryName" value="Vocabulary1 Category" />
+			<var name="locale" value="de_DE" />
+			<var name="locale2" value="fr_FR" />
 			<var name="localization2Name" value="Nom de la Catégorie" />
-			<var name="localization2NameKey" value="fr_FR" />
 			<var name="localizationName" value="Kategorienamen" />
-			<var name="localizationNameKey" value="de_DE" />
 			<var name="vocabularyName" value="Vocabulary Name" />
 		</execute>
 
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Categorization" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Categories" />
 		</execute>
@@ -457,8 +457,8 @@
 			<var name="webContentTitle" value="Web Content1 Title" />
 		</execute>
 
-		<execute macro="WebContent#addLocale">
-			<var name="language" value="German (Germany)" />
+		<execute macro="PortletEntry#changeLocale">
+			<var name="fieldName" value="Title" />
 			<var name="locale" value="de-DE" />
 		</execute>
 
@@ -467,8 +467,8 @@
 			<var name="webContentTitle" value="Netz Content1 Titel" />
 		</execute>
 
-		<execute macro="WebContent#addLocale">
-			<var name="language" value="French (France)" />
+		<execute macro="PortletEntry#changeLocale">
+			<var name="fieldName" value="Title" />
 			<var name="locale" value="fr-FR" />
 		</execute>
 
@@ -516,7 +516,8 @@
 		</execute>
 
 		<execute macro="LanguagePortlet#selectLanguagePG">
-			<var name="language" value="German (Germany)" />
+			<var name="locale" value="de-DE" />
+			<var name="textIcon" value="Deutsch-Deutschland" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -535,7 +536,8 @@
 		</execute>
 
 		<execute macro="LanguagePortlet#selectLanguagePG">
-			<var name="language" value="French (France)" />
+			<var name="locale" value="fr_FR" />
+			<var name="textIcon" value="français-France" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -558,7 +560,8 @@
 		</execute>
 
 		<execute macro="LanguagePortlet#selectLanguagePG">
-			<var name="language" value="English (United States)" />
+			<var name="locale" value="en_US" />
+			<var name="textIcon" value="English-United States" />
 		</execute>
 	</command>
 
@@ -568,7 +571,7 @@
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Categorization" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Categories" />
 		</execute>
@@ -581,7 +584,7 @@
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Categorization" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Categories" />
 		</execute>
@@ -595,7 +598,7 @@
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Categorization" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Categories" />
 		</execute>
@@ -827,7 +830,9 @@
 			<var name="portlet" value="Web Content" />
 		</execute>
 
-		<execute macro="WebContentNavigator#gotoManageStructures" />
+		<execute macro="Navigator#gotoNavItem">
+			<var name="navItem" value="Structures" />
+		</execute>
 
 		<execute macro="WebContentStructures#addCP">
 			<var name="structureDescription" value="WC Structure Description" />
@@ -854,7 +859,9 @@
 			<var name="portlet" value="Web Content" />
 		</execute>
 
-		<execute macro="WebContentNavigator#gotoManageTemplates" />
+		<execute macro="Navigator#gotoNavItem">
+			<var name="navItem" value="Templates" />
+		</execute>
 
 		<execute macro="WebContentTemplates#addCP">
 			<var name="templateDescription" value="WC Template Description" />
@@ -868,7 +875,7 @@
 			<var name="templateFieldNames" value="Boolean,Date,Decimal,Documents and Media,HTML,Image,Integer,Link to Page,Number,Radio,Select,Text,Text Box" />
 		</execute>
 
-		<execute macro="WebContentTemplates#save" />
+		<execute macro="DDLDataDefinition#save" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -908,8 +915,8 @@
 			<var name="webContentTitle" value="Web Content1 Title" />
 		</execute>
 
-		<execute macro="WebContent#addLocale">
-			<var name="language" value="German (Germany)" />
+		<execute macro="PortletEntry#changeLocale">
+			<var name="fieldName" value="Title" />
 			<var name="locale" value="de-DE" />
 		</execute>
 
@@ -961,8 +968,8 @@
 			<var name="webContentTitle" value="Web Content2 Title" />
 		</execute>
 
-		<execute macro="WebContent#addLocale">
-			<var name="language" value="German (Germany)" />
+		<execute macro="PortletEntry#changeLocale">
+			<var name="fieldName" value="Title" />
 			<var name="locale" value="de-DE" />
 		</execute>
 
@@ -1014,8 +1021,8 @@
 			<var name="webContentTitle" value="Web Content3 Title" />
 		</execute>
 
-		<execute macro="WebContent#addLocale">
-			<var name="language" value="German (Germany)" />
+		<execute macro="PortletEntry#changeLocale">
+			<var name="fieldName" value="Title" />
 			<var name="locale" value="de-DE" />
 		</execute>
 
@@ -1084,7 +1091,8 @@
 		</execute>
 
 		<execute macro="LanguagePortlet#selectLanguagePG">
-			<var name="language" value="German (Germany)" />
+			<var name="locale" value="de-DE" />
+			<var name="textIcon" value="Deutsch-Deutschland" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -1098,7 +1106,8 @@
 		</execute>
 
 		<execute macro="LanguagePortlet#selectLanguagePG">
-			<var name="language" value="English (United States)" />
+			<var name="locale" value="en_US" />
+			<var name="textIcon" value="English-United States" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
@@ -1107,7 +1116,9 @@
 			<var name="portlet" value="Web Content" />
 		</execute>
 
-		<execute macro="WebContentNavigator#gotoManageStructures" />
+		<execute macro="Navigator#gotoNavItem">
+			<var name="navItem" value="Structures" />
+		</execute>
 
 		<execute macro="WebContentStructures#addCP">
 			<var name="structureDescription" value="WC Structure1 Description" />
@@ -1132,7 +1143,9 @@
 			<var name="portlet" value="Web Content" />
 		</execute>
 
-		<execute macro="WebContentNavigator#gotoManageTemplates" />
+		<execute macro="Navigator#gotoNavItem">
+			<var name="navItem" value="Templates" />
+		</execute>
 
 		<execute macro="WebContentTemplates#addCP">
 			<var name="templateDescription" value="WC Template11 Description" />
@@ -1146,7 +1159,7 @@
 			<var name="templateLanguage" value="ftl" />
 		</execute>
 
-		<execute macro="WebContentTemplates#save" />
+		<execute macro="DDLDataDefinition#save" />
 
 		<execute macro="ProductMenu#gotoPortlet">
 			<var name="category" value="Content" />
@@ -1261,7 +1274,9 @@
 			<var name="portlet" value="Web Content" />
 		</execute>
 
-		<execute macro="WebContentNavigator#gotoManageStructures" />
+		<execute macro="Navigator#gotoNavItem">
+			<var name="navItem" value="Structures" />
+		</execute>
 
 		<execute macro="WebContentNavigator#gotoEditStructure">
 			<var name="structureName" value="WC Structure Name" />
@@ -1296,16 +1311,14 @@
 			<var name="portlet" value="System Settings" />
 		</execute>
 
-		<execute macro="Navigator#gotoNavItem">
-			<var name="navItem" value="Other" />
-		</execute>
-
-		<execute macro="SystemSettings#editConfiguration">
+		<execute macro="SystemSettings#gotoConfiguration">
+			<var name="configurationCategory" value="Connectors" />
 			<var name="configurationName" value="OpenOffice Integration" />
+			<var name="configurationScope" value="System Scope" />
 		</execute>
 
-		<execute macro="SystemSettings#enableSetting">
-			<var name="checkboxSetting" value="SERVER_ENABLED" />
+		<execute macro="FormFields#enableCheckbox">
+			<var name="fieldName" value="serverEnabled" />
 		</execute>
 
 		<execute macro="SystemSettings#saveConfiguration" />
@@ -1393,7 +1406,7 @@
 	</command>
 
 	<command name="AssetPublisherSiteAndGlobalScopeAccessibility" priority="5">
-		<property name="portal.acceptance" value="true" />
+		<property name="portal.acceptance" value="quarantine" />
 		<property name="test.name.skip.portal.instance" value="WebcontentpublicationUsecase#AssetPublisherSiteAndGlobalScopeAccessibility" />
 
 		<execute macro="ProductMenu#gotoPortlet">
@@ -1407,9 +1420,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -1495,9 +1508,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -1593,7 +1606,7 @@
 
 	<command name="DisplayAssetsFilterByTagsOrCategoryViaAssetPublisher" priority="4">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Categorization" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Tags" />
 		</execute>
@@ -1603,7 +1616,7 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Content" />
+			<var name="category" value="Categorization" />
 			<var name="panel" value="Site Administration" />
 			<var name="portlet" value="Categories" />
 		</execute>
@@ -1702,9 +1715,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -2050,9 +2063,9 @@
 
 	<command name="ViewBlogsEntriesViaRelatedAssets" priority="4">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -2092,7 +2105,7 @@
 		</execute>
 
 		<execute macro="Panel#expandPanel">
-			<var name="panelHeading" value="Related Assets" />
+			<var name="panel" value="Related Assets" />
 		</execute>
 
 		<execute macro="BlogsEntry#addRelatedAsset">
@@ -2172,9 +2185,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -2248,9 +2261,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -2266,9 +2279,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -2308,7 +2321,7 @@
 		</execute>
 
 		<execute macro="Panel#expandPanel">
-			<var name="panelHeading" value="Related Assets" />
+			<var name="panel" value="Related Assets" />
 		</execute>
 
 		<execute macro="BlogsEntry#addRelatedAsset">
@@ -2353,9 +2366,9 @@
 
 	<command name="ViewRelatedAssetViaDMPortlet" priority="3">
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -2380,9 +2393,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">
@@ -2422,7 +2435,9 @@
 			<var name="dmDocumentTitle" value="DM Document Title" />
 			<var name="dmDocumentUploader" value="Test Test" />
 			<var name="dmDocumentVersionNumber" value="1.0" />
-			<var name="workflow" value="Approved" />
+			<var name="portletName" value="Documents and Media" />
+			<var name="searchTerm" value="DM Document Title" />
+			<var name="workflow" value="APPROVED" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -2435,8 +2450,8 @@
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
 
-		<execute macro="Portlet#changeDisplayStyle">
-			<var name="displayStyle" value="descriptive" />
+		<execute macro="LexiconEntry#changeDisplayStyle">
+			<var name="displayStyle" value="list" />
 		</execute>
 
 		<execute macro="DMDocument#editPG">
@@ -2458,7 +2473,9 @@
 			<var name="dmDocumentTitle" value="DM Document Title Edit" />
 			<var name="dmDocumentUploader" value="Test Test" />
 			<var name="dmDocumentVersionNumber" value="1.1" />
-			<var name="workflow" value="Approved" />
+			<var name="portletName" value="Documents and Media" />
+			<var name="searchTerm" value="DM Document Title" />
+			<var name="workflow" value="APPROVED" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -2492,9 +2509,9 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoPortlet">
-			<var name="category" value="Navigation" />
+			<var name="category" value="Build" />
 			<var name="panel" value="Site Administration" />
-			<var name="portlet" value="Site Pages" />
+			<var name="portlet" value="Pages" />
 		</execute>
 
 		<execute macro="SitePages#addPublicPage">

@@ -49,7 +49,7 @@ import javax.portlet.PortletResponse;
 
 /**
  * @author     Istvan Andras Dezsi
- * @deprecated As of 7.0.0, moved to {@link
+ * @deprecated As of Judson, moved to {@link
  *             com.liferay.asset.categories.internal.search.AssetCategoryIndexer}
  */
 @Deprecated
@@ -180,9 +180,11 @@ public class AssetCategoryIndexer extends BaseIndexer<AssetCategory> {
 			assetCategory.getDescriptionMap());
 
 		document.addText(Field.NAME, assetCategory.getName());
+
 		addLocalizedField(
 			document, Field.TITLE, siteDefaultLocale,
 			assetCategory.getTitleMap());
+
 		document.addKeyword(
 			"leftCategoryId", assetCategory.getLeftCategoryId());
 

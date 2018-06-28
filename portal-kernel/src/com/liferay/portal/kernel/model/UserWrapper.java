@@ -60,15 +60,16 @@ public class UserWrapper implements User, ModelWrapper<User> {
 
 		attributes.put("mvccVersion", getMvccVersion());
 		attributes.put("uuid", getUuid());
+		attributes.put("externalReferenceCode", getExternalReferenceCode());
 		attributes.put("userId", getUserId());
 		attributes.put("companyId", getCompanyId());
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
-		attributes.put("defaultUser", getDefaultUser());
+		attributes.put("defaultUser", isDefaultUser());
 		attributes.put("contactId", getContactId());
 		attributes.put("password", getPassword());
-		attributes.put("passwordEncrypted", getPasswordEncrypted());
-		attributes.put("passwordReset", getPasswordReset());
+		attributes.put("passwordEncrypted", isPasswordEncrypted());
+		attributes.put("passwordReset", isPasswordReset());
 		attributes.put("passwordModifiedDate", getPasswordModifiedDate());
 		attributes.put("digest", getDigest());
 		attributes.put("reminderQueryQuestion", getReminderQueryQuestion());
@@ -95,10 +96,10 @@ public class UserWrapper implements User, ModelWrapper<User> {
 		attributes.put("lastLoginIP", getLastLoginIP());
 		attributes.put("lastFailedLoginDate", getLastFailedLoginDate());
 		attributes.put("failedLoginAttempts", getFailedLoginAttempts());
-		attributes.put("lockout", getLockout());
+		attributes.put("lockout", isLockout());
 		attributes.put("lockoutDate", getLockoutDate());
-		attributes.put("agreedToTermsOfUse", getAgreedToTermsOfUse());
-		attributes.put("emailAddressVerified", getEmailAddressVerified());
+		attributes.put("agreedToTermsOfUse", isAgreedToTermsOfUse());
+		attributes.put("emailAddressVerified", isEmailAddressVerified());
 		attributes.put("status", getStatus());
 
 		return attributes;
@@ -116,6 +117,13 @@ public class UserWrapper implements User, ModelWrapper<User> {
 
 		if (uuid != null) {
 			setUuid(uuid);
+		}
+
+		String externalReferenceCode = (String)attributes.get(
+				"externalReferenceCode");
+
+		if (externalReferenceCode != null) {
+			setExternalReferenceCode(externalReferenceCode);
 		}
 
 		Long userId = (Long)attributes.get("userId");
@@ -371,7 +379,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	}
 
 	@Override
-	public java.lang.Object clone() {
+	public Object clone() {
 		return new UserWrapper((User)_user.clone());
 	}
 
@@ -422,7 +430,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the comments of this user
 	*/
 	@Override
-	public java.lang.String getComments() {
+	public String getComments() {
 		return _user.getComments();
 	}
 
@@ -442,7 +450,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the user's company's mail domain
 	*/
 	@Override
-	public java.lang.String getCompanyMx()
+	public String getCompanyMx()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _user.getCompanyMx();
 	}
@@ -495,7 +503,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the digest of this user
 	*/
 	@Override
-	public java.lang.String getDigest() {
+	public String getDigest() {
 		return _user.getDigest();
 	}
 
@@ -506,7 +514,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return a digest for the user, incorporating the password
 	*/
 	@Override
-	public java.lang.String getDigest(java.lang.String password) {
+	public String getDigest(String password) {
 		return _user.getDigest(password);
 	}
 
@@ -518,7 +526,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	address is fake
 	*/
 	@Override
-	public java.lang.String getDisplayEmailAddress() {
+	public String getDisplayEmailAddress() {
 		return _user.getDisplayEmailAddress();
 	}
 
@@ -546,12 +554,12 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param portalURL the portal's URL
 	* @param mainPath the main path
 	* @return the user's display URL
-	* @deprecated As of 7.0.0, replaced by {@link #getDisplayURL(ThemeDisplay)}
+	* @deprecated As of Wilberforce, replaced by {@link
+	#getDisplayURL(ThemeDisplay)}
 	*/
 	@Deprecated
 	@Override
-	public java.lang.String getDisplayURL(java.lang.String portalURL,
-		java.lang.String mainPath)
+	public String getDisplayURL(String portalURL, String mainPath)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _user.getDisplayURL(portalURL, mainPath);
 	}
@@ -587,12 +595,13 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	is available for the user's profile
 	* @return the user's display URL
 	* @throws PortalException
-	* @deprecated As of 7.0.0, replaced by {@link #getDisplayURL(ThemeDisplay)}
+	* @deprecated As of Wilberforce, replaced by {@link
+	#getDisplayURL(ThemeDisplay)}
 	*/
 	@Deprecated
 	@Override
-	public java.lang.String getDisplayURL(java.lang.String portalURL,
-		java.lang.String mainPath, boolean privateLayout)
+	public String getDisplayURL(String portalURL, String mainPath,
+		boolean privateLayout)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _user.getDisplayURL(portalURL, mainPath, privateLayout);
 	}
@@ -622,7 +631,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the user's display URL
 	*/
 	@Override
-	public java.lang.String getDisplayURL(
+	public String getDisplayURL(
 		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _user.getDisplayURL(themeDisplay);
@@ -660,7 +669,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @throws PortalException
 	*/
 	@Override
-	public java.lang.String getDisplayURL(
+	public String getDisplayURL(
 		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay,
 		boolean privateLayout)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -673,7 +682,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the email address of this user
 	*/
 	@Override
-	public java.lang.String getEmailAddress() {
+	public String getEmailAddress() {
 		return _user.getEmailAddress();
 	}
 
@@ -700,6 +709,16 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return _user.getExpandoBridge();
+	}
+
+	/**
+	* Returns the external reference code of this user.
+	*
+	* @return the external reference code of this user
+	*/
+	@Override
+	public String getExternalReferenceCode() {
+		return _user.getExternalReferenceCode();
 	}
 
 	/**
@@ -740,7 +759,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the first name of this user
 	*/
 	@Override
-	public java.lang.String getFirstName() {
+	public String getFirstName() {
 		return _user.getFirstName();
 	}
 
@@ -750,7 +769,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the user's full name
 	*/
 	@Override
-	public java.lang.String getFullName() {
+	public String getFullName() {
 		return _user.getFullName();
 	}
 
@@ -760,7 +779,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the user's full name
 	*/
 	@Override
-	public java.lang.String getFullName(boolean usePrefix, boolean useSuffix) {
+	public String getFullName(boolean usePrefix, boolean useSuffix) {
 		return _user.getFullName(usePrefix, useSuffix);
 	}
 
@@ -770,7 +789,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the google user ID of this user
 	*/
 	@Override
-	public java.lang.String getGoogleUserId() {
+	public String getGoogleUserId() {
 		return _user.getGoogleUserId();
 	}
 
@@ -790,7 +809,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the greeting of this user
 	*/
 	@Override
-	public java.lang.String getGreeting() {
+	public String getGreeting() {
 		return _user.getGreeting();
 	}
 
@@ -815,7 +834,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	}
 
 	@Override
-	public java.lang.String getInitials() {
+	public String getInitials() {
 		return _user.getInitials();
 	}
 
@@ -825,7 +844,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the job title of this user
 	*/
 	@Override
-	public java.lang.String getJobTitle() {
+	public String getJobTitle() {
 		return _user.getJobTitle();
 	}
 
@@ -835,7 +854,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the language ID of this user
 	*/
 	@Override
-	public java.lang.String getLanguageId() {
+	public String getLanguageId() {
 		return _user.getLanguageId();
 	}
 
@@ -865,7 +884,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the last login ip of this user
 	*/
 	@Override
-	public java.lang.String getLastLoginIP() {
+	public String getLastLoginIP() {
 		return _user.getLastLoginIP();
 	}
 
@@ -875,7 +894,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the last name of this user
 	*/
 	@Override
-	public java.lang.String getLastName() {
+	public String getLastName() {
 		return _user.getLastName();
 	}
 
@@ -915,7 +934,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	}
 
 	@Override
-	public java.lang.String getLogin()
+	public String getLogin()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _user.getLogin();
 	}
@@ -936,7 +955,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the login ip of this user
 	*/
 	@Override
-	public java.lang.String getLoginIP() {
+	public String getLoginIP() {
 		return _user.getLoginIP();
 	}
 
@@ -958,7 +977,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the middle name of this user
 	*/
 	@Override
-	public java.lang.String getMiddleName() {
+	public String getMiddleName() {
 		return _user.getMiddleName();
 	}
 
@@ -995,8 +1014,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	}
 
 	@Override
-	public java.util.List<Group> getMySiteGroups(
-		java.lang.String[] classNames, int max)
+	public java.util.List<Group> getMySiteGroups(String[] classNames, int max)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _user.getMySiteGroups(classNames, max);
 	}
@@ -1007,7 +1025,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the open ID of this user
 	*/
 	@Override
-	public java.lang.String getOpenId() {
+	public String getOpenId() {
 		return _user.getOpenId();
 	}
 
@@ -1037,7 +1055,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	}
 
 	@Override
-	public java.lang.String getOriginalEmailAddress() {
+	public String getOriginalEmailAddress() {
 		return _user.getOriginalEmailAddress();
 	}
 
@@ -1047,7 +1065,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the password of this user
 	*/
 	@Override
-	public java.lang.String getPassword() {
+	public String getPassword() {
 		return _user.getPassword();
 	}
 
@@ -1093,7 +1111,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	}
 
 	@Override
-	public java.lang.String getPasswordUnencrypted() {
+	public String getPasswordUnencrypted() {
 		return _user.getPasswordUnencrypted();
 	}
 
@@ -1113,7 +1131,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	}
 
 	@Override
-	public java.lang.String getPortraitURL(
+	public String getPortraitURL(
 		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _user.getPortraitURL(themeDisplay);
@@ -1152,7 +1170,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the reminder query answer of this user
 	*/
 	@Override
-	public java.lang.String getReminderQueryAnswer() {
+	public String getReminderQueryAnswer() {
 		return _user.getReminderQueryAnswer();
 	}
 
@@ -1162,24 +1180,24 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the reminder query question of this user
 	*/
 	@Override
-	public java.lang.String getReminderQueryQuestion() {
+	public String getReminderQueryQuestion() {
 		return _user.getReminderQueryQuestion();
 	}
 
 	@Override
-	public java.util.Set<java.lang.String> getReminderQueryQuestions()
+	public java.util.Set<String> getReminderQueryQuestions()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _user.getReminderQueryQuestions();
 	}
 
 	@Override
 	public com.liferay.portal.kernel.util.RemotePreference getRemotePreference(
-		java.lang.String name) {
+		String name) {
 		return _user.getRemotePreference(name);
 	}
 
 	@Override
-	public java.lang.Iterable<com.liferay.portal.kernel.util.RemotePreference> getRemotePreferences() {
+	public Iterable<com.liferay.portal.kernel.util.RemotePreference> getRemotePreferences() {
 		return _user.getRemotePreferences();
 	}
 
@@ -1199,7 +1217,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the screen name of this user
 	*/
 	@Override
-	public java.lang.String getScreenName() {
+	public String getScreenName() {
 		return _user.getScreenName();
 	}
 
@@ -1246,7 +1264,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the time zone ID of this user
 	*/
 	@Override
-	public java.lang.String getTimeZoneId() {
+	public String getTimeZoneId() {
 		return _user.getTimeZoneId();
 	}
 
@@ -1287,7 +1305,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the user uuid of this user
 	*/
 	@Override
-	public java.lang.String getUserUuid() {
+	public String getUserUuid() {
 		return _user.getUserUuid();
 	}
 
@@ -1297,7 +1315,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the uuid of this user
 	*/
 	@Override
-	public java.lang.String getUuid() {
+	public String getUuid() {
 		return _user.getUuid();
 	}
 
@@ -1313,7 +1331,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	}
 
 	@Override
-	public boolean hasCompanyMx(java.lang.String emailAddress)
+	public boolean hasCompanyMx(String emailAddress)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _user.hasCompanyMx(emailAddress);
 	}
@@ -1499,7 +1517,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param comments the comments of this user
 	*/
 	@Override
-	public void setComments(java.lang.String comments) {
+	public void setComments(String comments) {
 		_user.setComments(comments);
 	}
 
@@ -1549,7 +1567,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param digest the digest of this user
 	*/
 	@Override
-	public void setDigest(java.lang.String digest) {
+	public void setDigest(String digest) {
 		_user.setDigest(digest);
 	}
 
@@ -1559,7 +1577,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param emailAddress the email address of this user
 	*/
 	@Override
-	public void setEmailAddress(java.lang.String emailAddress) {
+	public void setEmailAddress(String emailAddress) {
 		_user.setEmailAddress(emailAddress);
 	}
 
@@ -1589,6 +1607,16 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	}
 
 	/**
+	* Sets the external reference code of this user.
+	*
+	* @param externalReferenceCode the external reference code of this user
+	*/
+	@Override
+	public void setExternalReferenceCode(String externalReferenceCode) {
+		_user.setExternalReferenceCode(externalReferenceCode);
+	}
+
+	/**
 	* Sets the facebook ID of this user.
 	*
 	* @param facebookId the facebook ID of this user
@@ -1614,7 +1642,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param firstName the first name of this user
 	*/
 	@Override
-	public void setFirstName(java.lang.String firstName) {
+	public void setFirstName(String firstName) {
 		_user.setFirstName(firstName);
 	}
 
@@ -1624,7 +1652,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param googleUserId the google user ID of this user
 	*/
 	@Override
-	public void setGoogleUserId(java.lang.String googleUserId) {
+	public void setGoogleUserId(String googleUserId) {
 		_user.setGoogleUserId(googleUserId);
 	}
 
@@ -1644,7 +1672,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param greeting the greeting of this user
 	*/
 	@Override
-	public void setGreeting(java.lang.String greeting) {
+	public void setGreeting(String greeting) {
 		_user.setGreeting(greeting);
 	}
 
@@ -1654,7 +1682,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param jobTitle the job title of this user
 	*/
 	@Override
-	public void setJobTitle(java.lang.String jobTitle) {
+	public void setJobTitle(String jobTitle) {
 		_user.setJobTitle(jobTitle);
 	}
 
@@ -1664,7 +1692,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param languageId the language ID of this user
 	*/
 	@Override
-	public void setLanguageId(java.lang.String languageId) {
+	public void setLanguageId(String languageId) {
 		_user.setLanguageId(languageId);
 	}
 
@@ -1694,7 +1722,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param lastLoginIP the last login ip of this user
 	*/
 	@Override
-	public void setLastLoginIP(java.lang.String lastLoginIP) {
+	public void setLastLoginIP(String lastLoginIP) {
 		_user.setLastLoginIP(lastLoginIP);
 	}
 
@@ -1704,7 +1732,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param lastName the last name of this user
 	*/
 	@Override
-	public void setLastName(java.lang.String lastName) {
+	public void setLastName(String lastName) {
 		_user.setLastName(lastName);
 	}
 
@@ -1754,7 +1782,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param loginIP the login ip of this user
 	*/
 	@Override
-	public void setLoginIP(java.lang.String loginIP) {
+	public void setLoginIP(String loginIP) {
 		_user.setLoginIP(loginIP);
 	}
 
@@ -1764,7 +1792,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param middleName the middle name of this user
 	*/
 	@Override
-	public void setMiddleName(java.lang.String middleName) {
+	public void setMiddleName(String middleName) {
 		_user.setMiddleName(middleName);
 	}
 
@@ -1799,7 +1827,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param openId the open ID of this user
 	*/
 	@Override
-	public void setOpenId(java.lang.String openId) {
+	public void setOpenId(String openId) {
 		_user.setOpenId(openId);
 	}
 
@@ -1809,7 +1837,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param password the password of this user
 	*/
 	@Override
-	public void setPassword(java.lang.String password) {
+	public void setPassword(String password) {
 		_user.setPassword(password);
 	}
 
@@ -1849,7 +1877,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	}
 
 	@Override
-	public void setPasswordUnencrypted(java.lang.String passwordUnencrypted) {
+	public void setPasswordUnencrypted(String passwordUnencrypted) {
 		_user.setPasswordUnencrypted(passwordUnencrypted);
 	}
 
@@ -1884,7 +1912,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param reminderQueryAnswer the reminder query answer of this user
 	*/
 	@Override
-	public void setReminderQueryAnswer(java.lang.String reminderQueryAnswer) {
+	public void setReminderQueryAnswer(String reminderQueryAnswer) {
 		_user.setReminderQueryAnswer(reminderQueryAnswer);
 	}
 
@@ -1894,7 +1922,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param reminderQueryQuestion the reminder query question of this user
 	*/
 	@Override
-	public void setReminderQueryQuestion(java.lang.String reminderQueryQuestion) {
+	public void setReminderQueryQuestion(String reminderQueryQuestion) {
 		_user.setReminderQueryQuestion(reminderQueryQuestion);
 	}
 
@@ -1904,7 +1932,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param screenName the screen name of this user
 	*/
 	@Override
-	public void setScreenName(java.lang.String screenName) {
+	public void setScreenName(String screenName) {
 		_user.setScreenName(screenName);
 	}
 
@@ -1924,7 +1952,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param timeZoneId the time zone ID of this user
 	*/
 	@Override
-	public void setTimeZoneId(java.lang.String timeZoneId) {
+	public void setTimeZoneId(String timeZoneId) {
 		_user.setTimeZoneId(timeZoneId);
 	}
 
@@ -1944,7 +1972,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param userUuid the user uuid of this user
 	*/
 	@Override
-	public void setUserUuid(java.lang.String userUuid) {
+	public void setUserUuid(String userUuid) {
 		_user.setUserUuid(userUuid);
 	}
 
@@ -1954,7 +1982,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param uuid the uuid of this user
 	*/
 	@Override
-	public void setUuid(java.lang.String uuid) {
+	public void setUuid(String uuid) {
 		_user.setUuid(uuid);
 	}
 
@@ -1969,7 +1997,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	}
 
 	@Override
-	public java.lang.String toString() {
+	public String toString() {
 		return _user.toString();
 	}
 
@@ -1979,7 +2007,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	}
 
 	@Override
-	public java.lang.String toXmlString() {
+	public String toXmlString() {
 		return _user.toXmlString();
 	}
 

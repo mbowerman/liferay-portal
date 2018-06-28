@@ -14,12 +14,12 @@
 
 package com.liferay.portal.kernel.servlet;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -496,6 +496,11 @@ public class MetaInfoCacheServletResponseTest {
 				}
 
 				@Override
+				public void setContentLengthLong(long contentLength) {
+					contentLengthReference.set(contentLength);
+				}
+
+				@Override
 				public void setContentType(String contentType) {
 				}
 
@@ -513,7 +518,7 @@ public class MetaInfoCacheServletResponseTest {
 				}
 
 				/**
-				 * @deprecated As of 7.0.0
+				 * @deprecated As of Judson
 				 */
 				@Deprecated
 				@Override
@@ -1300,7 +1305,7 @@ public class MetaInfoCacheServletResponseTest {
 				}
 
 				/**
-				 * @deprecated As of 7.0.0
+				 * @deprecated As of Judson
 				 */
 				@Deprecated
 				@Override
@@ -1350,6 +1355,10 @@ public class MetaInfoCacheServletResponseTest {
 					contentLengthReference.set(i);
 				}
 
+				public void setContentLengthLong(long l) {
+					contentLengthReference.set(l);
+				}
+
 			};
 
 		MetaInfoCacheServletResponse metaInfoCacheServletResponse =
@@ -1368,6 +1377,49 @@ public class MetaInfoCacheServletResponseTest {
 		metaInfoCacheServletResponse.flushBuffer();
 
 		metaInfoCacheServletResponse.setContentLength(2048);
+
+		Assert.assertEquals(0, contentLengthReference.get());
+	}
+
+	@Test
+	public void testSetContentLengthLong() throws IOException {
+		final AtomicLong contentLengthReference = new AtomicLong();
+
+		StubHttpServletResponse stubHttpServletResponse =
+			new StubHttpServletResponse() {
+
+				@Override
+				public boolean isCommitted() {
+					return false;
+				}
+
+				@Override
+				public void setContentLength(int i) {
+					contentLengthReference.set(i);
+				}
+
+				public void setContentLengthLong(long l) {
+					contentLengthReference.set(l);
+				}
+
+			};
+
+		MetaInfoCacheServletResponse metaInfoCacheServletResponse =
+			new MetaInfoCacheServletResponse(stubHttpServletResponse);
+
+		// Normal set
+
+		metaInfoCacheServletResponse.setContentLengthLong(1024);
+
+		Assert.assertEquals(1024, contentLengthReference.get());
+
+		contentLengthReference.set(0);
+
+		// set after commit
+
+		metaInfoCacheServletResponse.flushBuffer();
+
+		metaInfoCacheServletResponse.setContentLengthLong(2048);
 
 		Assert.assertEquals(0, contentLengthReference.get());
 	}
@@ -1474,7 +1526,7 @@ public class MetaInfoCacheServletResponseTest {
 				}
 
 				/**
-				 * @deprecated As of 7.0.0
+				 * @deprecated As of Judson
 				 */
 				@Deprecated
 				@Override

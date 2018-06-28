@@ -42,13 +42,13 @@ import com.liferay.expando.kernel.model.ExpandoValue;
 import com.liferay.expando.kernel.service.ExpandoRowLocalService;
 import com.liferay.expando.kernel.service.ExpandoTableLocalService;
 import com.liferay.expando.kernel.service.ExpandoValueLocalService;
-import com.liferay.message.boards.kernel.model.MBMessage;
-import com.liferay.message.boards.kernel.model.MBMessageConstants;
-import com.liferay.message.boards.kernel.model.MBThread;
-import com.liferay.message.boards.kernel.service.MBMessageLocalService;
-import com.liferay.message.boards.kernel.service.MBThreadLocalService;
+import com.liferay.message.boards.constants.MBMessageConstants;
 import com.liferay.message.boards.model.MBDiscussion;
+import com.liferay.message.boards.model.MBMessage;
+import com.liferay.message.boards.model.MBThread;
 import com.liferay.message.boards.service.MBDiscussionLocalService;
+import com.liferay.message.boards.service.MBMessageLocalService;
+import com.liferay.message.boards.service.MBThreadLocalService;
 import com.liferay.portal.kernel.cal.DayAndPosition;
 import com.liferay.portal.kernel.cal.TZSRecurrence;
 import com.liferay.portal.kernel.dao.db.DBInspector;
@@ -128,7 +128,7 @@ public class CalEventImporter {
 			_log.info("Importing CalEvent records");
 		}
 
-		try (Connection con = DataAccess.getUpgradeOptimizedConnection()) {
+		try (Connection con = DataAccess.getConnection()) {
 			connection = con;
 
 			DBInspector dbInspector = new DBInspector(connection);
@@ -218,8 +218,8 @@ public class CalEventImporter {
 				calendarBookingId);
 
 		calendarBooking.setUuid(uuid);
-		calendarBooking.setCompanyId(companyId);
 		calendarBooking.setGroupId(groupId);
+		calendarBooking.setCompanyId(companyId);
 		calendarBooking.setUserId(userId);
 		calendarBooking.setUserName(userName);
 		calendarBooking.setCreateDate(createDate);
@@ -325,10 +325,10 @@ public class CalEventImporter {
 	protected void addMBThread(
 		String uuid, long threadId, long groupId, long companyId, long userId,
 		String userName, Date createDate, Date modifiedDate, long categoryId,
-		long rootMessageId, long rootMessageUserId, int messageCount,
-		int viewCount, long lastPostByUserId, Date lastPostDate,
-		double priority, boolean question, int status, long statusByUserId,
-		String statusByUserName, Date statusDate) {
+		long rootMessageId, long rootMessageUserId, String title,
+		int messageCount, int viewCount, long lastPostByUserId,
+		Date lastPostDate, double priority, boolean question, int status,
+		long statusByUserId, String statusByUserName, Date statusDate) {
 
 		MBThread mbThread = _mbThreadLocalService.createMBThread(threadId);
 
@@ -342,6 +342,7 @@ public class CalEventImporter {
 		mbThread.setCategoryId(categoryId);
 		mbThread.setRootMessageId(rootMessageId);
 		mbThread.setRootMessageUserId(rootMessageUserId);
+		mbThread.setTitle(title);
 		mbThread.setMessageCount(messageCount);
 		mbThread.setViewCount(viewCount);
 		mbThread.setLastPostByUserId(lastPostByUserId);
@@ -1153,7 +1154,7 @@ public class CalEventImporter {
 			mbMessage.getRootMessageId(), mbMessage.getParentMessageId(),
 			mbMessage.getSubject(), mbMessage.getBody(), mbMessage.getFormat(),
 			mbMessage.isAnonymous(), mbMessage.getPriority(),
-			mbMessage.getAllowPingbacks(), mbMessage.isAnswer(),
+			mbMessage.isAllowPingbacks(), mbMessage.isAnswer(),
 			mbMessage.getStatus(), mbMessage.getStatusByUserId(),
 			mbMessage.getStatusByUserName(), mbMessage.getStatusDate(),
 			mbMessageIds);
@@ -1185,10 +1186,10 @@ public class CalEventImporter {
 			mbThread.getCompanyId(), mbThread.getUserId(),
 			mbThread.getUserName(), mbThread.getCreateDate(),
 			mbThread.getModifiedDate(), mbThread.getCategoryId(), 0,
-			mbThread.getRootMessageUserId(), mbThread.getMessageCount(),
-			mbThread.getViewCount(), mbThread.getLastPostByUserId(),
-			mbThread.getLastPostDate(), mbThread.getPriority(),
-			mbThread.isQuestion(), mbThread.getStatus(),
+			mbThread.getRootMessageUserId(), mbThread.getTitle(),
+			mbThread.getMessageCount(), mbThread.getViewCount(),
+			mbThread.getLastPostByUserId(), mbThread.getLastPostDate(),
+			mbThread.getPriority(), mbThread.isQuestion(), mbThread.getStatus(),
 			mbThread.getStatusByUserId(), mbThread.getStatusByUserName(),
 			mbThread.getStatusDate());
 

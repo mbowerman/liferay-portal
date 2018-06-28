@@ -1,9 +1,11 @@
 Bundle-Name: Liferay Project Templates
 Bundle-SymbolicName: com.liferay.project.templates
-Bundle-Version: 4.0.0
+Bundle-Version: 4.0.2
 Export-Package: com.liferay.project.templates
 Main-Class: com.liferay.project.templates.ProjectTemplates
 Private-Package:\
+	aQute.bnd.version,\
+	\
 	org.apache.commons.collections,\
 	org.apache.commons.collections.map,\
 	org.apache.commons.lang,\

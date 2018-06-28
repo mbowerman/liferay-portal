@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.servlet.filters.invoker;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.cache.SingleVMPoolUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -29,7 +30,6 @@ import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -155,7 +155,7 @@ public class InvokerFilter extends BasePortalLifecycle implements Filter {
 	protected void doPortalInit() throws Exception {
 		if (_INVOKER_FILTER_CHAIN_ENABLED) {
 			_filterChains = SingleVMPoolUtil.getPortalCache(
-				InvokerFilter.class.getName());
+				_filterConfig.getFilterName());
 		}
 
 		ServletContext servletContext = _filterConfig.getServletContext();
@@ -222,7 +222,7 @@ public class InvokerFilter extends BasePortalLifecycle implements Filter {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #getURI(HttpServletRequest,
+	 * @deprecated As of Judson, replaced by {@link #getURI(HttpServletRequest,
 	 *             String)}
 	 */
 	@Deprecated
@@ -242,7 +242,7 @@ public class InvokerFilter extends BasePortalLifecycle implements Filter {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	protected String getURL(HttpServletRequest request) {

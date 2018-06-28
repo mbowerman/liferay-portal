@@ -21,7 +21,6 @@ import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import com.puppycrawl.tools.checkstyle.utils.CommonUtils;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Hugo Huijser
@@ -43,9 +42,12 @@ public class AppendCheck extends StringConcatenationCheck {
 		for (int i = 0; i < methodCallASTList.size(); i++) {
 			DetailAST methodCallAST = methodCallASTList.get(i);
 
-			String variableName = _getVariableName(methodCallAST);
+			String variableName = DetailASTUtil.getVariableName(methodCallAST);
 
-			if (!_isVariableType(variableName, detailAST, "StringBundler")) {
+			String variableTypeName = DetailASTUtil.getVariableTypeName(
+				methodCallAST, variableName, false);
+
+			if (!variableTypeName.equals("StringBundler")) {
 				continue;
 			}
 
@@ -71,7 +73,9 @@ public class AppendCheck extends StringConcatenationCheck {
 
 			DetailAST previousMethodCallAST = methodCallASTList.get(i - 1);
 
-			if (!variableName.equals(_getVariableName(previousMethodCallAST))) {
+			if (!variableName.equals(
+					DetailASTUtil.getVariableName(previousMethodCallAST))) {
+
 				continue;
 			}
 
@@ -199,22 +203,6 @@ public class AppendCheck extends StringConcatenationCheck {
 		return exprAST.getFirstChild();
 	}
 
-	private String _getVariableName(DetailAST methodCallAST) {
-		DetailAST dotAST = methodCallAST.findFirstToken(TokenTypes.DOT);
-
-		if (dotAST == null) {
-			return null;
-		}
-
-		DetailAST nameAST = dotAST.findFirstToken(TokenTypes.IDENT);
-
-		if (nameAST == null) {
-			return null;
-		}
-
-		return nameAST.getText();
-	}
-
 	private boolean _hasIncorrectLineBreaks(DetailAST methodCallAST) {
 		if (DetailASTUtil.getStartLine(methodCallAST) !=
 				DetailASTUtil.getEndLine(methodCallAST)) {
@@ -225,29 +213,6 @@ public class AppendCheck extends StringConcatenationCheck {
 		}
 
 		return false;
-	}
-
-	private boolean _isVariableType(
-		String variableName, DetailAST detailAST, String typeName) {
-
-		if (variableName == null) {
-			return false;
-		}
-
-		Set<String> variableTypeNames = DetailASTUtil.getVariableTypeNames(
-			detailAST, variableName);
-
-		if (variableTypeNames.isEmpty()) {
-			return false;
-		}
-
-		for (String variableTypeName : variableTypeNames) {
-			if (!variableTypeName.equals(typeName)) {
-				return false;
-			}
-		}
-
-		return true;
 	}
 
 	private static final String _MSG_INCORRECT_LINE_BREAK =

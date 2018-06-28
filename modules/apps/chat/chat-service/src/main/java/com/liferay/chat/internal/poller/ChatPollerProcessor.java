@@ -22,6 +22,7 @@ import com.liferay.chat.model.Status;
 import com.liferay.chat.service.EntryLocalServiceUtil;
 import com.liferay.chat.service.StatusLocalServiceUtil;
 import com.liferay.chat.util.BuddyFinder;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.exception.NoSuchLayoutSetException;
 import com.liferay.portal.kernel.exception.NoSuchUserException;
@@ -44,7 +45,6 @@ import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 
 import java.util.Collections;
@@ -66,7 +66,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	configurationPid = "com.liferay.chat.configuration.ChatConfiguration",
 	configurationPolicy = ConfigurationPolicy.OPTIONAL, enabled = false,
-	immediate = true, property = {"javax.portlet.name=" + ChatPortletKeys.CHAT},
+	immediate = true, property = "javax.portlet.name=" + ChatPortletKeys.CHAT,
 	service = PollerProcessor.class
 )
 public class ChatPollerProcessor extends BasePollerProcessor {
@@ -136,7 +136,7 @@ public class ChatPollerProcessor extends BasePollerProcessor {
 
 			Status buddyStatus = StatusLocalServiceUtil.getUserStatus(userId);
 
-			awake = buddyStatus.getAwake();
+			awake = buddyStatus.isAwake();
 
 			curUserJSONObject.put("awake", awake);
 

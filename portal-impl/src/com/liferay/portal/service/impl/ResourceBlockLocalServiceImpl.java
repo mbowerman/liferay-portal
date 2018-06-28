@@ -78,9 +78,9 @@ import javax.sql.DataSource;
  * Provides the local service for accessing, adding, deleting, and updating
  * resource blocks.
  *
- * @author Connor McKay
- * @author Shuyang Zhou
- * @deprecated As of 7.0.0, with no direct replacement
+ * @author     Connor McKay
+ * @author     Shuyang Zhou
+ * @deprecated As of Judson, with no direct replacement
  */
 @Deprecated
 public class ResourceBlockLocalServiceImpl
@@ -237,10 +237,10 @@ public class ResourceBlockLocalServiceImpl
 	public long getActionId(String name, String actionId)
 		throws PortalException {
 
-		ResourceAction resourcAction =
+		ResourceAction resourceAction =
 			resourceActionLocalService.getResourceAction(name, actionId);
 
-		return resourcAction.getBitwiseValue();
+		return resourceAction.getBitwiseValue();
 	}
 
 	@Override
@@ -901,7 +901,8 @@ public class ResourceBlockLocalServiceImpl
 				catch (SystemException se) {
 					if (_log.isWarnEnabled()) {
 						_log.warn(
-							"Unable to add a new resource block. Retrying", se);
+							"Unable to add a new resource block. Retrying.",
+							se);
 					}
 
 					// On failure, cancel all pending persistent entities

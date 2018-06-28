@@ -21,6 +21,7 @@ import com.liferay.adaptive.media.image.scaler.AMImageScaler;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -31,7 +32,6 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.service.test.ServiceTestUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -99,8 +99,7 @@ public class AMGIFImageScalerTest {
 		Assert.assertEquals(100, amImageScaledImage.getWidth());
 
 		Assert.assertArrayEquals(
-			FileUtil.getBytes(
-				AMGIFImageScalerTest.class, _FILE_PATH_SCALED_IMAGE),
+			FileUtil.getBytes(AMGIFImageScalerTest.class, "scaled.gif"),
 			FileUtil.getBytes(amImageScaledImage.getInputStream()));
 	}
 
@@ -109,7 +108,7 @@ public class AMGIFImageScalerTest {
 			TestPropsValues.getUserId(), _group.getGroupId(),
 			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 			RandomTestUtil.randomString() + ".gif", ContentTypes.IMAGE_GIF,
-			FileUtil.getBytes(AMGIFImageScalerTest.class, _FILE_PATH_GIF_IMAGE),
+			FileUtil.getBytes(AMGIFImageScalerTest.class, "image.gif"),
 			new ServiceContext());
 	}
 
@@ -123,14 +122,6 @@ public class AMGIFImageScalerTest {
 			TestPropsValues.getCompanyId(), "small", StringPool.BLANK, "0",
 			properties);
 	}
-
-	private static final String _FILE_PATH_GIF_IMAGE =
-		"/com/liferay/adaptive/media/image/internal/configuration/test" +
-			"/dependencies/image.gif";
-
-	private static final String _FILE_PATH_SCALED_IMAGE =
-		"/com/liferay/adaptive/media/image/internal/configuration/test" +
-			"/dependencies/scaled.gif";
 
 	private AMImageConfigurationEntry _amImageConfigurationEntry;
 

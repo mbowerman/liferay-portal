@@ -64,18 +64,8 @@ public class BuildLangMojo extends AbstractMojo {
 	/**
 	 * @parameter
 	 */
-	public void setPlugin(boolean plugin) {
-		_langBuilderArgs.setPlugin(plugin);
-	}
-
-	/**
-	 * @parameter
-	 */
-	public void setPortalLanguagePropertiesFileName(
-		String portalLanguagePropertiesFileName) {
-
-		_langBuilderArgs.setPortalLanguagePropertiesFileName(
-			portalLanguagePropertiesFileName);
+	public void setTitleCapitalization(boolean titleCapitalization) {
+		_langBuilderArgs.setTitleCapitalization(titleCapitalization);
 	}
 
 	/**

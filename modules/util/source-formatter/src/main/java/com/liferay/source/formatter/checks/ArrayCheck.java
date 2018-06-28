@@ -14,8 +14,8 @@
 
 package com.liferay.source.formatter.checks;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.tools.ToolsUtil;
 
@@ -50,7 +50,7 @@ public class ArrayCheck extends BaseFileCheck {
 			if (!ToolsUtil.isInsideQuotes(content, matcher.start())) {
 				addMessage(
 					fileName, "Use Collections.addAll", "collections.markdown",
-					getLineCount(content, matcher.start()));
+					getLineNumber(content, matcher.start()));
 			}
 		}
 	}
@@ -67,9 +67,9 @@ public class ArrayCheck extends BaseFileCheck {
 					matcher.start(5));
 			}
 
-			int lineCount = getLineCount(content, matcher.end(3));
+			int lineNumber = getLineNumber(content, matcher.end(3));
 
-			String line = getLine(content, lineCount);
+			String line = getLine(content, lineNumber);
 
 			if (getLineLength(line) > (getMaxLineLength() - 2)) {
 				String whitespace2 = matcher.group(3);
@@ -99,7 +99,7 @@ public class ArrayCheck extends BaseFileCheck {
 				matcher.start());
 
 			int level = 1;
-			int start = lineCount + 1;
+			int start = lineNumber + 1;
 
 			int count = start;
 

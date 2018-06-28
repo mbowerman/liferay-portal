@@ -42,19 +42,18 @@ public class TeamServiceUtil {
 	 */
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #addTeam(long, String,
+	* @deprecated As of Wilberforce, replaced by {@link #addTeam(long, String,
 	String, ServiceContext)}
 	*/
 	@Deprecated
 	public static com.liferay.portal.kernel.model.Team addTeam(long groupId,
-		java.lang.String name, java.lang.String description)
+		String name, String description)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().addTeam(groupId, name, description);
 	}
 
 	public static com.liferay.portal.kernel.model.Team addTeam(long groupId,
-		java.lang.String name, java.lang.String description,
-		ServiceContext serviceContext)
+		String name, String description, ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().addTeam(groupId, name, description, serviceContext);
 	}
@@ -75,7 +74,7 @@ public class TeamServiceUtil {
 	*
 	* @return the OSGi service identifier
 	*/
-	public static java.lang.String getOSGiServiceIdentifier() {
+	public static String getOSGiServiceIdentifier() {
 		return getService().getOSGiServiceIdentifier();
 	}
 
@@ -85,8 +84,7 @@ public class TeamServiceUtil {
 	}
 
 	public static com.liferay.portal.kernel.model.Team getTeam(long groupId,
-		java.lang.String name)
-		throws com.liferay.portal.kernel.exception.PortalException {
+		String name) throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().getTeam(groupId, name);
 	}
 
@@ -107,22 +105,20 @@ public class TeamServiceUtil {
 	}
 
 	public static java.util.List<com.liferay.portal.kernel.model.Team> search(
-		long groupId, java.lang.String name, java.lang.String description,
-		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params,
-		int start, int end,
+		long groupId, String name, String description,
+		java.util.LinkedHashMap<String, Object> params, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portal.kernel.model.Team> obc) {
 		return getService()
 				   .search(groupId, name, description, params, start, end, obc);
 	}
 
-	public static int searchCount(long groupId, java.lang.String name,
-		java.lang.String description,
-		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params) {
+	public static int searchCount(long groupId, String name,
+		String description, java.util.LinkedHashMap<String, Object> params) {
 		return getService().searchCount(groupId, name, description, params);
 	}
 
 	public static com.liferay.portal.kernel.model.Team updateTeam(long teamId,
-		java.lang.String name, java.lang.String description)
+		String name, String description)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().updateTeam(teamId, name, description);
 	}

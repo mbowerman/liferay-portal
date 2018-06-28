@@ -14,6 +14,8 @@
 
 package com.liferay.portlet;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
@@ -55,6 +57,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Raymond Augé
  */
 @DoPrivileged
+@ProviderType
 public class SecurityPortletContainerWrapper implements PortletContainer {
 
 	public static PortletContainer createSecurityPortletContainerWrapper(
@@ -159,6 +162,35 @@ public class SecurityPortletContainerWrapper implements PortletContainer {
 	}
 
 	@Override
+	public void renderHeaders(
+			HttpServletRequest request, HttpServletResponse response,
+			Portlet portlet)
+		throws PortletContainerException {
+
+		try {
+			checkRender(request, portlet);
+
+			_portletContainer.renderHeaders(request, response, portlet);
+		}
+		catch (PrincipalException pe) {
+
+			// LPS-52675
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(pe, pe);
+			}
+
+			processRenderException(request, response, portlet);
+		}
+		catch (PortletContainerException pce) {
+			throw pce;
+		}
+		catch (Exception e) {
+			throw new PortletContainerException(e);
+		}
+	}
+
+	@Override
 	public void serveResource(
 			HttpServletRequest request, HttpServletResponse response,
 			Portlet portlet)
@@ -188,6 +220,15 @@ public class SecurityPortletContainerWrapper implements PortletContainer {
 
 		if (portlet == null) {
 			return;
+		}
+
+		if (!isValidPortletId(portlet.getPortletId())) {
+			if (_log.isWarnEnabled()) {
+				_log.warn("Invalid portlet ID " + portlet.getPortletId());
+			}
+
+			throw new PrincipalException(
+				"Invalid portlet ID " + portlet.getPortletId());
 		}
 
 		if (portlet.isUndeployedPortlet()) {
@@ -312,10 +353,6 @@ public class SecurityPortletContainerWrapper implements PortletContainer {
 		return tempAttributesServletRequest;
 	}
 
-	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
-	 */
-	@Deprecated
 	protected boolean isValidPortletId(String portletId) {
 		for (int i = 0; i < portletId.length(); i++) {
 			char c = portletId.charAt(i);
@@ -332,7 +369,9 @@ public class SecurityPortletContainerWrapper implements PortletContainer {
 				continue;
 			}
 
-			if ((c == CharPool.POUND) || (c == CharPool.UNDERLINE)) {
+			if ((c == CharPool.DOLLAR) || (c == CharPool.POUND) ||
+				(c == CharPool.UNDERLINE)) {
+
 				continue;
 			}
 
@@ -347,12 +386,12 @@ public class SecurityPortletContainerWrapper implements PortletContainer {
 		Portlet portlet, PrincipalException pe) {
 
 		if (_log.isDebugEnabled()) {
-			_log.debug(pe);
+			_log.debug(pe, pe);
 		}
 
-		String url = getOriginalURL(request);
-
 		if (_log.isWarnEnabled()) {
+			String url = getOriginalURL(request);
+
 			_log.warn(
 				String.format(
 					"User %s is not allowed to access URL %s and portlet %s",
@@ -395,10 +434,8 @@ public class SecurityPortletContainerWrapper implements PortletContainer {
 		Portlet portlet, PrincipalException pe) {
 
 		if (_log.isDebugEnabled()) {
-			_log.debug(pe);
+			_log.debug(pe, pe);
 		}
-
-		String url = getOriginalURL(request);
 
 		response.setHeader(
 			HttpHeaders.CACHE_CONTROL,
@@ -407,6 +444,8 @@ public class SecurityPortletContainerWrapper implements PortletContainer {
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
 		if (_log.isWarnEnabled()) {
+			String url = getOriginalURL(request);
+
 			_log.warn(
 				String.format(
 					"User %s is not allowed to serve resource for %s on %s",

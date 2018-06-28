@@ -39,6 +39,7 @@ import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -49,6 +50,7 @@ import com.liferay.portlet.expando.model.impl.ExpandoColumnModelImpl;
 import java.io.Serializable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1347,13 +1349,6 @@ public class ExpandoColumnPersistenceImpl extends BasePersistenceImpl<ExpandoCol
 					result = expandoColumn;
 
 					cacheResult(expandoColumn);
-
-					if ((expandoColumn.getTableId() != tableId) ||
-							(expandoColumn.getName() == null) ||
-							!expandoColumn.getName().equals(name)) {
-						finderCache.putResult(FINDER_PATH_FETCH_BY_T_N,
-							finderArgs, expandoColumn);
-					}
 				}
 			}
 			catch (Exception e) {
@@ -1932,8 +1927,6 @@ public class ExpandoColumnPersistenceImpl extends BasePersistenceImpl<ExpandoCol
 
 	@Override
 	protected ExpandoColumn removeImpl(ExpandoColumn expandoColumn) {
-		expandoColumn = toUnwrappedModel(expandoColumn);
-
 		Session session = null;
 
 		try {
@@ -1964,9 +1957,23 @@ public class ExpandoColumnPersistenceImpl extends BasePersistenceImpl<ExpandoCol
 
 	@Override
 	public ExpandoColumn updateImpl(ExpandoColumn expandoColumn) {
-		expandoColumn = toUnwrappedModel(expandoColumn);
-
 		boolean isNew = expandoColumn.isNew();
+
+		if (!(expandoColumn instanceof ExpandoColumnModelImpl)) {
+			InvocationHandler invocationHandler = null;
+
+			if (ProxyUtil.isProxyClass(expandoColumn.getClass())) {
+				invocationHandler = ProxyUtil.getInvocationHandler(expandoColumn);
+
+				throw new IllegalArgumentException(
+					"Implement ModelWrapper in expandoColumn proxy " +
+					invocationHandler.getClass());
+			}
+
+			throw new IllegalArgumentException(
+				"Implement ModelWrapper in custom ExpandoColumn implementation " +
+				expandoColumn.getClass());
+		}
 
 		ExpandoColumnModelImpl expandoColumnModelImpl = (ExpandoColumnModelImpl)expandoColumn;
 
@@ -2068,27 +2075,6 @@ public class ExpandoColumnPersistenceImpl extends BasePersistenceImpl<ExpandoCol
 		expandoColumn.resetOriginalValues();
 
 		return expandoColumn;
-	}
-
-	protected ExpandoColumn toUnwrappedModel(ExpandoColumn expandoColumn) {
-		if (expandoColumn instanceof ExpandoColumnImpl) {
-			return expandoColumn;
-		}
-
-		ExpandoColumnImpl expandoColumnImpl = new ExpandoColumnImpl();
-
-		expandoColumnImpl.setNew(expandoColumn.isNew());
-		expandoColumnImpl.setPrimaryKey(expandoColumn.getPrimaryKey());
-
-		expandoColumnImpl.setColumnId(expandoColumn.getColumnId());
-		expandoColumnImpl.setCompanyId(expandoColumn.getCompanyId());
-		expandoColumnImpl.setTableId(expandoColumn.getTableId());
-		expandoColumnImpl.setName(expandoColumn.getName());
-		expandoColumnImpl.setType(expandoColumn.getType());
-		expandoColumnImpl.setDefaultData(expandoColumn.getDefaultData());
-		expandoColumnImpl.setTypeSettings(expandoColumn.getTypeSettings());
-
-		return expandoColumnImpl;
 	}
 
 	/**

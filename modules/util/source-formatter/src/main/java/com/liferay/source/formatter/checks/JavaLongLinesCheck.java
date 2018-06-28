@@ -15,10 +15,10 @@
 package com.liferay.source.formatter.checks;
 
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.tools.ToolsUtil;
@@ -42,10 +42,10 @@ public class JavaLongLinesCheck extends BaseFileCheck {
 
 			String line = null;
 
-			int lineCount = 0;
+			int lineNumber = 0;
 
 			while ((line = unsyncBufferedReader.readLine()) != null) {
-				lineCount++;
+				lineNumber++;
 
 				if (line.startsWith("import ") || line.startsWith("package ") ||
 					line.matches("\\s*\\*.*") ||
@@ -76,7 +76,7 @@ public class JavaLongLinesCheck extends BaseFileCheck {
 				String trimmedLine = StringUtil.trimLeading(line);
 
 				if (isExcludedPath(
-						_LINE_LENGTH_EXCLUDES, absolutePath, lineCount) ||
+						_LINE_LENGTH_EXCLUDES, absolutePath, lineNumber) ||
 					_isAnnotationParameter(content, trimmedLine)) {
 
 					continue;
@@ -87,7 +87,7 @@ public class JavaLongLinesCheck extends BaseFileCheck {
 				}
 
 				String truncateLongLinesContent = _getTruncateLongLinesContent(
-					content, line, trimmedLine, lineCount);
+					content, line, trimmedLine, lineNumber);
 
 				if ((truncateLongLinesContent != null) &&
 					!truncateLongLinesContent.equals(content)) {
@@ -95,7 +95,7 @@ public class JavaLongLinesCheck extends BaseFileCheck {
 					return truncateLongLinesContent;
 				}
 
-				addMessage(fileName, "> " + getMaxLineLength(), lineCount);
+				addMessage(fileName, "> " + getMaxLineLength(), lineNumber);
 			}
 		}
 
@@ -108,7 +108,7 @@ public class JavaLongLinesCheck extends BaseFileCheck {
 
 		int z = Math.max(x, y);
 
-		if (z != -1) {
+		if ((z != -1) && !ToolsUtil.isInsideQuotes(line, z)) {
 			return z + 3;
 		}
 
@@ -120,19 +120,19 @@ public class JavaLongLinesCheck extends BaseFileCheck {
 
 		x = line.indexOf("= ");
 
-		if (x != -1) {
+		if ((x != -1) && !ToolsUtil.isInsideQuotes(line, x)) {
 			return x + 1;
 		}
 
 		x = line.indexOf("> ");
 
-		if (x != -1) {
+		if ((x != -1) && !ToolsUtil.isInsideQuotes(line, x)) {
 			return x + 1;
 		}
 
 		x = line.indexOf("< ");
 
-		if (x != -1) {
+		if ((x != -1) && !ToolsUtil.isInsideQuotes(line, x)) {
 			return x + 1;
 		}
 
@@ -141,6 +141,10 @@ public class JavaLongLinesCheck extends BaseFileCheck {
 
 			if (x == -1) {
 				break;
+			}
+
+			if (ToolsUtil.isInsideQuotes(line, x)) {
+				continue;
 			}
 
 			String linePart = line.substring(0, x);
@@ -157,6 +161,10 @@ public class JavaLongLinesCheck extends BaseFileCheck {
 				break;
 			}
 
+			if (ToolsUtil.isInsideQuotes(line, x)) {
+				continue;
+			}
+
 			if (Character.isLetterOrDigit(line.charAt(x - 1)) &&
 				(line.charAt(x + 1) != CharPool.CLOSE_PARENTHESIS)) {
 
@@ -166,7 +174,7 @@ public class JavaLongLinesCheck extends BaseFileCheck {
 
 		x = line.indexOf(CharPool.PERIOD);
 
-		if (x != -1) {
+		if ((x != -1) && !ToolsUtil.isInsideQuotes(line, x)) {
 			return x + 1;
 		}
 
@@ -174,12 +182,23 @@ public class JavaLongLinesCheck extends BaseFileCheck {
 	}
 
 	private String _getTruncateLongLinesContent(
-		String content, String line, String trimmedLine, int lineCount) {
+		String content, String line, String trimmedLine, int lineNumber) {
 
 		String indent = StringPool.BLANK;
 
 		for (int i = 0; i < getLeadingTabCount(line); i++) {
 			indent += StringPool.TAB;
+		}
+
+		if (trimmedLine.matches("\\w+\\.\\w+[,);]*")) {
+			int x = line.indexOf(StringPool.PERIOD);
+
+			String firstLine = line.substring(0, x + 1);
+			String secondLine = indent + StringPool.TAB + line.substring(x + 1);
+
+			return StringUtil.replace(
+				content, "\n" + line + "\n",
+				StringBundler.concat("\n", firstLine, "\n", secondLine, "\n"));
 		}
 
 		if (line.endsWith(StringPool.OPEN_PARENTHESIS) ||
@@ -203,7 +222,9 @@ public class JavaLongLinesCheck extends BaseFileCheck {
 						StringBundler.concat(
 							"\n", firstLine, "\n", secondLine, "\n"));
 				}
-				else if (Validator.isNotNull(getLine(content, lineCount + 1))) {
+				else if (Validator.isNotNull(
+							getLine(content, lineNumber + 1))) {
+
 					return StringUtil.replace(
 						content, "\n" + line + "\n",
 						StringBundler.concat(

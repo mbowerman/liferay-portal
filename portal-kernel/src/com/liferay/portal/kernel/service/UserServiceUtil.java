@@ -147,16 +147,14 @@ public class UserServiceUtil {
 	* @return the new user
 	*/
 	public static com.liferay.portal.kernel.model.User addUser(long companyId,
-		boolean autoPassword, java.lang.String password1,
-		java.lang.String password2, boolean autoScreenName,
-		java.lang.String screenName, java.lang.String emailAddress,
-		long facebookId, java.lang.String openId, java.util.Locale locale,
-		java.lang.String firstName, java.lang.String middleName,
-		java.lang.String lastName, long prefixId, long suffixId, boolean male,
-		int birthdayMonth, int birthdayDay, int birthdayYear,
-		java.lang.String jobTitle, long[] groupIds, long[] organizationIds,
-		long[] roleIds, long[] userGroupIds, boolean sendEmail,
-		ServiceContext serviceContext)
+		boolean autoPassword, String password1, String password2,
+		boolean autoScreenName, String screenName, String emailAddress,
+		long facebookId, String openId, java.util.Locale locale,
+		String firstName, String middleName, String lastName, long prefixId,
+		long suffixId, boolean male, int birthdayMonth, int birthdayDay,
+		int birthdayYear, String jobTitle, long[] groupIds,
+		long[] organizationIds, long[] roleIds, long[] userGroupIds,
+		boolean sendEmail, ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .addUser(companyId, autoPassword, password1, password2,
@@ -217,15 +215,13 @@ public class UserServiceUtil {
 	* @return the new user
 	*/
 	public static com.liferay.portal.kernel.model.User addUser(long companyId,
-		boolean autoPassword, java.lang.String password1,
-		java.lang.String password2, boolean autoScreenName,
-		java.lang.String screenName, java.lang.String emailAddress,
-		long facebookId, java.lang.String openId, java.util.Locale locale,
-		java.lang.String firstName, java.lang.String middleName,
-		java.lang.String lastName, long prefixId, long suffixId, boolean male,
-		int birthdayMonth, int birthdayDay, int birthdayYear,
-		java.lang.String jobTitle, long[] groupIds, long[] organizationIds,
-		long[] roleIds, long[] userGroupIds,
+		boolean autoPassword, String password1, String password2,
+		boolean autoScreenName, String screenName, String emailAddress,
+		long facebookId, String openId, java.util.Locale locale,
+		String firstName, String middleName, String lastName, long prefixId,
+		long suffixId, boolean male, int birthdayMonth, int birthdayDay,
+		int birthdayYear, String jobTitle, long[] groupIds,
+		long[] organizationIds, long[] roleIds, long[] userGroupIds,
 		java.util.List<com.liferay.portal.kernel.model.Address> addresses,
 		java.util.List<com.liferay.portal.kernel.model.EmailAddress> emailAddresses,
 		java.util.List<com.liferay.portal.kernel.model.Phone> phones,
@@ -299,16 +295,14 @@ public class UserServiceUtil {
 	* @return the new user
 	*/
 	public static com.liferay.portal.kernel.model.User addUserWithWorkflow(
-		long companyId, boolean autoPassword, java.lang.String password1,
-		java.lang.String password2, boolean autoScreenName,
-		java.lang.String screenName, java.lang.String emailAddress,
-		long facebookId, java.lang.String openId, java.util.Locale locale,
-		java.lang.String firstName, java.lang.String middleName,
-		java.lang.String lastName, long prefixId, long suffixId, boolean male,
-		int birthdayMonth, int birthdayDay, int birthdayYear,
-		java.lang.String jobTitle, long[] groupIds, long[] organizationIds,
-		long[] roleIds, long[] userGroupIds, boolean sendEmail,
-		ServiceContext serviceContext)
+		long companyId, boolean autoPassword, String password1,
+		String password2, boolean autoScreenName, String screenName,
+		String emailAddress, long facebookId, String openId,
+		java.util.Locale locale, String firstName, String middleName,
+		String lastName, long prefixId, long suffixId, boolean male,
+		int birthdayMonth, int birthdayDay, int birthdayYear, String jobTitle,
+		long[] groupIds, long[] organizationIds, long[] roleIds,
+		long[] userGroupIds, boolean sendEmail, ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .addUserWithWorkflow(companyId, autoPassword, password1,
@@ -370,15 +364,14 @@ public class UserServiceUtil {
 	* @return the new user
 	*/
 	public static com.liferay.portal.kernel.model.User addUserWithWorkflow(
-		long companyId, boolean autoPassword, java.lang.String password1,
-		java.lang.String password2, boolean autoScreenName,
-		java.lang.String screenName, java.lang.String emailAddress,
-		long facebookId, java.lang.String openId, java.util.Locale locale,
-		java.lang.String firstName, java.lang.String middleName,
-		java.lang.String lastName, long prefixId, long suffixId, boolean male,
-		int birthdayMonth, int birthdayDay, int birthdayYear,
-		java.lang.String jobTitle, long[] groupIds, long[] organizationIds,
-		long[] roleIds, long[] userGroupIds,
+		long companyId, boolean autoPassword, String password1,
+		String password2, boolean autoScreenName, String screenName,
+		String emailAddress, long facebookId, String openId,
+		java.util.Locale locale, String firstName, String middleName,
+		String lastName, long prefixId, long suffixId, boolean male,
+		int birthdayMonth, int birthdayDay, int birthdayYear, String jobTitle,
+		long[] groupIds, long[] organizationIds, long[] roleIds,
+		long[] userGroupIds,
 		java.util.List<com.liferay.portal.kernel.model.Address> addresses,
 		java.util.List<com.liferay.portal.kernel.model.EmailAddress> emailAddresses,
 		java.util.List<com.liferay.portal.kernel.model.Phone> phones,
@@ -467,6 +460,52 @@ public class UserServiceUtil {
 	}
 
 	/**
+	* Returns the users belonging to a group.
+	*
+	* @param groupId the primary key of the group
+	* @param status the workflow status
+	* @param start the lower bound of the range of users
+	* @param end the upper bound of the range of users (not inclusive)
+	* @param obc the comparator to order the users by (optionally
+	<code>null</code>)
+	* @return the matching users
+	*/
+	public static java.util.List<com.liferay.portal.kernel.model.User> getGroupUsers(
+		long groupId, int status, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portal.kernel.model.User> obc)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().getGroupUsers(groupId, status, start, end, obc);
+	}
+
+	/**
+	* Returns the users belonging to a group.
+	*
+	* @param groupId the primary key of the group
+	* @param status the workflow status
+	* @param obc the comparator to order the users by (optionally
+	<code>null</code>)
+	* @return the matching users
+	*/
+	public static java.util.List<com.liferay.portal.kernel.model.User> getGroupUsers(
+		long groupId, int status,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portal.kernel.model.User> obc)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().getGroupUsers(groupId, status, obc);
+	}
+
+	/**
+	* Returns the number of users with the status belonging to the group.
+	*
+	* @param groupId the primary key of the group
+	* @param status the workflow status
+	* @return the number of users with the status belonging to the group
+	*/
+	public static int getGroupUsersCount(long groupId, int status)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().getGroupUsersCount(groupId, status);
+	}
+
+	/**
 	* Returns the primary keys of all the users belonging to the organization.
 	*
 	* @param organizationId the primary key of the organization
@@ -490,11 +529,59 @@ public class UserServiceUtil {
 	}
 
 	/**
+	* Returns the users belonging to the organization with the status.
+	*
+	* @param organizationId the primary key of the organization
+	* @param status the workflow status
+	* @param start the lower bound of the range of users
+	* @param end the upper bound of the range of users (not inclusive)
+	* @param obc the comparator to order the users by (optionally
+	<code>null</code>)
+	* @return the matching users
+	*/
+	public static java.util.List<com.liferay.portal.kernel.model.User> getOrganizationUsers(
+		long organizationId, int status, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portal.kernel.model.User> obc)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .getOrganizationUsers(organizationId, status, start, end, obc);
+	}
+
+	/**
+	* Returns the users belonging to the organization with the status.
+	*
+	* @param organizationId the primary key of the organization
+	* @param status the workflow status
+	* @param obc the comparator to order the users by (optionally
+	<code>null</code>)
+	* @return the matching users
+	*/
+	public static java.util.List<com.liferay.portal.kernel.model.User> getOrganizationUsers(
+		long organizationId, int status,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portal.kernel.model.User> obc)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().getOrganizationUsers(organizationId, status, obc);
+	}
+
+	/**
+	* Returns the number of users with the status belonging to the
+	* organization.
+	*
+	* @param organizationId the primary key of the organization
+	* @param status the workflow status
+	* @return the number of users with the status belonging to the organization
+	*/
+	public static int getOrganizationUsersCount(long organizationId, int status)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().getOrganizationUsersCount(organizationId, status);
+	}
+
+	/**
 	* Returns the OSGi service identifier.
 	*
 	* @return the OSGi service identifier
 	*/
-	public static java.lang.String getOSGiServiceIdentifier() {
+	public static String getOSGiServiceIdentifier() {
 		return getService().getOSGiServiceIdentifier();
 	}
 
@@ -517,7 +604,7 @@ public class UserServiceUtil {
 	* @return the user with the email address
 	*/
 	public static com.liferay.portal.kernel.model.User getUserByEmailAddress(
-		long companyId, java.lang.String emailAddress)
+		long companyId, String emailAddress)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().getUserByEmailAddress(companyId, emailAddress);
 	}
@@ -541,7 +628,7 @@ public class UserServiceUtil {
 	* @return the user with the screen name
 	*/
 	public static com.liferay.portal.kernel.model.User getUserByScreenName(
-		long companyId, java.lang.String screenName)
+		long companyId, String screenName)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().getUserByScreenName(companyId, screenName);
 	}
@@ -553,6 +640,20 @@ public class UserServiceUtil {
 	}
 
 	/**
+	* Returns the users belonging to the user group with the status.
+	*
+	* @param userGroupId the primary key of the user group
+	* @param start the lower bound of the range of users
+	* @param end the upper bound of the range of users (not inclusive)
+	* @return the matching users
+	*/
+	public static java.util.List<com.liferay.portal.kernel.model.User> getUserGroupUsers(
+		long userGroupId, int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().getUserGroupUsers(userGroupId, start, end);
+	}
+
+	/**
 	* Returns the primary key of the user with the email address.
 	*
 	* @param companyId the primary key of the user's company
@@ -560,7 +661,7 @@ public class UserServiceUtil {
 	* @return the primary key of the user with the email address
 	*/
 	public static long getUserIdByEmailAddress(long companyId,
-		java.lang.String emailAddress)
+		String emailAddress)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().getUserIdByEmailAddress(companyId, emailAddress);
 	}
@@ -572,8 +673,7 @@ public class UserServiceUtil {
 	* @param screenName the user's screen name
 	* @return the primary key of the user with the screen name
 	*/
-	public static long getUserIdByScreenName(long companyId,
-		java.lang.String screenName)
+	public static long getUserIdByScreenName(long companyId, String screenName)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().getUserIdByScreenName(companyId, screenName);
 	}
@@ -617,8 +717,8 @@ public class UserServiceUtil {
 	* @return <code>true</code> if the user has the role; <code>false</code>
 	otherwise
 	*/
-	public static boolean hasRoleUser(long companyId, java.lang.String name,
-		long userId, boolean inherited)
+	public static boolean hasRoleUser(long companyId, String name, long userId,
+		boolean inherited)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().hasRoleUser(companyId, name, userId, inherited);
 	}
@@ -644,7 +744,7 @@ public class UserServiceUtil {
 	contains a reset link
 	*/
 	public static boolean sendPasswordByEmailAddress(long companyId,
-		java.lang.String emailAddress)
+		String emailAddress)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().sendPasswordByEmailAddress(companyId, emailAddress);
 	}
@@ -669,7 +769,7 @@ public class UserServiceUtil {
 	contains a reset link
 	*/
 	public static boolean sendPasswordByScreenName(long companyId,
-		java.lang.String screenName)
+		String screenName)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().sendPasswordByScreenName(companyId, screenName);
 	}
@@ -829,8 +929,8 @@ public class UserServiceUtil {
 	* @return the user
 	*/
 	public static com.liferay.portal.kernel.model.User updateEmailAddress(
-		long userId, java.lang.String password, java.lang.String emailAddress1,
-		java.lang.String emailAddress2, ServiceContext serviceContext)
+		long userId, String password, String emailAddress1,
+		String emailAddress2, ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .updateEmailAddress(userId, password, emailAddress1,
@@ -874,15 +974,14 @@ public class UserServiceUtil {
 	* @return the user
 	*/
 	public static com.liferay.portal.kernel.model.User updateIncompleteUser(
-		long companyId, boolean autoPassword, java.lang.String password1,
-		java.lang.String password2, boolean autoScreenName,
-		java.lang.String screenName, java.lang.String emailAddress,
-		long facebookId, java.lang.String openId, java.util.Locale locale,
-		java.lang.String firstName, java.lang.String middleName,
-		java.lang.String lastName, long prefixId, long suffixId, boolean male,
-		int birthdayMonth, int birthdayDay, int birthdayYear,
-		java.lang.String jobTitle, boolean updateUserInformation,
-		boolean sendEmail, ServiceContext serviceContext)
+		long companyId, boolean autoPassword, String password1,
+		String password2, boolean autoScreenName, String screenName,
+		String emailAddress, long facebookId, String openId,
+		java.util.Locale locale, String firstName, String middleName,
+		String lastName, long prefixId, long suffixId, boolean male,
+		int birthdayMonth, int birthdayDay, int birthdayYear, String jobTitle,
+		boolean updateUserInformation, boolean sendEmail,
+		ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .updateIncompleteUser(companyId, autoPassword, password1,
@@ -913,7 +1012,7 @@ public class UserServiceUtil {
 	* @return the user
 	*/
 	public static com.liferay.portal.kernel.model.User updateOpenId(
-		long userId, java.lang.String openId)
+		long userId, String openId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().updateOpenId(userId, openId);
 	}
@@ -944,8 +1043,7 @@ public class UserServiceUtil {
 	* @return the user
 	*/
 	public static com.liferay.portal.kernel.model.User updatePassword(
-		long userId, java.lang.String password1, java.lang.String password2,
-		boolean passwordReset)
+		long userId, String password1, String password2, boolean passwordReset)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .updatePassword(userId, password1, password2, passwordReset);
@@ -973,7 +1071,7 @@ public class UserServiceUtil {
 	* @return the user
 	*/
 	public static com.liferay.portal.kernel.model.User updateReminderQuery(
-		long userId, java.lang.String question, java.lang.String answer)
+		long userId, String question, String answer)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().updateReminderQuery(userId, question, answer);
 	}
@@ -986,7 +1084,7 @@ public class UserServiceUtil {
 	* @return the user
 	*/
 	public static com.liferay.portal.kernel.model.User updateScreenName(
-		long userId, java.lang.String screenName)
+		long userId, String screenName)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().updateScreenName(userId, screenName);
 	}
@@ -997,8 +1095,8 @@ public class UserServiceUtil {
 	* @param userId the primary key of the user
 	* @param status the user's new workflow status
 	* @return the user
-	* @deprecated As of 7.0.0, replaced by {@link #updateStatus(long, int,
-	ServiceContext)}
+	* @deprecated As of Wilberforce, replaced by {@link #updateStatus(long,
+	int, ServiceContext)}
 	*/
 	@Deprecated
 	public static com.liferay.portal.kernel.model.User updateStatus(
@@ -1079,20 +1177,15 @@ public class UserServiceUtil {
 	* @return the user
 	*/
 	public static com.liferay.portal.kernel.model.User updateUser(long userId,
-		java.lang.String oldPassword, java.lang.String newPassword1,
-		java.lang.String newPassword2, boolean passwordReset,
-		java.lang.String reminderQueryQuestion,
-		java.lang.String reminderQueryAnswer, java.lang.String screenName,
-		java.lang.String emailAddress, long facebookId,
-		java.lang.String openId, boolean portrait, byte[] portraitBytes,
-		java.lang.String languageId, java.lang.String timeZoneId,
-		java.lang.String greeting, java.lang.String comments,
-		java.lang.String firstName, java.lang.String middleName,
-		java.lang.String lastName, long prefixId, long suffixId, boolean male,
-		int birthdayMonth, int birthdayDay, int birthdayYear,
-		java.lang.String smsSn, java.lang.String facebookSn,
-		java.lang.String jabberSn, java.lang.String skypeSn,
-		java.lang.String twitterSn, java.lang.String jobTitle, long[] groupIds,
+		String oldPassword, String newPassword1, String newPassword2,
+		boolean passwordReset, String reminderQueryQuestion,
+		String reminderQueryAnswer, String screenName, String emailAddress,
+		long facebookId, String openId, boolean portrait, byte[] portraitBytes,
+		String languageId, String timeZoneId, String greeting, String comments,
+		String firstName, String middleName, String lastName, long prefixId,
+		long suffixId, boolean male, int birthdayMonth, int birthdayDay,
+		int birthdayYear, String smsSn, String facebookSn, String jabberSn,
+		String skypeSn, String twitterSn, String jobTitle, long[] groupIds,
 		long[] organizationIds, long[] roleIds,
 		java.util.List<com.liferay.portal.kernel.model.UserGroupRole> userGroupRoles,
 		long[] userGroupIds,
@@ -1167,30 +1260,26 @@ public class UserServiceUtil {
 	<code>uuid</code> attribute), asset category IDs, asset tag
 	names, and expando bridge attributes for the user.
 	* @return the user
-	* @deprecated As of 7.0.0, replaced by {@link #updateUser(long, String,
-	String, String, boolean, String, String, String, String,
-	long, String, boolean, byte[], String, String, String,
-	String, String, String, String, long, long, boolean, int,
-	int, int, String, String, String, String, String, String,
-	long[], long[], long[], List, long[], List, List, List, List,
-	List, ServiceContext)}
+	* @deprecated As of Wilberforce, replaced by {@link #updateUser(long,
+	String, String, String, boolean, String, String, String,
+	String, long, String, boolean, byte[], String, String,
+	String, String, String, String, String, long, long, boolean,
+	int, int, int, String, String, String, String, String,
+	String, long[], long[], long[], List, long[], List, List,
+	List, List, List, ServiceContext)}
 	*/
 	@Deprecated
 	public static com.liferay.portal.kernel.model.User updateUser(long userId,
-		java.lang.String oldPassword, java.lang.String newPassword1,
-		java.lang.String newPassword2, boolean passwordReset,
-		java.lang.String reminderQueryQuestion,
-		java.lang.String reminderQueryAnswer, java.lang.String screenName,
-		java.lang.String emailAddress, long facebookId,
-		java.lang.String openId, java.lang.String languageId,
-		java.lang.String timeZoneId, java.lang.String greeting,
-		java.lang.String comments, java.lang.String firstName,
-		java.lang.String middleName, java.lang.String lastName, long prefixId,
-		long suffixId, boolean male, int birthdayMonth, int birthdayDay,
-		int birthdayYear, java.lang.String smsSn, java.lang.String facebookSn,
-		java.lang.String jabberSn, java.lang.String skypeSn,
-		java.lang.String twitterSn, java.lang.String jobTitle, long[] groupIds,
-		long[] organizationIds, long[] roleIds,
+		String oldPassword, String newPassword1, String newPassword2,
+		boolean passwordReset, String reminderQueryQuestion,
+		String reminderQueryAnswer, String screenName, String emailAddress,
+		long facebookId, String openId, String languageId, String timeZoneId,
+		String greeting, String comments, String firstName, String middleName,
+		String lastName, long prefixId, long suffixId, boolean male,
+		int birthdayMonth, int birthdayDay, int birthdayYear, String smsSn,
+		String facebookSn, String jabberSn, String skypeSn, String twitterSn,
+		String jobTitle, long[] groupIds, long[] organizationIds,
+		long[] roleIds,
 		java.util.List<com.liferay.portal.kernel.model.UserGroupRole> userGroupRoles,
 		long[] userGroupIds,
 		java.util.List<com.liferay.portal.kernel.model.Address> addresses,
@@ -1261,20 +1350,16 @@ public class UserServiceUtil {
 	* @return the user
 	*/
 	public static com.liferay.portal.kernel.model.User updateUser(long userId,
-		java.lang.String oldPassword, java.lang.String newPassword1,
-		java.lang.String newPassword2, boolean passwordReset,
-		java.lang.String reminderQueryQuestion,
-		java.lang.String reminderQueryAnswer, java.lang.String screenName,
-		java.lang.String emailAddress, long facebookId,
-		java.lang.String openId, java.lang.String languageId,
-		java.lang.String timeZoneId, java.lang.String greeting,
-		java.lang.String comments, java.lang.String firstName,
-		java.lang.String middleName, java.lang.String lastName, long prefixId,
-		long suffixId, boolean male, int birthdayMonth, int birthdayDay,
-		int birthdayYear, java.lang.String smsSn, java.lang.String facebookSn,
-		java.lang.String jabberSn, java.lang.String skypeSn,
-		java.lang.String twitterSn, java.lang.String jobTitle, long[] groupIds,
-		long[] organizationIds, long[] roleIds,
+		String oldPassword, String newPassword1, String newPassword2,
+		boolean passwordReset, String reminderQueryQuestion,
+		String reminderQueryAnswer, String screenName, String emailAddress,
+		long facebookId, String openId, String languageId, String timeZoneId,
+		String greeting, String comments, String firstName, String middleName,
+		String lastName, long prefixId, long suffixId, boolean male,
+		int birthdayMonth, int birthdayDay, int birthdayYear, String smsSn,
+		String facebookSn, String jabberSn, String skypeSn, String twitterSn,
+		String jobTitle, long[] groupIds, long[] organizationIds,
+		long[] roleIds,
 		java.util.List<com.liferay.portal.kernel.model.UserGroupRole> userGroupRoles,
 		long[] userGroupIds, ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {

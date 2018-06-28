@@ -16,6 +16,7 @@ package com.liferay.portal.security.auth;
 
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.portlet.LiferayPortletURL;
+import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.security.auth.AuthTokenWhitelistUtil;
 import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
@@ -33,7 +34,6 @@ import com.liferay.portal.security.auth.bundle.authtokenwhitelistutil.TestPortal
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.SyntheticBundleRule;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portlet.PortletURLImpl;
 
 import java.util.Set;
 
@@ -61,7 +61,7 @@ public class AuthTokenWhitelistUtilTest {
 			new SyntheticBundleRule("bundle.authtokenwhitelistutil"));
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Test
@@ -76,7 +76,7 @@ public class AuthTokenWhitelistUtilTest {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Test
@@ -94,7 +94,7 @@ public class AuthTokenWhitelistUtilTest {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Test
@@ -110,7 +110,7 @@ public class AuthTokenWhitelistUtilTest {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Test
@@ -128,7 +128,7 @@ public class AuthTokenWhitelistUtilTest {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Test
@@ -146,7 +146,7 @@ public class AuthTokenWhitelistUtilTest {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Test
@@ -165,7 +165,7 @@ public class AuthTokenWhitelistUtilTest {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Test
@@ -183,7 +183,7 @@ public class AuthTokenWhitelistUtilTest {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of Wilberforce
 	 */
 	@Deprecated
 	@Test
@@ -320,7 +320,7 @@ public class AuthTokenWhitelistUtilTest {
 
 	@Test
 	public void testIsPortletURLCSRFWhitelistedForMVCActionCommand() {
-		LiferayPortletURL liferayPortletURL = new PortletURLImpl(
+		LiferayPortletURL liferayPortletURL = PortletURLFactoryUtil.create(
 			new MockHttpServletRequest(), TestMVCActionCommand.TEST_PORTLET_ID,
 			0, PortletRequest.ACTION_PHASE);
 
@@ -335,7 +335,7 @@ public class AuthTokenWhitelistUtilTest {
 
 	@Test
 	public void testIsPortletURLInvocationWhitelistedForMVCActionCommand() {
-		LiferayPortletURL liferayPortletURL = new PortletURLImpl(
+		LiferayPortletURL liferayPortletURL = PortletURLFactoryUtil.create(
 			new MockHttpServletRequest(), TestMVCActionCommand.TEST_PORTLET_ID,
 			0, PortletRequest.ACTION_PHASE);
 
@@ -350,7 +350,7 @@ public class AuthTokenWhitelistUtilTest {
 
 	@Test
 	public void testIsPortletURLInvocationWhitelistedForMVCRenderCommand() {
-		LiferayPortletURL liferayPortletURL = new PortletURLImpl(
+		LiferayPortletURL liferayPortletURL = PortletURLFactoryUtil.create(
 			new MockHttpServletRequest(), TestMVCRenderCommand.TEST_PORTLET_ID,
 			0, PortletRequest.RENDER_PHASE);
 
@@ -364,7 +364,7 @@ public class AuthTokenWhitelistUtilTest {
 
 	@Test
 	public void testIsPortletURLInvocationWhitelistedForMVCResourceCommand() {
-		LiferayPortletURL liferayPortletURL = new PortletURLImpl(
+		LiferayPortletURL liferayPortletURL = PortletURLFactoryUtil.create(
 			new MockHttpServletRequest(),
 			TestMVCResourceCommand.TEST_PORTLET_ID, 0,
 			PortletRequest.RESOURCE_PHASE);

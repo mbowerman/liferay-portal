@@ -24,7 +24,7 @@
 	<command name="addDisplayTemplateCP">
 		<execute macro="DDLNavigator#gotoManageDataDefinitions" />
 
-		<execute function="Click" locator1="NavBar#BASIC_SEARCH_FIELD" />
+		<execute function="Click" locator1="TextInput#SEARCH" />
 
 		<execute macro="Search#searchCP">
 			<var name="searchTerm" value="${ddlDataDefinitionName}" />
@@ -42,7 +42,9 @@
 
 		<execute function="AssertElementPresent#assertVisible" locator1="NavBar#ASSET_TITLE" value1="Templates" />
 
-		<execute macro="DDLNavigator#gotoAddDisplayTemplate" />
+		<execute macro="LexiconEntry#gotoAddMenuItem">
+			<var name="menuItem" value="Add Display Template" />
+		</execute>
 
 		<execute function="Click" locator1="TextInput#NAME" />
 
@@ -217,7 +219,7 @@
 			<var name="searchTerm" value="${ddlTemplateName}" />
 		</execute>
 
-		<execute function="Check#checkAll" locator1="Checkbox#SELECT_ALL" />
+		<execute macro="PortletEntry#selectAll" />
 
 		<execute function="ClickNoError" locator1="Icon#DELETE" />
 
@@ -245,11 +247,9 @@
 			<var name="key_menuItem" value="Manage Templates" />
 		</execute>
 
-		<execute macro="Search#searchCP">
-			<var name="searchTerm" value="${ddlTemplateName}" />
+		<execute macro="Portlet#viewEmptyMessage">
+			<var name="message" value="There are no templates." />
 		</execute>
-
-		<execute function="AssertTextEquals" locator1="Message#DDM_TEMPLATE_INFO" value1="There are no results." />
 	</command>
 
 	<command name="editDisplayTemplateCP">
@@ -345,10 +345,6 @@
 		<execute macro="Alert#viewSuccessMessage" />
 	</command>
 
-	<command name="saveFormTemplateCP">
-		<execute macro="PortletEntry#save" />
-	</command>
-
 	<command name="saveFormTemplateViaDDLDisplayPG">
 		<execute macro="DynamicDataMapping#selectDynamicDataMappingFrame" />
 
@@ -430,14 +426,6 @@
 				</if>
 			</then>
 		</if>
-	</command>
-
-	<command name="viewDefaultNoTemplatesCP">
-		<execute macro="DDLNavigator#gotoManageTemplates">
-			<var name="ddlDataDefinitionName" value="${ddlDataDefinitionName}" />
-		</execute>
-
-		<execute function="AssertTextEquals" locator1="Message#DDM_TEMPLATE_INFO" value1="There are no results." />
 	</command>
 
 	<command name="viewDisplayTemplateCP">

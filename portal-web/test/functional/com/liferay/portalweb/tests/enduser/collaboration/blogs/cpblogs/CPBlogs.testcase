@@ -202,7 +202,7 @@
 
 		<execute macro="Blogs#addEntry">
 			<var name="entryContent" value="Blogs Entry Content" />
-			<var name="entryTitle">&amp; &lt; &gt; &quot; Escape Characters Entry</var>
+			<var name="entryTitle"><![CDATA[& < > " Escape Characters Entry]]></var>
 		</execute>
 
 		<execute macro="Navigator#openURL" />
@@ -214,12 +214,12 @@
 		</execute>
 
 		<execute macro="BlogsNavigator#gotoEntryCP">
-			<var name="entryTitle">&amp; &lt; &gt; &quot; Escape Characters Entry</var>
+			<var name="entryTitle"><![CDATA[& < > " Escape Characters Entry]]></var>
 		</execute>
 
 		<execute macro="BlogsEntry#viewEntry">
 			<var name="entryContent" value="Blogs Entry Content" />
-			<var name="entryTitle">&amp; &lt; &gt; &quot; Escape Characters Entry</var>
+			<var name="entryTitle"><![CDATA[& < > " Escape Characters Entry]]></var>
 		</execute>
 	</command>
 
@@ -273,6 +273,7 @@
 
 		<execute macro="ItemSelector#addFromURL">
 			<var name="imageSourceURL" value="https://dummyimage.com/600x400/000/fff.jpg" />
+			<var name="navTab" value="URL" />
 		</execute>
 
 		<execute function="Pause" locator1="1000" />
@@ -418,7 +419,7 @@
 	<command name="DeleteBlogsEntries" priority="5">
 		<property name="portal.acceptance" value="false" />
 
-		<for list="1,2,3" param="entryCount" >
+		<for list="1,2,3" param="entryCount">
 			<execute macro="Navigator#openURL" />
 
 			<execute macro="ProductMenu#gotoPortlet">
@@ -433,7 +434,7 @@
 			</execute>
 		</for>
 
-		<for list="1,2,3" param="entryCount" >
+		<for list="1,2,3" param="entryCount">
 			<execute macro="Navigator#openURL" />
 
 			<execute macro="ProductMenu#gotoPortlet">
@@ -453,7 +454,7 @@
 			</execute>
 		</for>
 
-		<for list="1,2,3" param="entryCount" >
+		<for list="1,2,3" param="entryCount">
 			<execute macro="Navigator#openURL" />
 
 			<execute macro="ProductMenu#gotoPortlet">
@@ -476,7 +477,7 @@
 			<var name="portlet" value="Blogs" />
 		</execute>
 
-		<for list="1,2,3" param="entryCount" >
+		<for list="1,2,3" param="entryCount">
 			<execute macro="BlogsEntry#viewNoCP">
 				<var name="entryTitle" value="Blogs Entry${entryCount} Title" />
 			</execute>
@@ -730,8 +731,8 @@
 			<var name="portlet" value="Blogs" />
 		</execute>
 
-		<execute macro="Portlet#changeDisplayStyle">
-			<var name="displayStyle" value="descriptive" />
+		<execute macro="LexiconEntry#changeDisplayStyle">
+			<var name="displayStyle" value="list" />
 		</execute>
 
 		<execute macro="BlogsEntry#searchCP">
@@ -787,8 +788,8 @@
 			<var name="portlet" value="Blogs" />
 		</execute>
 
-		<execute macro="Portlet#changeDisplayStyle">
-			<var name="displayStyle" value="descriptive" />
+		<execute macro="LexiconEntry#changeDisplayStyle">
+			<var name="displayStyle" value="list" />
 		</execute>
 
 		<execute macro="BlogsEntry#searchCP">
@@ -840,7 +841,9 @@
 			<var name="uploadFileName" value="Document_1.jpg" />
 		</execute>
 
-		<execute macro="PortletEntry#publish" />
+		<execute macro="Button#clickPublish" />
+
+		<execute function="Pause" locator1="30000" />
 
 		<execute macro="BlogsNavigator#gotoEntryCP">
 			<var name="entryTitle" value="Blogs Entry Title" />
@@ -878,7 +881,9 @@
 			<var name="uploadFileName" value="Document_1.jpg" />
 		</execute>
 
-		<execute macro="PortletEntry#publish" />
+		<execute macro="Button#clickPublish" />
+
+		<execute function="Pause" locator1="30000" />
 
 		<execute macro="BlogsNavigator#gotoEntryCP">
 			<var name="entryTitle" value="Blogs Entry Title" />
@@ -922,8 +927,8 @@
 
 		<execute function="Click" locator1="Icon#BACK" />
 
-		<execute macro="Portlet#changeDisplayStyle">
-			<var name="displayStyle" value="descriptive" />
+		<execute macro="LexiconEntry#changeDisplayStyle">
+			<var name="displayStyle" value="list" />
 		</execute>
 
 		<var name="key_entryTitle" value="Blogs Entry Title" />
@@ -961,7 +966,9 @@
 			<var name="uploadFileName" value="Document_1.jpg" />
 		</execute>
 
-		<execute macro="PortletEntry#publish" />
+		<execute macro="Button#clickPublish" />
+
+		<execute function="Pause" locator1="30000" />
 
 		<execute macro="BlogsNavigator#gotoEntryCP">
 			<var name="entryTitle" value="Blogs Entry Title" />
@@ -999,7 +1006,7 @@
 		<execute macro="BlogsNavigator#gotoAddEntry" />
 
 		<execute macro="Panel#expandPanel">
-			<var name="panelHeading" value="Configuration" />
+			<var name="panel" value="Configuration" />
 		</execute>
 
 		<execute function="Click" locator1="Radio#CUSTOM_ABSTRACT" />
@@ -1008,6 +1015,10 @@
 
 		<execute function="AssertTextEquals" locator1="BlogsEntry#TITLE_FIELD_HELPER" value1="This field is required to publish the entry." />
 
-		<execute function="AssertTextEquals#assertPartialText" locator1="BlogsEntry#CONTENT_FIELD_HELPER" value1="This field is required." />
+		<execute macro="BlogsEntry#addTitle">
+			<var name="entryTitle" value="Blogs Title" />
+		</execute>
+
+		<execute macro="Alert#viewRequiredField" />
 	</command>
 </definition>

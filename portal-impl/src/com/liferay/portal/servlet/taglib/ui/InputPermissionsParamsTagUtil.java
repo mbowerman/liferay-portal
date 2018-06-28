@@ -14,6 +14,7 @@
 
 package com.liferay.portal.servlet.taglib.ui;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
@@ -26,7 +27,6 @@ import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.kernel.util.WebKeys;
 
@@ -42,7 +42,7 @@ import javax.servlet.jsp.PageContext;
 /**
  * @author     Brian Chan
  * @author     Jorge Ferrer
- * @deprecated As of 6.2.0, replaced by {@link
+ * @deprecated As of Newton, replaced by {@link
  *             com.liferay.taglib.ui.InputPermissionsParamsTag}
  */
 @Deprecated

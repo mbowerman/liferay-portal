@@ -14,7 +14,7 @@
 
 package com.liferay.portal.kernel.model;
 
-import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.petra.string.StringPool;
 
 /**
  * @author Brian Wing Shun Chan
@@ -32,7 +32,7 @@ public class OrganizationConstants {
 	public static final String NAME_RESERVED_WORDS = StringPool.NULL;
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	public static final String TYPE_LOCATION = "location";
@@ -40,7 +40,7 @@ public class OrganizationConstants {
 	public static final String TYPE_ORGANIZATION = "organization";
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Wilberforce, with no direct replacement
 	 */
 	@Deprecated
 	public static final String TYPE_REGULAR_ORGANIZATION =

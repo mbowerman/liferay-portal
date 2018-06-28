@@ -56,12 +56,11 @@ public interface ExportImportLocalService extends BaseLocalService {
 		throws PortalException;
 
 	/**
-	* @deprecated As of 7.0.0
+	* @deprecated As of Judson
 	*/
-	@java.lang.Deprecated
+	@Deprecated
 	public File exportLayoutsAsFile(long userId, long groupId,
-		boolean privateLayout,
-		Map<java.lang.String, java.lang.String[]> parameterMap)
+		boolean privateLayout, Map<String, String[]> parameterMap)
 		throws PortalException;
 
 	public long exportLayoutsAsFileInBackground(long userId,
@@ -87,7 +86,7 @@ public interface ExportImportLocalService extends BaseLocalService {
 	*
 	* @return the OSGi service identifier
 	*/
-	public java.lang.String getOSGiServiceIdentifier();
+	public String getOSGiServiceIdentifier();
 
 	public void importLayouts(
 		ExportImportConfiguration exportImportConfiguration, File file)
@@ -98,11 +97,11 @@ public interface ExportImportLocalService extends BaseLocalService {
 		InputStream inputStream) throws PortalException;
 
 	/**
-	* @deprecated As of 7.0.0
+	* @deprecated As of Judson
 	*/
-	@java.lang.Deprecated
+	@Deprecated
 	public void importLayouts(long userId, long groupId, boolean privateLayout,
-		Map<java.lang.String, java.lang.String[]> parameterMap, File file)
+		Map<String, String[]> parameterMap, File file)
 		throws PortalException;
 
 	public void importLayoutsDataDeletions(

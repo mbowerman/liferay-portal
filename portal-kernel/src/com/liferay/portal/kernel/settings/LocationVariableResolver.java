@@ -29,7 +29,7 @@ import java.io.IOException;
 public class LocationVariableResolver {
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Judson, replaced by {@link
 	 *             #LocationVariableResolver(ResourceManager,
 	 *             SettingsLocatorHelper)}
 	 */
@@ -38,6 +38,7 @@ public class LocationVariableResolver {
 		ResourceManager resourceManager, SettingsFactory settingsFactory) {
 
 		_resourceManager = resourceManager;
+
 		_settingsLocatorHelper =
 			SettingsLocatorHelperUtil.getSettingsLocatorHelper();
 	}

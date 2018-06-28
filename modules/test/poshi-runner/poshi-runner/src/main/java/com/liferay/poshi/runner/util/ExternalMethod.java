@@ -17,7 +17,11 @@ package com.liferay.poshi.runner.util;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import org.openqa.selenium.StaleElementReferenceException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Kevin Yen
@@ -30,34 +34,19 @@ public class ExternalMethod {
 
 		Object returnObject = null;
 
+		parameters = _transformParameters(parameters);
+
 		try {
 			returnObject = method.invoke(object, parameters);
 		}
-		catch (Exception e1) {
-			Throwable throwable = e1.getCause();
+		catch (Exception e) {
+			Throwable throwable = e.getCause();
 
-			if (throwable instanceof StaleElementReferenceException) {
-				StringBuilder sb = new StringBuilder();
-
-				sb.append("\nElement turned stale while running ");
-				sb.append(method.getName());
-				sb.append(". Retrying in ");
-				sb.append(PropsValues.TEST_RETRY_COMMAND_WAIT_TIME);
-				sb.append("seconds.");
-
-				System.out.println(sb.toString());
-
-				try {
-					returnObject = method.invoke(object, (Object[])parameters);
-				}
-				catch (Exception e2) {
-					throwable = e2.getCause();
-
-					throw new Exception(throwable.getMessage(), e2);
-				}
+			if (throwable != null) {
+				throw new Exception(throwable.getMessage(), e);
 			}
 			else {
-				throw new Exception(throwable.getMessage(), e1);
+				throw e;
 			}
 		}
 
@@ -107,26 +96,102 @@ public class ExternalMethod {
 	}
 
 	public static Method getMethod(
-			Class clazz, String methodName, Object[] parameters)
-		throws Exception {
+		Class<?> clazz, String methodName, Object[] parameters) {
 
-		Class<?>[] parameterTypes = _getTypes(parameters);
+		List<Method> filteredMethods = new ArrayList<>();
 
-		return clazz.getMethod(methodName, parameterTypes);
-	}
+		for (Method method : clazz.getMethods()) {
+			if (!methodName.equals(method.getName())) {
+				continue;
+			}
 
-	private static Class<?>[] _getTypes(Object[] objects) {
-		if ((objects == null) || (objects.length == 0)) {
-			return new Class<?>[0];
+			filteredMethods.add(method);
+
+			Class<?>[] methodParameterTypes = method.getParameterTypes();
+
+			if (methodParameterTypes.length != parameters.length) {
+				continue;
+			}
+
+			boolean parameterTypesMatch = true;
+
+			for (int i = 0; i < methodParameterTypes.length; i++) {
+				Object parameter = parameters[i];
+
+				if (Objects.equals(parameter, _POSHI_NULL_NOTATION)) {
+					continue;
+				}
+
+				if (!methodParameterTypes[i].isAssignableFrom(
+						parameter.getClass())) {
+
+					parameterTypesMatch = false;
+
+					break;
+				}
+			}
+
+			if (parameterTypesMatch) {
+				return method;
+			}
 		}
 
-		Class<?>[] objectTypes = new Class<?>[objects.length];
+		StringBuilder sb = new StringBuilder();
 
-		for (int i = 0; i < objects.length; i++) {
-			objectTypes[i] = objects[i].getClass();
+		sb.append("Unable to find method '");
+		sb.append(methodName);
+		sb.append("' of class '");
+		sb.append(clazz.getCanonicalName());
+		sb.append("'");
+
+		if ((parameters != null) && (parameters.length != 0)) {
+			sb.append(" with parameter types: (");
+
+			String[] parameterClassNames = new String[parameters.length];
+
+			int i = 0;
+
+			for (Object parameter : parameters) {
+				Class<?> parameterClass = parameter.getClass();
+
+				parameterClassNames[i] = parameterClass.toString();
+
+				i++;
+			}
+
+			sb.append(StringUtils.join(parameterClassNames, ", "));
+
+			sb.append(")");
 		}
 
-		return objectTypes;
+		sb.append("\nValid methods with the same name:\n");
+
+		if (filteredMethods.isEmpty()) {
+			sb.append("NONE\n");
+		}
+
+		for (Method filteredMethod : filteredMethods) {
+			sb.append("* ");
+			sb.append(methodName);
+			sb.append("(");
+			sb.append(
+				StringUtils.join(filteredMethod.getParameterTypes(), ", "));
+			sb.append(")\n");
+		}
+
+		throw new IllegalArgumentException(sb.toString());
 	}
+
+	private static Object[] _transformParameters(Object[] parameters) {
+		for (int i = 0; i < parameters.length; i++) {
+			if (Objects.equals(parameters[i], _POSHI_NULL_NOTATION)) {
+				parameters[i] = null;
+			}
+		}
+
+		return parameters;
+	}
+
+	private static final String _POSHI_NULL_NOTATION = "Poshi.NULL";
 
 }

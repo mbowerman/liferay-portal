@@ -23,7 +23,9 @@
 
 	<aui:fieldset-group>
 		<aui:fieldset>
-			<liferay-ui:input-editor contents="<%= message %>" />
+			<liferay-ui:input-editor
+				contents="<%= message %>"
+			/>
 		</aui:fieldset>
 	</aui:fieldset-group>
 
@@ -38,10 +40,18 @@
 
 <aui:script>
 	function <portlet:namespace />saveMessage() {
-		var message = window.<portlet:namespace />editor.getHTML();
+		var editorVal = window.<portlet:namespace />editor.getHTML();
 
-		document.<portlet:namespace />fm.<portlet:namespace />message.value = message;
+		var form = document.getElementById('<portlet:namespace />fm');
 
-		submitForm(document.<portlet:namespace />fm);
+		if (form) {
+			var message = form.querySelector('#<portlet:namespace />message');
+
+			if (message) {
+				message.value = editorVal;
+			}
+
+			submitForm(form);
+		}
 	}
 </aui:script>

@@ -25,7 +25,6 @@ public class BooleanClauseImpl<T> implements BooleanClause<T> {
 
 	public BooleanClauseImpl(T t, BooleanClauseOccur booleanClauseOccur) {
 		_t = t;
-
 		_booleanClauseOccur = booleanClauseOccur;
 	}
 
@@ -40,7 +39,7 @@ public class BooleanClauseImpl<T> implements BooleanClause<T> {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #getClause}
+	 * @deprecated As of Wilberforce, replaced by {@link #getClause}
 	 */
 	@Deprecated
 	@Override

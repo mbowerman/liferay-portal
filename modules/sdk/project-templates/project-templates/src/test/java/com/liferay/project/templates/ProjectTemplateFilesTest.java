@@ -15,6 +15,7 @@
 package com.liferay.project.templates;
 
 import aQute.bnd.osgi.Constants;
+import aQute.bnd.version.VersionRange;
 
 import com.liferay.project.templates.internal.util.FileUtil;
 import com.liferay.project.templates.internal.util.Validator;
@@ -37,6 +38,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -49,6 +51,7 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -94,6 +97,14 @@ public class ProjectTemplateFilesTest {
 		template = template.substring(0, pos);
 
 		_xmlDeclarations.put(fileName, template);
+	}
+
+	private static boolean _expressionContainedInList(
+		Collection<String> list, String expression) {
+
+		Stream<String> stream = list.stream();
+
+		return stream.anyMatch(expression::contains);
 	}
 
 	private List<BuildGradleDependency> _getBuildGradleDependencies(
@@ -159,9 +170,10 @@ public class ProjectTemplateFilesTest {
 	private void _testArchetypeMetadataXml(
 			Path projectTemplateDirPath, String projectTemplateDirName,
 			Path archetypeResourcesDirPath, Properties bndProperties,
-			boolean requireAuthorProperty,
-			Set<String> archetypeResourcePropertyNames)
-		throws IOException {
+			boolean requireAuthorProperty, String archetypePostGenerateGroovy,
+			Set<String> archetypeResourceExpressions,
+			DocumentBuilder documentBuilder)
+		throws Exception {
 
 		Path archetypeMetadataXmlPath = projectTemplateDirPath.resolve(
 			"src/main/resources/META-INF/maven/archetype-metadata.xml");
@@ -250,10 +262,26 @@ public class ProjectTemplateFilesTest {
 		}
 
 		for (String name : requiredPropertyNames) {
-			Assert.assertTrue(
+			Stream<String> stream = archetypeResourceExpressions.stream();
+
+			boolean anyMatch = stream.anyMatch(
+				expression -> {
+					if (expression.contains(name) ||
+						archetypePostGenerateGroovy.contains(
+							"request.properties.get(\"" + name + "\")")) {
+
+						return true;
+					}
+					else {
+						return false;
+					}
+				});
+
+			String message =
 				"Unused \"" + name + "\" required property in " +
-					archetypeMetadataXmlPath,
-				archetypeResourcePropertyNames.contains(name));
+					archetypeMetadataXmlPath;
+
+			Assert.assertTrue(message, anyMatch);
 		}
 
 		requiredPropertyNames.addAll(_archetypeMetadataXmlDefaultPropertyNames);
@@ -285,6 +313,7 @@ public class ProjectTemplateFilesTest {
 		}
 
 		Set<String> declaredVariables = new HashSet<>();
+
 		StringBuilder messageSuffix = new StringBuilder(
 			archetypeMetadataXmlPath.toString());
 
@@ -306,13 +335,45 @@ public class ProjectTemplateFilesTest {
 			}
 		}
 
-		for (String name : archetypeResourcePropertyNames) {
-			Assert.assertTrue(
-				"Undeclared \"" + name + "\" property. Please add it to " +
-					archetypeMetadataXmlPath,
-				declaredVariables.contains(name) ||
-				requiredPropertyNames.contains(name));
+		Path archetypePomXmlPath = projectTemplateDirPath.resolve(
+			"src/main/resources/archetype-resources/pom.xml");
+
+		Document document = documentBuilder.parse(archetypePomXmlPath.toFile());
+
+		Element projectElement = document.getDocumentElement();
+
+		Element propertiesElement = XMLTestUtil.getChildElement(
+			projectElement, "properties");
+
+		List<Element> propertyElements = XMLTestUtil.getChildElements(
+			propertiesElement);
+
+		for (Element element : propertyElements) {
+			declaredVariables.add(element.getNodeName());
 		}
+
+		for (String expression : archetypeResourceExpressions) {
+			Assert.assertTrue(
+				"Undeclared \"" + expression + "\" property. Please add to " +
+					archetypeMetadataXmlPath,
+				_expressionContainedInList(declaredVariables, expression) ||
+				_expressionContainedInList(requiredPropertyNames, expression) ||
+				_expressionContainedInList(
+					_archetypeMetadataXmlDefaultPropertyNames, expression));
+		}
+	}
+
+	private String _testArchetypePostGenerateGroovy(Path projectTemplateDirPath)
+		throws IOException {
+
+		Path path = projectTemplateDirPath.resolve(
+			"src/main/resources/META-INF/archetype-post-generate.groovy");
+
+		if (Files.notExists(path)) {
+			return "";
+		}
+
+		return _testTextFile(path);
 	}
 
 	private Properties _testBndBnd(Path projectTemplateDirPath)
@@ -337,6 +398,19 @@ public class ProjectTemplateFilesTest {
 				" must match pattern \"" + _bundleDescriptionPattern.pattern() +
 					"\"",
 			matcher.matches());
+
+		String liferayVersions = properties.getProperty("Liferay-Versions");
+
+		Assert.assertTrue(
+			"Missing \"Liferay Versions\" header in " + bndBndPath,
+			Validator.isNotNull(liferayVersions));
+
+		VersionRange versionRange = new VersionRange(liferayVersions);
+
+		Assert.assertTrue(
+			"\"Liferay-Versions\" header in " + bndBndPath + " must be a " +
+				"valid OSGi version range",
+			versionRange.isRange());
 
 		return properties;
 	}
@@ -366,6 +440,10 @@ public class ProjectTemplateFilesTest {
 			buildGradlePath + " contains \"latest.release\". Please use a " +
 				"tokenized version from /modules/build.gradle",
 			buildGradle.contains("latest.release"));
+
+		Assert.assertFalse(
+			buildGradlePath + " contains \"mavenLocal()\". Please remove it.",
+			buildGradle.contains("mavenLocal()"));
 	}
 
 	private void _testGitIgnore(
@@ -457,36 +535,37 @@ public class ProjectTemplateFilesTest {
 			Properties properties = FileUtil.readProperties(path);
 
 			String keywords = properties.getProperty(
-				"javax.portlet.keywords.${artifactId}");
+				"javax.portlet.keywords.${className.toLowerCase()}");
 
 			Assert.assertTrue(
-				"Value of \"javax.portlet.keywords.${artifactId}\" in " + path +
-					" must start with \"${artifactId},\"",
-				(keywords != null) && keywords.startsWith("${artifactId},"));
+				"Value of \"javax.portlet.keywords.${className.toLowerCase()}" +
+					"\" in " + path + " must be \"${className}\"",
+				(keywords != null) && keywords.equals("${className}"));
 
 			String title = properties.getProperty(
-				"javax.portlet.title.${artifactId}");
+				"javax.portlet.title.${className.toLowerCase()}");
 
 			Assert.assertTrue(
-				"Value of \"javax.portlet.title.${artifactId}\" in " + path +
-					" must end with \" Portlet\"",
-				(title != null) && title.endsWith(" Portlet"));
+				"Value of \"javax.portlet.title.${className.toLowerCase()}" +
+					"\" in " + path + " must be \"${className}\"",
+				(title != null) && title.equals("${className}"));
 
-			String expectedShortTitle = title.substring(0, title.length() - 8);
-
-			Assert.assertEquals(
-				"Incorrect value of " +
-					"\"javax.portlet.display-name.${artifactId}\" in " + path,
-				expectedShortTitle,
-				properties.getProperty(
-					"javax.portlet.display-name.${artifactId}"));
+			String expectedShortTitle = "${className}";
 
 			Assert.assertEquals(
 				"Incorrect value of " +
-					"\"javax.portlet.short-title.${artifactId}\" in " + path,
+					"\"javax.portlet.display-name.${className.toLowerCase()}" +
+						"\" in " + path,
 				expectedShortTitle,
 				properties.getProperty(
-					"javax.portlet.short-title.${artifactId}"));
+					"javax.portlet.display-name.${className.toLowerCase()}"));
+
+			Assert.assertEquals(
+				"Incorrect value of \"javax.portlet.short-title.${className." +
+					"toLowerCase()}\" in " + path,
+				expectedShortTitle,
+				properties.getProperty(
+					"javax.portlet.short-title.${className.toLowerCase()}"));
 		}
 	}
 
@@ -773,7 +852,7 @@ public class ProjectTemplateFilesTest {
 			projectTemplateDirName, projectTemplateDirPath);
 
 		final AtomicBoolean requireAuthorProperty = new AtomicBoolean();
-		final Set<String> archetypeResourcePropertyNames = new HashSet<>();
+		final Set<String> archetypeResourceExpressions = new HashSet<>();
 
 		Files.walkFileTree(
 			archetypeResourcesDirPath,
@@ -834,7 +913,7 @@ public class ProjectTemplateFilesTest {
 					if (_isTextFile(fileName, extension)) {
 						_testTextFile(
 							path, fileName, extension,
-							archetypeResourcePropertyNames);
+							archetypeResourceExpressions);
 					}
 
 					return FileVisitResult.CONTINUE;
@@ -842,10 +921,14 @@ public class ProjectTemplateFilesTest {
 
 			});
 
+		String archetypePostGenerateGroovy = _testArchetypePostGenerateGroovy(
+			projectTemplateDirPath);
+
 		_testArchetypeMetadataXml(
 			projectTemplateDirPath, projectTemplateDirName,
 			archetypeResourcesDirPath, bndProperties,
-			requireAuthorProperty.get(), archetypeResourcePropertyNames);
+			requireAuthorProperty.get(), archetypePostGenerateGroovy,
+			archetypeResourceExpressions, documentBuilder);
 	}
 
 	private void _testPropertyValue(
@@ -856,11 +939,7 @@ public class ProjectTemplateFilesTest {
 			properties.getProperty(key));
 	}
 
-	private void _testTextFile(
-			Path path, String fileName, String extension,
-			Set<String> archetypeResourcePropertyNames)
-		throws IOException {
-
+	private String _testTextFile(Path path) throws IOException {
 		String text = FileUtil.read(path);
 
 		Assert.assertEquals(
@@ -879,6 +958,16 @@ public class ProjectTemplateFilesTest {
 					Character.isWhitespace(line.charAt(line.length() - 1)));
 			}
 		}
+
+		return text;
+	}
+
+	private void _testTextFile(
+			Path path, String fileName, String extension,
+			Set<String> archetypeResourceExpressions)
+		throws IOException {
+
+		String text = _testTextFile(path);
 
 		Matcher matcher = _velocityDirectivePattern.matcher(text);
 
@@ -910,13 +999,13 @@ public class ProjectTemplateFilesTest {
 		}
 
 		if (!fileName.endsWith(".js")) {
-			matcher = _archetypeResourcePropertyNamePattern.matcher(text);
+			matcher = _archetypeResourceExpressionPattern.matcher(text);
 
 			while (matcher.find()) {
 				String name = matcher.group(1);
 
 				if (!text.contains("#set ($" + name + " = ")) {
-					archetypeResourcePropertyNames.add(name);
+					archetypeResourceExpressions.add(name);
 				}
 			}
 		}
@@ -927,13 +1016,13 @@ public class ProjectTemplateFilesTest {
 
 	private static final List<String>
 		_archetypeMetadataXmlDefaultPropertyNames = Arrays.asList(
-			"artifactId", "groupId", "package", "version");
+			"artifactId", "groupId", "package", "project", "version");
 	private static final Pattern _archetypeMetadataXmlIncludePattern =
 		Pattern.compile("<include>([^\\*]+?)<\\/include>");
 	private static final Pattern _archetypeMetadataXmlRequiredPropertyPattern =
 		Pattern.compile("<requiredProperty key=\"(\\w+)\">");
-	private static final Pattern _archetypeResourcePropertyNamePattern =
-		Pattern.compile("\\$\\{(\\w+)\\}");
+	private static final Pattern _archetypeResourceExpressionPattern =
+		Pattern.compile("\\$\\{([^\\}]*)\\}");
 	private static final Pattern _buildGradleDependencyPattern =
 		Pattern.compile(
 			"(compile(?:Only)?) group: \"(.+)\", name: \"(.+)\", " +

@@ -19,6 +19,7 @@ import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetCategoryLocalServiceUtil;
 import com.liferay.asset.kernel.service.persistence.AssetEntryFinder;
 import com.liferay.asset.kernel.service.persistence.AssetEntryQuery;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.SQLQuery;
@@ -27,10 +28,10 @@ import com.liferay.portal.kernel.dao.orm.Type;
 import com.liferay.portal.kernel.dao.orm.WildcardMode;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CalendarUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.util.PropsValues;
@@ -97,7 +98,7 @@ public class AssetEntryFinderImpl
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	@Override
@@ -139,7 +140,7 @@ public class AssetEntryFinderImpl
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	@Override
@@ -375,7 +376,7 @@ public class AssetEntryFinderImpl
 
 		sb.append("FROM AssetEntry ");
 
-		if (entryQuery.getAnyTagIds().length > 0) {
+		if (ArrayUtil.isNotEmpty(entryQuery.getAnyTagIds())) {
 			sb.append("INNER JOIN AssetEntries_AssetTags ON ");
 			sb.append("(AssetEntries_AssetTags.entryId = AssetEntry.entryId) ");
 			sb.append("INNER JOIN AssetTag ON (AssetTag.tagId = ");
@@ -470,43 +471,43 @@ public class AssetEntryFinderImpl
 
 		// Category conditions
 
-		if (entryQuery.getAllCategoryIds().length > 0) {
+		if (ArrayUtil.isNotEmpty(entryQuery.getAllCategoryIds())) {
 			buildAllCategoriesSQL(entryQuery.getAllCategoryIds(), sb);
 		}
 
-		if (entryQuery.getAnyCategoryIds().length > 0) {
+		if (ArrayUtil.isNotEmpty(entryQuery.getAnyCategoryIds())) {
 			buildAnyCategoriesSQL(entryQuery.getAnyCategoryIds(), sb);
 		}
 
-		if (entryQuery.getNotAllCategoryIds().length > 0) {
+		if (ArrayUtil.isNotEmpty(entryQuery.getNotAllCategoryIds())) {
 			buildNotAllCategoriesSQL(entryQuery.getNotAllCategoryIds(), sb);
 		}
 
-		if (entryQuery.getNotAnyCategoryIds().length > 0) {
+		if (ArrayUtil.isNotEmpty(entryQuery.getNotAnyCategoryIds())) {
 			buildNotAnyCategoriesSQL(entryQuery.getNotAnyCategoryIds(), sb);
 		}
 
 		// Asset entry subtypes
 
-		if (entryQuery.getClassTypeIds().length > 0) {
+		if (ArrayUtil.isNotEmpty(entryQuery.getClassTypeIds())) {
 			buildClassTypeIdsSQL(entryQuery.getClassTypeIds(), sb);
 		}
 
 		// Tag conditions
 
-		if (entryQuery.getAllTagIds().length > 0) {
+		if (ArrayUtil.isNotEmpty(entryQuery.getAllTagIds())) {
 			buildAllTagsSQL(entryQuery.getAllTagIdsArray(), sb);
 		}
 
-		if (entryQuery.getAnyTagIds().length > 0) {
+		if (ArrayUtil.isNotEmpty(entryQuery.getAnyTagIds())) {
 			buildAnyTagsSQL(entryQuery.getAnyTagIds(), sb);
 		}
 
-		if (entryQuery.getNotAllTagIds().length > 0) {
+		if (ArrayUtil.isNotEmpty(entryQuery.getNotAllTagIds())) {
 			buildNotAllTagsSQL(entryQuery.getNotAllTagIdsArray(), sb);
 		}
 
-		if (entryQuery.getNotAnyTagIds().length > 0) {
+		if (ArrayUtil.isNotEmpty(entryQuery.getNotAnyTagIds())) {
 			buildNotAnyTagsSQL(entryQuery.getNotAnyTagIds(), sb);
 		}
 
@@ -523,7 +524,8 @@ public class AssetEntryFinderImpl
 			sb.append("TEMP_TABLE.entryId = AssetEntry.entryId ORDER BY ");
 
 			if (orderByCol1.equals("ratings")) {
-				sb.append("TEMP_TABLE.averageScore");
+				sb.append("CASE WHEN TEMP_TABLE.averageScore IS NULL THEN 0 ");
+				sb.append("ELSE TEMP_TABLE.averageScore END");
 			}
 			else {
 				sb.append("AssetEntry.");
@@ -537,7 +539,9 @@ public class AssetEntryFinderImpl
 				!orderByCol1.equals(orderByCol2)) {
 
 				if (orderByCol2.equals("ratings")) {
-					sb.append(", TEMP_TABLE.averageScore");
+					sb.append(
+						", CASE WHEN TEMP_TABLE.averageScore IS NULL THEN 0 ");
+					sb.append("ELSE TEMP_TABLE.averageScore END");
 				}
 				else {
 					sb.append(", AssetEntry.");

@@ -14,18 +14,21 @@
 
 package com.liferay.poshi.runner.elements;
 
-import com.liferay.poshi.runner.util.RegexUtil;
+import com.liferay.poshi.runner.util.Dom4JUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.dom4j.Attribute;
 import org.dom4j.Element;
+import org.dom4j.Node;
 
 /**
  * @author Kenji Heigel
  */
-public class CommandPoshiElement extends BasePoshiElement {
+public class CommandPoshiElement extends PoshiElement {
 
 	@Override
 	public PoshiElement clone(Element element) {
@@ -38,46 +41,52 @@ public class CommandPoshiElement extends BasePoshiElement {
 
 	@Override
 	public PoshiElement clone(
-		PoshiElement parentPoshiElement, String readableSyntax) {
+		PoshiElement parentPoshiElement, String poshiScript) {
 
-		if (_isElementType(readableSyntax)) {
-			return new CommandPoshiElement(readableSyntax);
+		if (_isElementType(parentPoshiElement, poshiScript)) {
+			return new CommandPoshiElement(parentPoshiElement, poshiScript);
 		}
 
 		return null;
 	}
 
 	@Override
-	public void parseReadableSyntax(String readableSyntax) {
-		for (String readableBlock : getReadableBlocks(readableSyntax)) {
-			if (readableBlock.endsWith("}") || readableBlock.endsWith(";") ||
-				readableBlock.startsWith("@description")) {
+	public void parsePoshiScript(String poshiScript) {
+		String blockName = getBlockName(poshiScript);
 
-				add(PoshiElementFactory.newPoshiElement(this, readableBlock));
+		Matcher poshiScriptAnnotationMatcher =
+			poshiScriptAnnotationPattern.matcher(blockName);
 
-				continue;
-			}
+		while (poshiScriptAnnotationMatcher.find()) {
+			String annotation = poshiScriptAnnotationMatcher.group();
 
-			if (readableBlock.endsWith("{")) {
-				String name = RegexUtil.getGroup(
-					readableBlock, "test([\\w]*)", 1);
-
-				addAttribute("name", name);
+			if (annotation.startsWith("@description")) {
+				add(PoshiNodeFactory.newPoshiNode(this, annotation));
 
 				continue;
 			}
 
-			if (readableBlock.startsWith("@")) {
-				String name = getNameFromAssignment(readableBlock);
-				String value = getQuotedContent(readableBlock);
+			String name = getNameFromAssignment(annotation);
+			String value = getQuotedContent(annotation);
 
-				addAttribute(name, value);
-			}
+			addAttribute(name, value);
+		}
+
+		Matcher blockNameMatcher = _blockNamePattern.matcher(blockName);
+
+		if (blockNameMatcher.find()) {
+			addAttribute("name", blockNameMatcher.group(3));
+		}
+
+		String blockContent = getBlockContent(poshiScript);
+
+		for (String poshiScriptSnippet : getPoshiScriptSnippets(blockContent)) {
+			add(PoshiNodeFactory.newPoshiNode(this, poshiScriptSnippet.trim()));
 		}
 	}
 
 	@Override
-	public String toReadableSyntax() {
+	public String toPoshiScript() {
 		StringBuilder sb = new StringBuilder();
 
 		for (PoshiElement poshiElement :
@@ -98,16 +107,25 @@ public class CommandPoshiElement extends BasePoshiElement {
 			}
 
 			sb.append("\n\t@");
-			sb.append(poshiElementAttribute.toReadableSyntax());
+			sb.append(poshiElementAttribute.toPoshiScript());
 		}
 
-		List<String> readableBlocks = new ArrayList<>();
+		List<String> poshiScriptSnippets = new ArrayList<>();
 
-		for (PoshiElement poshiElement : toPoshiElements(elements())) {
-			readableBlocks.add(poshiElement.toReadableSyntax());
+		for (Node node : Dom4JUtil.toNodeList(content())) {
+			if (node instanceof PoshiComment) {
+				PoshiComment poshiComment = (PoshiComment)node;
+
+				poshiScriptSnippets.add(poshiComment.toPoshiScript());
+			}
+			else if (node instanceof PoshiElement) {
+				PoshiElement poshiElement = (PoshiElement)node;
+
+				poshiScriptSnippets.add(poshiElement.toPoshiScript());
+			}
 		}
 
-		sb.append(createReadableBlock(readableBlocks));
+		sb.append(createPoshiScriptSnippet(poshiScriptSnippets));
 
 		return sb.toString();
 	}
@@ -119,19 +137,35 @@ public class CommandPoshiElement extends BasePoshiElement {
 		this(_ELEMENT_NAME, element);
 	}
 
-	protected CommandPoshiElement(String readableSyntax) {
-		this(_ELEMENT_NAME, readableSyntax);
+	protected CommandPoshiElement(
+		List<Attribute> attributes, List<Node> nodes) {
+
+		this(_ELEMENT_NAME, attributes, nodes);
+	}
+
+	protected CommandPoshiElement(
+		PoshiElement parentPoshiElement, String poshiScript) {
+
+		this(_ELEMENT_NAME, parentPoshiElement, poshiScript);
 	}
 
 	protected CommandPoshiElement(String name, Element element) {
 		super(name, element);
 	}
 
-	protected CommandPoshiElement(String name, String readableSyntax) {
-		super(name, readableSyntax);
+	protected CommandPoshiElement(
+		String elementName, List<Attribute> attributes, List<Node> nodes) {
+
+		super(elementName, attributes, nodes);
 	}
 
-	protected String createReadableBlock(List<String> items) {
+	protected CommandPoshiElement(
+		String name, PoshiElement parentPoshiElement, String poshiScript) {
+
+		super(name, parentPoshiElement, poshiScript);
+	}
+
+	protected String createPoshiScriptSnippet(List<String> items) {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("\n");
@@ -174,6 +208,14 @@ public class CommandPoshiElement extends BasePoshiElement {
 				continue;
 			}
 
+			if (isMultilinePoshiScriptComment(item)) {
+				item = item.replaceFirst("\t", pad + "\t");
+
+				sb.append(item);
+
+				continue;
+			}
+
 			item = item.replaceAll("\n", "\n" + pad);
 
 			sb.append(item.replaceAll("\n\t\n", "\n\n"));
@@ -188,99 +230,34 @@ public class CommandPoshiElement extends BasePoshiElement {
 
 	@Override
 	protected String getBlockName() {
-		return getReadableCommandTitle();
+		return getPoshiScriptKeyword() + " " + attributeValue("name");
 	}
 
-	protected List<String> getReadableBlocks(String readableSyntax) {
-		StringBuilder sb = new StringBuilder();
-
-		List<String> readableBlocks = new ArrayList<>();
-
-		for (String line : readableSyntax.split("\n")) {
-			String trimmedLine = line.trim();
-
-			if (trimmedLine.length() == 0) {
-				sb.append("\n");
-
-				continue;
-			}
-
-			if (trimmedLine.startsWith("setUp") ||
-				trimmedLine.startsWith("tearDown")) {
-
-				continue;
-			}
-
-			if ((trimmedLine.endsWith(" {") &&
-				 trimmedLine.startsWith("test")) ||
-				trimmedLine.startsWith("@")) {
-
-				readableBlocks.add(trimmedLine);
-
-				continue;
-			}
-
-			if (!trimmedLine.startsWith("else {") &&
-				!trimmedLine.startsWith("else if")) {
-
-				String readableBlock = sb.toString();
-
-				readableBlock = readableBlock.trim();
-
-				if (isValidReadableBlock(readableBlock)) {
-					readableBlocks.add(readableBlock);
-
-					sb.setLength(0);
-				}
-			}
-
-			sb.append(line);
-			sb.append("\n");
-		}
-
-		return readableBlocks;
-	}
-
-	protected String getReadableCommandTitle() {
-		return "test" + attributeValue("name");
-	}
-
-	protected boolean isCDATAVar(String readableSyntax) {
-		if (readableSyntax.contains("escapeText(")) {
+	protected boolean isCDATAVar(String poshiScript) {
+		if (poshiScript.contains("\'\'\'")) {
 			return true;
 		}
 
 		return false;
 	}
 
-	private boolean _isElementType(String readableSyntax) {
-		readableSyntax = readableSyntax.trim();
+	private boolean _isElementType(
+		PoshiElement parentPoshiElement, String poshiScript) {
 
-		if (!isBalancedReadableSyntax(readableSyntax)) {
+		if (!(parentPoshiElement instanceof DefinitionPoshiElement)) {
 			return false;
 		}
 
-		if (!readableSyntax.endsWith("}")) {
-			return false;
-		}
-
-		for (String line : readableSyntax.split("\n")) {
-			line = line.trim();
-
-			if (line.startsWith("@")) {
-				continue;
-			}
-
-			if (!(line.endsWith("{") && line.startsWith("test"))) {
-				return false;
-			}
-
-			break;
-		}
-
-		return true;
+		return isValidPoshiScriptBlock(_blockNamePattern, poshiScript);
 	}
 
 	private static final String _ELEMENT_NAME = "command";
+
+	private static final String _POSHI_SCRIPT_KEYWORD_REGEX = "(macro|test)";
+
+	private static final Pattern _blockNamePattern = Pattern.compile(
+		"^" + BLOCK_NAME_ANNOTATION_REGEX + _POSHI_SCRIPT_KEYWORD_REGEX +
+			"[\\s]*([\\w]*)",
+		Pattern.DOTALL);
 
 }

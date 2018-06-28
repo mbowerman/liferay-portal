@@ -90,7 +90,7 @@
 				</execute>
 
 				<execute macro="Panel#expandPanel">
-					<var name="panelHeading" value="Structure and Template" />
+					<var name="panel" value="Structure and Template" />
 				</execute>
 
 				<execute function="AssertTextEquals" locator1="WCEditWebContent#SELECTED_STRUCTURE" value1="${structureName}" />
@@ -131,7 +131,7 @@
 				<execute function="SelectFrame" locator1="IFrame#MODAL_IFRAME" />
 
 				<execute macro="Panel#expandPanel">
-					<var name="panelHeading" value="Structure and Template" />
+					<var name="panel" value="Structure and Template" />
 				</execute>
 
 				<execute function="AssertTextEquals" locator1="WCEditWebContent#SELECTED_TEMPLATE" value1="${templateName}" />
@@ -253,7 +253,7 @@
 
 		<var name="key_webContentTitle" value="${webContentTitle}" />
 
-		<execute function="AssertElementNotPresent" locator1="WCDConfiguration#WEB_CONTENT_TABLE_TITLE" value1="${webContentTitle}" />
+		<execute function="AssertElementNotPresent" locator1="WCDConfiguration#WEB_CONTENT_TABLE_TITLE" />
 
 		<execute function="SelectFrame" value1="relative=top" />
 	</command>
@@ -272,11 +272,11 @@
 
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
-		<execute function="Click" locator1="Dropdown#FILTER" />
+		<execute function="Click" locator1="Dropdown#FILTER_AND_ORDER" />
 
-		<var name="key_filterValue" value="${parentSiteName}" />
-
-		<execute function="AssertClick" locator1="Dropdown#FILTER_VALUES" value1="${parentSiteName}" />
+		<execute function="Click" locator1="MenuItem#ANY_MENU_ITEM" value1="${parentSiteName}">
+			<var name="key_menuItem" value="${parentSiteName}" />
+		</execute>
 
 		<var name="key_webContentTitle" value="${webContentTitle}" />
 
@@ -342,8 +342,8 @@
 
 		<execute function="AssertClick" locator1="Button#REPLY" value1="Reply" />
 
-		<execute function="AssertElementPresent" locator1="Comments#THUMBS_UP" />
-		<execute function="AssertElementPresent" locator1="Comments#THUMBS_DOWN" />
+		<execute function="AssertElementPresent" locator1="Ratings#THUMB_UP" />
+		<execute function="AssertElementPresent" locator1="Ratings#THUMB_DOWN" />
 	</command>
 
 	<command name="viewConfigureScopePG">
@@ -352,10 +352,10 @@
 		<if>
 			<equals arg1="${scopeSelectionDefault}" arg2="true" />
 			<then>
-				<execute function="AssertTextEquals" locator1="Portlet#TITLE" value1="Web Content Display" />
+				<execute function="AssertTextEquals#assertTextCaseInsensitive" locator1="Portlet#TITLE" value1="Web Content Display" />
 			</then>
 			<else>
-				<execute function="AssertTextEquals" locator1="Portlet#TITLE" value1="Web Content Display (${scopeSelection})" />
+				<execute function="AssertTextEquals#assertTextCaseInsensitive" locator1="Portlet#TITLE" value1="Web Content Display (${scopeSelection})" />
 			</else>
 		</if>
 

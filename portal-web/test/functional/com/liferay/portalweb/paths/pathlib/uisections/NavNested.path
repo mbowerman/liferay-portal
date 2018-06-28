@@ -14,8 +14,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>NAV_NESTED_ELLIPSIS</td>
+	<td>//ul[contains(@class,'nav-nested')]//*[*[name()='svg'][contains(@class,'ellipsis-v')]]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>NAV_NESTED_LINK</td>
 	<td>//ul[contains(@class,'nav-nested')]//li//*[normalize-space()='${key_navNested}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>NAV_NESTED_PLUS</td>
+	<td>//ul[contains(@class,'nav-nested')]//span[*[name()='svg'][contains(@class,'icon-plus')]]</td>
 	<td></td>
 </tr>
 </tbody>

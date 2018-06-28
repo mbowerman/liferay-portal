@@ -15,6 +15,7 @@
 package com.liferay.portal.tools.deploy;
 
 import com.liferay.petra.function.UnsafeConsumer;
+import com.liferay.petra.string.StringPool;
 import com.liferay.petra.xml.DocUtil;
 import com.liferay.petra.xml.XMLUtil;
 import com.liferay.portal.deploy.DeployUtil;
@@ -42,7 +43,6 @@ import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.TextFormatter;
@@ -514,6 +514,10 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 			FileUtil.copyFile(
 				portletTaglibDTD, srcFile + "/WEB-INF/tld/liferay-portlet.tld",
 				true);
+			FileUtil.copyFile(
+				DeployUtil.getResourcePath(
+					tempDirPaths, "liferay-portlet_2_0.tld"),
+				srcFile + "/WEB-INF/tld/liferay-portlet_2_0.tld", true);
 		}
 
 		if (Validator.isNotNull(portletExtTaglibDTD)) {
@@ -1237,7 +1241,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 			sb.append("<taglib-uri>http://java.sun.com/portlet_2_0");
 			sb.append("</taglib-uri>");
 			sb.append("<taglib-location>");
-			sb.append("/WEB-INF/tld/liferay-portlet.tld");
+			sb.append("/WEB-INF/tld/liferay-portlet_2_0.tld");
 			sb.append("</taglib-location>");
 			sb.append("</taglib>");
 		}

@@ -33,6 +33,7 @@ import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
 import com.liferay.dynamic.data.mapping.kernel.DDMStructureManager;
 import com.liferay.dynamic.data.mapping.kernel.DDMStructureManagerUtil;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -42,6 +43,7 @@ import com.liferay.portal.kernel.model.LayoutTypePortletConstants;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.portlet.LiferayPortletURL;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortletBag;
 import com.liferay.portal.kernel.portlet.PortletBagPool;
@@ -70,11 +72,9 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PredicateFilter;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portlet.PortletURLImpl;
 import com.liferay.portlet.asset.service.permission.AssetCategoryPermission;
 import com.liferay.portlet.asset.service.permission.AssetVocabularyPermission;
 
@@ -100,7 +100,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author     Brian Wing Shun Chan
  * @author     Jorge Ferrer
- * @deprecated As of 7.0.0, replaced by {@link
+ * @deprecated As of Judson, replaced by {@link
  *             com.liferay.asset.util.impl.AssetUtil}
  */
 @Deprecated
@@ -384,7 +384,7 @@ public class AssetUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Wilberforce, replaced by {@link
 	 *             #getAddPortletURL(LiferayPortletRequest,
 	 *             LiferayPortletResponse, long, String, long, long[], String[],
 	 *             String)}
@@ -408,7 +408,7 @@ public class AssetUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Judson, replaced by {@link
 	 *             #getAssetPublisherAddItemHolders(LiferayPortletRequest,
 	 *             LiferayPortletResponse, long, long[], long[], long[],
 	 *             String[], String)}
@@ -442,7 +442,7 @@ public class AssetUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of Wilberforce, replaced by {@link
 	 *             #getAssetPublisherAddItemHolders(LiferayPortletRequest,
 	 *             LiferayPortletResponse, long, long[], long[], long[],
 	 *             String[], String)}
@@ -478,12 +478,13 @@ public class AssetUtil {
 			addPortletURL.setParameter("layoutUuid", layout.getUuid());
 		}
 
-		if (addPortletURL instanceof PortletURLImpl) {
-			PortletURLImpl portletURLImpl = (PortletURLImpl)addPortletURL;
+		if (addPortletURL instanceof LiferayPortletURL) {
+			LiferayPortletURL liferayPortletURL =
+				(LiferayPortletURL)addPortletURL;
 
-			portletURLImpl.setRefererPlid(plid);
+			liferayPortletURL.setRefererPlid(plid);
 
-			return portletURLImpl.toString();
+			return liferayPortletURL.toString();
 		}
 
 		return HttpUtil.addParameter(
@@ -491,7 +492,7 @@ public class AssetUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #getAddURLPopUp(long, long,
+	 * @deprecated As of Judson, replaced by {@link #getAddURLPopUp(long, long,
 	 *             PortletURL, boolean, Layout)}
 	 */
 	@Deprecated
@@ -661,7 +662,7 @@ public class AssetUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of Judson, with no direct replacement
 	 */
 	@Deprecated
 	public static String getClassNameMessage(String className, Locale locale) {
@@ -674,17 +675,15 @@ public class AssetUtil {
 				pos + AssetUtil.CLASSNAME_SEPARATOR.length());
 
 			className = className.substring(0, pos);
+
+			return message;
 		}
 
 		AssetRendererFactory<?> assetRendererFactory =
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
 				className);
 
-		if (pos == -1) {
-			message = assetRendererFactory.getTypeName(locale);
-		}
-
-		return message;
+		return assetRendererFactory.getTypeName(locale);
 	}
 
 	public static String getDefaultAssetPublisherId(Layout layout) {

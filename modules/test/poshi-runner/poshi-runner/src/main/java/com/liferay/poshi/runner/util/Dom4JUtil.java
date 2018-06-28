@@ -45,6 +45,12 @@ public class Dom4JUtil {
 				continue;
 			}
 
+			if (item instanceof Attribute) {
+				element.add((Attribute)item);
+
+				continue;
+			}
+
 			if (item instanceof Element) {
 				element.add((Element)item);
 
@@ -58,7 +64,7 @@ public class Dom4JUtil {
 			}
 
 			throw new IllegalArgumentException(
-				"Only elements and strings may be added");
+				"Only attributes, elements, and strings may be added");
 		}
 	}
 

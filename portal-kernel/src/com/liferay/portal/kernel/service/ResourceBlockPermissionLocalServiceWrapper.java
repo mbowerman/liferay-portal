@@ -21,7 +21,7 @@ import aQute.bnd.annotation.ProviderType;
  *
  * @author Brian Wing Shun Chan
  * @see ResourceBlockPermissionLocalService
- * @deprecated As of 7.0.0, with no direct replacement
+ * @deprecated As of Judson, with no direct replacement
  * @generated
  */
 @Deprecated
@@ -204,24 +204,23 @@ public class ResourceBlockPermissionLocalServiceWrapper
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link
+	* @deprecated As of Wilberforce, replaced by {@link
 	#getAvailableResourceBlockPermissionActionIds(String, long,
 	List)}
 	*/
 	@Deprecated
 	@Override
-	public java.util.Map<java.lang.Long, java.util.Set<java.lang.String>> getAvailableResourceBlockPermissionActionIds(
-		long[] roleIds, java.lang.String name, long primKey,
-		java.util.List<java.lang.String> actionIds)
+	public java.util.Map<Long, java.util.Set<String>> getAvailableResourceBlockPermissionActionIds(
+		long[] roleIds, String name, long primKey,
+		java.util.List<String> actionIds)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _resourceBlockPermissionLocalService.getAvailableResourceBlockPermissionActionIds(roleIds,
 			name, primKey, actionIds);
 	}
 
 	@Override
-	public java.util.Map<java.lang.Long, java.util.Set<java.lang.String>> getAvailableResourceBlockPermissionActionIds(
-		java.lang.String name, long primKey,
-		java.util.List<java.lang.String> actionIds)
+	public java.util.Map<Long, java.util.Set<String>> getAvailableResourceBlockPermissionActionIds(
+		String name, long primKey, java.util.List<String> actionIds)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _resourceBlockPermissionLocalService.getAvailableResourceBlockPermissionActionIds(name,
 			primKey, actionIds);
@@ -238,7 +237,7 @@ public class ResourceBlockPermissionLocalServiceWrapper
 	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getOSGiServiceIdentifier() {
+	public String getOSGiServiceIdentifier() {
 		return _resourceBlockPermissionLocalService.getOSGiServiceIdentifier();
 	}
 
