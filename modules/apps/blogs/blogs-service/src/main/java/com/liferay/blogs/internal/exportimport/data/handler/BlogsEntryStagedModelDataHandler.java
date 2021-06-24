@@ -274,8 +274,11 @@ public class BlogsEntryStagedModelDataHandler
 				entry.getDisplayDate(), entry.isAllowPingbacks(),
 				entry.isAllowTrackbacks(), trackbacks,
 				entry.getCoverImageCaption(),
-				_getImageSelector(entry.getCoverImageURL()),
-				_getImageSelector(entry.getSmallImageURL()), serviceContext);
+				_getImageSelector(
+					entry.getCoverImageURL(), portletDataContext, entry),
+				_getImageSelector(
+					entry.getSmallImageURL(), portletDataContext, entry),
+				serviceContext);
 		}
 		else {
 			importedEntry = _blogsEntryLocalService.updateEntry(
@@ -285,8 +288,11 @@ public class BlogsEntryStagedModelDataHandler
 				entry.getDisplayDate(), entry.isAllowPingbacks(),
 				entry.isAllowTrackbacks(), trackbacks,
 				entry.getCoverImageCaption(),
-				_getImageSelector(entry.getCoverImageURL()),
-				_getImageSelector(entry.getSmallImageURL()), serviceContext);
+				_getImageSelector(
+					entry.getCoverImageURL(), portletDataContext, entry),
+				_getImageSelector(
+					entry.getSmallImageURL(), portletDataContext, entry),
+				serviceContext);
 		}
 
 		serviceContext.setModifiedDate(importedEntry.getModifiedDate());
@@ -423,12 +429,18 @@ public class BlogsEntryStagedModelDataHandler
 		}
 	}
 
-	private ImageSelector _getImageSelector(String imageURL) {
+	private ImageSelector _getImageSelector(
+			String imageURL, PortletDataContext portletDataContext,
+			BlogsEntry entry)
+		throws Exception {
+
 		if (Validator.isNull(imageURL)) {
 			return null;
 		}
 
-		return new ImageSelector(imageURL);
+		return new ImageSelector(
+			_exportImportContentProcessor.replaceImportContentReferences(
+				portletDataContext, entry, imageURL));
 	}
 
 	private void _importAssetDisplayPage(
