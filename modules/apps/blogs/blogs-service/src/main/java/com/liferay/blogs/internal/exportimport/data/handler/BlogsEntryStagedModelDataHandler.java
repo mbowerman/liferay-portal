@@ -171,6 +171,14 @@ public class BlogsEntryStagedModelDataHandler
 					entry.setSmallImageId(0);
 				}
 			}
+
+			if (Validator.isNotNull(entry.getSmallImageURL())) {
+				entry.setSmallImageURL(
+					_exportImportContentProcessor.
+						replaceExportContentReferences(
+							portletDataContext, entry, entry.getSmallImageURL(),
+							true, false));
+			}
 		}
 
 		if (entry.getCoverImageFileEntryId() != 0) {
@@ -180,6 +188,13 @@ public class BlogsEntryStagedModelDataHandler
 			StagedModelDataHandlerUtil.exportReferenceStagedModel(
 				portletDataContext, entry, fileEntry,
 				PortletDataContext.REFERENCE_TYPE_WEAK);
+		}
+
+		if (Validator.isNotNull(entry.getCoverImageURL())) {
+			entry.setCoverImageURL(
+				_exportImportContentProcessor.replaceExportContentReferences(
+					portletDataContext, entry, entry.getCoverImageURL(), true,
+					false));
 		}
 
 		_exportFriendlyURLEntries(portletDataContext, entry);
