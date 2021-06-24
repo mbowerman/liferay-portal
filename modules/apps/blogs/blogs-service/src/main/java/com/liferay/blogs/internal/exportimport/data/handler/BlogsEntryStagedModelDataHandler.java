@@ -40,11 +40,13 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.ImageLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Element;
 
@@ -271,7 +273,9 @@ public class BlogsEntryStagedModelDataHandler
 				entry.getDescription(), entry.getContent(),
 				entry.getDisplayDate(), entry.isAllowPingbacks(),
 				entry.isAllowTrackbacks(), trackbacks,
-				entry.getCoverImageCaption(), null, null, serviceContext);
+				entry.getCoverImageCaption(),
+				_getImageSelector(entry.getCoverImageURL()),
+				_getImageSelector(entry.getSmallImageURL()), serviceContext);
 		}
 		else {
 			importedEntry = _blogsEntryLocalService.updateEntry(
@@ -280,7 +284,9 @@ public class BlogsEntryStagedModelDataHandler
 				entry.getDescription(), entry.getContent(),
 				entry.getDisplayDate(), entry.isAllowPingbacks(),
 				entry.isAllowTrackbacks(), trackbacks,
-				entry.getCoverImageCaption(), null, null, serviceContext);
+				entry.getCoverImageCaption(),
+				_getImageSelector(entry.getCoverImageURL()),
+				_getImageSelector(entry.getSmallImageURL()), serviceContext);
 		}
 
 		serviceContext.setModifiedDate(importedEntry.getModifiedDate());
@@ -415,6 +421,14 @@ public class BlogsEntryStagedModelDataHandler
 				portletDataContext, friendlyURLEntry, blogsEntry,
 				PortletDataContext.REFERENCE_TYPE_DEPENDENCY);
 		}
+	}
+
+	private ImageSelector _getImageSelector(String imageURL) {
+		if (Validator.isNull(imageURL)) {
+			return null;
+		}
+
+		return new ImageSelector(imageURL);
 	}
 
 	private void _importAssetDisplayPage(
