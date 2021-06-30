@@ -374,6 +374,12 @@ public class LayoutReferencesExportImportContentProcessor
 					url = url.substring(
 						_PUBLIC_GROUP_SERVLET_MAPPING.length() - 1);
 				}
+				else if (_processURLAsVirtualHostLayoutFriendlyURL(
+							portletDataContext, stagedModel, group, url,
+							urlSB)) {
+
+					continue;
+				}
 				else {
 					String urlSBString = urlSB.toString();
 
