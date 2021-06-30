@@ -457,37 +457,7 @@ public class LayoutReferencesExportImportContentProcessor
 					throw new NoSuchLayoutException();
 				}
 
-				urlSB.append(_DATA_HANDLER_GROUP_FRIENDLY_URL);
-
-				// Append the UUID. This information will be used during the
-				// import process when looking up the proper group for the link.
-
-				urlSB.append(StringPool.AT);
-
-				if (urlGroup.isStagedRemotely()) {
-					String remoteGroupUuid = urlGroup.getTypeSettingsProperty(
-						"remoteGroupUUID");
-
-					if (Validator.isNotNull(remoteGroupUuid)) {
-						urlSB.append(remoteGroupUuid);
-					}
-				}
-				else if (_stagingGroupHelper.isStagingGroup(urlGroup)) {
-					Group liveGroup = urlGroup.getLiveGroup();
-
-					urlSB.append(liveGroup.getUuid());
-				}
-				else if (urlGroup.isControlPanel() ||
-						 (_stagingGroupHelper.isLiveGroup(urlGroup) &&
-						  (group.getLiveGroupId() == urlGroup.getGroupId()))) {
-
-					urlSB.append(urlGroup.getUuid());
-				}
-				else {
-					urlSB.append(urlGroup.getFriendlyURL());
-				}
-
-				urlSB.append(StringPool.AT);
+				_replaceGroupFriendlyURL(urlGroup, group, urlSB);
 
 				String siteAdminURL =
 					GroupConstants.CONTROL_PANEL_FRIENDLY_URL +
@@ -1058,6 +1028,42 @@ public class LayoutReferencesExportImportContentProcessor
 		}
 
 		return false;
+	}
+
+	private void _replaceGroupFriendlyURL(
+		Group urlGroup, Group scopeGroup, StringBundler urlSB) {
+
+		urlSB.append(_DATA_HANDLER_GROUP_FRIENDLY_URL);
+
+		// Append the UUID. This information will be used during the
+		// import process when looking up the proper group for the link.
+
+		urlSB.append(StringPool.AT);
+
+		if (urlGroup.isStagedRemotely()) {
+			String remoteGroupUuid = urlGroup.getTypeSettingsProperty(
+				"remoteGroupUUID");
+
+			if (Validator.isNotNull(remoteGroupUuid)) {
+				urlSB.append(remoteGroupUuid);
+			}
+		}
+		else if (_stagingGroupHelper.isStagingGroup(urlGroup)) {
+			Group liveGroup = urlGroup.getLiveGroup();
+
+			urlSB.append(liveGroup.getUuid());
+		}
+		else if (urlGroup.isControlPanel() ||
+				 (_stagingGroupHelper.isLiveGroup(urlGroup) &&
+				  (scopeGroup.getLiveGroupId() == urlGroup.getGroupId()))) {
+
+			urlSB.append(urlGroup.getUuid());
+		}
+		else {
+			urlSB.append(urlGroup.getFriendlyURL());
+		}
+
+		urlSB.append(StringPool.AT);
 	}
 
 	private String _replaceTemplateLinkToLayout(
