@@ -1030,6 +1030,46 @@ public class LayoutReferencesExportImportContentProcessor
 		return false;
 	}
 
+	private boolean _processURLAsVirtualHostLayoutFriendlyURL(
+		PortletDataContext portletDataContext, StagedModel stagedModel,
+		Group group, String url, StringBundler urlSB) {
+
+		if ((url.indexOf(StringPool.SLASH, 1) != -1) ||
+			Validator.isNull(PropsValues.VIRTUAL_HOSTS_DEFAULT_SITE_NAME)) {
+
+			return false;
+		}
+
+		Group defaultGroup = _groupLocalService.fetchGroup(
+			group.getCompanyId(), PropsValues.VIRTUAL_HOSTS_DEFAULT_SITE_NAME);
+
+		if (defaultGroup == null) {
+			return false;
+		}
+
+		Layout layout = _layoutLocalService.fetchLayoutByFriendlyURL(
+			group.getGroupId(), false, url);
+
+		if (layout == null) {
+			return false;
+		}
+
+		urlSB.append(_DATA_HANDLER_PUBLIC_SERVLET_MAPPING);
+
+		_replaceGroupFriendlyURL(defaultGroup, group, urlSB);
+
+		urlSB.append(url);
+
+		Element entityElement = portletDataContext.getExportDataElement(
+			stagedModel);
+
+		portletDataContext.addReferenceElement(
+			stagedModel, entityElement, layout,
+			PortletDataContext.REFERENCE_TYPE_DEPENDENCY, true);
+
+		return true;
+	}
+
 	private void _replaceGroupFriendlyURL(
 		Group urlGroup, Group scopeGroup, StringBundler urlSB) {
 
