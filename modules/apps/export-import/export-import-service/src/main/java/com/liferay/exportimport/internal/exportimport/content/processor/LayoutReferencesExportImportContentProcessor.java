@@ -136,18 +136,23 @@ public class LayoutReferencesExportImportContentProcessor
 		String portalURL = StringPool.BLANK;
 
 		if (!publicLayoutSetVirtualHostnames.isEmpty()) {
-			portalURL = _portal.getPortalURL(
-				publicLayoutSetVirtualHostnames.firstKey(), serverPort, secure);
+			for (String publicLayoutSetVirtualHostname :
+					publicLayoutSetVirtualHostnames.keySet()) {
 
-			if (url.startsWith(portalURL)) {
-				if (secure) {
-					urlSB.append(_DATA_HANDLER_PUBLIC_LAYOUT_SET_SECURE_URL);
-				}
-				else {
-					urlSB.append(_DATA_HANDLER_PUBLIC_LAYOUT_SET_URL);
-				}
+				portalURL = _portal.getPortalURL(
+					publicLayoutSetVirtualHostname, serverPort, secure);
 
-				return url.substring(portalURL.length());
+				if (url.startsWith(portalURL)) {
+					if (secure) {
+						urlSB.append(
+							_DATA_HANDLER_PUBLIC_LAYOUT_SET_SECURE_URL);
+					}
+					else {
+						urlSB.append(_DATA_HANDLER_PUBLIC_LAYOUT_SET_URL);
+					}
+
+					return url.substring(portalURL.length());
+				}
 			}
 		}
 
@@ -157,19 +162,23 @@ public class LayoutReferencesExportImportContentProcessor
 			privateLayoutSet.getVirtualHostnames();
 
 		if (!privateLayoutSetVirtualHostnames.isEmpty()) {
-			portalURL = _portal.getPortalURL(
-				privateLayoutSetVirtualHostnames.firstKey(), serverPort,
-				secure);
+			for (String privateLayoutSetVirtualHostname :
+					privateLayoutSetVirtualHostnames.keySet()) {
 
-			if (url.startsWith(portalURL)) {
-				if (secure) {
-					urlSB.append(_DATA_HANDLER_PRIVATE_LAYOUT_SET_SECURE_URL);
-				}
-				else {
-					urlSB.append(_DATA_HANDLER_PRIVATE_LAYOUT_SET_URL);
-				}
+				portalURL = _portal.getPortalURL(
+					privateLayoutSetVirtualHostname, serverPort, secure);
 
-				return url.substring(portalURL.length());
+				if (url.startsWith(portalURL)) {
+					if (secure) {
+						urlSB.append(
+							_DATA_HANDLER_PRIVATE_LAYOUT_SET_SECURE_URL);
+					}
+					else {
+						urlSB.append(_DATA_HANDLER_PRIVATE_LAYOUT_SET_URL);
+					}
+
+					return url.substring(portalURL.length());
+				}
 			}
 		}
 
