@@ -264,7 +264,7 @@ boolean columnOptionsVisible = GetterUtil.getBoolean(SessionClicks.get(request, 
 			boundingBox: '#<portlet:namespace />myCalendarList',
 
 			<%
-			updateCalendarsJSONArray(request, userCalendarsJSONArray);
+			updateCalendarsJSONArray(request, userCalendarsJSONArray, false, enableRSS);
 			%>
 
 			calendars: <%= userCalendarsJSONArray %>,
@@ -305,7 +305,7 @@ boolean columnOptionsVisible = GetterUtil.getBoolean(SessionClicks.get(request, 
 			boundingBox: '#<portlet:namespace />otherCalendarList',
 
 			<%
-			updateCalendarsJSONArray(request, otherCalendarsJSONArray);
+			updateCalendarsJSONArray(request, otherCalendarsJSONArray, true, enableRSS);
 			%>
 
 			calendars: <%= otherCalendarsJSONArray %>,
@@ -328,7 +328,7 @@ boolean columnOptionsVisible = GetterUtil.getBoolean(SessionClicks.get(request, 
 			boundingBox: '#<portlet:namespace />siteCalendarList',
 
 			<%
-			updateCalendarsJSONArray(request, groupCalendarsJSONArray);
+			updateCalendarsJSONArray(request, groupCalendarsJSONArray, false, enableRSS);
 			%>
 
 			calendars: <%= groupCalendarsJSONArray %>,
@@ -433,13 +433,41 @@ boolean columnOptionsVisible = GetterUtil.getBoolean(SessionClicks.get(request, 
 </aui:script>
 
 <%!
-protected void updateCalendarsJSONArray(HttpServletRequest request, JSONArray calendarsJSONArray) {
+	protected boolean hasMenuItems(
+		JSONObject calendarJSONObject, boolean isOtherCalendarsJSONArray,
+		boolean enableRSS) {
+
+		if (isOtherCalendarsJSONArray || enableRSS) {
+			return true;
+		}
+
+		JSONObject permissionsJSONObject = calendarJSONObject.getJSONObject(
+			"permissions");
+
+		if ((permissionsJSONObject.getBoolean(ActionKeys.DELETE) &&
+			 !calendarJSONObject.getBoolean("defaultCalendar")) ||
+			permissionsJSONObject.getBoolean(
+				CalendarActionKeys.MANAGE_BOOKINGS) ||
+			permissionsJSONObject.getBoolean(ActionKeys.PERMISSIONS) ||
+			permissionsJSONObject.getBoolean(ActionKeys.UPDATE)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+protected void updateCalendarsJSONArray(
+	HttpServletRequest request, JSONArray calendarsJSONArray,
+	boolean isOtherCalendarsJSONArray, boolean enableRSS) {
+
 	for (int i = 0; i < calendarsJSONArray.length(); i++) {
 		JSONObject jsonObject = calendarsJSONArray.getJSONObject(i);
 
 		long calendarId = jsonObject.getLong("calendarId");
 
 		jsonObject.put("color", GetterUtil.getString(SessionClicks.get(request, "com.liferay.calendar.web_calendar" + calendarId + "Color", jsonObject.getString("color"))));
+		jsonObject.put("hasMenuItems", hasMenuItems(jsonObject, isOtherCalendarsJSONArray, enableRSS));
 		jsonObject.put("visible", GetterUtil.getBoolean(SessionClicks.get(request, "com.liferay.calendar.web_calendar" + calendarId + "Visible", "true")));
 	}
 }
