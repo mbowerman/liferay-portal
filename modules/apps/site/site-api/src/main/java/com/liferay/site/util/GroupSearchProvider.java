@@ -117,7 +117,22 @@ public class GroupSearchProvider {
 				groupSearch.getOrderByComparator());
 		}
 
-		groupSearch.setResults(results);
+		PermissionChecker permissionChecker =
+			themeDisplay.getPermissionChecker();
+
+		List<Group> filteredResults = new ArrayList<>();
+
+		for (Group group : results) {
+			if (GroupPermissionUtil.contains(
+					permissionChecker, group, ActionKeys.VIEW)) {
+
+				filteredResults.add(group);
+			}
+		}
+
+		groupSearch.setTotal(filteredResults.size());
+
+		groupSearch.setResults(filteredResults);
 
 		return groupSearch;
 	}
