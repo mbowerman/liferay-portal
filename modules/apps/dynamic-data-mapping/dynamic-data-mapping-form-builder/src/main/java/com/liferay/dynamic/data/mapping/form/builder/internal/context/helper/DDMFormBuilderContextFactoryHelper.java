@@ -420,11 +420,7 @@ public class DDMFormBuilderContextFactoryHelper {
 			).put(
 				"isLink", false
 			).put(
-				"label",
-				LanguageUtil.get(
-					ResourceBundleUtil.getBundle(
-						"content.Language", _locale, getClass()),
-					"builder")
+				"label", LanguageUtil.get(_httpServletRequest, "builder")
 			).put(
 				"pluginEntryPoint",
 				_npmResolver.resolveModuleName(
