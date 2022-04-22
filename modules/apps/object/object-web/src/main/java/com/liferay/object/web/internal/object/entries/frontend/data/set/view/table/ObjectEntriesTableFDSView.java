@@ -243,7 +243,7 @@ public class ObjectEntriesTableFDSView extends BaseTableFDSView {
 			else if (Objects.equals(fieldName, "dateCreated")) {
 				_addFDSTableSchemaField(
 					null, null, "Date", fdsTableSchemaBuilder, "dateCreated",
-					"created-date", true);
+					"creation-date", true);
 			}
 			else if (Objects.equals(fieldName, "dateModified")) {
 				_addFDSTableSchemaField(
