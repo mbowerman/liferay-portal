@@ -1,0 +1,19 @@
+import com.liferay.gradle.plugins.patcher.PatchTask
+
+apply plugin: "com.liferay.patcher"
+
+task patch(type: PatchTask)
+
+dependencies {
+    compile group: "org.mnode.ical4j", name: "ical4j", version: "1.0.8"
+}
+
+patch {
+    ext {
+        autoClean = false
+    }
+
+    fileNames "net/fortuna/ical4j/model/tz.alias"
+
+    originalLibModuleName = "org.mnode.ical4j"
+}
