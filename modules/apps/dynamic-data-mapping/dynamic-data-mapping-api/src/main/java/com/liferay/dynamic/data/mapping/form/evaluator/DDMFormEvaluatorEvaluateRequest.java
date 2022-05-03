@@ -18,6 +18,8 @@ import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 
 import java.util.Locale;
 
@@ -55,6 +57,14 @@ public final class DDMFormEvaluatorEvaluateRequest {
 	}
 
 	public Locale getLocale() {
+		User user = UserLocalServiceUtil.fetchUser(_userId);
+
+		if (user != null) {
+			_userLocale = user.getLocale();
+
+			return _userLocale;
+		}
+
 		return _locale;
 	}
 
@@ -185,6 +195,7 @@ public final class DDMFormEvaluatorEvaluateRequest {
 	private JSONArray _objectFieldsJSONArray;
 	private String _timeZoneId;
 	private long _userId;
+	private Locale _userLocale;
 	private boolean _viewMode;
 
 }
