@@ -125,7 +125,7 @@ renderResponse.setTitle(categoryDisplayName);
 							configurationTitle = configurationModel.getLabel();
 						}
 						else {
-							configurationTitle = LanguageUtil.get(request, "add");
+							configurationTitle = LanguageUtil.get(request, "segments-context-vocabulary-configuration-name-add");
 						}
 					}
 					else {
@@ -209,29 +209,33 @@ renderResponse.setTitle(categoryDisplayName);
 						</c:if>
 					</h2>
 
-					<c:if test="<%= configurationModel.hasScopeConfiguration(configurationScopeDisplayContext.getScope()) && configurationModel.isReadOnly() %>">
-						<aui:alert closeable="<%= false %>" id="readonlyAlert" type="info">
-							<liferay-ui:message key="this-configuration-is-read-only" />
-						</aui:alert>
-					</c:if>
-
-					<c:if test="<%= !configurationModel.hasScopeConfiguration(configurationScopeDisplayContext.getScope()) %>">
-						<aui:alert closeable="<%= false %>" id="errorAlert" type="info">
-							<liferay-ui:message key="this-configuration-is-not-saved-yet.-the-values-shown-are-the-default" />
-						</aui:alert>
-					</c:if>
-
-					<liferay-util:dynamic-include key='<%= "com.liferay.configuration.admin.web#/edit_configuration.jsp#" + configurationModel.getFactoryPid() + "#pre" %>' />
-
 					<%
 					String configurationModelDescription = (componentResourceBundle != null) ? LanguageUtil.format(componentResourceBundle, configurationModel.getDescription(), configurationModel.getDescriptionArguments()) : configurationModel.getDescription();
 					%>
 
 					<c:if test="<%= !Validator.isBlank(configurationModelDescription) %>">
-						<p class="text-default">
-							<strong><%= configurationModelDescription %></strong>
+						<p class="lfr-de__field-feedback">
+							<%= configurationModelDescription %>
 						</p>
 					</c:if>
+
+					<c:if test="<%= configurationModel.hasScopeConfiguration(configurationScopeDisplayContext.getScope()) && configurationModel.isReadOnly() %>">
+						<clay:alert
+							displayType="info"
+							id="readonlyAlert"
+							message='<%= LanguageUtil.get(request, "this-configuration-is-read-only") %>'
+						/>
+					</c:if>
+
+					<c:if test="<%= !configurationModel.hasScopeConfiguration(configurationScopeDisplayContext.getScope()) %>">
+						<clay:alert
+							displayType="info"
+							id="errorAlert"
+							message='<%= LanguageUtil.get(request, "this-configuration-is-not-saved-yet.-the-values-shown-are-the-default") %>'
+						/>
+					</c:if>
+
+					<liferay-util:dynamic-include key='<%= "com.liferay.configuration.admin.web#/edit_configuration.jsp#" + configurationModel.getFactoryPid() + "#pre" %>' />
 
 					<%
 					ConfigurationFormRenderer configurationFormRenderer = (ConfigurationFormRenderer)request.getAttribute(ConfigurationAdminWebKeys.CONFIGURATION_FORM_RENDERER);
