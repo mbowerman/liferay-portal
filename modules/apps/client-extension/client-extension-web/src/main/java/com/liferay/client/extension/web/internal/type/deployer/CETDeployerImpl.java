@@ -121,7 +121,7 @@ public class CETDeployerImpl implements CETDeployer {
 
 		return "com_liferay_client_extension_web_internal_portlet_" +
 			"ClientExtensionEntryPortlet_" +
-			   primaryKey.replaceAll("[^a-zA-Z0-9_]", StringPool.UNDERLINE);
+				primaryKey.replaceAll("[^a-zA-Z0-9_]", StringPool.UNDERLINE);
 	}
 
 	private ServiceRegistration<ConfigurationAction>
