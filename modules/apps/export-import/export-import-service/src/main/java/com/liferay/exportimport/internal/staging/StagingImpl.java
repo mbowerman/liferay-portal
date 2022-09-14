@@ -1481,6 +1481,15 @@ public class StagingImpl implements Staging {
 					portletDataException.getStagedModelClassName());
 			}
 			else if (portletDataException.getType() ==
+						PortletDataException.IMPORT_DATA_STAGED_MODEL_ELEMENT) {
+
+				errorMessage = _language.format(
+					resourceBundle,
+					"unable-to-return-the-import-data-staged-model-element-" +
+						"for-the-x-x",
+					new String[] {modelResource, referrerDisplayName}, false);
+			}
+			else if (portletDataException.getType() ==
 						PortletDataException.IMPORT_PORTLET_DATA) {
 
 				if (Validator.isNotNull(

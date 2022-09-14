@@ -48,6 +48,8 @@ public class PortletDataException extends PortalException {
 
 	public static final int IMPORT_DATA_GROUP_ELEMENT = 16;
 
+	public static final int IMPORT_DATA_STAGED_MODEL_ELEMENT = 26;
+
 	public static final int IMPORT_PORTLET_DATA = 12;
 
 	public static final int IMPORT_PORTLET_PERMISSIONS = 20;

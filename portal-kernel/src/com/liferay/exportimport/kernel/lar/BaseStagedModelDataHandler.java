@@ -372,6 +372,17 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 					}
 				}
 
+				if (element == null) {
+					PortletDataException portletDataException =
+						new PortletDataException(
+							PortletDataException.
+								IMPORT_DATA_STAGED_MODEL_ELEMENT);
+
+					portletDataException.setStagedModel(stagedModel);
+
+					throw portletDataException;
+				}
+
 				String userUuid = element.attributeValue("user-uuid");
 
 				if (Validator.isNotNull(userUuid)) {
