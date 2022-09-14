@@ -43,7 +43,9 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TransientValue;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
+import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.ratings.kernel.model.RatingsEntry;
 import com.liferay.ratings.kernel.service.RatingsEntryLocalServiceUtil;
 
@@ -321,6 +323,9 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 			return;
 		}
 
+		Element importDataRootElement =
+			portletDataContext.getImportDataRootElement();
+
 		try {
 			ExportImportLifecycleManagerUtil.fireExportImportLifecycleEvent(
 				ExportImportLifecycleConstants.
@@ -340,6 +345,32 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 				Element element =
 					portletDataContext.getImportDataStagedModelElement(
 						stagedModel);
+
+				if (element == null) {
+					Element missingReferenceElement =
+						portletDataContext.getMissingReferenceElement(
+							stagedModel);
+
+					if (missingReferenceElement != null) {
+						String elementPath =
+							missingReferenceElement.attributeValue(
+								"element-path");
+
+						if (elementPath != null) {
+							Document document = SAXReaderUtil.read(
+								portletDataContext.getZipEntryAsString(
+									elementPath));
+
+							portletDataContext.setImportDataRootElement(
+								document.getRootElement());
+
+							element =
+								portletDataContext.
+									getImportDataStagedModelElement(
+										stagedModel);
+						}
+					}
+				}
 
 				String userUuid = element.attributeValue("user-uuid");
 
@@ -424,6 +455,9 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 			}
 
 			throw portletDataException;
+		}
+		finally {
+			portletDataContext.setImportDataRootElement(importDataRootElement);
 		}
 	}
 
