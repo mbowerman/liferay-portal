@@ -95,6 +95,14 @@ public class UserPermissionImpl
 		long[] organizationIds, String actionId) {
 
 		try {
+			if (actionId.equals(ActionKeys.IMPERSONATE) &&
+				!contains(
+					permissionChecker, userId, organizationIds,
+					ActionKeys.VIEW)) {
+
+				return false;
+			}
+
 			User user = null;
 
 			if (userId != ResourceConstants.PRIMKEY_DNE) {
