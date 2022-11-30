@@ -51,6 +51,35 @@ public class UserPermissionTest {
 		new LiferayIntegrationTestRule();
 
 	@Test
+	public void testContainsImpersonateActionId() throws Exception {
+		_user1 = UserTestUtil.addUser();
+		_user2 = UserTestUtil.addUser();
+
+		_role = RoleTestUtil.addRole(RoleConstants.TYPE_REGULAR);
+
+		RoleTestUtil.addResourcePermission(
+			_role, User.class.getName(), ResourceConstants.SCOPE_COMPANY,
+			String.valueOf(_user1.getCompanyId()), ActionKeys.IMPERSONATE);
+
+		_userLocalService.addRoleUser(_role.getRoleId(), _user1);
+
+		PermissionChecker permissionChecker = _permissionCheckerFactory.create(
+			_user1);
+
+		Assert.assertFalse(
+			_userPermission.contains(
+				permissionChecker, _user2.getUserId(), ActionKeys.IMPERSONATE));
+
+		RoleTestUtil.addResourcePermission(
+			_role, User.class.getName(), ResourceConstants.SCOPE_COMPANY,
+			String.valueOf(_user1.getCompanyId()), ActionKeys.VIEW);
+
+		Assert.assertTrue(
+			_userPermission.contains(
+				permissionChecker, _user2.getUserId(), ActionKeys.IMPERSONATE));
+	}
+
+	@Test
 	public void testContainsPermissionsActionId() throws Exception {
 		_user1 = UserTestUtil.addUser();
 		_role = RoleTestUtil.addRole(RoleConstants.TYPE_REGULAR);
