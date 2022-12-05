@@ -212,13 +212,20 @@ public class ChangesetPortletDataHandler extends BasePortletDataHandler {
 
 		List<Element> entityTypeElements = importDataRootElement.elements();
 
-		for (Element entityTypeElement : entityTypeElements) {
-			List<Element> entityElements = entityTypeElement.elements();
+		long originalPlid = portletDataContext.getPlid();
 
-			for (Element entityElement : entityElements) {
-				StagedModelDataHandlerUtil.importStagedModel(
-					portletDataContext, entityElement);
+		try {
+			for (Element entityTypeElement : entityTypeElements) {
+				List<Element> entityElements = entityTypeElement.elements();
+
+				for (Element entityElement : entityElements) {
+					StagedModelDataHandlerUtil.importStagedModel(
+						portletDataContext, entityElement);
+				}
 			}
+		}
+		finally {
+			portletDataContext.setPlid(originalPlid);
 		}
 
 		String[] portletResourceNames = _getPortletResourceNames(
