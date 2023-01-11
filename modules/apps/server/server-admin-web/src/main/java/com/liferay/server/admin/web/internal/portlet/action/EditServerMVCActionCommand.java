@@ -20,6 +20,7 @@ import com.liferay.mail.kernel.model.Account;
 import com.liferay.mail.kernel.service.MailService;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.convert.ConvertException;
 import com.liferay.portal.convert.ConvertProcess;
@@ -447,8 +448,20 @@ public class EditServerMVCActionCommand
 								setCTCollectionIdWithSafeCloseable(
 									pref.getCtCollectionId())) {
 
-						Layout layout = _layoutLocalService.getLayout(
+						Layout layout = _layoutLocalService.fetchLayout(
 							pref.getPlid());
+
+						if (layout == null) {
+							if (_log.isWarnEnabled()) {
+								_log.warn(
+									StringBundler.concat(
+										"Unable to get layout ", pref.getPlid(),
+										" referenced by portlet preference ",
+										pref.getPortletPreferencesId()));
+							}
+
+							return;
+						}
 
 						if (layout.isTypeContent() ||
 							layout.isTypeControlPanel()) {
