@@ -423,17 +423,23 @@ public class EditServerMVCActionCommand
 			ActionableDynamicQuery actionableDynamicQuery =
 				_portletPreferencesLocalService.getActionableDynamicQuery();
 
+			actionableDynamicQuery.setAddCriteriaMethod(
+				dynamicQuery -> {
+					Property ownerIdProperty = PropertyFactoryUtil.forName(
+						"ownerId");
+					Property ownerTypeProperty = PropertyFactoryUtil.forName(
+						"ownerType");
+
+					dynamicQuery.add(
+						ownerIdProperty.eq(PortletKeys.PREFS_OWNER_ID_DEFAULT));
+					dynamicQuery.add(
+						ownerTypeProperty.eq(
+							PortletKeys.PREFS_OWNER_TYPE_LAYOUT));
+				});
+
 			actionableDynamicQuery.setParallel(true);
 			actionableDynamicQuery.setPerformActionMethod(
 				(com.liferay.portal.kernel.model.PortletPreferences pref) -> {
-					if ((pref.getOwnerId() !=
-							PortletKeys.PREFS_OWNER_ID_DEFAULT) ||
-						(pref.getOwnerType() !=
-							PortletKeys.PREFS_OWNER_TYPE_LAYOUT)) {
-
-						return;
-					}
-
 					Layout layout = _layoutLocalService.getLayout(
 						pref.getPlid());
 
