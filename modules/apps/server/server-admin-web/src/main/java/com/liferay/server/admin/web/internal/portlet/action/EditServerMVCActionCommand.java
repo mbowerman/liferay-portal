@@ -18,6 +18,7 @@ import com.liferay.configuration.admin.constants.ConfigurationAdminPortletKeys;
 import com.liferay.document.library.kernel.util.DLPreviewableProcessor;
 import com.liferay.mail.kernel.model.Account;
 import com.liferay.mail.kernel.service.MailService;
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.convert.ConvertException;
@@ -26,6 +27,7 @@ import com.liferay.portal.convert.ConvertProcessUtil;
 import com.liferay.portal.kernel.cache.CacheRegistryUtil;
 import com.liferay.portal.kernel.cache.MultiVMPool;
 import com.liferay.portal.kernel.cache.SingleVMPool;
+import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.cluster.ClusterExecutor;
 import com.liferay.portal.kernel.cluster.ClusterMasterExecutor;
 import com.liferay.portal.kernel.cluster.ClusterRequest;
@@ -440,34 +442,43 @@ public class EditServerMVCActionCommand
 			actionableDynamicQuery.setParallel(true);
 			actionableDynamicQuery.setPerformActionMethod(
 				(com.liferay.portal.kernel.model.PortletPreferences pref) -> {
-					Layout layout = _layoutLocalService.getLayout(
-						pref.getPlid());
+					try (SafeCloseable safeCloseable =
+							CTCollectionThreadLocal.
+								setCTCollectionIdWithSafeCloseable(
+									pref.getCtCollectionId())) {
 
-					if (layout.isTypeContent() || layout.isTypeControlPanel()) {
-						return;
-					}
+						Layout layout = _layoutLocalService.getLayout(
+							pref.getPlid());
 
-					UnicodeProperties typeSettingsUnicodeProperties =
-						layout.getTypeSettingsProperties();
+						if (layout.isTypeContent() ||
+							layout.isTypeControlPanel()) {
 
-					Set<String> keys = typeSettingsUnicodeProperties.keySet();
-
-					boolean orphan = true;
-
-					for (String key : keys) {
-						String value =
-							typeSettingsUnicodeProperties.getProperty(key);
-
-						if (value.contains(pref.getPortletId())) {
-							orphan = false;
-
-							break;
+							return;
 						}
-					}
 
-					if (orphan) {
-						_portletPreferencesLocalService.
-							deletePortletPreferences(pref);
+						UnicodeProperties typeSettingsUnicodeProperties =
+							layout.getTypeSettingsProperties();
+
+						Set<String> keys =
+							typeSettingsUnicodeProperties.keySet();
+
+						boolean orphan = true;
+
+						for (String key : keys) {
+							String value =
+								typeSettingsUnicodeProperties.getProperty(key);
+
+							if (value.contains(pref.getPortletId())) {
+								orphan = false;
+
+								break;
+							}
+						}
+
+						if (orphan) {
+							_portletPreferencesLocalService.
+								deletePortletPreferences(pref);
+						}
 					}
 				});
 
