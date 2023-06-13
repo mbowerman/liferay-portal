@@ -155,6 +155,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 /**
  * Provides the local service for adding, checking, and updating companies. Each
  * company refers to a separate portal instance.
@@ -500,6 +502,13 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 						company.getCompanyId())) {
 
 				unsafeConsumer.accept(company);
+
+				if (TransactionSynchronizationManager.
+						isActualTransactionActive()) {
+
+					DBPartitionUtil.flush(
+						companyPersistence.getCurrentSession());
+				}
 			}
 		}
 	}
@@ -537,6 +546,13 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 					CompanyThreadLocal.setWithSafeCloseable(companyId)) {
 
 				unsafeConsumer.accept(companyId);
+
+				if (TransactionSynchronizationManager.
+						isActualTransactionActive()) {
+
+					DBPartitionUtil.flush(
+						companyPersistence.getCurrentSession());
+				}
 			}
 		}
 	}

@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.dao.db.DBInspector;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.jdbc.CurrentConnectionUtil;
+import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -116,6 +117,16 @@ public class DBPartitionUtil {
 		_companyIds.add(companyId);
 
 		return true;
+	}
+
+	public static void flush(Session session) {
+		if (!_DATABASE_PARTITION_ENABLED) {
+			return;
+		}
+
+		if (session.isDirty()) {
+			session.flush();
+		}
 	}
 
 	public static void forEachCompanyId(
