@@ -60,8 +60,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Supplier;
 
 import javax.sql.DataSource;
+
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * @author Alberto Chaparro
@@ -119,13 +122,17 @@ public class DBPartitionUtil {
 		return true;
 	}
 
-	public static void flush(Session session) {
+	public static void flush(Supplier<Session> supplier) {
 		if (!_DATABASE_PARTITION_ENABLED) {
 			return;
 		}
 
-		if (session.isDirty()) {
-			session.flush();
+		if (TransactionSynchronizationManager.isActualTransactionActive()) {
+			Session session = supplier.get();
+
+			if (session.isDirty()) {
+				session.flush();
+			}
 		}
 	}
 
