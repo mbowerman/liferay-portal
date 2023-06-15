@@ -86,7 +86,8 @@ public class ExportImportServiceConfigurationWhitelistedURLPatternsHelperImpl
 		}
 
 		String[] whitelistedURLPatterns =
-			exportImportServiceConfiguration.whitelistedURLPatterns();
+			exportImportServiceConfiguration.
+				layoutReferencesValidationWhitelistedURLPatterns();
 
 		if (ArrayUtil.isEmpty(whitelistedURLPatterns)) {
 			_urlPatternMappers.remove(companyId);
