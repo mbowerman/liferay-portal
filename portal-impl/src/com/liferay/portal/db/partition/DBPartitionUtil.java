@@ -22,6 +22,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.dao.jdbc.util.ConnectionWrapper;
 import com.liferay.portal.dao.jdbc.util.DataSourceWrapper;
 import com.liferay.portal.dao.jdbc.util.StatementWrapper;
+import com.liferay.portal.dao.orm.hibernate.event.CompanySynchronizerFlushEntityEventListener;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBInspector;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -31,9 +32,9 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.CompanyConstants;
+import com.liferay.portal.kernel.model.ShardedModel;
 import com.liferay.portal.kernel.module.framework.ThrowableCollector;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
-import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -51,16 +52,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.sql.DataSource;
+
+import org.hibernate.event.service.spi.EventListenerRegistry;
+import org.hibernate.event.spi.EventType;
 
 /**
  * @author Alberto Chaparro
@@ -94,11 +96,15 @@ public class DBPartitionUtil {
 				while (resultSet.next()) {
 					String tableName = resultSet.getString("TABLE_NAME");
 
-					if (_isObjectTable(tableName)) {
+					if (dbInspector.isObjectTable(
+							_getCompanyIds(), tableName)) {
+
 						continue;
 					}
 
-					if (_isControlTable(dbInspector, tableName)) {
+					if (dbInspector.isControlTable(
+							_getCompanyIds(), tableName)) {
+
 						statement.executeUpdate(
 							_getCreateViewSQL(companyId, tableName));
 					}
@@ -116,6 +122,21 @@ public class DBPartitionUtil {
 		_companyIds.add(companyId);
 
 		return true;
+	}
+
+	public static void checkCompanyThreadLocal(Object object) {
+		if (!_DATABASE_PARTITION_ENABLED) {
+			return;
+		}
+
+		if ((object instanceof ShardedModel) &&
+			!Objects.equals(
+				CompanyThreadLocal.getCompanyId(),
+				((ShardedModel)object).getCompanyId())) {
+
+			throw new UnsupportedOperationException(
+				"Invalid partition for object");
+		}
 	}
 
 	public static void forEachCompanyId(
@@ -165,6 +186,18 @@ public class DBPartitionUtil {
 
 	public static boolean isPartitionEnabled() {
 		return _DATABASE_PARTITION_ENABLED;
+	}
+
+	public static void registerEventListeners(
+		EventListenerRegistry eventListenerRegistry) {
+
+		if (!_DATABASE_PARTITION_ENABLED) {
+			return;
+		}
+
+		eventListenerRegistry.setListeners(
+			EventType.FLUSH_ENTITY,
+			CompanySynchronizerFlushEntityEventListener.INSTANCE);
 	}
 
 	public static boolean removeDBPartition(long companyId)
@@ -271,7 +304,8 @@ public class DBPartitionUtil {
 				while (resultSet.next()) {
 					String tableName = resultSet.getString("TABLE_NAME");
 
-					if (_isControlTable(dbInspector, tableName) &&
+					if (dbInspector.isControlTable(
+							_getCompanyIds(), tableName) &&
 						dbInspector.hasColumn(tableName, "companyId")) {
 
 						statement.executeUpdate(
@@ -349,14 +383,14 @@ public class DBPartitionUtil {
 		}
 	}
 
-	private static long[] _getCompanyIds() throws SQLException {
+	private static List<Long> _getCompanyIds() throws SQLException {
 		if (_companyIds.isEmpty()) {
 			for (long companyId : PortalInstances.getCompanyIdsBySQL()) {
 				_companyIds.add(companyId);
 			}
 		}
 
-		return ArrayUtil.toArray(_companyIds.toArray(new Long[0]));
+		return _companyIds;
 	}
 
 	private static Connection _getConnectionWrapper(Connection connection) {
@@ -463,7 +497,7 @@ public class DBPartitionUtil {
 			}
 
 			private void _setCatalog() throws SQLException {
-				long companyId = CompanyThreadLocal.getCompanyId();
+				long companyId = CompanyThreadLocal.popCompanyId();
 
 				String schemaName = _getSchemaName(companyId);
 
@@ -554,45 +588,13 @@ public class DBPartitionUtil {
 		}
 	}
 
-	private static boolean _isControlTable(
-			DBInspector dbInspector, String tableName)
-		throws Exception {
-
-		if (!_isObjectTable(tableName) &&
-			(_controlTableNames.contains(StringUtil.toLowerCase(tableName)) ||
-			 !dbInspector.hasColumn(tableName, "companyId"))) {
-
-			return true;
-		}
-
-		return false;
-	}
-
-	private static boolean _isObjectTable(String tableName)
-		throws SQLException {
-
-		for (long companyId : _getCompanyIds()) {
-
-			// See ObjectDefinitionImpl#getExtensionDBTableName and
-			// ObjectDefinitionLocalServiceImpl#_getDBTableName
-
-			if (tableName.endsWith("_x_" + companyId) ||
-				tableName.startsWith("O_" + companyId + "_")) {
-
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	private static boolean _isSkip(Connection connection, String tableName)
 		throws SQLException {
 
 		try {
 			DBInspector dbInspector = new DBInspector(connection);
 
-			if (_isControlTable(dbInspector, tableName) &&
+			if (dbInspector.isControlTable(_getCompanyIds(), tableName) &&
 				!(CompanyThreadLocal.getCompanyId() == _defaultCompanyId)) {
 
 				return true;
@@ -629,7 +631,9 @@ public class DBPartitionUtil {
 				while (resultSet.next()) {
 					String tableName = resultSet.getString("TABLE_NAME");
 
-					if (_isControlTable(dbInspector, tableName)) {
+					if (dbInspector.isControlTable(
+							_getCompanyIds(), tableName)) {
+
 						controlTableNames.add(tableName);
 
 						_migrateTable(
@@ -754,7 +758,9 @@ public class DBPartitionUtil {
 					DBInspector dbInspector = new DBInspector(connection);
 					String tableName = query[2];
 
-					if (!_isControlTable(dbInspector, tableName)) {
+					if (!dbInspector.isControlTable(
+							_getCompanyIds(), tableName)) {
+
 						return returnValue;
 					}
 
@@ -796,8 +802,6 @@ public class DBPartitionUtil {
 		DBPartitionUtil.class);
 
 	private static final List<Long> _companyIds = new CopyOnWriteArrayList<>();
-	private static final Set<String> _controlTableNames = new HashSet<>(
-		Arrays.asList("company", "virtualhost"));
 	private static volatile long _defaultCompanyId;
 	private static String _defaultSchemaName;
 

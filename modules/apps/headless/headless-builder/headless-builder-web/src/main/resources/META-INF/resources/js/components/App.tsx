@@ -12,11 +12,15 @@
  * details.
  */
 
-interface App {
+import React from 'react';
+
+import APIApplications from './APIApplications';
+
+interface AppProps {
 	apiURL: string;
 	portletId: string;
 }
 
-export default function App() {
-	return null;
+export default function App({apiURL, portletId}: AppProps) {
+	return <APIApplications apiURL={apiURL} portletId={portletId} />;
 }
