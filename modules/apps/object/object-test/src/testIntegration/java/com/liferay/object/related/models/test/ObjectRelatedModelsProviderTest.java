@@ -34,7 +34,6 @@ import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.NoSuchUserException;
@@ -750,87 +749,96 @@ public class ObjectRelatedModelsProviderTest {
 		PermissionChecker originalPermissionChecker =
 			PermissionThreadLocal.getPermissionChecker();
 
-		try (SafeCloseable safeCloseable =
-				CompanyThreadLocal.setWithSafeCloseable(companyId)) {
+		CompanyThreadLocal.runWithCompanyId(
+			companyId,
+			() -> {
+				try {
+					_setUser(user);
 
-			_setUser(user);
+					ObjectDefinition objectDefinition = _addObjectDefinition();
 
-			ObjectDefinition objectDefinition = _addObjectDefinition();
+					ObjectDefinition systemObjectDefinition =
+						_objectDefinitionLocalService.
+							fetchObjectDefinitionByClassName(
+								companyId, AccountEntry.class.getName());
 
-			ObjectDefinition systemObjectDefinition =
-				_objectDefinitionLocalService.fetchObjectDefinitionByClassName(
-					companyId, AccountEntry.class.getName());
+					_addObjectRelationship(
+						objectDefinition, systemObjectDefinition,
+						ObjectRelationshipConstants.DELETION_TYPE_PREVENT,
+						ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
 
-			_addObjectRelationship(
-				objectDefinition, systemObjectDefinition,
-				ObjectRelationshipConstants.DELETION_TYPE_PREVENT,
-				ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
+					AccountEntry accountEntry1 = _addAccountEntry(
+						user.getUserId());
+					AccountEntry accountEntry2 = _addAccountEntry(
+						user.getUserId());
 
-			AccountEntry accountEntry1 = _addAccountEntry(user.getUserId());
-			AccountEntry accountEntry2 = _addAccountEntry(user.getUserId());
+					ObjectEntry objectEntry =
+						_objectEntryLocalService.addObjectEntry(
+							user.getUserId(), 0,
+							objectDefinition.getObjectDefinitionId(),
+							Collections.emptyMap(),
+							ServiceContextTestUtil.getServiceContext());
 
-			ObjectEntry objectEntry = _objectEntryLocalService.addObjectEntry(
-				user.getUserId(), 0, objectDefinition.getObjectDefinitionId(),
-				Collections.emptyMap(),
-				ServiceContextTestUtil.getServiceContext());
+					_objectEntryLocalService.
+						addOrUpdateExtensionDynamicObjectDefinitionTableValues(
+							user.getUserId(), systemObjectDefinition,
+							accountEntry1.getAccountEntryId(),
+							HashMapBuilder.<String, Serializable>put(
+								_relationshipObjectField.getName(),
+								objectEntry.getObjectEntryId()
+							).build(),
+							ServiceContextTestUtil.getServiceContext());
 
-			_objectEntryLocalService.
-				addOrUpdateExtensionDynamicObjectDefinitionTableValues(
-					user.getUserId(), systemObjectDefinition,
-					accountEntry1.getAccountEntryId(),
-					HashMapBuilder.<String, Serializable>put(
-						_relationshipObjectField.getName(),
-						objectEntry.getObjectEntryId()
-					).build(),
-					ServiceContextTestUtil.getServiceContext());
+					List<ObjectEntry> unrelatedObjectEntries =
+						_objectRelatedModelsProvider.getUnrelatedModels(
+							companyId, 0, systemObjectDefinition,
+							objectEntry.getObjectEntryId(),
+							_objectRelationship.getObjectRelationshipId());
 
-			List<ObjectEntry> unrelatedObjectEntries =
-				_objectRelatedModelsProvider.getUnrelatedModels(
-					companyId, 0, systemObjectDefinition,
-					objectEntry.getObjectEntryId(),
-					_objectRelationship.getObjectRelationshipId());
+					Assert.assertEquals(
+						unrelatedObjectEntries.toString(), 1,
+						unrelatedObjectEntries.size());
 
-			Assert.assertEquals(
-				unrelatedObjectEntries.toString(), 1,
-				unrelatedObjectEntries.size());
+					_objectEntryLocalService.
+						addOrUpdateExtensionDynamicObjectDefinitionTableValues(
+							user.getUserId(), systemObjectDefinition,
+							accountEntry2.getAccountEntryId(),
+							HashMapBuilder.<String, Serializable>put(
+								_relationshipObjectField.getName(),
+								objectEntry.getObjectEntryId()
+							).build(),
+							ServiceContextTestUtil.getServiceContext());
 
-			_objectEntryLocalService.
-				addOrUpdateExtensionDynamicObjectDefinitionTableValues(
-					user.getUserId(), systemObjectDefinition,
-					accountEntry2.getAccountEntryId(),
-					HashMapBuilder.<String, Serializable>put(
-						_relationshipObjectField.getName(),
-						objectEntry.getObjectEntryId()
-					).build(),
-					ServiceContextTestUtil.getServiceContext());
+					unrelatedObjectEntries =
+						_objectRelatedModelsProvider.getUnrelatedModels(
+							companyId, 0, systemObjectDefinition,
+							objectEntry.getObjectEntryId(),
+							_objectRelationship.getObjectRelationshipId());
 
-			unrelatedObjectEntries =
-				_objectRelatedModelsProvider.getUnrelatedModels(
-					companyId, 0, systemObjectDefinition,
-					objectEntry.getObjectEntryId(),
-					_objectRelationship.getObjectRelationshipId());
+					Assert.assertEquals(
+						unrelatedObjectEntries.toString(), 0,
+						unrelatedObjectEntries.size());
 
-			Assert.assertEquals(
-				unrelatedObjectEntries.toString(), 0,
-				unrelatedObjectEntries.size());
+					_objectRelationshipLocalService.deleteObjectRelationship(
+						_objectRelationship.getObjectRelationshipId());
 
-			_objectRelationshipLocalService.deleteObjectRelationship(
-				_objectRelationship.getObjectRelationshipId());
+					_objectDefinitionLocalService.deleteObjectDefinition(
+						objectDefinition.getObjectDefinitionId());
 
-			_objectDefinitionLocalService.deleteObjectDefinition(
-				objectDefinition.getObjectDefinitionId());
+					_accountEntryLocalService.deleteAccountEntries(
+						new long[] {
+							accountEntry1.getAccountEntryId(),
+							accountEntry2.getAccountEntryId()
+						});
+				}
+				finally {
+					PermissionThreadLocal.setPermissionChecker(
+						originalPermissionChecker);
+					PrincipalThreadLocal.setName(originalName);
+				}
 
-			_accountEntryLocalService.deleteAccountEntries(
-				new long[] {
-					accountEntry1.getAccountEntryId(),
-					accountEntry2.getAccountEntryId()
-				});
-		}
-		finally {
-			PermissionThreadLocal.setPermissionChecker(
-				originalPermissionChecker);
-			PrincipalThreadLocal.setName(originalName);
-		}
+				return null;
+			});
 	}
 
 	private void _testObjectEntryMtoMObjectRelatedModelsProviderImpl(

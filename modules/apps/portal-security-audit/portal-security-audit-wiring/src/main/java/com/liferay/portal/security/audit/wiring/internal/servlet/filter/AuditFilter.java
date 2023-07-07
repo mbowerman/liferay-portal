@@ -15,7 +15,6 @@
 package com.liferay.portal.security.audit.wiring.internal.servlet.filter;
 
 import com.liferay.petra.lang.CentralizedThreadLocal;
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.audit.AuditRequestThreadLocal;
@@ -93,34 +92,28 @@ public class AuditFilter extends BaseFilter implements TryFilter {
 		auditRequestThreadLocal.setQueryString(
 			httpServletRequest.getQueryString());
 
-		String userEmailAddress = StringPool.BLANK;
-
 		HttpSession httpSession = httpServletRequest.getSession();
 
 		Long userId = (Long)httpSession.getAttribute(WebKeys.USER_ID);
 
-		String userLogin = StringPool.BLANK;
-
 		if (userId != null) {
-			try (SafeCloseable safeCloseable =
-					CompanyThreadLocal.setWithSafeCloseable(
-						_portal.getCompanyId(httpServletRequest))) {
+			CompanyThreadLocal.runWithCompanyId(
+				_portal.getCompanyId(httpServletRequest),
+				() -> {
+					User user = _userLocalService.fetchUser(userId);
 
-				User user = _userLocalService.fetchUser(userId);
+					if (user != null) {
+						auditRequestThreadLocal.setRealUserEmailAddress(
+							user.getEmailAddress());
 
-				if (user != null) {
-					userEmailAddress = user.getEmailAddress();
+						auditRequestThreadLocal.setRealUserId(userId);
 
-					auditRequestThreadLocal.setRealUserEmailAddress(
-						userEmailAddress);
+						auditRequestThreadLocal.setRealUserLogin(
+							_getUserLogin(user));
+					}
 
-					auditRequestThreadLocal.setRealUserId(userId);
-
-					userLogin = _getUserLogin(user);
-
-					auditRequestThreadLocal.setRealUserLogin(userLogin);
-				}
-			}
+					return null;
+				});
 		}
 
 		StringBuffer sb = httpServletRequest.getRequestURL();
@@ -151,8 +144,9 @@ public class AuditFilter extends BaseFilter implements TryFilter {
 
 		_auditLogContext.setContext(
 			remoteAddr, _portal.getCompanyId(httpServletRequest),
-			httpServletRequest.getServerName(), userEmailAddress, userId,
-			userLogin, xRequestId);
+			httpServletRequest.getServerName(),
+			auditRequestThreadLocal.getRealUserEmailAddress(), userId,
+			auditRequestThreadLocal.getRealUserLogin(), xRequestId);
 
 		return null;
 	}

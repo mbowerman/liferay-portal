@@ -14,7 +14,6 @@
 
 package com.liferay.portal.search;
 
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.aop.AopMethodInvocation;
 import com.liferay.portal.kernel.aop.ChainableMethodAdvice;
 import com.liferay.portal.kernel.dependency.manager.DependencyManagerSyncUtil;
@@ -117,11 +116,14 @@ public class IndexableAdvice extends ChainableMethodAdvice {
 					return null;
 				}
 
-				try (SafeCloseable safeCloseable =
-						CompanyThreadLocal.setWithSafeCloseable(companyId)) {
+				CompanyThreadLocal.runWithCompanyId(
+					companyId,
+					() -> {
+						_reindex(
+							curIndexer, indexableContext, arguments, result);
 
-					_reindex(curIndexer, indexableContext, arguments, result);
-				}
+						return null;
+					});
 
 				return null;
 			});

@@ -375,20 +375,23 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 					companyId);
 		}
 
-		try (SafeCloseable safeCloseable1 =
-				CompanyThreadLocal.setWithSafeCloseable(companyId);
-			SafeCloseable safeCloseable2 =
-				PortalInstances.setCompanyInDeletionProcess(companyId)) {
+		return CompanyThreadLocal.runWithCompanyId(
+			companyId,
+			() -> {
+				try (SafeCloseable safeCloseable =
+						PortalInstances.setCompanyInDeletionProcess(
+							companyId)) {
 
-			return doDeleteCompany(companyId);
-		}
-		catch (PortalException portalException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(portalException);
-			}
+					return doDeleteCompany(companyId);
+				}
+				catch (PortalException portalException) {
+					if (_log.isDebugEnabled()) {
+						_log.debug(portalException);
+					}
 
-			throw portalException;
-		}
+					throw portalException;
+				}
+			});
 	}
 
 	/**
@@ -475,12 +478,13 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		}
 
 		for (Company company : companies) {
-			try (SafeCloseable safeCloseable =
-					CompanyThreadLocal.setWithSafeCloseable(
-						company.getCompanyId())) {
+			CompanyThreadLocal.runWithCompanyId(
+				company.getCompanyId(),
+				() -> {
+					unsafeConsumer.accept(company);
 
-				unsafeConsumer.accept(company);
-			}
+					return null;
+				});
 		}
 	}
 
@@ -513,11 +517,13 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		}
 
 		for (long companyId : companyIds) {
-			try (SafeCloseable safeCloseable =
-					CompanyThreadLocal.setWithSafeCloseable(companyId)) {
+			CompanyThreadLocal.runWithCompanyId(
+				companyId,
+				() -> {
+					unsafeConsumer.accept(companyId);
 
-				unsafeConsumer.accept(companyId);
-			}
+					return null;
+				});
 		}
 	}
 

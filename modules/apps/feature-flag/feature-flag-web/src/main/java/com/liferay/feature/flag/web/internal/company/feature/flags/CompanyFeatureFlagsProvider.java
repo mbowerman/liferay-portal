@@ -21,7 +21,6 @@ import com.liferay.feature.flag.web.internal.model.FeatureFlag;
 import com.liferay.feature.flag.web.internal.model.FeatureFlagImpl;
 import com.liferay.feature.flag.web.internal.model.LanguageAwareFeatureFlag;
 import com.liferay.feature.flag.web.internal.model.PreferenceAwareFeatureFlag;
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.cluster.ClusterExecutor;
@@ -102,80 +101,89 @@ public class CompanyFeatureFlagsProvider {
 	}
 
 	private CompanyFeatureFlags _createCompanyFeatureFlags(long companyId) {
-		try (SafeCloseable safeCloseable =
-				CompanyThreadLocal.setWithSafeCloseable(companyId)) {
+		return CompanyThreadLocal.runWithCompanyId(
+			companyId,
+			() -> {
+				Map<String, FeatureFlag> featureFlagsMap = new HashMap<>();
 
-			Map<String, FeatureFlag> featureFlagsMap = new HashMap<>();
+				Properties properties = PropsUtil.getProperties(
+					FeatureFlagConstants.FEATURE_FLAG + StringPool.PERIOD,
+					true);
 
-			Properties properties = PropsUtil.getProperties(
-				FeatureFlagConstants.FEATURE_FLAG + StringPool.PERIOD, true);
+				for (String stringPropertyName :
+						properties.stringPropertyNames()) {
 
-			for (String stringPropertyName : properties.stringPropertyNames()) {
-				Matcher matcher = _pattern.matcher(stringPropertyName);
+					Matcher matcher = _pattern.matcher(stringPropertyName);
 
-				if (!matcher.find()) {
-					continue;
-				}
-
-				FeatureFlag featureFlag = new FeatureFlagImpl(
-					stringPropertyName);
-
-				featureFlag = new LanguageAwareFeatureFlag(
-					featureFlag, _language);
-				featureFlag = new PreferenceAwareFeatureFlag(
-					companyId, featureFlag, _featureFlagPreferencesManager);
-
-				featureFlagsMap.put(featureFlag.getKey(), featureFlag);
-			}
-
-			for (Map.Entry<String, FeatureFlag> entry :
-					featureFlagsMap.entrySet()) {
-
-				List<FeatureFlag> dependencyFeatureFlags = new ArrayList<>();
-
-				FeatureFlag featureFlag = entry.getValue();
-
-				for (String dependencyKey : featureFlag.getDependencyKeys()) {
-					if (Objects.equals(featureFlag.getKey(), dependencyKey)) {
-						_log.error(
-							"A feature flag cannot depend on itself: " +
-								dependencyKey);
-
+					if (!matcher.find()) {
 						continue;
 					}
 
-					FeatureFlag dependencyFeatureFlag = featureFlagsMap.get(
-						dependencyKey);
+					FeatureFlag featureFlag = new FeatureFlagImpl(
+						stringPropertyName);
 
-					if (dependencyFeatureFlag != null) {
-						if (!ArrayUtil.contains(
-								dependencyFeatureFlag.getDependencyKeys(),
-								featureFlag.getKey())) {
+					featureFlag = new LanguageAwareFeatureFlag(
+						featureFlag, _language);
+					featureFlag = new PreferenceAwareFeatureFlag(
+						companyId, featureFlag, _featureFlagPreferencesManager);
 
-							dependencyFeatureFlags.add(dependencyFeatureFlag);
-						}
-						else {
+					featureFlagsMap.put(featureFlag.getKey(), featureFlag);
+				}
+
+				for (Map.Entry<String, FeatureFlag> entry :
+						featureFlagsMap.entrySet()) {
+
+					List<FeatureFlag> dependencyFeatureFlags =
+						new ArrayList<>();
+
+					FeatureFlag featureFlag = entry.getValue();
+
+					for (String dependencyKey :
+							featureFlag.getDependencyKeys()) {
+
+						if (Objects.equals(
+								featureFlag.getKey(), dependencyKey)) {
+
 							_log.error(
-								StringBundler.concat(
-									"Skipping circular dependency ",
-									dependencyKey, " for feature flag ",
-									featureFlag.getKey()));
+								"A feature flag cannot depend on itself: " +
+									dependencyKey);
+
+							continue;
 						}
+
+						FeatureFlag dependencyFeatureFlag = featureFlagsMap.get(
+							dependencyKey);
+
+						if (dependencyFeatureFlag != null) {
+							if (!ArrayUtil.contains(
+									dependencyFeatureFlag.getDependencyKeys(),
+									featureFlag.getKey())) {
+
+								dependencyFeatureFlags.add(
+									dependencyFeatureFlag);
+							}
+							else {
+								_log.error(
+									StringBundler.concat(
+										"Skipping circular dependency ",
+										dependencyKey, " for feature flag ",
+										featureFlag.getKey()));
+							}
+						}
+					}
+
+					if (ListUtil.isNotEmpty(dependencyFeatureFlags)) {
+						entry.setValue(
+							new DependencyAwareFeatureFlag(
+								featureFlag,
+								dependencyFeatureFlags.toArray(
+									new FeatureFlag[0])));
 					}
 				}
 
-				if (ListUtil.isNotEmpty(dependencyFeatureFlags)) {
-					entry.setValue(
-						new DependencyAwareFeatureFlag(
-							featureFlag,
-							dependencyFeatureFlags.toArray(
-								new FeatureFlag[0])));
-				}
-			}
-
-			return new CompanyFeatureFlags(
-				Collections.unmodifiableMap(featureFlagsMap));
-		}
+				return new CompanyFeatureFlags(
+					Collections.unmodifiableMap(featureFlagsMap));
+			});
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

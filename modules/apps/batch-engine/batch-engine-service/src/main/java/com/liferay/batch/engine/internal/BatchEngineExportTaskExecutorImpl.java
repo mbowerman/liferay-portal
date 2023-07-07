@@ -29,7 +29,6 @@ import com.liferay.batch.engine.pagination.Page;
 import com.liferay.batch.engine.service.BatchEngineExportTaskLocalService;
 import com.liferay.petra.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.petra.io.unsync.UnsyncByteArrayOutputStream;
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.jdbc.OutputBlob;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -66,53 +65,52 @@ public class BatchEngineExportTaskExecutorImpl
 
 	@Override
 	public void execute(BatchEngineExportTask batchEngineExportTask) {
-		SafeCloseable safeCloseable = CompanyThreadLocal.setWithSafeCloseable(
-			batchEngineExportTask.getCompanyId());
+		CompanyThreadLocal.runWithCompanyId(
+			batchEngineExportTask.getCompanyId(),
+			() -> {
+				try {
+					batchEngineExportTask.setExecuteStatus(
+						BatchEngineTaskExecuteStatus.STARTED.toString());
+					batchEngineExportTask.setStartTime(new Date());
 
-		try {
-			batchEngineExportTask.setExecuteStatus(
-				BatchEngineTaskExecuteStatus.STARTED.toString());
-			batchEngineExportTask.setStartTime(new Date());
+					_batchEngineExportTaskLocalService.
+						updateBatchEngineExportTask(batchEngineExportTask);
 
-			_batchEngineExportTaskLocalService.updateBatchEngineExportTask(
-				batchEngineExportTask);
+					BatchEngineTaskExecutorUtil.execute(
+						() -> _exportItems(batchEngineExportTask),
+						_userLocalService.getUser(
+							batchEngineExportTask.getUserId()));
 
-			BatchEngineTaskExecutorUtil.execute(
-				() -> _exportItems(batchEngineExportTask),
-				_userLocalService.getUser(batchEngineExportTask.getUserId()));
+					_updateBatchEngineExportTask(
+						BatchEngineTaskExecuteStatus.COMPLETED,
+						batchEngineExportTask, null);
+				}
+				catch (Throwable throwable) {
+					_log.error(
+						"Unable to update batch engine export task " +
+							batchEngineExportTask,
+						throwable);
 
-			_updateBatchEngineExportTask(
-				BatchEngineTaskExecuteStatus.COMPLETED, batchEngineExportTask,
-				null);
-		}
-		catch (Throwable throwable) {
-			_log.error(
-				"Unable to update batch engine export task " +
-					batchEngineExportTask,
-				throwable);
+					try {
+						BatchEngineExportTask currentBatchEngineExportTask =
+							_batchEngineExportTaskLocalService.
+								getBatchEngineExportTask(
+									batchEngineExportTask.getPrimaryKey());
 
-			try {
-				BatchEngineExportTask currentBatchEngineExportTask =
-					_batchEngineExportTaskLocalService.getBatchEngineExportTask(
-						batchEngineExportTask.getPrimaryKey());
+						_updateBatchEngineExportTask(
+							BatchEngineTaskExecuteStatus.FAILED,
+							currentBatchEngineExportTask,
+							throwable.getMessage());
+					}
+					catch (PortalException portalException) {
+						_log.error(
+							"Unable to update batch engine export task",
+							portalException);
+					}
+				}
 
-				_updateBatchEngineExportTask(
-					BatchEngineTaskExecuteStatus.FAILED,
-					currentBatchEngineExportTask, throwable.getMessage());
-			}
-			catch (PortalException portalException) {
-				_log.error(
-					"Unable to update batch engine export task",
-					portalException);
-			}
-		}
-		finally {
-
-			// LPS-167011 Because of call to _updateBatchEngineImportTask when
-			// catching a Throwable
-
-			safeCloseable.close();
-		}
+				return null;
+			});
 	}
 
 	@Activate

@@ -16,7 +16,6 @@ package com.liferay.portal.cache.multiple.internal.cluster.link.messaging;
 
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.cache.multiple.internal.PortalCacheClusterEvent;
 import com.liferay.portal.cache.multiple.internal.PortalCacheClusterEventType;
 import com.liferay.portal.cache.multiple.internal.constants.PortalCacheDestinationNames;
@@ -110,13 +109,14 @@ public class ClusterLinkPortalCacheClusterListener extends BaseMessageListener {
 		}
 
 		if (portalCache.isSharded()) {
-			try (SafeCloseable safeCloseable =
-					CompanyThreadLocal.setWithSafeCloseable(
-						portalCacheClusterEvent.getCompanyId())) {
+			CompanyThreadLocal.runWithCompanyId(
+				portalCacheClusterEvent.getCompanyId(),
+				() -> {
+					_handlePortalCacheClusterEvent(
+						portalCacheClusterEvent, portalCache);
 
-				_handlePortalCacheClusterEvent(
-					portalCacheClusterEvent, portalCache);
-			}
+					return null;
+				});
 
 			return;
 		}

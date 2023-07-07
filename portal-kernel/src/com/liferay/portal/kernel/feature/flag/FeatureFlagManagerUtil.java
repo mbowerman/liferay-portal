@@ -14,7 +14,6 @@
 
 package com.liferay.portal.kernel.feature.flag;
 
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.module.util.SystemBundleUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
@@ -42,14 +41,10 @@ public class FeatureFlagManagerUtil {
 	public static boolean isEnabled(long companyId, String key) {
 		return _withFeatureFlagManager(
 			featureFlagManager -> featureFlagManager.isEnabled(companyId, key),
-			() -> {
-				try (SafeCloseable safeCloseable =
-						CompanyThreadLocal.setWithSafeCloseable(companyId)) {
-
-					return GetterUtil.getBoolean(
-						PropsUtil.get("feature.flag." + key));
-				}
-			});
+			() -> CompanyThreadLocal.runWithCompanyId(
+				companyId,
+				() -> GetterUtil.getBoolean(
+					PropsUtil.get("feature.flag." + key))));
 	}
 
 	public static boolean isEnabled(String key) {

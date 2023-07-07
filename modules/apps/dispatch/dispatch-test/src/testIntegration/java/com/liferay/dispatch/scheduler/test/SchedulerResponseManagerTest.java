@@ -16,7 +16,6 @@ package com.liferay.dispatch.scheduler.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.dispatch.scheduler.SchedulerResponseManager;
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.messaging.BaseMessageListener;
 import com.liferay.portal.kernel.messaging.Destination;
 import com.liferay.portal.kernel.messaging.DestinationConfiguration;
@@ -87,29 +86,33 @@ public class SchedulerResponseManagerTest {
 
 		_company = CompanyTestUtil.addCompany();
 
-		try (SafeCloseable safeCloseable =
-				CompanyThreadLocal.setWithSafeCloseable(
-					_company.getCompanyId())) {
+		CompanyThreadLocal.runWithCompanyId(
+			_company.getCompanyId(),
+			() -> {
+				try {
+					_schedulerResponseManager.run(
+						CompanyThreadLocal.getCompanyId(), _TEST_NAME,
+						_TEST_NAME, StorageType.MEMORY_CLUSTERED);
 
-			_schedulerResponseManager.run(
-				CompanyThreadLocal.getCompanyId(), _TEST_NAME, _TEST_NAME,
-				StorageType.MEMORY_CLUSTERED);
+					Assert.assertEquals(
+						_company.getCompanyId(),
+						testMessageListener.
+							getCompanyIdFromCompanyThreadLocal());
+					Assert.assertEquals(
+						_company.getCompanyId(),
+						testMessageListener.getCompanyIdFromMessage());
+				}
+				finally {
+					serviceRegistration.unregister();
 
-			Assert.assertEquals(
-				_company.getCompanyId(),
-				testMessageListener.getCompanyIdFromCompanyThreadLocal());
-			Assert.assertEquals(
-				_company.getCompanyId(),
-				testMessageListener.getCompanyIdFromMessage());
-		}
-		finally {
-			serviceRegistration.unregister();
+					_schedulerEngineHelper.delete(
+						_TEST_NAME, _TEST_NAME, StorageType.MEMORY_CLUSTERED);
 
-			_schedulerEngineHelper.delete(
-				_TEST_NAME, _TEST_NAME, StorageType.MEMORY_CLUSTERED);
+					CompanyLocalServiceUtil.deleteCompany(_company);
+				}
 
-			CompanyLocalServiceUtil.deleteCompany(_company);
-		}
+				return null;
+			});
 	}
 
 	private static final String _TEST_DESTINATION_NAME =

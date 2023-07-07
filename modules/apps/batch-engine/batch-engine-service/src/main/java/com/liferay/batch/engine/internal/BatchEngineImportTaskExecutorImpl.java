@@ -35,7 +35,6 @@ import com.liferay.batch.engine.internal.util.ItemIndexThreadLocal;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
 import com.liferay.batch.engine.service.BatchEngineImportTaskErrorLocalService;
 import com.liferay.batch.engine.service.BatchEngineImportTaskLocalService;
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
@@ -84,53 +83,52 @@ public class BatchEngineImportTaskExecutorImpl
 		BatchEngineImportTask batchEngineImportTask,
 		BatchEngineTaskItemDelegate<?> batchEngineTaskItemDelegate) {
 
-		SafeCloseable safeCloseable = CompanyThreadLocal.setWithSafeCloseable(
-			batchEngineImportTask.getCompanyId());
+		CompanyThreadLocal.runWithCompanyId(
+			batchEngineImportTask.getCompanyId(),
+			() -> {
+				try {
+					batchEngineImportTask.setExecuteStatus(
+						BatchEngineTaskExecuteStatus.STARTED.toString());
+					batchEngineImportTask.setStartTime(new Date());
 
-		try {
-			batchEngineImportTask.setExecuteStatus(
-				BatchEngineTaskExecuteStatus.STARTED.toString());
-			batchEngineImportTask.setStartTime(new Date());
+					BatchEngineTaskProgress batchEngineTaskProgress =
+						_batchEngineTaskProgressFactory.create(
+							BatchEngineTaskContentType.valueOf(
+								batchEngineImportTask.getContentType()));
 
-			BatchEngineTaskProgress batchEngineTaskProgress =
-				_batchEngineTaskProgressFactory.create(
-					BatchEngineTaskContentType.valueOf(
-						batchEngineImportTask.getContentType()));
+					batchEngineImportTask.setTotalItemsCount(
+						batchEngineTaskProgress.getTotalItemsCount(
+							_batchEngineImportTaskLocalService.
+								openContentInputStream(
+									batchEngineImportTask.
+										getBatchEngineImportTaskId())));
 
-			batchEngineImportTask.setTotalItemsCount(
-				batchEngineTaskProgress.getTotalItemsCount(
-					_batchEngineImportTaskLocalService.openContentInputStream(
-						batchEngineImportTask.getBatchEngineImportTaskId())));
+					_batchEngineImportTaskLocalService.
+						updateBatchEngineImportTask(batchEngineImportTask);
 
-			_batchEngineImportTaskLocalService.updateBatchEngineImportTask(
-				batchEngineImportTask);
+					BatchEngineTaskExecutorUtil.execute(
+						() -> _importItems(
+							batchEngineImportTask, batchEngineTaskItemDelegate),
+						_userLocalService.getUser(
+							batchEngineImportTask.getUserId()));
 
-			BatchEngineTaskExecutorUtil.execute(
-				() -> _importItems(
-					batchEngineImportTask, batchEngineTaskItemDelegate),
-				_userLocalService.getUser(batchEngineImportTask.getUserId()));
+					_updateBatchEngineImportTask(
+						BatchEngineTaskExecuteStatus.COMPLETED,
+						batchEngineImportTask, null);
+				}
+				catch (Throwable throwable) {
+					_log.error(
+						"Unable to update batch engine import task " +
+							batchEngineImportTask,
+						throwable);
 
-			_updateBatchEngineImportTask(
-				BatchEngineTaskExecuteStatus.COMPLETED, batchEngineImportTask,
-				null);
-		}
-		catch (Throwable throwable) {
-			_log.error(
-				"Unable to update batch engine import task " +
-					batchEngineImportTask,
-				throwable);
+					_updateBatchEngineImportTask(
+						BatchEngineTaskExecuteStatus.FAILED,
+						batchEngineImportTask, throwable.toString());
+				}
 
-			_updateBatchEngineImportTask(
-				BatchEngineTaskExecuteStatus.FAILED, batchEngineImportTask,
-				throwable.toString());
-		}
-		finally {
-
-			// LPS-167011 Because of call to _updateBatchEngineImportTask when
-			// catching a Throwable
-
-			safeCloseable.close();
-		}
+				return null;
+			});
 	}
 
 	@Activate

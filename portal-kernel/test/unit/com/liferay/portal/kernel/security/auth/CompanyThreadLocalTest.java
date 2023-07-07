@@ -18,6 +18,8 @@ import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.change.tracking.CTCollectionIdSupplier;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.module.util.SystemBundleUtil;
+import com.liferay.portal.kernel.util.Props;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ProxyFactory;
 
 import java.util.function.Consumer;
@@ -40,6 +42,8 @@ public class CompanyThreadLocalTest {
 		bundleContext.registerService(
 			CTCollectionIdSupplier.class,
 			ProxyFactory.newDummyInstance(CTCollectionIdSupplier.class), null);
+
+		PropsUtil.setProps(ProxyFactory.newDummyInstance(Props.class));
 	}
 
 	@Test
@@ -48,8 +52,17 @@ public class CompanyThreadLocalTest {
 	}
 
 	@Test
-	public void testLockWithSetWithSafeCloseable() {
-		_testLock(CompanyThreadLocal::setWithSafeCloseable);
+	public void testLockWithRunWithCompanyId() {
+		try (SafeCloseable safeCloseable = CompanyThreadLocal.lock(
+				CompanyConstants.SYSTEM)) {
+
+			CompanyThreadLocal.runWithCompanyId(1L, () -> null);
+
+			Assert.fail();
+		}
+		catch (UnsupportedOperationException unsupportedOperationException) {
+			Assert.assertNotNull(unsupportedOperationException);
+		}
 	}
 
 	private void _testLock(Consumer<Long> consumer) {

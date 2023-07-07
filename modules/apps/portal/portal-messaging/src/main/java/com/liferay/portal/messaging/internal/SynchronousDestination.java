@@ -14,7 +14,6 @@
 
 package com.liferay.portal.messaging.internal;
 
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.BaseDestination;
@@ -51,11 +50,13 @@ public class SynchronousDestination extends BaseDestination {
 			return;
 		}
 
-		try (SafeCloseable safeCloseable =
-				CompanyThreadLocal.setWithSafeCloseable(companyId)) {
+		CompanyThreadLocal.runWithCompanyId(
+			companyId,
+			() -> {
+				_send(message);
 
-			_send(message);
-		}
+				return null;
+			});
 	}
 
 	private void _send(Message message) {

@@ -14,7 +14,6 @@
 
 package com.liferay.portal.instances.web.internal.portlet.action;
 
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.instances.service.PortalInstancesLocalService;
 import com.liferay.portal.instances.web.internal.constants.PortalInstancesPortletKeys;
 import com.liferay.portal.kernel.exception.CompanyMxException;
@@ -152,13 +151,14 @@ public class AddInstanceMVCActionCommand extends BaseMVCActionCommand {
 		String siteInitializerKey = ParamUtil.getString(
 			actionRequest, "siteInitializerKey");
 
-		try (SafeCloseable safeCloseable =
-				CompanyThreadLocal.setWithSafeCloseable(
-					company.getCompanyId())) {
+		CompanyThreadLocal.runWithCompanyId(
+			company.getCompanyId(),
+			() -> {
+				_portalInstancesLocalService.initializePortalInstance(
+					company.getCompanyId(), siteInitializerKey);
 
-			_portalInstancesLocalService.initializePortalInstance(
-				company.getCompanyId(), siteInitializerKey);
-		}
+				return null;
+			});
 
 		_synchronizePortalInstances();
 	}

@@ -17,7 +17,6 @@ package com.liferay.headless.portal.instances.internal.resource.v1_0;
 import com.liferay.headless.portal.instances.dto.v1_0.Admin;
 import com.liferay.headless.portal.instances.dto.v1_0.PortalInstance;
 import com.liferay.headless.portal.instances.resource.v1_0.PortalInstanceResource;
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.instances.service.PortalInstancesLocalService;
 import com.liferay.portal.kernel.exception.UserEmailAddressException;
 import com.liferay.portal.kernel.exception.UserScreenNameException;
@@ -147,13 +146,15 @@ public class PortalInstanceResourceImpl extends BasePortalInstanceResourceImpl {
 			_userLocalService.updateUser(defaultAdminUser);
 		}
 
-		try (SafeCloseable safeCloseable =
-				CompanyThreadLocal.setWithSafeCloseable(
-					company.getCompanyId())) {
+		CompanyThreadLocal.runWithCompanyId(
+			company.getCompanyId(),
+			() -> {
+				_portalInstancesLocalService.initializePortalInstance(
+					company.getCompanyId(),
+					portalInstance.getSiteInitializerKey());
 
-			_portalInstancesLocalService.initializePortalInstance(
-				company.getCompanyId(), portalInstance.getSiteInitializerKey());
-		}
+				return null;
+			});
 
 		_portalInstancesLocalService.synchronizePortalInstances();
 

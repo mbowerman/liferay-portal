@@ -14,7 +14,6 @@
 
 package com.liferay.portal.db.partition.test.util;
 
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.dao.init.DBInitUtil;
@@ -120,15 +119,18 @@ public abstract class BaseDBPartitionTestCase {
 	protected static void deletePartitionRequiredData() throws Exception {
 		try (Statement statement = connection.createStatement()) {
 			for (long companyId : COMPANY_IDS) {
-				try (SafeCloseable safeCloseable =
-						CompanyThreadLocal.setWithSafeCloseable(companyId)) {
+				CompanyThreadLocal.runWithCompanyId(
+					companyId,
+					() -> {
+						statement.execute(
+							"delete from Company where companyId = " +
+								companyId);
 
-					statement.execute(
-						"delete from Company where companyId = " + companyId);
+						statement.execute(
+							"delete from User_ where companyId = " + companyId);
 
-					statement.execute(
-						"delete from User_ where companyId = " + companyId);
-				}
+						return null;
+					});
 			}
 		}
 	}
@@ -236,32 +238,39 @@ public abstract class BaseDBPartitionTestCase {
 
 	protected static void insertPartitionRequiredData() throws Exception {
 		for (long companyId : COMPANY_IDS) {
-			try (SafeCloseable safeCloseable =
-					CompanyThreadLocal.setWithSafeCloseable(companyId);
-				PreparedStatement preparedStatement1 =
-					connection.prepareStatement(
-						"insert into Company (companyId, webId) values (?, ?)");
-				PreparedStatement preparedStatement2 =
-					connection.prepareStatement(
-						"insert into User_ (userId, companyId, screenName, " +
-							"emailAddress, languageId, timeZoneId, type_) " +
-								"values (?, ?, ?, ?, ?, ?, ?)")) {
+			CompanyThreadLocal.runWithCompanyId(
+				companyId,
+				() -> {
+					try (PreparedStatement preparedStatement1 =
+							connection.prepareStatement(
+								"insert into Company (companyId, webId) " +
+									"values (?, ?)");
+						PreparedStatement preparedStatement2 =
+							connection.prepareStatement(
+								StringBundler.concat(
+									"insert into User_ (userId, companyId, ",
+									"screenName, emailAddress, languageId, ",
+									"timeZoneId, type_) values (?, ?, ?, ?, ",
+									"?, ?, ?)"))) {
 
-				preparedStatement1.setLong(1, companyId);
-				preparedStatement1.setString(2, "Test" + companyId);
+						preparedStatement1.setLong(1, companyId);
+						preparedStatement1.setString(2, "Test" + companyId);
 
-				preparedStatement1.executeUpdate();
+						preparedStatement1.executeUpdate();
 
-				preparedStatement2.setLong(1, 1);
-				preparedStatement2.setLong(2, companyId);
-				preparedStatement2.setString(3, "Test");
-				preparedStatement2.setString(4, "test@test.com");
-				preparedStatement2.setString(5, "en_US");
-				preparedStatement2.setString(6, "UTC");
-				preparedStatement2.setInt(7, UserConstants.TYPE_GUEST);
+						preparedStatement2.setLong(1, 1);
+						preparedStatement2.setLong(2, companyId);
+						preparedStatement2.setString(3, "Test");
+						preparedStatement2.setString(4, "test@test.com");
+						preparedStatement2.setString(5, "en_US");
+						preparedStatement2.setString(6, "UTC");
+						preparedStatement2.setInt(7, UserConstants.TYPE_GUEST);
 
-				preparedStatement2.executeUpdate();
-			}
+						preparedStatement2.executeUpdate();
+					}
+
+					return null;
+				});
 		}
 	}
 

@@ -14,7 +14,6 @@
 
 package com.liferay.portal.instances.internal.configuration;
 
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.instances.service.PortalInstancesLocalService;
 import com.liferay.portal.kernel.exception.NoSuchCompanyException;
@@ -74,14 +73,17 @@ public class PortalInstancesConfigurationFactory {
 				null, webId, virtualHostname, mx, maxUsers, active, null, null,
 				null, null, null, null);
 
-			try (SafeCloseable safeCloseable =
-					CompanyThreadLocal.setWithSafeCloseable(
-						company.getCompanyId())) {
+			long companyId = company.getCompanyId();
 
-				_portalInstancesLocalService.initializePortalInstance(
-					company.getCompanyId(),
-					portalInstancesConfiguration.siteInitializerKey());
-			}
+			CompanyThreadLocal.runWithCompanyId(
+				companyId,
+				() -> {
+					_portalInstancesLocalService.initializePortalInstance(
+						companyId,
+						portalInstancesConfiguration.siteInitializerKey());
+
+					return null;
+				});
 		}
 		else {
 			if (company.getCompanyId() ==

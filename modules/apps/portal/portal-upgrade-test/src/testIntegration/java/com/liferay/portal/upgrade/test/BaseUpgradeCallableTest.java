@@ -15,7 +15,6 @@
 package com.liferay.portal.upgrade.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.upgrade.BaseUpgradeCallable;
@@ -50,21 +49,22 @@ public class BaseUpgradeCallableTest {
 
 			@Override
 			protected void doUpgrade() throws Exception {
-				try (SafeCloseable safeCloseable =
-						CompanyThreadLocal.setWithSafeCloseable(
-							PortalUtil.getDefaultCompanyId())) {
+				CompanyThreadLocal.runWithCompanyId(
+					PortalUtil.getDefaultCompanyId(),
+					() -> {
+						ExecutorService executorService =
+							Executors.newFixedThreadPool(1);
 
-					ExecutorService executorService =
-						Executors.newFixedThreadPool(1);
+						Future<Long> future = executorService.submit(
+							new UpgradeCallable());
 
-					Future<Long> future = executorService.submit(
-						new UpgradeCallable());
+						executorService.shutdown();
 
-					executorService.shutdown();
+						Assert.assertEquals(
+							CompanyThreadLocal.getCompanyId(), future.get());
 
-					Assert.assertEquals(
-						CompanyThreadLocal.getCompanyId(), future.get());
-				}
+						return null;
+					});
 			}
 
 		};

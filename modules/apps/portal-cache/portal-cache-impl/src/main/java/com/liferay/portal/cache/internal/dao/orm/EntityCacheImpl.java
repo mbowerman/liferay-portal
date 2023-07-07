@@ -16,7 +16,6 @@ package com.liferay.portal.cache.internal.dao.orm;
 
 import com.liferay.osgi.util.service.Snapshot;
 import com.liferay.petra.lang.CentralizedThreadLocal;
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.cache.CacheRegistryItem;
 import com.liferay.portal.kernel.cache.CacheRegistryUtil;
@@ -312,39 +311,40 @@ public class EntityCacheImpl
 	private void _notifyFinderCache(
 		String className, BaseModel<?> baseModel, Boolean removePortalCache) {
 
-		try (SafeCloseable safeCloseable =
-				CompanyThreadLocal.setWithSafeCloseable(
-					CompanyThreadLocal.getCompanyId())) {
+		CompanyThreadLocal.runWithCompanyId(
+			CompanyThreadLocal.getCompanyId(),
+			() -> {
+				FinderCacheImpl finderCacheImpl = _getFinderCacheImpl();
 
-			FinderCacheImpl finderCacheImpl = _getFinderCacheImpl();
+				if (finderCacheImpl == null) {
+					return null;
+				}
 
-			if (finderCacheImpl == null) {
-				return;
-			}
-
-			if (removePortalCache == null) {
-				finderCacheImpl.updateByEntityCache(className, baseModel);
-			}
-			else if (baseModel != null) {
-				finderCacheImpl.removeByEntityCache(className, baseModel);
-			}
-			else if (removePortalCache) {
-				if (className == null) {
-					finderCacheImpl.dispose();
+				if (removePortalCache == null) {
+					finderCacheImpl.updateByEntityCache(className, baseModel);
+				}
+				else if (baseModel != null) {
+					finderCacheImpl.removeByEntityCache(className, baseModel);
+				}
+				else if (removePortalCache) {
+					if (className == null) {
+						finderCacheImpl.dispose();
+					}
+					else {
+						finderCacheImpl.removeCacheByEntityCache(className);
+					}
 				}
 				else {
-					finderCacheImpl.removeCacheByEntityCache(className);
+					if (className == null) {
+						finderCacheImpl.clearCache();
+					}
+					else {
+						finderCacheImpl.clearByEntityCache(className);
+					}
 				}
-			}
-			else {
-				if (className == null) {
-					finderCacheImpl.clearCache();
-				}
-				else {
-					finderCacheImpl.clearByEntityCache(className);
-				}
-			}
-		}
+
+				return null;
+			});
 	}
 
 	private void _putResult(

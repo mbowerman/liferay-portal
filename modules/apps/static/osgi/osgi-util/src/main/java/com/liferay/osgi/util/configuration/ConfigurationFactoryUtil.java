@@ -16,7 +16,7 @@ package com.liferay.osgi.util.configuration;
 
 import com.liferay.osgi.util.StringPlus;
 import com.liferay.petra.function.UnsafeConsumer;
-import com.liferay.petra.lang.SafeCloseable;
+import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Company;
@@ -45,11 +45,18 @@ public class ConfigurationFactoryUtil {
 
 		long companyId = getCompanyId(companyLocalService, properties);
 
-		try (SafeCloseable safeCloseable =
-				CompanyThreadLocal.setWithSafeCloseable(companyId)) {
+		CompanyThreadLocal.runWithCompanyId(
+			companyId,
+			() -> {
+				try {
+					unsafeConsumer.accept(companyId);
+				}
+				catch (Throwable throwable) {
+					ReflectionUtil.throwException(throwable);
+				}
 
-			unsafeConsumer.accept(companyId);
-		}
+				return null;
+			});
 	}
 
 	public static long getCompanyId(
