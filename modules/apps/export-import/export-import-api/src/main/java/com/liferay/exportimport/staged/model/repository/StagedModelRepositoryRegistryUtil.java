@@ -89,10 +89,22 @@ public class StagedModelRepositoryRegistryUtil {
 			StagedModelRepository<?> stagedModelRepository =
 				_bundleContext.getService(serviceReference);
 
-			String modelClassName = GetterUtil.getString(
-				serviceReference.getProperty("model.class.name"));
+			Object modelClassNameProperty = serviceReference.getProperty(
+				"model.class.name");
 
-			_stagedModelRepositories.put(modelClassName, stagedModelRepository);
+			if (modelClassNameProperty instanceof String[]) {
+				String[] modelClassNames = (String[])modelClassNameProperty;
+
+				for (String modelClassName : modelClassNames) {
+					_stagedModelRepositories.put(
+						modelClassName, stagedModelRepository);
+				}
+			}
+			else {
+				_stagedModelRepositories.put(
+					GetterUtil.getString(modelClassNameProperty),
+					stagedModelRepository);
+			}
 
 			return stagedModelRepository;
 		}
