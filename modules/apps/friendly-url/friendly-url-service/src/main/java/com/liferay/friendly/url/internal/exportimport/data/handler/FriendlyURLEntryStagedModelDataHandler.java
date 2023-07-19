@@ -19,8 +19,13 @@ import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.staged.model.repository.StagedModelRepository;
+import com.liferay.exportimport.staged.model.repository.StagedModelRepositoryRegistryUtil;
 import com.liferay.friendly.url.model.FriendlyURLEntry;
 import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.StagedModel;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -115,10 +120,19 @@ public class FriendlyURLEntryStagedModelDataHandler
 		String className = friendlyURLEntryElement.attributeValue(
 			"resource-class-name");
 
-		long classNameId = _classNameLocalService.getClassNameId(className);
-
 		Map<Long, Long> newPrimaryKeysMap =
 			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(className);
+
+		long classPK = MapUtil.getLong(
+			newPrimaryKeysMap, friendlyURLEntry.getClassPK(),
+			friendlyURLEntry.getClassPK());
+
+		if (!_validateReferencedStagedModel(className, classPK)) {
+			portletDataContext.removePrimaryKey(
+				ExportImportPathUtil.getModelPath(friendlyURLEntry));
+
+			return;
+		}
 
 		FriendlyURLEntry existingFriendlyURLEntry =
 			fetchStagedModelByUuidAndGroupId(
@@ -139,11 +153,9 @@ public class FriendlyURLEntryStagedModelDataHandler
 				portletDataContext.getScopeGroupId());
 			importedFriendlyURLEntry.setCompanyId(
 				portletDataContext.getCompanyId());
-			importedFriendlyURLEntry.setClassNameId(classNameId);
-			importedFriendlyURLEntry.setClassPK(
-				MapUtil.getLong(
-					newPrimaryKeysMap, friendlyURLEntry.getClassPK(),
-					friendlyURLEntry.getClassPK()));
+			importedFriendlyURLEntry.setClassNameId(
+				_classNameLocalService.getClassNameId(className));
+			importedFriendlyURLEntry.setClassPK(classPK);
 
 			importedFriendlyURLEntry = _stagedModelRepository.addStagedModel(
 				portletDataContext, importedFriendlyURLEntry);
@@ -179,6 +191,42 @@ public class FriendlyURLEntryStagedModelDataHandler
 
 		return _stagedModelRepository;
 	}
+
+	private boolean _validateReferencedStagedModel(
+			String className, long classPK)
+		throws Exception {
+
+		StagedModelRepository<?> stagedModelRepository =
+			StagedModelRepositoryRegistryUtil.getStagedModelRepository(
+				className);
+
+		if (stagedModelRepository == null) {
+			if (_log.isWarnEnabled()) {
+				_log.warn("Staged model repository not found for " + className);
+			}
+
+			return false;
+		}
+
+		try {
+			StagedModel stagedModel = stagedModelRepository.getStagedModel(
+				classPK);
+
+			if (stagedModel != null) {
+				return true;
+			}
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(noSuchModelException);
+			}
+		}
+
+		return false;
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		FriendlyURLEntryStagedModelDataHandler.class);
 
 	@Reference
 	private ClassNameLocalService _classNameLocalService;
