@@ -3392,6 +3392,46 @@ public class PortalImpl implements Portal {
 		requestURI = StringUtil.replace(
 			requestURI, StringPool.DOUBLE_SLASH, StringPool.SLASH);
 
+		int[] groupFriendlyURLIndex = getGroupFriendlyURLIndex(requestURI);
+
+		String groupFriendlyURL = StringPool.BLANK;
+
+		int friendlyURLEnd = 0;
+
+		if (groupFriendlyURLIndex != null) {
+			int friendlyURLStart = groupFriendlyURLIndex[0];
+			friendlyURLEnd = groupFriendlyURLIndex[1];
+
+			groupFriendlyURL = requestURI.substring(
+				friendlyURLStart, friendlyURLEnd);
+		}
+
+		Group friendlyURLGroup = GroupLocalServiceUtil.fetchFriendlyURLGroup(
+			getCompanyId(httpServletRequest), groupFriendlyURL);
+
+		if ((friendlyURLGroup != null) &&
+			LanguageUtil.isAvailableLocale(
+				friendlyURLGroup.getGroupId(),
+				LocaleUtil.toLanguageId(locale))) {
+
+			LayoutSet layoutSet = (LayoutSet)httpServletRequest.getAttribute(
+				WebKeys.VIRTUAL_HOST_LAYOUT_SET);
+
+			if ((layoutSet != null) && !layoutSet.isPrivateLayout() &&
+				requestURI.startsWith(
+					PropsValues.LAYOUT_FRIENDLY_URL_PUBLIC_SERVLET_MAPPING)) {
+
+				Group group = GroupLocalServiceUtil.fetchGroup(
+					layoutSet.getGroupId());
+
+				if ((group != null) &&
+					groupFriendlyURL.equals(group.getFriendlyURL())) {
+
+					requestURI = requestURI.substring(friendlyURLEnd);
+				}
+			}
+		}
+
 		String layoutFriendlyURL = null;
 
 		if (originalLocale == null) {
