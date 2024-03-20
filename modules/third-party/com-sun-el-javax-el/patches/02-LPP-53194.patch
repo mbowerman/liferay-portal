@@ -1,0 +1,13 @@
+diff --git a/javax/el/ImportHandler.java b/javax/el/ImportHandler.java
+index eb810a015a70..fb279a278420 100644
+--- a/javax/el/ImportHandler.java
++++ b/javax/el/ImportHandler.java
+@@ -173,7 +173,7 @@ public class ImportHandler {
+     private Class<?> getClassFor(String className) {
+         if (!notAClass.contains(className)) {
+             try {
+-                return Class.forName(className, false, Thread.currentThread().getContextClassLoader());
++                return Class.forName(className, false, getClass().getClassLoader());
+             } catch (ClassNotFoundException ex) {
+                 notAClass.add(className);
+             }
