@@ -15,6 +15,7 @@ patch {
 
 	fileNames "com/sun/el/parser/ELParser.java"
 	fileNames "javax/el/BeanELResolver.java"
+	fileNames "javax/el/ImportHandler.java"
 
 	originalLibModuleName = "javax.el"
 }
