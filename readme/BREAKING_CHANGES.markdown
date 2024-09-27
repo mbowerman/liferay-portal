@@ -1162,6 +1162,29 @@ This change was made to address security vulnerabilities.
 
 ---------------------------------------
 
+## Changed method signature of FinderCache#getResult methods
+
+- **Date:** 2022-Oct-13
+- **JIRA Ticket:** [LPS-162804](https://issues.liferay.com/browse/LPS-162804)
+
+### What changed?
+
+The `FinderCache#getResult(FinderPath, Object[])` and deprecated `FinderCache#getResult(FinderPath, Object[], BasePersistenceImpl<? extends BaseModel<?>>)` methods were removed. In their place, a `FinderCache#getResult(FinderPath, Object[], BasePersistence<?>)` method has been added.
+
+### Who is affected?
+
+Anyone who has custom code that uses the Liferay Service Builder is affected, because the Liferay Service Builder previously generated services that called the now-removed `FinderCache#getResult(FinderPath, Object[])` method. Additionally, anyone who is using custom code that calls either of these methods is affected.
+
+### How should I update my code?
+
+Rerun the Service Builder to update all generated usages of `FinderCache#getResult(FinderPath, Object[])`. Manual usages of `FinderCache#getResult(FinderPath, Object[])` can be updated by passing in the appropriate `BasePersistence` object as a third argument.
+
+### Why was this change made?
+
+The `FinderCache#getResult(FinderPath, Object[])` method contained a bug that could cause `null` results to be incorrectly returned if the method was called before the appropriate `BasePersistence` object was registered in OSGi.
+
+---------------------------------------
+
 ## Removed UtilLocator
 
 - **Date:** 2022-Nov-2
